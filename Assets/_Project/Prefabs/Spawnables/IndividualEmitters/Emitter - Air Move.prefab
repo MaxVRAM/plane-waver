@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &357190598401452315
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 357190598401452316}
+  - component: {fileID: 357190598401452318}
+  - component: {fileID: 357190598401452317}
+  m_Layer: 8
+  m_Name: Emitter - Air Move
+  m_TagString: Emitter
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &357190598401452316
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 357190598401452315}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &357190598401452318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 357190598401452315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae83aa2f25cab0049b0b46e068f56707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _Initialised: 0
+  _Host: {fileID: 0}
+  _EmitterType: 0
+  _ContactEmitter: 0
+  _ClipIndex: 54
+  _DistanceAttenuationFactor: 1
+  _NormalisedAgeFadeout: 0.9
+  _PingPongGrainPlayheads: 1
+  _ColliderRigidityVolumeScale: 0
+  _IsPlaying: 1
+  _TimeExisted: 0
+  _AdjustedDistance: 0
+  _DistanceAmplitude: 0
+  _DSPChainParams: []
+  _Properties:
+    _Playhead:
+      _InputSource: {fileID: 0}
+      _InputValue: 0
+      _Idle: 0.452
+      _InteractionAmount: 0
+      _InteractionShape: 1
+      _Noise:
+        _Amount: 0.085
+        _Perlin: 1
+      _Min: 0
+      _Max: 1
+    _Density:
+      _InputSource: {fileID: 0}
+      _InputValue: 0
+      _Idle: 4
+      _InteractionAmount: 0
+      _InteractionShape: 1
+      _Noise:
+        _Amount: 0
+        _Perlin: 0
+      _Min: 0.1
+      _Max: 10
+    _GrainDuration:
+      _InputSource: {fileID: 0}
+      _InputValue: 0
+      _Idle: 120
+      _InteractionAmount: -30
+      _InteractionShape: 1
+      _Noise:
+        _Amount: 0.023
+        _Perlin: 1
+      _Min: 2
+      _Max: 500
+    _Transpose:
+      _InputSource: {fileID: 0}
+      _InputValue: 0
+      _Idle: 2
+      _InteractionAmount: 0
+      _InteractionShape: 1
+      _Noise:
+        _Amount: 0.075
+        _Perlin: 0
+      _Min: -3
+      _Max: 3
+    _Volume:
+      _InputSource: {fileID: 0}
+      _InputValue: 0
+      _Idle: 0
+      _InteractionAmount: 1
+      _InteractionShape: 3
+      _Noise:
+        _Amount: 0
+        _Perlin: 0
+      _Min: 0
+      _Max: 2
+--- !u!114 &357190598401452317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 357190598401452315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea7d7495833204790ba1d3a8755397f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ConversionMode: 1

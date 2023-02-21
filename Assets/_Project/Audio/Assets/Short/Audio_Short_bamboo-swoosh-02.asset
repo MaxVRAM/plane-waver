@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9e8c8b54cbf1654bacf684e2cbc1972, type: 3}
+  m_Name: Audio_Short_bamboo-swoosh-02
+  m_EditorClassIdentifier: 
+  _Clip: {fileID: 8300000, guid: aecc1749a6440fb40aa8a71107882fea, type: 3}
+  _ClipType: 2
+  _ClipEntityIndex: 54
+  _SampleRate: 44100
+  _SampleCount: 53148
+  _Duration: 1.20517

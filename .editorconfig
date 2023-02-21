@@ -1,0 +1,17 @@
+root = true
+
+[Assets/Assetstore/**.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
+
+[Assets/Plugins/**.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
+
+[Assets/_Project/Packages/Oculus/**]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
+
+[Assets/_Sandbox/**.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none

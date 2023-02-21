@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using Random = UnityEngine.Random;
 using System;
 
-using GD.MinMaxSlider;
+using NaughtyAttributes;
 
 using MaxVRAM;
 using MaxVRAM.Ticker;
-using UnityEditor.Rendering;
+using MaxVRAM.Extensions;
 
 namespace PlaneWaver
 {
@@ -20,7 +20,6 @@ namespace PlaneWaver
         #region FIELDS & PROPERTIES
 
         public enum SiblingCollision { All, Single, None };
-        public enum BoundingArea { Unrestricted, Spawn, Controller, ControllerBounds }
 
         [Header("Runtime Dynamics")]
         [SerializeField] private bool _Initialised = false;
@@ -53,33 +52,36 @@ namespace PlaneWaver
         [SerializeField] private bool _AutoRemove = true;
 
         [Header("Spawned Object Removal")]
-        public bool _DestroyOnCollision = false;
-        [Tooltip("Coodinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Controller Bounds, defined instead by the controller's collider bounds.")]
-        public BoundingArea _BoundingAreaType = BoundingArea.Controller;
+        public bool _DestroyOnAllCollisions = false;
+        [Tooltip("Coodinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Collider Bounds, defined instead by the supplied collider bounding area, deaulting to the controller's collider if it has one.")]
+        public BoundingArea _BoundingAreaType = BoundingArea.ControllerTransform;
+        public Collider _BoundingCollider;
+        public bool UsingColliderBounds => _BoundingAreaType == BoundingArea.ColliderBounds;
         [Tooltip("Radius of the bounding volume.")]
-        public float _BoundingRadius = 30f;
+        [DisableIf("UsingColliderBounds")]public float _BoundingRadius = 30f;
         [Tooltip("Use a timer to destroy spawned objects after a duration.")]
         [SerializeField] private bool _UseSpawnDuration = true;
         [Tooltip("Duration in seconds before destroying spawned object.")]
-        [MinMaxSlider(0f, 60f)] public Vector2 _SpawnObjectDuration = new Vector2(5, 10);
+        [EnableIf("_UseSpawnDuration")][MinMaxSlider(0f, 60f)] public Vector2 _SpawnObjectDuration = new(5, 10);
 
         public enum ControllerEvent { All, OnSpawn, OnCollision }
         [Header("Visual Feedback")]
         [SerializeField] private ControllerEvent _EmissiveFlashEvent = ControllerEvent.OnSpawn;
         [Tooltip("Emissive brightness range to modulate associated renderers. X = base emissive brightness, Y = brightness on event trigger.")]
         [MinMaxSlider(-10f, 10f)] public Vector2 _EmissiveBrightness = new (0, 10);
+        [Range(0, 1)][SerializeField] private float _EmissiveFlashFade = 0.5f;
         [Tooltip("Supply list of renderers to modulate/flash emissive brightness on selected triggers.")]
-        [SerializeField] private List<Renderer> _ControllerRenderers = new ();
-        private List<Color> _EmissiveColours = new ();
+        [SerializeField] private List<Renderer> _ControllerRenderers = new();
+        private List<Color> _EmissiveColours = new();
         private float _EmissiveIntensity = 0;
 
         [Header("Ejection Physics")]
         [Tooltip("Direction unit vector that determines a spawnables position and velocity on instantiation.")]
-        public Vector3 _EjectionDirection = new Vector3(0, 0, 0);
+        public Vector3 _EjectionDirection = new(0, 0, 0);
         [Tooltip("Amount of random spread applied to each spawn direction.")]
         [Range(0f, 1f)] public float _EjectionDirectionVariance = 0;
         [Tooltip("Distance from the anchor that objects will be spawned.")]
-        [MinMaxSlider(0f, 10f)] public Vector2 _EjectionRadiusRange = new (1, 2);
+        [MinMaxSlider(0f, 10f)] public Vector2 _EjectionRadiusRange = new(1, 2);
         [Tooltip("Speed that spawned objects leave the anchor.")]
         [MinMaxSlider(0f, 100f)] public Vector2 _EjectionSpeedRange = new(5, 10);
 
@@ -231,8 +233,12 @@ namespace PlaneWaver
                 spawnableManager = go.AddComponent<SpawnableManager>();
 
             spawnableManager._Lifespan = _UseSpawnDuration ? Rando.Range(_SpawnObjectDuration) : int.MaxValue;
-            spawnableManager._BoundingArea = _BoundingAreaType;
+            spawnableManager._BoundingAreaType = _BoundingAreaType;
+            spawnableManager._BoundingCollider = _BoundingCollider;
+            spawnableManager._ControllerObject = _ControllerObject;
             spawnableManager._BoundingRadius = _BoundingRadius;
+            spawnableManager._ObjectSpawner = this;
+            spawnableManager._SpawnedObject = go;
             return spawnableManager;
         }
 
@@ -260,7 +266,7 @@ namespace PlaneWaver
             }
 
             float glow = _EmissiveBrightness.x + (1 + Mathf.Sin(_SecondsSinceSpawn / _SpawnPeriodSeconds * 2)) * 0.5f;
-            _EmissiveIntensity = Mathf.Lerp(_EmissiveIntensity, glow, Time.deltaTime * 4);
+            _EmissiveIntensity = _EmissiveIntensity.Smooth(glow, _EmissiveFlashFade);
         }
 
         public bool UniqueCollision(GameObject goA, GameObject goB)

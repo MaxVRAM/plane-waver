@@ -18,7 +18,7 @@ public class Input_MouseLookAndKBMove : MonoBehaviour
 		public Vector2 targetDirection;
 		public Vector2 targetCharacterDirection;
 	
-		// Assign this if there's a parent object controlling motion, such as a Character Controller.
+		// Assign this if there's a parent object controlling motion, such as a Character ControllerTransform.
 		// Yaw rotation will affect this object instead of the camera if set.
 		public GameObject characterBody;
 		

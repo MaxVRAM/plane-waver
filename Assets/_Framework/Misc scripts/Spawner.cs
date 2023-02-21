@@ -65,7 +65,7 @@ namespace EXPToolkit
             //}
 
             //if (Input.GetKeyDown(KeyCode.A))
-            //    Spawn();
+            //    SpawnPosition();
         }
 
         void Spawn()

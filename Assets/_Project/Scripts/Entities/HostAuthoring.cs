@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Transforms;
 
 using MaxVRAM.Audio;
+using MaxVRAM.Extensions;
 using NaughtyAttributes;
 
 namespace PlaneWaver

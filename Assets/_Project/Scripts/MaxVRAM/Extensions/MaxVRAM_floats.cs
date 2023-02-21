@@ -1,5 +1,3 @@
-using System;
-using MaxVRAM.Extensions;
 
 using Unity.Mathematics;
 using UnityEngine;
@@ -36,6 +34,46 @@ namespace MaxVRAM.Extensions
         {
             float diff = value - mid;
             return diff > 0 ? mid - diff: mid + mid;
+        }
+
+        /// <summary>
+        /// Provides standard Mathf.Lerp() functionality that snaps values closer than epsilon from the target.
+        /// </summary>
+        /// <param name="targetValue">New value for the current float to move towards.</param>
+        /// <param name="t">Float between 0 and 1. 0 = no change, 1 = targetValue.</param>
+        /// <param name="epsilon">Float that determines the threshold for snapping to the target value.</param>
+        public static float Lerp(this float currentValue, float targetValue, float t, float epsilon = 0.001f)
+        {
+            if (t <= 0.0f)
+                return currentValue;
+
+            if (t >= 1.0f)
+                return targetValue;
+
+            float result = currentValue + (targetValue - currentValue) * t;
+
+            if (Mathf.Abs(targetValue - result) <= epsilon)
+                return targetValue;
+
+            return result;
+        }
+
+        /// <summary>
+        /// Provides linear interpolation from the current value to a target float. Uses Time.deltaTime internally
+        /// and a "smoothing" parameter that inverts the behaviour of "t" in Mathf.Lerp.
+        /// </summary>
+        /// <param name="targetValue">Any float value destination for the current value to move towards.</param>
+        /// <param name="smoothing">Float between 0 and 1. 0 = targetValue, 1 = no change.</param>
+        /// <param name="epsilon">Float that determines the threshold for snapping to the target value.</param>
+        /// <returns></returns>
+        public static float Smooth(this float currentValue, float targetValue, float smoothing, float epsilon = 0.001f)
+        {
+            epsilon = epsilon <= Mathf.Epsilon ? Mathf.Epsilon : epsilon;
+
+            if (smoothing > epsilon && Mathf.Abs(currentValue - targetValue) > epsilon)
+                return Mathf.Lerp(currentValue, targetValue, (1 - smoothing) * 10f * Time.deltaTime);
+            else
+                return targetValue;
         }
 
         /// <summary>
@@ -82,11 +120,11 @@ namespace MaxVRAM.Extensions
         }
 
         /// <summary>
-        /// Applies a scaled Repeat-limited float to an abitrary normalised offset.
+        /// Limits the value to a normalised range using a directional repeat limiter, to a value abitrary normalised offset.
         /// </summary>
-        /// <param name="amount">Float between -1 and 1. Negative values determine the direction of the Repeated value.</param>
-        /// <param name="offset">Float between 0. and 1. which offsets the resultant value. If amount = 0, return will always = offset.</param>
-        /// <returns>A single normalised float between 0. and 1.</returns>
+        /// <param name="amount">Float between -1 and 1. Negative values reverse the direction of the reapeat loop.</param>
+        /// <param name="offset">Float between 0 and 1 to offset the output value. Resultant value will always equal the offset when amount parameter is 0.</param>
+        /// <returns>A normalised float between 0 and 1.</returns>
         public static float RepeatNorm(this float value, float amount, float offset)
         {
             float reeh = amount > 0 ? offset + value : offset - value;

@@ -3,7 +3,7 @@ using MaxVRAM;
 
 public class GUI_Tester : MonoBehaviour
 {
-    [Range(0, 1)] float _TestSlider = 0;
+    [Range(0, 1)] public float _TestSlider = 0;
     [RangeSlider(0, 10, 0f, 1f)] public Vector2 _DifferentNumbers = new(1, 7);
     public float _DifferentX = 0;
     public float _DifferentY = 0;

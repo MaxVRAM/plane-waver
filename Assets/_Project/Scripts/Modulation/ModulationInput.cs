@@ -130,7 +130,7 @@ namespace PlaneWaver
         {
             float newValue = MaxMath.Map(inputValue, _InputRange, 0, 1) * _AdjustMultiplier;
             _PreSmoothValue = _OnNewValue == InputOnNewValue.Accumulate ? _PreSmoothValue + newValue : newValue;
-            newValue = MaxMath.Smooth(_PreviousSmoothedValue, _PreSmoothValue, Smoothing, Time.deltaTime);
+            newValue = MaxMath.Smooth(_PreviousSmoothedValue, _PreSmoothValue, Smoothing);
             _PreviousSmoothedValue = newValue;
 
             if (_LimiterMode == InputLimitMode.Repeat)
@@ -145,7 +145,7 @@ namespace PlaneWaver
         {
             float newValue = MaxMath.Map(inputValue, _InputRange, 0, 1) * _AdjustMultiplier;
             _PreSmoothValue = _OnNewValue == InputOnNewValue.Accumulate ? _PreSmoothValue + newValue : newValue;
-            newValue = MaxMath.Smooth(_PreviousSmoothedValue, _PreSmoothValue, Smoothing, Time.deltaTime);
+            newValue = MaxMath.Smooth(_PreviousSmoothedValue, _PreSmoothValue, Smoothing);
             _PreviousSmoothedValue = newValue;
 
             if (_LimiterMode == InputLimitMode.Clip)

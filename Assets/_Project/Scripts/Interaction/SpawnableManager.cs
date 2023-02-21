@@ -3,6 +3,8 @@ using UnityEngine;
 
 namespace PlaneWaver
 {
+    public enum BoundingArea { Unrestricted, SpawnPosition, ControllerTransform, ColliderBounds }
+
     /// <summary>
     /// MonoBehaviour component that controls the spawned GameObject's lifespan and interactions with
     /// boundaries.<para />The script is dynamically attached on instantiation by the ObjectSpawner class.
@@ -13,10 +15,10 @@ namespace PlaneWaver
         public float _Lifespan = int.MaxValue;
         [SerializeField] protected float _SpawnTime;
         [SerializeField] protected float _Age = -1;
-        [SerializeField] protected Vector3 _SpawnPosition;
-        public ObjectSpawner.BoundingArea _BoundingArea;
-        private Vector3 _BoundingCentre;
-        private Collider _ControllerCollider;
+        private Vector3 _SpawnPosition;
+        public BoundingArea _BoundingAreaType;
+        public Collider _BoundingCollider;
+        public Transform _BoundingTransform;
         [SerializeField] private bool _UseColliderBounds = false;
         private int _TicksOutsideBounds = 0;
         readonly int _TicksAllowedOutside = 2;
@@ -30,16 +32,12 @@ namespace PlaneWaver
             _SampleRate = AudioSettings.outputSampleRate;
             _SpawnTime = Time.time;
             _SpawnPosition = transform.position;
-            DefineBoundingRules();
+            CheckBoundingType();
         }
 
         void Update()
         {
             _Age = Time.time - _SpawnTime;
-
-            if (_BoundingArea == ObjectSpawner.BoundingArea.Controller)
-                _BoundingCentre = _ControllerObject.transform.position;
-
             if (_Age >= _Lifespan || OutOfBoundsOnTheFull())
                 Destroy(gameObject);
         }
@@ -62,35 +60,41 @@ namespace PlaneWaver
 
         private bool OutOfBoundsOnTheFull()
         {
-            if (_BoundingArea == ObjectSpawner.BoundingArea.Unrestricted)
+            if (_BoundingAreaType == BoundingArea.Unrestricted)
                 return false;
 
             if (_UseColliderBounds)
-                _TicksOutsideBounds = !_ControllerCollider.bounds.Contains(transform.position) ? _TicksOutsideBounds + 1 : 0;
+                _TicksOutsideBounds = !_BoundingCollider.bounds.Contains(transform.position) ? _TicksOutsideBounds + 1 : 0;
             else
-                _TicksOutsideBounds = Mathf.Abs((transform.position - _BoundingCentre).magnitude) > _BoundingRadius ? _TicksOutsideBounds + 1 : 0;
+            {
+                Vector3 boundingPosition = _BoundingAreaType == BoundingArea.SpawnPosition ? _SpawnPosition : _BoundingTransform.position;
+                _TicksOutsideBounds = Mathf.Abs((boundingPosition - transform.position).magnitude) > _BoundingRadius ? _TicksOutsideBounds + 1 : 0;
+
+            }
 
             return _TicksOutsideBounds > _TicksAllowedOutside;
         }
 
-        private void DefineBoundingRules()
+        private void CheckBoundingType()
         {
-            switch (_BoundingArea)
+            if (_BoundingAreaType == BoundingArea.ControllerTransform)
+                _BoundingTransform = _ControllerObject.transform;
+            else if (_BoundingAreaType != BoundingArea.ColliderBounds)
+                return;
+
+            if (_BoundingCollider != null || _ControllerObject.TryGetComponent(out _BoundingCollider))
             {
-                case ObjectSpawner.BoundingArea.Spawn:
-                    _BoundingCentre = _SpawnPosition;
-                    break;
-                case ObjectSpawner.BoundingArea.ControllerBounds:
-                    if (_ControllerObject != null && _ControllerObject.TryGetComponent(out _ControllerCollider))
-                    {
-                        if (_ControllerCollider.GetType() == typeof(SphereCollider))
-                            _BoundingRadius = _ControllerCollider.bounds.size.magnitude / 2;
-                        else
-                            _UseColliderBounds = true;
-                    }
-                    break;
-                default:
-                    break;
+                if (_BoundingCollider.GetType() == typeof(SphereCollider))
+                {
+                    _BoundingRadius = _BoundingCollider.bounds.size.magnitude * 0.5f;
+                    _BoundingTransform = _BoundingCollider.transform;
+                }
+                else
+                    _UseColliderBounds = true;
+            }
+            else
+            {
+                Debug.LogWarning("SpawnableManager: ColliderBounds selected but no Collider found on Controller.");
             }
         }
     }

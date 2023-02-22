@@ -19,6 +19,8 @@ namespace PlaneWaver
     {
         #region FIELDS & PROPERTIES
 
+        public enum SpawnCondition { Never, AfterSpeakersPopulated, IfSpeakerAvailable, AfterDelayPeriod, Always }
+        public enum ControllerEvent { Off, OnSpawn, OnCollision, All };
         public enum SiblingCollision { All, Single, None };
 
         [Header("Runtime Dynamics")]
@@ -40,43 +42,22 @@ namespace PlaneWaver
         public List<GameObject> _ActiveObjects = new();
 
         [Header("Spawning Rules")]
-        [Tooltip("Number of seconds after this ObjectSpawner is created before it starts spawning loop.")]
-        [SerializeField] private float _WaitBeforeSpawning = 2;
-        private float _StartTime = int.MaxValue;
-        private bool _StartTimeReached = false;
         [SerializeField][Range(0, 100)] private int _SpawnablesAllocated = 10;
-        [Tooltip("Period (seconds) to instantiate/destroy spawnables.")]
+        [Tooltip("Delay (seconds) between each spawn.")]
         [Range(0.01f, 1)][SerializeField] private float _SpawnPeriodSeconds = 0.2f;
-        private Trigger _SpawnTimer;
+        [SerializeField] private SpawnCondition _SpawnCondition = SpawnCondition.AfterSpeakersPopulated;
+        public bool SpawnAfterPeriodSet => _SpawnCondition == SpawnCondition.AfterDelayPeriod;
+        [EnableIf("SpawnAfterPeriodSet")]
+        [Tooltip("Number of seconds after this ObjectSpawner is created before it starts spawning loop.")]
+        [SerializeField] private float _SpawnDelaySeconds = 2;
         [SerializeField] private bool _AutoSpawn = true;
         [SerializeField] private bool _AutoRemove = true;
-
-        [Header("Spawned Object Removal")]
-        public bool _DestroyOnAllCollisions = false;
-        [Tooltip("Coodinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Collider Bounds, defined instead by the supplied collider bounding area, deaulting to the controller's collider if it has one.")]
-        public BoundingArea _BoundingAreaType = BoundingArea.ControllerTransform;
-        public Collider _BoundingCollider;
-        public bool UsingColliderBounds => _BoundingAreaType == BoundingArea.ColliderBounds;
-        [Tooltip("Radius of the bounding volume.")]
-        [DisableIf("UsingColliderBounds")]public float _BoundingRadius = 30f;
-        [Tooltip("Use a timer to destroy spawned objects after a duration.")]
-        [SerializeField] private bool _UseSpawnDuration = true;
-        [Tooltip("Duration in seconds before destroying spawned object.")]
-        [EnableIf("_UseSpawnDuration")][MinMaxSlider(0f, 60f)] public Vector2 _SpawnObjectDuration = new(5, 10);
-
-        public enum ControllerEvent { All, OnSpawn, OnCollision }
-        [Header("Visual Feedback")]
-        [SerializeField] private ControllerEvent _EmissiveFlashEvent = ControllerEvent.OnSpawn;
-        [Tooltip("Emissive brightness range to modulate associated renderers. X = base emissive brightness, Y = brightness on event trigger.")]
-        [MinMaxSlider(-10f, 10f)] public Vector2 _EmissiveBrightness = new (0, 10);
-        [Range(0, 1)][SerializeField] private float _EmissiveFlashFade = 0.5f;
-        [Tooltip("Supply list of renderers to modulate/flash emissive brightness on selected triggers.")]
-        [SerializeField] private List<Renderer> _ControllerRenderers = new();
-        private List<Color> _EmissiveColours = new();
-        private float _EmissiveIntensity = 0;
+        private float _StartTime = int.MaxValue;
+        private bool _StartTimeReached = false;
+        private Trigger _SpawnTimer;
 
         [Header("Ejection Physics")]
-        [Tooltip("Direction unit vector that determines a spawnables position and velocity on instantiation.")]
+        [Tooltip("Direction that determines a spawnables position and velocity on instantiation. Converts to unit vector.")]
         public Vector3 _EjectionDirection = new(0, 0, 0);
         [Tooltip("Amount of random spread applied to each spawn direction.")]
         [Range(0f, 1f)] public float _EjectionDirectionVariance = 0;
@@ -85,9 +66,37 @@ namespace PlaneWaver
         [Tooltip("Speed that spawned objects leave the anchor.")]
         [MinMaxSlider(0f, 100f)] public Vector2 _EjectionSpeedRange = new(5, 10);
 
+        [Header("Spawned Object Removal")]
+        public bool _DestroyOnAllCollisions = false;
+        [Tooltip("Coodinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Collider Bounds, defined instead by the supplied collider bounding area, deaulting to the controller's collider if it has one.")]
+        public BoundingArea _BoundingAreaType = BoundingArea.ControllerTransform;
+        [EnableIf("UsingColliderBounds")] public Collider _BoundingCollider;
+        [Tooltip("Radius of the bounding volume.")]
+        [EnableIf("UsingBoundingRadius")] public float _BoundingRadius = 30f;
+        [Tooltip("Use a timer to destroy spawned objects after a duration.")]
+        [SerializeField] private bool _UseSpawnDuration = true;
+        [Tooltip("Duration in seconds before destroying spawned object.")]
+        [EnableIf("_UseSpawnDuration")]
+        [MinMaxSlider(0f, 60f)] public Vector2 _SpawnObjectDuration = new(5, 10);
+        public bool UsingBoundingRadius => _BoundingAreaType is BoundingArea.SpawnPosition or BoundingArea.ControllerTransform;
+        public bool UsingColliderBounds => _BoundingAreaType is BoundingArea.ColliderBounds;
+
         [Header("Emitter Behaviour")]
         public bool _AllowSiblingSurfaceContact = true;
-        public SiblingCollision _AllowSiblingCollisionBurst = SiblingCollision.Single;
+        public SiblingCollision _AllowSiblingCollisionTrigger = SiblingCollision.Single;
+
+        [Header("Visual Feedback")]
+        [SerializeField] private ControllerEvent _EmissiveFlashTrigger = ControllerEvent.OnSpawn;
+        [Tooltip("Emissive brightness range to modulate associated renderers. X = base emissive brightness, Y = brightness on event trigger.")]
+        [EnableIf("VisualFeedbackOn")]
+        [MinMaxSlider(-10f, 10f)] public Vector2 _EmissiveBrightness = new(0, 10);
+        [EnableIf("VisualFeedbackOn")]
+        [Range(0, 1)][SerializeField] private float _EmissiveFlashFade = 0.5f;
+        [Tooltip("Supply list of renderers to modulate/flash emissive brightness on selected triggers.")]
+        [SerializeField] private List<Renderer> _ControllerRenderers = new();
+        private List<Color> _EmissiveColours = new();
+        private float _EmissiveIntensity = 0;
+        public bool VisualFeedbackOn => _EmissiveFlashTrigger is not ControllerEvent.Off;
 
         #endregion
 
@@ -144,7 +153,7 @@ namespace PlaneWaver
             }
 
             _Initialised = true;
-            _StartTime = Time.time + _WaitBeforeSpawning;
+            _StartTime = Time.time + _SpawnDelaySeconds;
             return true;
         }
 
@@ -157,8 +166,10 @@ namespace PlaneWaver
             _SpawnTimer.UpdateTrigger(Time.deltaTime, _SpawnPeriodSeconds);
 
             if (ReadyToSpawn())
+            {
                 if (_AutoSpawn) CreateSpawnable();
                 else if (_AutoRemove) RemoveSpawnable(0);
+            }
 
             _ActiveObjects.RemoveAll(item => item == null);
             UpdateShaderModulation();
@@ -172,16 +183,28 @@ namespace PlaneWaver
         {
             if (!_Initialised)
                 return false;
-            if (!_StartTimeReached)
-            {
-                if (Time.time > _StartTime)
-                    _StartTimeReached = true;
-                else
-                    return false;
-            }
             if ((_ControllerObject == null | _PrefabToSpawn == null) && !InitialiseSpawner())
                 return false;
-            return true;
+            return SpawningAllowed();
+        }
+
+        public bool SpawningAllowed()
+        {
+            switch (_SpawnCondition)
+            {
+                case SpawnCondition.Never:
+                    return false;
+                case SpawnCondition.Always:
+                    return true;
+                case SpawnCondition.AfterSpeakersPopulated:
+                    return !GrainBrain.Instance.PopulatingSpeakers;
+                case SpawnCondition.IfSpeakerAvailable:
+                    return !GrainBrain.Instance._Speakers.TrueForAll(s => s.IsActive);
+                case SpawnCondition.AfterDelayPeriod:
+                    return _StartTimeReached || (_StartTimeReached = Time.time > _StartTime);
+                default:
+                    return false;
+            }
         }
 
         public void CreateSpawnable()
@@ -194,7 +217,7 @@ namespace PlaneWaver
             newObject.SetActive(true);
             _ActiveObjects.Add(newObject);
 
-            if (_EmissiveFlashEvent == ControllerEvent.OnSpawn)
+            if (_EmissiveFlashTrigger == ControllerEvent.OnSpawn)
                 _EmissiveIntensity = _EmissiveBrightness.y;
         }
 
@@ -271,11 +294,11 @@ namespace PlaneWaver
 
         public bool UniqueCollision(GameObject goA, GameObject goB)
         {
-            if (!_ActiveObjects.Contains(goA) || !_ActiveObjects.Contains(goB) || _AllowSiblingCollisionBurst == SiblingCollision.All)
+            if (!_ActiveObjects.Contains(goA) || !_ActiveObjects.Contains(goB) || _AllowSiblingCollisionTrigger == SiblingCollision.All)
                 return true;
-            else if (_AllowSiblingCollisionBurst == SiblingCollision.None)
+            else if (_AllowSiblingCollisionTrigger == SiblingCollision.None)
                 return false;
-            else if (_AllowSiblingCollisionBurst == SiblingCollision.Single & _CollidedThisUpdate.Add(goA) | _CollidedThisUpdate.Add(goB))
+            else if (_AllowSiblingCollisionTrigger == SiblingCollision.Single & _CollidedThisUpdate.Add(goA) | _CollidedThisUpdate.Add(goB))
                 return true;
             else
                 return false;

@@ -15,13 +15,13 @@ namespace PlaneWaver
         public float _Lifespan = int.MaxValue;
         [SerializeField] protected float _SpawnTime;
         [SerializeField] protected float _Age = -1;
-        private Vector3 _SpawnPosition;
         public BoundingArea _BoundingAreaType;
         public Collider _BoundingCollider;
         public Transform _BoundingTransform;
-        [SerializeField] private bool _UseColliderBounds = false;
+        private Vector3 _SpawnPosition;
+        private bool _UseCollider = false;
         private int _TicksOutsideBounds = 0;
-        readonly int _TicksAllowedOutside = 2;
+        readonly int _TicksAllowedOutside = 3;
 
         public float _BoundingRadius = 10;
         public float CurrentAge => _Age;
@@ -63,7 +63,7 @@ namespace PlaneWaver
             if (_BoundingAreaType == BoundingArea.Unrestricted)
                 return false;
 
-            if (_UseColliderBounds)
+            if (_UseCollider)
                 _TicksOutsideBounds = !_BoundingCollider.bounds.Contains(transform.position) ? _TicksOutsideBounds + 1 : 0;
             else
             {
@@ -90,7 +90,7 @@ namespace PlaneWaver
                     _BoundingTransform = _BoundingCollider.transform;
                 }
                 else
-                    _UseColliderBounds = true;
+                    _UseCollider = true;
             }
             else
             {

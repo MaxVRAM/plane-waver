@@ -1,6 +1,5 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
 using Unity.Collections;
 using Unity.Jobs;
 using System;
@@ -15,7 +14,6 @@ public partial class AttachmentSystem : SystemBase
 {
     private EndSimulationEntityCommandBufferSystem _CommandBufferSystem;
 
-
     protected override void OnCreate()
     {
         base.OnCreate();
@@ -24,54 +22,52 @@ public partial class AttachmentSystem : SystemBase
 
     protected override void OnUpdate()
     {
+        AudioTimerComponent dspTimer = GetSingleton<AudioTimerComponent>();
+        ConnectionConfig connectionConfig = GetSingleton<ConnectionConfig>();
         // Acquire an ECB and convert it to a concurrent one to be able to use it from a parallel job.
         EntityCommandBuffer.ParallelWriter ecb = _CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
-
-        EntityQueryDesc speakerQueryDesc = new()
-        {
-            All = new ComponentType[] { typeof(SpeakerIndex), typeof(SpeakerComponent), typeof(Translation) }
-        };
-        EntityQuery speakersQuery = GetEntityQuery(speakerQueryDesc);
-
 
 
         EntityQueryDesc hostQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(Translation) }
+            All = new ComponentType[] { typeof(HostComponent)}
         };
 
         EntityQueryDesc hostConnectedQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(Translation), typeof(ConnectedTag) }
+            All = new ComponentType[] { typeof(HostComponent), typeof(ConnectedTag) }
         };
 
         EntityQueryDesc hostDisconnectedQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(Translation), typeof(InListenerRadiusTag) },
+            All = new ComponentType[] { typeof(HostComponent), typeof(InListenerRadiusTag) },
             None = new ComponentType[] { typeof(ConnectedTag)}
         };
+        EntityQueryDesc speakerQueryDesc = new()
+        {
+            All = new ComponentType[] { typeof(SpeakerIndex), typeof(SpeakerComponent) }
+        };
 
-        EntityQuery hostsQuery;
+        EntityQuery hostQuery;
+        EntityQuery speakerQuery;
 
-        AudioTimerComponent dspTimer = GetSingleton<AudioTimerComponent>();       
-        ConnectionConfig connectionConfig = GetSingleton<ConnectionConfig>();
-                
+        NativeArray<Entity> hostEntities;
+        NativeArray<Entity> speakerEntities;
+        NativeArray<HostComponent> hostComponents;
+        NativeArray<SpeakerComponent> speakerComponents;
 
-
-
-        //----    UPDATE HOST IN-RANGE STATUSES
-        NativeArray<SpeakerComponent> speakerPool = speakersQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);
-        NativeArray<Translation> speakerTranslations = speakersQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-
-        JobHandle updateHostRangeJob = Entities.WithName("UpdateHostRange").WithReadOnly(speakerPool).WithReadOnly(speakerTranslations).ForEach
+        speakerQuery = GetEntityQuery(speakerQueryDesc);
+        speakerComponents = speakerQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);
+        JobHandle updateHostRangeJob = Entities.WithName("UpdateHostRange").WithReadOnly(speakerComponents).ForEach
         (
-            (int entityInQueryIndex, Entity entity, ref HostComponent host, in Translation translation) =>
+            (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
             {
-                if (math.distance(translation.Value, connectionConfig._ListenerPos) > connectionConfig._ListenerRadius)
+                if (math.distance(host._WorldPos, connectionConfig._ListenerPos) > connectionConfig._ListenerRadius)
                 {
                     host._Connected = false;
                     host._SpeakerIndex = int.MaxValue;
                     host._InListenerRadius = false;
+                    ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<InListenerRadiusTag>(entityInQueryIndex, entity);
                 }
                 else
@@ -80,10 +76,10 @@ public partial class AttachmentSystem : SystemBase
                     ecb.AddComponent(entityInQueryIndex, entity, new InListenerRadiusTag());
                 }
 
-                if (host._SpeakerIndex < speakerPool.Length && speakerPool[host._SpeakerIndex]._State != ConnectionState.Pooled)
+                if (host._SpeakerIndex < speakerComponents.Length && speakerComponents[host._SpeakerIndex]._State != ConnectionState.Pooled)
                 {
-                    if (math.distance(translation.Value, speakerTranslations[host._SpeakerIndex].Value) <
-                        speakerPool[host._SpeakerIndex]._ConnectionRadius)
+                    if (math.distance(host._WorldPos, speakerComponents[host._SpeakerIndex]._WorldPos) <
+                        speakerComponents[host._SpeakerIndex]._ConnectionRadius)
                     {
                         host._Connected = true;
                         ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
@@ -96,115 +92,77 @@ public partial class AttachmentSystem : SystemBase
                     ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
                 }
             }
-        ).WithDisposeOnCompletion(speakerPool)
-        .WithDisposeOnCompletion(speakerTranslations)
+        ).WithDisposeOnCompletion(speakerComponents)
         .ScheduleParallel(Dependency);
         updateHostRangeJob.Complete();
-
         _CommandBufferSystem.AddJobHandleForProducer(updateHostRangeJob);
 
-
-
-
-        ////----    CONNECT DISCONNECTED HOST TO IN-RANGE SPEAKER
-        //// TODO: test if better to remove speaker connection state check - potentially reposition newly pooled speakers on the main thread
-        //NativeArray<Entity> inRangeSpeaker = speakersQuery.ToEntityArray(Allocator.TempJob);
-        //JobHandle connectToActiveSpeakerJob = Entities.WithName("LinkToActiveSpeaker").
-        //    WithNone<ConnectedTag>().WithAll<InListenerRadiusTag>().WithReadOnly(inRangeSpeaker).ForEach
-        //(
-        //    (int entityInQueryIndex, Entity entity, ref HostComponent host, in Translation translation) =>
-        //    {
-        //        int closestSpeakerIndex = int.Max;
-        //        float closestDist = float.Max;
-
-        //        for (int i = 0; i < inRangeSpeaker.Length; i++)
-        //        {
-        //            SpeakerComponent speaker = GetComponent<SpeakerComponent>(inRangeSpeaker[i]);
-        //            if (speaker._State != ConnectionState.Pooled)
-        //            {
-        //                float dist = math.distance(translation.Value, GetComponent<Translation>(inRangeSpeaker[i]).Value);
-        //                if (dist < speaker._ConnectionRadius)
-        //                {
-        //                    closestDist = dist;
-        //                    closestSpeakerIndex = GetComponent<SpeakerIndex>(inRangeSpeaker[i]).Value;
-        //                }
-        //            }
-        //        }
-
-        //        if (closestSpeakerIndex != int.Max)
-        //        {
-        //            host._Connected = true;
-        //            host._SpeakerIndex = closestSpeakerIndex;
-        //            ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
-        //        }
-        //    }
-        //).WithDisposeOnCompletion(inRangeSpeaker)
-        //.ScheduleParallel(updateHostRangeJob);
-        //connectToActiveSpeakerJob.Complete();
-
-        //_CommandBufferSystem.AddJobHandleForProducer(connectToActiveSpeakerJob);
-
-
-
-        //----    CONNECT DISCONNECTED HOST TO BEST IN-RANGE ACTIVE SPEAKER
-        NativeArray<Entity> inRangeSpeaker = speakersQuery.ToEntityArray(Allocator.TempJob);
-        JobHandle connectToActiveSpeakerJob = Entities.WithName("LinkToActiveSpeaker").
-            WithNone<ConnectedTag>().WithAll<InListenerRadiusTag>().WithReadOnly(inRangeSpeaker).ForEach
+        speakerEntities = speakerQuery.ToEntityArray(Allocator.TempJob);
+        JobHandle connectToActiveSpeakerJob = Entities.WithName("ConnectToActiveSpeaker").
+            WithNone<ConnectedTag>().WithAll<InListenerRadiusTag>().WithReadOnly(speakerEntities).ForEach
         (
-            (int entityInQueryIndex, Entity entity, ref HostComponent host, in Translation translation) =>
+            (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
             {
-                int bestSpeakerIndex = int.MaxValue;
-                int bestSpeakerHosts = -1;
-                float bestSpeakerGrainLoad = 1;
+                int bestActiveSpeaker = int.MaxValue;
+                int bestLingeringSpeaker = int.MaxValue;
 
-                for (int i = 0; i < inRangeSpeaker.Length; i++)
+                float lowestActiveGrainLoad = 1;
+                float closestLingeringDistance = float.MaxValue;
+
+                for (int i = 0; i < speakerEntities.Length; i++)
                 {
-                    SpeakerComponent speaker = GetComponent<SpeakerComponent>(inRangeSpeaker[i]);
-                    if (speaker._State == ConnectionState.Active && speaker._GrainLoad < connectionConfig._BusyLoadLimit && speaker._ConnectedHostCount > bestSpeakerHosts)
+                    SpeakerComponent speaker = GetComponent<SpeakerComponent>(speakerEntities[i]);
+                    if (speaker._State == ConnectionState.Pooled)
+                        continue;
+
+                    float dist = math.distance(host._WorldPos, speaker._WorldPos);
+                    if (dist > speaker._ConnectionRadius)
+                        continue;
+
+                    if (speaker._State == ConnectionState.Lingering)
                     {
-                        float dist = math.distance(translation.Value, GetComponent<Translation>(inRangeSpeaker[i]).Value);
-                        if (dist < speaker._ConnectionRadius)
+                        if (dist < closestLingeringDistance)
                         {
-                            bestSpeakerGrainLoad = speaker._GrainLoad;
-                            bestSpeakerHosts = speaker._ConnectedHostCount;
-                            bestSpeakerIndex = GetComponent<SpeakerIndex>(inRangeSpeaker[i]).Value;
+                            closestLingeringDistance = dist;
+                            bestLingeringSpeaker = GetComponent<SpeakerIndex>(speakerEntities[i]).Value;
                         }
                     }
+                    else if (speaker._GrainLoad < connectionConfig._BusyLoadLimit && speaker._GrainLoad < lowestActiveGrainLoad)
+                    {
+                        lowestActiveGrainLoad = speaker._GrainLoad;
+                        bestActiveSpeaker = GetComponent<SpeakerIndex>(speakerEntities[i]).Value;
+                    }
                 }
-                if (bestSpeakerIndex != int.MaxValue)
-                {
-                    host._Connected = true;
-                    host._SpeakerIndex = bestSpeakerIndex;
-                    ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
-                }
+
+                if (bestActiveSpeaker == int.MaxValue && bestLingeringSpeaker == int.MaxValue)
+                    return;
+
+                host._SpeakerIndex = bestActiveSpeaker != int.MaxValue ? bestActiveSpeaker : bestLingeringSpeaker;
+                host._Connected = true;
+                ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
             }
-        ).WithDisposeOnCompletion(inRangeSpeaker)
+        ).WithDisposeOnCompletion(speakerEntities)
         .ScheduleParallel(updateHostRangeJob);
         connectToActiveSpeakerJob.Complete();
-
         _CommandBufferSystem.AddJobHandleForProducer(connectToActiveSpeakerJob);
 
-
-
-        //----     CALCULATE SPEAKER ATTACHMENT RADIUS, SET MOVE TO AVERAGE POSITION OF ATTACHED HOST, OR POOL IF NO LONGER ATTACHED
-        hostsQuery = GetEntityQuery(hostConnectedQueryDesc);
-        NativeArray<HostComponent> hostsToSitSpeakers = hostsQuery.ToComponentDataArray<HostComponent>(Allocator.TempJob);
-        NativeArray<Translation> hostTranslations = hostsQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        JobHandle updateSpeakerPoolJob = Entities.WithName("MoveSpeakers").WithReadOnly(hostsToSitSpeakers).WithReadOnly(hostTranslations).ForEach
+        hostQuery = GetEntityQuery(hostConnectedQueryDesc);
+        hostComponents = hostQuery.ToComponentDataArray<HostComponent>(Allocator.TempJob);
+        JobHandle moveSpeakersJob = Entities.WithName("MoveSpeakers").WithReadOnly(hostComponents).ForEach
         (
-            (ref Translation translation, ref SpeakerComponent speaker, in SpeakerIndex index) =>
-            { 
+            (ref SpeakerComponent speaker, in SpeakerIndex index) =>
+            {
                 int attachedHosts = 0;
-                float3 currentPos = translation.Value;
-                float3 hostPosSum = new(0, 0, 0);
+                float3 currentPosition = speaker._WorldPos;
+                float3 targetPosition = new(0, 0, 0);
                 
-                for (int e = 0; e < hostsToSitSpeakers.Length; e++)
+                for (int e = 0; e < hostComponents.Length; e++)
                 {
-                    if (hostsToSitSpeakers[e]._SpeakerIndex == index.Value)
-                    {
-                        hostPosSum += hostTranslations[e].Value;
-                        attachedHosts++;
-                    }
+                    if (hostComponents[e]._SpeakerIndex != index.Value)
+                        continue;
+
+                    targetPosition += hostComponents[e]._WorldPos;
+                    attachedHosts++;
                 }
 
                 if (attachedHosts == 0)
@@ -214,96 +172,76 @@ public partial class AttachmentSystem : SystemBase
                     {
                         speaker._State = ConnectionState.Pooled;
                         speaker._ConnectionRadius = 0.001f;
-                        currentPos = connectionConfig._DisconnectedPosition;
+                        // TODO: Check if it's better to relocate the speakers on their main thread function
+                        speaker._WorldPos = connectionConfig._DisconnectedPosition;
                     }
                     else if (speaker._State == ConnectionState.Active)
                     {
                         speaker._State = ConnectionState.Lingering;
                         speaker._InactiveDuration = 0;
-                        speaker._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, currentPos, connectionConfig._ArcDegrees);
+                        speaker._WorldPos = currentPosition;
+                        speaker._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, currentPosition, connectionConfig._ArcDegrees);
                     }
+                    speaker._ConnectedHostCount = attachedHosts;
+                    return;
                 }
-                else
-                {
-                    speaker._State = ConnectionState.Active;
-                    speaker._InactiveDuration = 0;
-                    if (speaker._ConnectedHostCount == 1)
-                    {
-                        currentPos = hostPosSum;
-                    }
-                    else
-                    {
-                        float3 targetPos = hostPosSum / attachedHosts;
-                        float3 lerpPos = math.lerp(currentPos, targetPos, connectionConfig._TranslationSmoothing);
-                        if (math.distance(currentPos, lerpPos) > speaker._ConnectionRadius)
-                            currentPos = targetPos;
-                        else
-                            currentPos = lerpPos;
-                    }
 
-                    speaker._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, currentPos, connectionConfig._ArcDegrees);
+                if (attachedHosts > 1)
+                {
+                    float3 averagePosition = targetPosition / attachedHosts;
+                    float3 lerpedPosition = math.lerp(targetPosition, averagePosition, connectionConfig._TranslationSmoothing);
+                    targetPosition = math.distance(currentPosition, lerpedPosition) > speaker._ConnectionRadius ? averagePosition : lerpedPosition;
                 }
+
+                speaker._WorldPos = targetPosition;
+                speaker._InactiveDuration = 0;
+                speaker._State = ConnectionState.Active;
                 speaker._ConnectedHostCount = attachedHosts;
-                translation.Value = currentPos;
+                speaker._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, targetPosition, connectionConfig._ArcDegrees);
             }
-        ).WithDisposeOnCompletion(hostsToSitSpeakers)
-        .WithDisposeOnCompletion(hostTranslations)
+        ).WithDisposeOnCompletion(hostComponents)
         .ScheduleParallel(connectToActiveSpeakerJob);
-        updateSpeakerPoolJob.Complete();
+        moveSpeakersJob.Complete();
+        _CommandBufferSystem.AddJobHandleForProducer(moveSpeakersJob);
 
-        _CommandBufferSystem.AddJobHandleForProducer(updateSpeakerPoolJob);
-
-
-
-        //----     SPAWN A POOLED SPEAKER ON A HOST IF NO NEARBY SPEAKERS WERE FOUND
-        // TODO: Use speaker "WithNone<ActiveTag>" to optimise search
-        hostsQuery = GetEntityQuery(hostDisconnectedQueryDesc);
-        NativeArray<Entity> hostEntities = hostsQuery.ToEntityArray(Allocator.TempJob);
-        NativeArray<Translation> hostTrans = hostsQuery.ToComponentDataArray<Translation>(Allocator.TempJob);
-        NativeArray<HostComponent> hosts = hostsQuery.ToComponentDataArray<HostComponent>(Allocator.TempJob);
-        NativeArray<Entity> speakerEntities = speakersQuery.ToEntityArray(Allocator.TempJob);
-        NativeArray<SpeakerComponent> speakers = speakersQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);        
-
-        JobHandle speakerActivation = Job.WithName("speakerActivation").WithReadOnly(hostTrans).WithoutBurst().WithCode(() =>
+        hostQuery = GetEntityQuery(hostDisconnectedQueryDesc);
+        hostEntities = hostQuery.ToEntityArray(Allocator.TempJob);
+        speakerEntities = speakerQuery.ToEntityArray(Allocator.TempJob);
+        speakerComponents = speakerQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);        
+        JobHandle speakerActivationJob = Job.WithName("speakerActivation").WithoutBurst().WithCode(() =>
         {
-            for (int h = 0; h < hosts.Length; h++)
+            for (int h = 0; h < hostEntities.Length; h++)
             {
-                for (int s = 0; s < speakers.Length; s++)
+                for (int s = 0; s < speakerComponents.Length; s++)
                 {
-                    if (speakers[s]._State != ConnectionState.Active)
-                    {
-                        // Update host component with speaker link
-                        ecb.AddComponent(h, hostEntities, new ConnectedTag());
-                        HostComponent host = GetComponent<HostComponent>(hostEntities[h]);
-                        host._SpeakerIndex = GetComponent<SpeakerIndex>(speakerEntities[s]).Value;
-                        host._Connected = true;
-                        SetComponent(hostEntities[h], host);
+                    if (speakerComponents[s]._State != ConnectionState.Pooled)
+                        continue;
 
-                        // Update speaker position
-                        Translation speakerTranslation = GetComponent<Translation>(speakerEntities[s]);
-                        speakerTranslation.Value = hostTrans[h].Value;
-                        SetComponent(speakerEntities[s], speakerTranslation);
+                    // Update host component with speaker link
+                    ecb.AddComponent(h, hostEntities, new ConnectedTag());
+                    HostComponent host = GetComponent<HostComponent>(hostEntities[h]);
+                    host._SpeakerIndex = GetComponent<SpeakerIndex>(speakerEntities[s]).Value;
+                    host._Connected = true;
+                    SetComponent(hostEntities[h], host);
 
-                        // Set active pooled status and update attachment radius
-                        SpeakerComponent pooledObj = GetComponent<SpeakerComponent>(speakerEntities[s]);
-                        pooledObj._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, speakerTranslation.Value, connectionConfig._ArcDegrees);
-                        pooledObj._State = ConnectionState.Active;
-                        pooledObj._ConnectedHostCount = 1;
-                        pooledObj._InactiveDuration = 0;
-                        SetComponent(speakerEntities[s], pooledObj);
-                        break;
-                    }
+                    // Set active pooled status and update attachment radius
+                    SpeakerComponent speakerComponent = GetComponent<SpeakerComponent>(speakerEntities[s]);
+                    speakerComponent._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, host._WorldPos, connectionConfig._ArcDegrees);
+                    speakerComponent._State = ConnectionState.Active;
+                    speakerComponent._ConnectedHostCount = 1;
+                    speakerComponent._InactiveDuration = 0;
+                    speakerComponent._WorldPos = host._WorldPos;
+                    SetComponent(speakerEntities[s], speakerComponent);
+                    break;
                 }
-
             }
-        }).WithDisposeOnCompletion(hostEntities).WithDisposeOnCompletion(hosts).WithDisposeOnCompletion(hostTrans)
-        .WithDisposeOnCompletion(speakerEntities).WithDisposeOnCompletion(speakers)
-        .Schedule(updateSpeakerPoolJob);
-        speakerActivation.Complete();
+        }).WithDisposeOnCompletion(speakerEntities).WithDisposeOnCompletion(speakerComponents)
+        .WithDisposeOnCompletion(hostEntities)
+        .Schedule(moveSpeakersJob);
+        speakerActivationJob.Complete();
+        _CommandBufferSystem.AddJobHandleForProducer(speakerActivationJob);
 
-        _CommandBufferSystem.AddJobHandleForProducer(speakerActivation);
-
-        Dependency = speakerActivation;
+        Dependency = speakerActivationJob;
     }
 
     public static float CalculateSpeakerRadius(float3 listenerPos, float3 speakerPos, float arcLength)
@@ -313,5 +251,3 @@ public partial class AttachmentSystem : SystemBase
         return arcLength / 360 * listenerCircumference;
     }
 }
-
-

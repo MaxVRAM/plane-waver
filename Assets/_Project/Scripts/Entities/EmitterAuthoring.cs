@@ -101,7 +101,7 @@ namespace PlaneWaver
             InitialiseModulationInputs();
 
             _EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            SetIndex(GrainSynth.Instance.RegisterEmitter(this));
+            SetIndex(GrainBrain.Instance.RegisterEmitter(this));
         }
 
         public virtual ModulationInput[] GatherModulationInputs() { return new ModulationInput[0]; }
@@ -154,7 +154,7 @@ namespace PlaneWaver
 
         public override void Deregister()
         {
-            GrainSynth.Instance.DeregisterEmitter(this);
+            GrainBrain.Instance.DeregisterEmitter(this);
         }
 
         #endregion
@@ -172,7 +172,7 @@ namespace PlaneWaver
         {
             if (_EmitterType == EmitterType.Burst && _PlaybackCondition != Condition.NotColliding)
             {
-                if (Time.fixedTime < _LastTriggeredAt + GrainSynth.Instance._BurstDebounceDurationMS * 0.001f)
+                if (Time.fixedTime < _LastTriggeredAt + GrainBrain.Instance._BurstDebounceDurationMS * 0.001f)
                     return;
 
                 if (ColliderMoreRigid(collision.collider, _Host.SurfaceRigidity, out float otherRigidity) && OnlyTriggerMostRigid)
@@ -216,7 +216,7 @@ namespace PlaneWaver
             }
         }
 
-        protected bool OnlyTriggerMostRigid => GrainSynth.Instance._OnlyTriggerMostRigidSurface;
+        protected bool OnlyTriggerMostRigid => GrainBrain.Instance._OnlyTriggerMostRigidSurface;
 
         public static bool ColliderMoreRigid(Collider collider, float rigidity, out float otherRigidity)
         {

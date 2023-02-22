@@ -14,8 +14,8 @@ namespace PlaneWaver
             if (!TryGetComponent(out _Line))
                 _Line = gameObject.AddComponent<LineRenderer>();
             
-            _Line.material = GrainSynth.Instance._AttachmentLineMat;
-            _Line.widthMultiplier = GrainSynth.Instance._AttachmentLineWidth;
+            _Line.material = GrainBrain.Instance._AttachmentLineMat;
+            _Line.widthMultiplier = GrainBrain.Instance._AttachmentLineWidth;
             _Line.positionCount = 2;
 
             if (_TransformA != null)

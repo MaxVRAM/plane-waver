@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2138677392}
-  m_IndirectSpecularColor: {r: 439.45654, g: 405.063, b: 388.1543, a: 1}
+  m_IndirectSpecularColor: {r: 440.66986, g: 406.037, b: 387.5498, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -481,10 +481,10 @@ MonoBehaviour:
   _RandomiseSpawnPrefab: 0
   _SpawnablePrefabs: []
   _ActiveObjects: []
-  _SpawnCondition: 1
-  _SecondsBeforeSpawning: 5
-  _SpawnablesAllocated: 10
+  _SpawnablesAllocated: 30
   _SpawnPeriodSeconds: 0.1
+  _SpawnCondition: 1
+  _SpawnDelaySeconds: 2
   _AutoSpawn: 1
   _AutoRemove: 1
   _EjectionDirection: {x: 0, y: -1, z: 0}
@@ -669,7 +669,7 @@ MonoBehaviour:
   _SpeakerGrainArraySize: 100
   _SpeakerBusyLoadLimit: 0.5
   _SpeakerAttachArcDegrees: 20
-  _SpeakerTrackingSpeed: 20
+  _SpeakerTrackingSpeed: 10
   _SpeakerLingerTime: 300
   _StatsValuesText: {fileID: 1931825995}
   _StatsValuesPeakText: {fileID: 475395361}
@@ -3689,10 +3689,10 @@ MonoBehaviour:
   _RandomiseSpawnPrefab: 0
   _SpawnablePrefabs: []
   _ActiveObjects: []
-  _SpawnCondition: 1
-  _SecondsBeforeSpawning: 2
   _SpawnablesAllocated: 20
   _SpawnPeriodSeconds: 0.2
+  _SpawnCondition: 1
+  _SpawnDelaySeconds: 2
   _AutoSpawn: 1
   _AutoRemove: 1
   _EjectionDirection: {x: 0, y: 0, z: 0}
@@ -5287,13 +5287,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a68c43fe1f2a47cfa234b5eeaa98012, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Intensity: 40000
+  m_Intensity: 0
   m_EnableSpotReflector: 1
   m_LuxAtDistance: 1
   m_InnerSpotPercent: 0
   m_SpotIESCutoffPercent: 100
   m_LightDimmer: 1
-  m_VolumetricDimmer: 16
+  m_VolumetricDimmer: 4
   m_LightUnit: 0
   m_FadeDistance: 10000
   m_VolumetricFadeDistance: 10
@@ -5409,7 +5409,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 0.87058824, g: 0.6901961, b: 0.37254903, a: 1}
-  m_Intensity: 3183.0989
+  m_Intensity: 0
   m_Range: 3
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -7531,10 +7531,10 @@ MonoBehaviour:
   _RandomiseSpawnPrefab: 0
   _SpawnablePrefabs: []
   _ActiveObjects: []
-  _SpawnCondition: 1
-  _SecondsBeforeSpawning: 2
   _SpawnablesAllocated: 20
   _SpawnPeriodSeconds: 0.2
+  _SpawnCondition: 1
+  _SpawnDelaySeconds: 2
   _AutoSpawn: 1
   _AutoRemove: 1
   _EjectionDirection: {x: 0, y: 0, z: 0}
@@ -11283,10 +11283,34 @@ MonoBehaviour:
       m_Calls: []
   m_SelectEntered:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 905535404}
+        m_TargetAssemblyTypeName: UnityEngine.Light, UnityEngine
+        m_MethodName: set_intensity
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 5000
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 0
   m_SelectExited:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 905535404}
+        m_TargetAssemblyTypeName: UnityEngine.Light, UnityEngine
+        m_MethodName: set_intensity
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 0
   m_Activated:
     m_PersistentCalls:
       m_Calls: []
@@ -11327,7 +11351,7 @@ MonoBehaviour:
   m_MatchAttachPosition: 1
   m_MatchAttachRotation: 1
   m_SnapToColliderVolume: 1
-  m_AttachEaseInTime: 0.4
+  m_AttachEaseInTime: 1
   m_MovementType: 0
   m_VelocityDamping: 0.9
   m_VelocityScale: 0.25
@@ -12982,10 +13006,10 @@ MonoBehaviour:
   _RandomiseSpawnPrefab: 0
   _SpawnablePrefabs: []
   _ActiveObjects: []
-  _SpawnCondition: 1
-  _SecondsBeforeSpawning: 2
   _SpawnablesAllocated: 1
   _SpawnPeriodSeconds: 0.1
+  _SpawnCondition: 1
+  _SpawnDelaySeconds: 2
   _AutoSpawn: 1
   _AutoRemove: 1
   _EjectionDirection: {x: 0, y: 0, z: 0}

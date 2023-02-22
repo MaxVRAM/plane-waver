@@ -65,32 +65,27 @@ public partial class AttachmentSystem : SystemBase
                 if (math.distance(host._WorldPos, connectionConfig._ListenerPos) > connectionConfig._ListenerRadius)
                 {
                     host._Connected = false;
-                    host._SpeakerIndex = int.MaxValue;
                     host._InListenerRadius = false;
                     ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<InListenerRadiusTag>(entityInQueryIndex, entity);
-                }
-                else
-                {
-                    host._InListenerRadius = true;
-                    ecb.AddComponent(entityInQueryIndex, entity, new InListenerRadiusTag());
+                    host._SpeakerIndex = int.MaxValue;
+                    return;
                 }
 
-                if (host._SpeakerIndex < speakerComponents.Length && speakerComponents[host._SpeakerIndex]._State != ConnectionState.Pooled)
-                {
-                    if (math.distance(host._WorldPos, speakerComponents[host._SpeakerIndex]._WorldPos) <
-                        speakerComponents[host._SpeakerIndex]._ConnectionRadius)
-                    {
-                        host._Connected = true;
-                        ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
-                    }
-                }
-                else
+                host._InListenerRadius = true;
+                ecb.AddComponent(entityInQueryIndex, entity, new InListenerRadiusTag());
+
+                if (host._SpeakerIndex >= speakerComponents.Length || math.distance(host._WorldPos,
+                    speakerComponents[host._SpeakerIndex]._WorldPos) > speakerComponents[host._SpeakerIndex]._ConnectionRadius)
                 {
                     host._Connected = false;
                     host._SpeakerIndex = int.MaxValue;
                     ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
+                    return;
                 }
+
+                host._Connected = true;
+                ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
             }
         ).WithDisposeOnCompletion(speakerComponents)
         .ScheduleParallel(Dependency);

@@ -108,6 +108,7 @@ public struct SpeakerComponent : IComponentData
 
 public struct ConnectedTag : IComponentData { }
 public struct InListenerRadiusTag : IComponentData { }
+public struct LoneHostOnSpeakerTag : IComponentData { }
 
 public struct HostComponent : IComponentData
 {

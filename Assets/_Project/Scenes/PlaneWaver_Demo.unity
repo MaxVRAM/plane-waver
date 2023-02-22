@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2138677392}
-  m_IndirectSpecularColor: {r: 440.66986, g: 406.037, b: 387.5498, a: 1}
+  m_IndirectSpecularColor: {r: 473.24658, g: 447.8108, b: 462.25195, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -481,7 +481,7 @@ MonoBehaviour:
   _RandomiseSpawnPrefab: 0
   _SpawnablePrefabs: []
   _ActiveObjects: []
-  _SpawnablesAllocated: 30
+  _SpawnablesAllocated: 20
   _SpawnPeriodSeconds: 0.1
   _SpawnCondition: 1
   _SpawnDelaySeconds: 2
@@ -660,8 +660,8 @@ MonoBehaviour:
     _TukeyHeight: 0.5
     _GaussianSigma: 0
     _LinearInOutFade: 0.01
-  _SpeakersAllocated: 20
-  _SpeakerAllocationPeriod: 0.2
+  _SpeakersAllocated: 4
+  _SpeakerAllocationPeriod: 0.1
   _SpeakerPrefab: {fileID: 2519325204652697373, guid: 6844ced249a80dd4584a457e05fa1c66,
     type: 3}
   _SpeakerParentTransform: {fileID: 1810087969}

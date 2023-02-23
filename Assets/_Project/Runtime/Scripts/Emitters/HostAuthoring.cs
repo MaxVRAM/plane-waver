@@ -30,7 +30,7 @@ namespace PlaneWaver
         [BoxGroup("Speaker Attachment")]
         public MaterialColourModulator _MaterialModulator = new();
 
-        private AttachmentLine _AttachmentLine;
+        private AttachmentLine _SpeakerAttachmentLine;
 
         [AllowNesting]
         [BoxGroup("Interaction")]
@@ -117,8 +117,12 @@ namespace PlaneWaver
             _SpeakerTarget = _SpeakerTarget != null ? _SpeakerTarget : _LocalTransform;
             _SpeakerTransform = _SpeakerTarget;
 
-            if (_AttachmentLine = TryGetComponent(out _AttachmentLine) ? _AttachmentLine : gameObject.AddComponent<AttachmentLine>())
-                _AttachmentLine._TransformA = _SpeakerTarget;
+            if (!TryGetComponent(out _SpeakerAttachmentLine))
+                _SpeakerAttachmentLine = gameObject.AddComponent<AttachmentLine>();
+            {
+                _SpeakerAttachmentLine._SpeakerAttachment = true;
+                _SpeakerAttachmentLine._TransformA = _SpeakerTarget;
+            }
 
             if (TryGetComponent(out _SurfaceProperties) || _LocalTransform.gameObject.TryGetComponent(out _SurfaceProperties))
             {
@@ -191,9 +195,8 @@ namespace PlaneWaver
             _SpeakerTransform = connected ? speaker.gameObject.transform : _SpeakerTarget;
             _AttachedSpeakerIndex = connected ? hostData._SpeakerIndex : int.MaxValue;
             
-            if (_Connected != connected)
-                _MaterialModulator.SetActiveState(connected);
-
+            
+            _MaterialModulator.SetActiveState(connected);
             _MaterialModulator.Tick();
 
             _Connected = connected;
@@ -247,20 +250,16 @@ namespace PlaneWaver
 
         public void UpdateSpeakerAttachmentLine()
         {
-            if (_AttachmentLine == null)
+            if (_SpeakerAttachmentLine == null)
                 return;
 
-            if (!_AttachmentLine.isActiveAndEnabled)
+            if (_Connected && _SpeakerTransform != _SpeakerTarget)
             {
-                _AttachmentLine.enabled = true;
-            }
-            if (_Connected && _SpeakerTransform != _SpeakerTarget && GrainBrain.Instance._DrawAttachmentLines)
-            {
-                _AttachmentLine._Active = true;
-                _AttachmentLine._TransformB = _SpeakerTransform;
+                _SpeakerAttachmentLine._Active = true;
+                _SpeakerAttachmentLine._TransformB = _SpeakerTransform;
             }
             else
-                _AttachmentLine._Active = false;
+                _SpeakerAttachmentLine._Active = false;
         }
 
         #endregion

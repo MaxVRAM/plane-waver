@@ -13,7 +13,6 @@ namespace PlaneWaver
         Configurable
     }
 
-    [CreateAssetMenu(fileName = "New BaseJoint", menuName = "Plane Waver/Interaction/BaseJoint", order = 1)]
     public class BaseJointScriptable : InteractionBaseScriptable
     {
         public override void Initialise()

@@ -25,7 +25,7 @@ namespace PlaneWaver
         [Header("Runtime Dynamics")]
         [SerializeField] private bool _Initialised = false;
         [SerializeField] private int _ObjectCounter = 0;
-        [SerializeField] public HashSet<GameObject> _CollidedThisUpdate;
+        public HashSet<GameObject> _CollidedThisUpdate;
 
         [Header("Object Configuration")]
         [Tooltip("Object providing the spawn location and controller behaviour.")]
@@ -175,21 +175,15 @@ namespace PlaneWaver
 
         public bool SpawningAllowed()
         {
-            switch (_SpawnCondition)
+            return _SpawnCondition switch
             {
-                case SpawnCondition.Never:
-                    return false;
-                case SpawnCondition.Always:
-                    return true;
-                case SpawnCondition.AfterSpeakersPopulated:
-                    return !GrainBrain.Instance.PopulatingSpeakers;
-                case SpawnCondition.IfSpeakerAvailable:
-                    return !GrainBrain.Instance._Speakers.TrueForAll(s => s.IsActive);
-                case SpawnCondition.AfterDelayPeriod:
-                    return _StartTimeReached || (_StartTimeReached = Time.time > _StartTime);
-                default:
-                    return false;
-            }
+                SpawnCondition.Never => false,
+                SpawnCondition.Always => true,
+                SpawnCondition.AfterSpeakersPopulated => !GrainBrain.Instance.PopulatingSpeakers,
+                SpawnCondition.IfSpeakerAvailable => !GrainBrain.Instance._Speakers.TrueForAll(s => s.IsActive),
+                SpawnCondition.AfterDelayPeriod => _StartTimeReached || (_StartTimeReached = Time.time > _StartTime),
+                _ => false,
+            };
         }
 
         public void CreateSpawnable()

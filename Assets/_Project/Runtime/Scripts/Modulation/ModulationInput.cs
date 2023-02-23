@@ -10,8 +10,8 @@ namespace PlaneWaver
     [Serializable]
     public class ModulationInput
     {
-        private Actor _LocalActor;
-        private Actor _RemoteActor;
+        [SerializeField] private Actor _LocalActor;
+        [SerializeField] private Actor _RemoteActor;
 
         public void SetLocalActor(Actor localActor)
         {

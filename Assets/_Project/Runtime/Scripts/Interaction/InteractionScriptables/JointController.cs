@@ -8,7 +8,7 @@ namespace PlaneWaver
     [RequireComponent(typeof(Rigidbody))]
     public class InteractionJointController : MonoBehaviour
     {
-        [SerializeField] private bool _Initialised = false;
+        private bool _Initialised = false;
         public Transform _LocalTransform;
         public Transform _RemoteTransform;
         private Rigidbody _RemoteRigidbody;
@@ -66,6 +66,11 @@ namespace PlaneWaver
 
             _JointComponent = _JointSetup.AssignJointConfig(_JointComponent);
             _JointComponent.connectedBody = _RemoteRigidbody;
+
+            GameObject lineObject = new GameObject($"{name}.JointLine");
+            lineObject.SetParentAndZero(gameObject);
+            AttachmentLine jointLine = lineObject.AddComponent<AttachmentLine>();
+            jointLine.Initialise(_LocalTransform, _RemoteTransform, false);
             _Initialised = true;
         }
     }

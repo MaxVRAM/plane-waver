@@ -189,7 +189,7 @@ public class GrainSynthVisualizer : MonoBehaviour
         //        {
         //            _WaveformVizGrainPool[i]._Lifetime -= Time.deltaTime;
         //            if (_WaveformVizGrainPool[i]._Lifetime <= 0)
-        //                _WaveformVizGrainPool[i].gameObject.SetActive(false);
+        //                _WaveformVizGrainPool[i].gameObject.SetActiveState(false);
         //        }
         //    }
         //}

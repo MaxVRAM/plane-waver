@@ -193,21 +193,24 @@ public partial class AttachmentSystem : SystemBase
                         continue;
 
                     float dist = math.distance(host._WorldPos, speaker._WorldPos);
-                    if (dist > speaker._ConnectionRadius)
-                        continue;
 
-                    if (speaker._State == ConnectionState.Lingering)
+                    if (speaker._State == ConnectionState.Active)
                     {
-                        if (dist < closestLingeringDistance)
+                        if (speaker._ConnectionRadius > dist &&
+                            speaker._GrainLoad < attachConfig._BusyLoadLimit &&
+                            speaker._GrainLoad < lowestActiveGrainLoad)
                         {
-                            closestLingeringDistance = dist;
-                            bestLingeringSpeaker = speakerIndexes[i].Value;
+                            lowestActiveGrainLoad = speaker._GrainLoad;
+                            newSpeakerIndex = speakerIndexes[i].Value;
                         }
+
+                        continue;
                     }
-                    else if (speaker._GrainLoad < attachConfig._BusyLoadLimit && speaker._GrainLoad < lowestActiveGrainLoad)
+
+                    if (dist < closestLingeringDistance)
                     {
-                        lowestActiveGrainLoad = speaker._GrainLoad;
-                        newSpeakerIndex = speakerIndexes[i].Value;
+                        closestLingeringDistance = dist;
+                        bestLingeringSpeaker = speakerIndexes[i].Value;
                     }
                 }
 

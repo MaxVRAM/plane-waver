@@ -9,9 +9,9 @@ namespace PlaneWaver
     [Serializable]
     public class Actor
     {
-        private readonly Transform _Transform;
-        private readonly Rigidbody _Rigidbody;
-        private readonly Collider _Collider;
+        [SerializeField] private Transform _Transform;
+        private Rigidbody _Rigidbody;
+        private Collider _Collider;
 
         private Collision _LatestCollision;
         private bool _IsColliding;
@@ -37,11 +37,7 @@ namespace PlaneWaver
             _IsAlive = isSet;
         }
 
-        public bool Exists()
-        {
-            _IsAlive = _Transform != null;
-            return _IsAlive;
-        }
+        public bool Exists() => _IsAlive = _Transform != null;
 
         public bool HasRigidBody => _Rigidbody != null;
         public bool HasCollider => _Collider != null;

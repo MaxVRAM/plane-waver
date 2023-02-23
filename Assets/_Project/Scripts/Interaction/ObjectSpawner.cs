@@ -8,8 +8,6 @@ using NaughtyAttributes;
 
 using MaxVRAM;
 using MaxVRAM.Ticker;
-using MaxVRAM.Extensions;
-using static PlaneWaver.ObjectSpawner;
 
 namespace PlaneWaver
 {
@@ -36,11 +34,11 @@ namespace PlaneWaver
         [Tooltip("Parent GameObject to attach spawned prefabs.")]
         public GameObject _SpawnableHost;
         [Tooltip("Prefab to spawn.")]
-        [SerializeField] private GameObject _PrefabToSpawn;
-        [SerializeField] private bool _RandomiseSpawnPrefab = false;
+        public GameObject _PrefabToSpawn;
+        public bool _RandomiseSpawnPrefab = false;
         [Tooltip("A list of prebs to spawn can also be supplied, allowing runtime selection of object spawn selection.")]
-        [SerializeField] private List<GameObject> _SpawnablePrefabs;
-        public List<GameObject> _ActiveObjects = new();
+        public List<GameObject> _SpawnablePrefabs;
+        public Joint _AttachmentJoint;
 
         [Header("Spawning Rules")]
         [SerializeField][Range(0, 100)] private int _SpawnablesAllocated = 10;
@@ -88,16 +86,9 @@ namespace PlaneWaver
 
         [Header("Visual Feedback")]
         [SerializeField] private ControllerEvent _EmissiveFlashTrigger = ControllerEvent.OnSpawn;
-        [Tooltip("Emissive brightness range to modulate associated renderers. X = base emissive brightness, Y = brightness on event trigger.")]
-        [EnableIf("VisualFeedbackOn")]
-        [MinMaxSlider(-10f, 10f)] public Vector2 _EmissiveBrightness = new(0, 10);
-        [EnableIf("VisualFeedbackOn")]
-        [Range(0, 1)][SerializeField] private float _EmissiveFlashFade = 0.5f;
-        [Tooltip("Supply list of renderers to modulate/flash emissive brightness on selected triggers.")]
-        [SerializeField] private List<Renderer> _ControllerRenderers = new();
-        private List<MaterialColourModulator> _EmissiveRenderers = new();
-        private float _EmissiveIntensity = 0;
-        public bool VisualFeedbackOn => _EmissiveFlashTrigger is not ControllerEvent.Off;
+        public MaterialColourModulator _MaterialModulator;
+
+        private List<GameObject> _ActiveObjects = new();
 
         #endregion
 
@@ -131,9 +122,6 @@ namespace PlaneWaver
             if (_ControllerObject == null)
                 _ControllerObject = gameObject;
 
-            foreach (Renderer renderer in _ControllerRenderers)
-                _EmissiveRenderers.Add(new MaterialColourModulator(renderer, "_EmissiveColor"));
-
             if (_SpawnableHost == null)
                 _SpawnableHost = gameObject;
 
@@ -161,16 +149,16 @@ namespace PlaneWaver
 
         void Update()
         {
+            _ActiveObjects.RemoveAll(item => item == null);
             _SpawnTimer.UpdateTrigger(Time.deltaTime, _SpawnPeriodSeconds);
 
-            if (ReadyToSpawn())
-            {
-                if (_AutoSpawn) CreateSpawnable();
-                else if (_AutoRemove) RemoveSpawnable(0);
-            }
+            if (!ReadyToSpawn())
+                return;
 
-            _ActiveObjects.RemoveAll(item => item == null);
-            UpdateShaderModulation();
+            if (_AutoSpawn)
+                CreateSpawnable();
+            else if (_AutoRemove)
+                RemoveSpawnable(0);
         }
 
         #endregion
@@ -216,7 +204,7 @@ namespace PlaneWaver
             _ActiveObjects.Add(newObject);
 
             if (_EmissiveFlashTrigger == ControllerEvent.OnSpawn)
-                _EmissiveIntensity = _EmissiveBrightness.y;
+                _MaterialModulator.Flash();
         }
 
         public void RemoveSpawnable(int index)
@@ -278,15 +266,6 @@ namespace PlaneWaver
         #endregion
 
         #region RUNTIME MODULATIONS
-
-        public void UpdateShaderModulation()
-        {
-            foreach (MaterialColourModulator renderer in _EmissiveRenderers)
-                renderer.SetIntensity(_EmissiveIntensity * 2);
-
-            float glow = _EmissiveBrightness.x + (1 + Mathf.Sin(_SecondsSinceSpawn / _SpawnPeriodSeconds * 2)) * 0.5f;
-            _EmissiveIntensity = _EmissiveIntensity.Smooth(glow, _EmissiveFlashFade);
-        }
 
         public bool UniqueCollision(GameObject goA, GameObject goB)
         {

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
-using Unity.Transforms;
 
 using MaxVRAM.Audio;
 using MaxVRAM.Extensions;
@@ -29,11 +28,10 @@ namespace PlaneWaver
         [SerializeField] private Transform _SpeakerTransform;
         [AllowNesting]
         [BoxGroup("Speaker Attachment")]
-        [SerializeField] private Renderer _AttachmentRenderer;
+        [SerializeField] private Renderer _HostMeshRenderer;
         [AllowNesting]
         [BoxGroup("Speaker Attachment")]
-        [MinMaxSlider(-10, 10)] public Vector2 _EmissionRange = new(2, 10);
-        private MaterialColourModulator _MaterialModulator;
+        public MaterialColourModulator _MaterialModulator;
 
         private AttachmentLine _AttachmentLine;
 
@@ -51,10 +49,6 @@ namespace PlaneWaver
         [BoxGroup("Interaction")]
         public Transform _RemoteTransform;
         public Actor _RemoteActor;
-        [AllowNesting]
-        [BoxGroup("Interaction")]
-        [Tooltip("(runtime) Paired component that pipes collision data from the local object target to this host.")]
-        public CollisionPipe _CollisionPipeComponent;
         [AllowNesting]
         [BoxGroup("Interaction")]
         [SerializeField] private float _SelfRigidity = 0.5f;
@@ -115,7 +109,7 @@ namespace PlaneWaver
         {
             if (!_RemotelyAssigned)
             {
-                _LocalTransform = transform.parent != null ? transform.parent : transform;
+                _LocalTransform = transform;
                 if (!_LocalTransform.TryGetComponent(out _SpawnLife))
                     _SpawnLife = _LocalTransform.gameObject.AddComponent<SpawnableManager>();
             }
@@ -123,26 +117,17 @@ namespace PlaneWaver
             _LocalActor = new(_LocalTransform);
             _RemoteActor = _RemoteTransform != null ? new(_RemoteTransform) : null;
 
-            if (_AttachmentRenderer != null)
-                _MaterialModulator = new MaterialColourModulator(_AttachmentRenderer, "_EmissiveColor");
-
             if (_AttachmentLine = TryGetComponent(out _AttachmentLine) ? _AttachmentLine : gameObject.AddComponent<AttachmentLine>())
                 _AttachmentLine._TransformA = _SpeakerTarget;
 
             if (TryGetComponent(out _SurfaceProperties) || _LocalTransform.gameObject.TryGetComponent(out _SurfaceProperties))
+            {
                 _SelfRigidity = _SurfaceProperties._Rigidity;
+            }
             else
             {
                 _SurfaceProperties = _LocalTransform.gameObject.AddComponent<SurfaceProperties>();
                 _SurfaceProperties._Rigidity = _SelfRigidity;
-            }
-
-            if (_LocalTransform.TryGetComponent(out Collider _))
-            {
-                // Set up a collision pipe to send collisions from the targeted object here. TODO: Move to event system via Actor struct
-                _CollisionPipeComponent = _LocalTransform.TryGetComponent(out _CollisionPipeComponent) ?
-                    _CollisionPipeComponent : _LocalTransform.gameObject.AddComponent<CollisionPipe>();
-                _CollisionPipeComponent.AddHost(this);
             }
 
             _SpeakerTarget = _SpeakerTarget != null ? _SpeakerTarget : _LocalTransform;
@@ -205,8 +190,9 @@ namespace PlaneWaver
             _SpeakerTransform = connected ? speaker.gameObject.transform : _SpeakerTarget;
             _AttachedSpeakerIndex = connected ? hostData._SpeakerIndex : int.MaxValue;
             _Connected = connected;
+            
+            _MaterialModulator.SetActiveState(connected);
 
-            _MaterialModulator.SetIntensity(connected ? 10 : 1);
             UpdateSpeakerAttachmentLine();
             ProcessRigidity();
 
@@ -227,8 +213,6 @@ namespace PlaneWaver
         {
             if (GrainBrain.Instance != null)
                 GrainBrain.Instance.DeregisterHost(this);
-            if (_CollisionPipeComponent != null)
-                _CollisionPipeComponent.RemoveHost(this);
         }
 
         #endregion
@@ -293,8 +277,6 @@ namespace PlaneWaver
 
             if (ContactAllowed(collider.gameObject))
             {
-                //foreach (ModulationSource source in _ModulationSources)
-                //    source.SetInputCollision(true, collider.material);
                 _LocalActor.IsColliding = true;
 
                 foreach (EmitterAuthoring emitter in _HostedEmitters)
@@ -312,8 +294,6 @@ namespace PlaneWaver
                 _LocalActor.IsColliding = false;
                 _TargetCollidingRigidity = 0;
                 _CollidingRigidity = 0;
-                //foreach (ModulationSource source in _ModulationSources)
-                //    source.SetInputCollision(false, collision.collider.material);
                 foreach (EmitterAuthoring emitter in _HostedEmitters)
                     emitter.UpdateContactStatus(null);
             }

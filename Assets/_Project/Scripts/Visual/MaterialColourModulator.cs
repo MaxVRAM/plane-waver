@@ -4,46 +4,43 @@ using MaxVRAM.Extensions;
 
 namespace PlaneWaver
 {
-    public struct MaterialColourModulator
+    [System.Serializable]
+    public class MaterialColourModulator : MonoBehaviour
     {
-        private Renderer _Renderer;
-        private Color _Colour;
-        private string _ColourParam;
-        private float _CurrentIntensity;
-        private float _Smoothing;
-        public float Smoothing { get => _Smoothing; set => _Smoothing = value; }
+        public bool _Enabled = true;
+        public Renderer _Renderer;
+        public Color _Colour;
+        public string _ColourParam = "_EmissiveColor";
+        public bool _ActiveState = false;
+        public float _ActiveIntensity = 10f;
+        public float _InactiveIntensity = 0f;
+        private float _CurrentIntensity = 0f;
+        private float _TargetIntensity = 0f;
+        [Range(0, 1)] public float _Smoothing = 0.5f;
 
-        public MaterialColourModulator(Renderer renderer, string colourParamName)
-        {
-            _Renderer = renderer;
-            _Colour = renderer.material.GetColor(colourParamName);
-            _ColourParam = colourParamName;
-            _CurrentIntensity = 1;
-            _Smoothing = 0.5f;
-    }
 
-        public MaterialColourModulator(Renderer renderer, Color colour, string colourParamName)
+        public void Start()
         {
-            _Renderer = renderer;
-            _Colour = colour;
-            _ColourParam = colourParamName;
-            _CurrentIntensity = 1;
-            _Smoothing = 0.5f;
+            if (_Renderer == null) _Renderer = GetComponent<Renderer>();
         }
 
-        public void SetIntensity(float intensity)
+        public void Update()
         {
-            if (_Renderer != null)
+            if (_Enabled && _Renderer != null)
             {
-                _CurrentIntensity = _CurrentIntensity.Smooth(intensity, _Smoothing);
+                _CurrentIntensity = _CurrentIntensity.Smooth(_TargetIntensity, _Smoothing);
                 _Renderer.material.SetColor(_ColourParam, _Colour * _CurrentIntensity);
             }
         }
 
-        public void SetColour(Color colour)
+        public void SetActiveState(bool active)
         {
-            if (_Renderer != null)
-                _Renderer.material.SetColor(_ColourParam, colour);
+            _ActiveState = active;
+            _TargetIntensity = _ActiveState ? _ActiveIntensity : _InactiveIntensity;
         }
+
+        public void Activate() { SetActiveState(true); }
+        public void Deactivate() { SetActiveState(false); }
+        public void Flash() { SetActiveState(false); _CurrentIntensity = _ActiveIntensity; }
     }
 }

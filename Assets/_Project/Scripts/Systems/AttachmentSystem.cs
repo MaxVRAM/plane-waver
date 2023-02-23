@@ -72,6 +72,7 @@ public partial class AttachmentSystem : SystemBase
         NativeArray<SpeakerComponent> speakerComponents;
 
         speakerQuery = GetEntityQuery(speakerQueryDesc);
+        speakerIndexes = speakerQuery.ToComponentDataArray<SpeakerIndex>(Allocator.TempJob);
         speakerComponents = speakerQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);
         JobHandle updateHostRangeJob = Entities.WithName("UpdateHostRange").WithReadOnly(speakerComponents).ForEach
         (
@@ -91,27 +92,41 @@ public partial class AttachmentSystem : SystemBase
                 host._InListenerRadius = true;
                 ecb.AddComponent(entityInQueryIndex, entity, new InListenerRadiusTag());
 
-                if (host._SpeakerIndex >= speakerComponents.Length || math.distance(host._WorldPos,
-                    speakerComponents[host._SpeakerIndex]._WorldPos) > speakerComponents[host._SpeakerIndex]._ConnectionRadius)
+                if (host._SpeakerIndex < speakerComponents.Length)
                 {
-                    host._Connected = false;
-                    host._SpeakerIndex = int.MaxValue;
-                    ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
-                    return;
+                    int speakerIndex = int.MaxValue;
+
+                    for (int s = 0;  s < speakerComponents.Length; s++)
+                        if (host._SpeakerIndex == s)
+                        {
+                            speakerIndex = s;
+                            break;
+                        }
+
+                    if (speakerIndex <= speakerComponents.Length)
+                    {
+                        SpeakerComponent speaker = speakerComponents[speakerIndex];
+                        if (math.distance(host._WorldPos, speaker._WorldPos) <= speaker._ConnectionRadius)
+                        {
+                            if (speakerComponents[host._SpeakerIndex]._ConnectedHostCount == 1)
+                                ecb.AddComponent(entityInQueryIndex, entity, new LoneHostOnSpeakerTag());
+                            ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
+                            host._Connected = true;
+                            return;
+                        }
+                    }
                 }
 
-                if (speakerComponents[host._SpeakerIndex]._ConnectedHostCount == 1)
-                    ecb.AddComponent(entityInQueryIndex, entity, new LoneHostOnSpeakerTag());
-                ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
-                host._Connected = true;
+                host._Connected = false;
+                host._SpeakerIndex = int.MaxValue;
+                ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
+                ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
             }
         ).ScheduleParallel(Dependency);
         updateHostRangeJob.Complete();
         _CommandBufferSystem.AddJobHandleForProducer(updateHostRangeJob);
 
         speakerQuery = GetEntityQuery(speakerQueryDesc);
-        speakerIndexes = speakerQuery.ToComponentDataArray<SpeakerIndex>(Allocator.TempJob);
         JobHandle groupLoneHostsJob = Entities.WithName("GroupLoneHosts")
             .WithAll<InListenerRadiusTag, ConnectedTag, LoneHostOnSpeakerTag>()
             .WithReadOnly(speakerIndexes).WithReadOnly(speakerComponents).ForEach
@@ -203,7 +218,7 @@ public partial class AttachmentSystem : SystemBase
                 host._Connected = true;
                 ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
             }
-        ).WithDisposeOnCompletion(speakerComponents).WithDisposeOnCompletion(speakerIndexes)
+        ).WithDisposeOnCompletion(speakerIndexes).WithDisposeOnCompletion(speakerComponents)
         .ScheduleParallel(groupLoneHostsJob);
         connectToActiveSpeakerJob.Complete();
         _CommandBufferSystem.AddJobHandleForProducer(connectToActiveSpeakerJob);

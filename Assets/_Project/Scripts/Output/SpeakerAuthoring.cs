@@ -1,11 +1,12 @@
 ﻿using Unity.Entities;
-using Unity.Transforms;
 using UnityEngine;
+
+using MaxVRAM.Extensions;
 
 namespace PlaneWaver
 {
     /// <summary>
-    /// Speakers are passed Grains entities by the GrainSynth, which they write directly to the attached AudioSource output buffer.
+    /// Speakers are passed Grains entities by the GrainBrain, which they write directly to the attached AudioSource output buffer.
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
     public class SpeakerAuthoring : SynthEntity
@@ -13,6 +14,7 @@ namespace PlaneWaver
         #region FIELDS & PROPERTIES
 
         [SerializeField] private ConnectionState _State = ConnectionState.Pooled;
+        public bool IsActive => _State == ConnectionState.Active;
         [SerializeField] private int _GrainArraySize = 100;
         [SerializeField] private int _NumGrainsFree = 0;
         [SerializeField] private float _GrainLoad = 0;
@@ -21,13 +23,13 @@ namespace PlaneWaver
         [SerializeField] private float _ConnectionRadius = 1;
         [SerializeField] private float _TargetVolume = 0;
 
-        private float _VolumeSmoothing = 4;
+        [Range(0f,1f)]private float _VolumeSmoothing = 0.5f;
         private int _SampleRate;
 
         private MeshRenderer _MeshRenderer;
         private Material _Material;
-        private Color _ActiveColor = new Color(1, 1, 1, 0.01f);
-        private Color _OverloadColor = new Color(1, 0, 0, 0.02f);
+        private Color _ActiveColor = new (1, 1, 1, 0.01f);
+        private Color _OverloadColor = new (1, 0, 0, 0.02f);
         private Color _CurrentColour;
         private AudioSource _AudioSource;
         private Grain[] _GrainArray;
@@ -52,8 +54,7 @@ namespace PlaneWaver
             _EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             _Archetype = _EntityManager.CreateArchetype(
                 typeof(SpeakerComponent),
-                typeof(SpeakerIndex),
-                typeof(Translation));
+                typeof(SpeakerIndex));
         }
 
         #endregion
@@ -68,7 +69,6 @@ namespace PlaneWaver
         public override void InitialiseComponents()
         {
             _EntityManager.SetComponentData(_Entity, new SpeakerIndex { Value = EntityIndex });
-            _EntityManager.SetComponentData(_Entity, new Translation { Value = transform.position });
             _EntityManager.SetComponentData(_Entity, new SpeakerComponent
             {
                 _State = ConnectionState.Pooled,
@@ -80,8 +80,8 @@ namespace PlaneWaver
 
         public override void ProcessComponents()
         {
+            UpdateGrainPool();
             ProcessIndex();
-            ProcessTranslation();
             ProcessPooling();
         }
 
@@ -92,64 +92,45 @@ namespace PlaneWaver
                 _EntityManager.SetComponentData(_Entity, new SpeakerIndex { Value = EntityIndex });
         }
 
-        public void ProcessTranslation()
-        {
-            Translation translation = _EntityManager.GetComponentData<Translation>(_Entity);
-            transform.position = translation.Value;
-        }
-
         public void ProcessPooling()
         {
             SpeakerComponent pooling = _EntityManager.GetComponentData<SpeakerComponent>(_Entity);
-
-            bool stateChanged = _State != pooling._State;
-            _State = pooling._State;
-
-            _ConnectionRadius = pooling._ConnectionRadius;
-            _ConnectedHosts = pooling._ConnectedHostCount;
-            _InactiveDuration = pooling._InactiveDuration;
-            transform.localScale = Vector3.one * _ConnectionRadius;
-
-            UpdateGrainPool();
-            float newGrainLoad = 1 - (float)_NumGrainsFree / _GrainArraySize;
-            if (newGrainLoad < 0.005f)
-                _GrainLoad = 0;
-            else if (newGrainLoad > 0.995f)
-                _GrainLoad = 1;
-            else
-                _GrainLoad = Mathf.Lerp(_GrainLoad, newGrainLoad, Time.deltaTime * 3);
-
+            _GrainLoad = _GrainLoad.Smooth(1 - (float)_NumGrainsFree / _GrainArraySize, 0.5f);
             pooling._GrainLoad = _GrainLoad;
             _EntityManager.SetComponentData(_Entity, pooling);
 
+            bool stateChanged = _State != pooling._State;
+            _State = pooling._State;
+            _ConnectionRadius = pooling._ConnectionRadius;
+            _ConnectedHosts = pooling._ConnectedHostCount;
+            _InactiveDuration = pooling._InactiveDuration;
+
+            transform.position = pooling._WorldPos;
+            transform.localScale = Vector3.one * _ConnectionRadius;
 
             _TargetVolume = _State != ConnectionState.Pooled ? 1 : 0;
+            _AudioSource.volume = _AudioSource.volume.Smooth(_TargetVolume, _VolumeSmoothing);
 
-            if (Mathf.Abs(_AudioSource.volume - _TargetVolume) < 0.005f)
-                _AudioSource.volume = _TargetVolume;
-            else
-                _AudioSource.volume = Mathf.Lerp(_AudioSource.volume, _TargetVolume, Time.deltaTime * _VolumeSmoothing);
+            if (_MeshRenderer == null)
+                return;
 
-            if (_MeshRenderer != null)
+            if (_State == ConnectionState.Active && !stateChanged)
             {
-                if (_State == ConnectionState.Active && !stateChanged)
-                {
-                    _MeshRenderer.enabled = true;
-                    _CurrentColour = Color.Lerp(_ActiveColor, _OverloadColor, _GrainLoad);
-                    _Material.color = _CurrentColour;
-                }
-                else
-                {
-                    _MeshRenderer.enabled = false;
-                    _CurrentColour = _ActiveColor;
-                    _Material.color = _CurrentColour;
-                }
+                _MeshRenderer.enabled = true;
+                _CurrentColour = Color.Lerp(_ActiveColor, _OverloadColor, _GrainLoad);
+                _Material.color = _CurrentColour;
+            }
+            else
+            {
+                _MeshRenderer.enabled = false;
+                _CurrentColour = _ActiveColor;
+                _Material.color = _CurrentColour;
             }
         }
 
         public override void Deregister()
         {
-            GrainSynth.Instance.DeregisterSpeaker(this);
+            GrainBrain.Instance.DeregisterSpeaker(this);
         }
 
         #endregion
@@ -206,7 +187,7 @@ namespace PlaneWaver
             if (!_EntityInitialised)
                 return;
             _NumGrainsFree--;
-            OnGrainEmitted?.Invoke(grainData, GrainSynth.Instance.CurrentSampleIndex);
+            OnGrainEmitted?.Invoke(grainData, GrainBrain.Instance.CurrentSampleIndex);
         }
 
         public Grain GetEmptyGrain(out Grain grain)
@@ -235,7 +216,7 @@ namespace PlaneWaver
                 return;
 
             Grain grainData;
-            int _CurrentDSPSample = GrainSynth.Instance.CurrentSampleIndex;
+            int _CurrentDSPSample = GrainBrain.Instance.CurrentSampleIndex;
 
             for (int dataIndex = 0; dataIndex < data.Length; dataIndex += channels)
                 for (int i = 0; i < _GrainArray.Length; i++)

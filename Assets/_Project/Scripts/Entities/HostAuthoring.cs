@@ -21,12 +21,19 @@ namespace PlaneWaver
         private Transform _HeadTransform;
 
         [AllowNesting]
-        [BoxGroup("Speaker Assignment")]
+        [BoxGroup("Speaker Attachment")]
         [Tooltip("Parent transform position for speakers to target for this host. Defaults to this transform.")]
         [SerializeField] private Transform _SpeakerTarget;
         [AllowNesting]
-        [BoxGroup("Speaker Assignment")]
+        [BoxGroup("Speaker Attachment")]
         [SerializeField] private Transform _SpeakerTransform;
+        [AllowNesting]
+        [BoxGroup("Speaker Attachment")]
+        [SerializeField] private Renderer _AttachmentRenderer;
+        [AllowNesting]
+        [BoxGroup("Speaker Attachment")]
+        [MinMaxSlider(-10, 10)] public Vector2 _EmissionRange = new(2, 10);
+        private MaterialColourModulator _MaterialModulator;
 
         private AttachmentLine _AttachmentLine;
 
@@ -100,8 +107,8 @@ namespace PlaneWaver
             InitialiseModules();
 
             _EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            _Archetype = _EntityManager.CreateArchetype(typeof(Translation), typeof(HostComponent));
-            SetIndex(GrainSynth.Instance.RegisterHost(this));
+            _Archetype = _EntityManager.CreateArchetype(typeof(HostComponent));
+            SetIndex(GrainBrain.Instance.RegisterHost(this));
         }
 
         public void InitialiseModules()
@@ -115,6 +122,9 @@ namespace PlaneWaver
 
             _LocalActor = new(_LocalTransform);
             _RemoteActor = _RemoteTransform != null ? new(_RemoteTransform) : null;
+
+            if (_AttachmentRenderer != null)
+                _MaterialModulator = new MaterialColourModulator(_AttachmentRenderer, "_EmissiveColor");
 
             if (_AttachmentLine = TryGetComponent(out _AttachmentLine) ? _AttachmentLine : gameObject.AddComponent<AttachmentLine>())
                 _AttachmentLine._TransformA = _SpeakerTarget;
@@ -135,7 +145,7 @@ namespace PlaneWaver
                 _CollisionPipeComponent.AddHost(this);
             }
 
-            _SpeakerTarget = _SpeakerTarget != null ? _SpeakerTarget : transform;
+            _SpeakerTarget = _SpeakerTarget != null ? _SpeakerTarget : _LocalTransform;
             _SpeakerTransform = _SpeakerTarget;
             _HeadTransform = FindObjectOfType<Camera>().transform;
 
@@ -173,30 +183,30 @@ namespace PlaneWaver
 
         public override void InitialiseComponents()
         {
-            _EntityManager.SetComponentData(_Entity, new Translation { Value = _SpeakerTarget.position });
             _EntityManager.SetComponentData(_Entity, new HostComponent
             {
                 _HostIndex = _EntityIndex,
                 _Connected = false,
                 _SpeakerIndex = int.MaxValue,
-                _InListenerRadius = InListenerRadius
+                _InListenerRadius = InListenerRadius,
+                _WorldPos = _SpeakerTarget.position
             });
         }
 
         public override void ProcessComponents()
         {
-            _EntityManager.SetComponentData(_Entity, new Translation { Value = _SpeakerTarget.position });
-
             HostComponent hostData = _EntityManager.GetComponentData<HostComponent>(_Entity);
             hostData._HostIndex = _EntityIndex;
+            hostData._WorldPos = _SpeakerTarget.position;
             _EntityManager.SetComponentData(_Entity, hostData);
 
-            bool connected = GrainSynth.Instance.IsSpeakerAtIndex(hostData._SpeakerIndex, out SpeakerAuthoring speaker);
+            bool connected = GrainBrain.Instance.IsSpeakerAtIndex(hostData._SpeakerIndex, out SpeakerAuthoring speaker);
             _InListenerRadius = hostData._InListenerRadius;
             _SpeakerTransform = connected ? speaker.gameObject.transform : _SpeakerTarget;
             _AttachedSpeakerIndex = connected ? hostData._SpeakerIndex : int.MaxValue;
             _Connected = connected;
 
+            _MaterialModulator.SetIntensity(connected ? 10 : 1);
             UpdateSpeakerAttachmentLine();
             ProcessRigidity();
 
@@ -204,19 +214,19 @@ namespace PlaneWaver
                 transform.position,
                 _HeadTransform.position,
                 _SpeakerTransform.position);
-
-            _ListenerDistance = Mathf.Abs((_SpeakerTarget.position - _HeadTransform.position).magnitude);
+            
+            _ListenerDistance = Vector3.Distance(_SpeakerTarget.position, _HeadTransform.position);
 
             foreach (EmitterAuthoring emitter in _HostedEmitters)
             {
-                emitter.UpdateDistanceAmplitude(_ListenerDistance / GrainSynth.Instance._ListenerRadius, speakerAmplitudeFactor);
+                emitter.UpdateDistanceAmplitude(_ListenerDistance / GrainBrain.Instance._ListenerRadius, speakerAmplitudeFactor);
             }
         }
 
         public override void Deregister()
         {
-            if (GrainSynth.Instance != null)
-                GrainSynth.Instance.DeregisterHost(this);
+            if (GrainBrain.Instance != null)
+                GrainBrain.Instance.DeregisterHost(this);
             if (_CollisionPipeComponent != null)
                 _CollisionPipeComponent.RemoveHost(this);
         }
@@ -250,7 +260,7 @@ namespace PlaneWaver
         {
             if (_AttachmentLine != null)
             {
-                if (_Connected && _SpeakerTransform != _SpeakerTarget && GrainSynth.Instance._DrawAttachmentLines)
+                if (_Connected && _SpeakerTransform != _SpeakerTarget && GrainBrain.Instance._DrawAttachmentLines)
                 {
                     _AttachmentLine._Active = true;
                     _AttachmentLine._TransformB = _SpeakerTransform;

@@ -73,8 +73,8 @@ public class GrainSynthVisualizer : MonoBehaviour
         if (_DrawWaveform)
         {
             // Waveform
-            float[] clipData = new float[20]; // [GrainSynth.Instance._AudioClips[0].samples];
-            // GrainSynth.Instance._AudioClips[0].GetData(clipData, 0);
+            float[] clipData = new float[20]; // [GrainBrain.Instance._AudioClips[0].samples];
+            // GrainBrain.Instance._AudioClips[0].GetData(clipData, 0);
             _ClipSampleCount = clipData.Length;
             int samplesPerBlock = clipData.Length / _WaveformBlockCount;
 
@@ -205,13 +205,13 @@ public class GrainSynthVisualizer : MonoBehaviour
                 _XAxisPivot.SetScaleX(_TimelineDistance);
 
             if (Application.isPlaying && _XAxisPivot_FrameTime != null)
-                _XAxisPivot_FrameTime.SetScaleX(-GrainSynth.Instance._QueueDurationMS * .001f * (_TimelineDistance / _TimelineDuration));
+                _XAxisPivot_FrameTime.SetScaleX(-GrainBrain.Instance._QueueDurationMS * .001f * (_TimelineDistance / _TimelineDuration));
 
             for (int i = 0; i < _TimelineBlocks.Length; i++)
             {
                 if (_TimelineBlocks[i].gameObject.activeSelf)
                 {
-                    int sampleDiff = _TimelineBlocks[i]._StartIndex - GrainSynth.Instance.CurrentSampleIndex;
+                    int sampleDiff = _TimelineBlocks[i]._StartIndex - GrainBrain.Instance.CurrentSampleIndex;
                     Vector3 pos = transform.position + transform.right * (sampleDiff / _SampleRate) * (_TimelineDistance / _TimelineDuration);
                     pos.y = _TimelineBlocks[i].transform.position.y;
 
@@ -246,7 +246,7 @@ public class GrainSynthVisualizer : MonoBehaviour
 
     Vector3 PosFromStartSampleIndex(int startSampleIndex)
     {
-        int sampleDiff = startSampleIndex - GrainSynth.Instance.CurrentSampleIndex;
+        int sampleDiff = startSampleIndex - GrainBrain.Instance.CurrentSampleIndex;
         Vector3 pos = transform.position + transform.right * (sampleDiff / _SampleRate) * (_TimelineDistance / _TimelineDuration);
 
         pos.y += (_IncrementY % _TimelineHeightCount) * _TimelineScale;

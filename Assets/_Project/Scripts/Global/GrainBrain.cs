@@ -25,11 +25,11 @@ namespace PlaneWaver
     /// Single-instanced manager component that governs the synthesiser's entities and grain delivery.
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
-    public class GrainSynth : MonoBehaviour
+    public class GrainBrain : MonoBehaviour
     {
         #region FIELDS & PROPERTIES
 
-        public static GrainSynth Instance;
+        public static GrainBrain Instance;
 
         private EntityManager _EntityManager;
         private EntityQuery _GrainQuery;
@@ -111,8 +111,9 @@ namespace PlaneWaver
         [BoxGroup("Speaker Configuration")]
         [Tooltip("Length of time in milliseconds before pooling a speaker after its last emitter has disconnected. Allows speakers to be reused without destroying remaining grains from destroyed emitters.")]
         [Range(0, 500)] public float _SpeakerLingerTime = 100;
-        public int SpeakersAllocated { get { return Math.Min(_SpeakersAllocated, _MaxSpeakers); } }
-        public float AttachSmoothing { get { return Mathf.Clamp(Time.deltaTime * _SpeakerTrackingSpeed, 0, 1); } }
+        public int SpeakersAllocated => Math.Min(_SpeakersAllocated, _MaxSpeakers);
+        public bool PopulatingSpeakers => _SpeakersAllocated != _Speakers.Count;
+        public float AttachSmoothing => Mathf.Clamp(Time.deltaTime * _SpeakerTrackingSpeed, 0, 1);
 
         [BoxGroup("Visual Feedback")]
         public TextMeshProUGUI _StatsValuesText;

@@ -95,6 +95,7 @@ public struct SpeakerComponent : IComponentData
     public float _ConnectionRadius;
     public float _InactiveDuration;
     public float _GrainLoad;
+    public float3 _WorldPos;
 }
 
 
@@ -107,6 +108,7 @@ public struct SpeakerComponent : IComponentData
 
 public struct ConnectedTag : IComponentData { }
 public struct InListenerRadiusTag : IComponentData { }
+public struct LoneHostOnSpeakerTag : IComponentData { }
 
 public struct HostComponent : IComponentData
 {
@@ -114,6 +116,7 @@ public struct HostComponent : IComponentData
     public int _SpeakerIndex;
     public bool _Connected;
     public bool _InListenerRadius;
+    public float3 _WorldPos;
 }
 public struct PlayingTag : IComponentData { }
 public struct PingPongTag : IComponentData { }

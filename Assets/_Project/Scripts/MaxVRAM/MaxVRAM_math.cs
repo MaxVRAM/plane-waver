@@ -5,6 +5,8 @@ namespace MaxVRAM
 {
     public struct MaxMath
     {
+        public static float ONE_DEGREE => 0.0027777777f;
+
         public static float Map(float val, float inMin, float inMax, float outMin, float outMax)
         {
             return (val - inMin) / (inMax - inMin) * (outMax - outMin) + outMin;

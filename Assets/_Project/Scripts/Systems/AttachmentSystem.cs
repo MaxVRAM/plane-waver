@@ -4,6 +4,8 @@ using Unity.Collections;
 using Unity.Jobs;
 using System;
 
+using MaxVRAM;
+
 // https://docs.unity3d.com/Packages/com.unity.entities@0.51/api/
 
 /// <summary>
@@ -23,7 +25,7 @@ public partial class AttachmentSystem : SystemBase
     protected override void OnUpdate()
     {
         AudioTimerComponent dspTimer = GetSingleton<AudioTimerComponent>();
-        ConnectionConfig connectionConfig = GetSingleton<ConnectionConfig>();
+        ConnectionConfig attachConfig = GetSingleton<ConnectionConfig>();
         // Acquire an ECB and convert it to a concurrent one to be able to use it from a parallel job.
         EntityCommandBuffer.ParallelWriter ecb = _CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
@@ -75,7 +77,7 @@ public partial class AttachmentSystem : SystemBase
         (
             (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
             {
-                if (math.distance(host._WorldPos, connectionConfig._ListenerPos) > connectionConfig._ListenerRadius)
+                if (math.distance(host._WorldPos, attachConfig._ListenerPos) > attachConfig._ListenerRadius)
                 {
                     host._Connected = false;
                     host._InListenerRadius = false;
@@ -187,7 +189,7 @@ public partial class AttachmentSystem : SystemBase
                             bestLingeringSpeaker = speakerIndexes[i].Value;
                         }
                     }
-                    else if (speaker._GrainLoad < connectionConfig._BusyLoadLimit && speaker._GrainLoad < lowestActiveGrainLoad)
+                    else if (speaker._GrainLoad < attachConfig._BusyLoadLimit && speaker._GrainLoad < lowestActiveGrainLoad)
                     {
                         lowestActiveGrainLoad = speaker._GrainLoad;
                         newSpeakerIndex = speakerIndexes[i].Value;
@@ -221,35 +223,32 @@ public partial class AttachmentSystem : SystemBase
                     if (hostComponents[e]._SpeakerIndex != index.Value)
                         continue;
 
+                    if (math.distance(currentPosition, hostComponents[e]._WorldPos) > speaker._ConnectionRadius)
+                        continue;
+
                     targetPosition += hostComponents[e]._WorldPos;
                     attachedHosts++;
                 }
 
+                speaker._ConnectedHostCount = attachedHosts;
+
                 if (attachedHosts == 0)
                 {
-                    speaker._InactiveDuration += connectionConfig._DeltaTime;
-                    if (speaker._State == ConnectionState.Lingering && speaker._InactiveDuration >= connectionConfig._SpeakerLingerTime)
+                    speaker._InactiveDuration += attachConfig._DeltaTime;
+                    if (speaker._State == ConnectionState.Lingering && speaker._InactiveDuration >= attachConfig._SpeakerLingerTime)
                     {
                         speaker._State = ConnectionState.Pooled;
                         speaker._ConnectionRadius = 0.001f;
-                        speaker._WorldPos = connectionConfig._DisconnectedPosition;
+                        speaker._WorldPos = attachConfig._DisconnectedPosition;
                     }
                     else if (speaker._State == ConnectionState.Active)
                     {
                         speaker._State = ConnectionState.Lingering;
                         speaker._InactiveDuration = 0;
                         speaker._WorldPos = currentPosition;
-                        speaker._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, currentPosition, connectionConfig._ArcDegrees);
+                        speaker._ConnectionRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, currentPosition, attachConfig._ArcDegrees);
                     }
-                    speaker._ConnectedHostCount = attachedHosts;
                     return;
-                }
-
-                if (attachedHosts > 1)
-                {
-                    float3 averagePosition = targetPosition / attachedHosts;
-                    float3 lerpedPosition = math.lerp(targetPosition, averagePosition, connectionConfig._TranslationSmoothing);
-                    targetPosition = math.distance(currentPosition, lerpedPosition) > speaker._ConnectionRadius ? averagePosition : lerpedPosition;
                 }
 
                 if (speaker._State != ConnectionState.Active)
@@ -258,10 +257,22 @@ public partial class AttachmentSystem : SystemBase
                     speaker._State = ConnectionState.Active;
                 }
 
-                speaker._InactiveDuration -= connectionConfig._DeltaTime;
-                speaker._WorldPos = targetPosition;
-                speaker._ConnectedHostCount = attachedHosts;
-                speaker._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, targetPosition, connectionConfig._ArcDegrees);
+                speaker._InactiveDuration -= attachConfig._DeltaTime;
+
+                targetPosition = attachedHosts == 1 ? targetPosition : targetPosition / attachedHosts;
+                float3 lerpedPosition = math.lerp(currentPosition, targetPosition, attachConfig._TranslationSmoothing);
+                float lerpedRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, lerpedPosition, attachConfig._ArcDegrees);
+
+                if (lerpedRadius > math.distance(lerpedPosition, targetPosition))
+                {
+                    speaker._WorldPos = lerpedPosition;
+                    speaker._ConnectionRadius = lerpedRadius;
+                }
+                else
+                {
+                    speaker._WorldPos = targetPosition;
+                    speaker._ConnectionRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, targetPosition, attachConfig._ArcDegrees);
+                }
             }
         ).WithDisposeOnCompletion(hostComponents)
         .ScheduleParallel(groupLoneHostsJob);
@@ -291,7 +302,7 @@ public partial class AttachmentSystem : SystemBase
 
                     // Set active pooled status and update attachment radius
                     SpeakerComponent speakerComponent = GetComponent<SpeakerComponent>(speakerEntities[s]);
-                    speakerComponent._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, host._WorldPos, connectionConfig._ArcDegrees);
+                    speakerComponent._ConnectionRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, host._WorldPos, attachConfig._ArcDegrees);
                     speakerComponent._State = ConnectionState.Active;
                     speakerComponent._ConnectedHostCount = 1;
                     speakerComponent._InactiveDuration = 0;
@@ -313,6 +324,6 @@ public partial class AttachmentSystem : SystemBase
     {
         // Update attachment radius for new position. NOTE/TODO: Radius will be incorrect for next frame, need to investigate.
         float listenerCircumference = (float)(2 * Math.PI * math.distance(listenerPos, speakerPos));
-        return arcLength / 360 * listenerCircumference;
+        return arcLength * MaxMath.ONE_DEGREE * listenerCircumference;
     }
 }

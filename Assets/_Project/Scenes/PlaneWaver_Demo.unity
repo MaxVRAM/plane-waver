@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2138677392}
-  m_IndirectSpecularColor: {r: 475.22107, g: 448.39746, b: 454.5464, a: 1}
+  m_IndirectSpecularColor: {r: 472.7173, g: 447.7954, b: 464.9668, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -487,16 +487,16 @@ MonoBehaviour:
   _SpawnDelaySeconds: 2
   _AutoSpawn: 1
   _AutoRemove: 1
-  _EjectionDirection: {x: 0, y: -1, z: 0}
-  _EjectionDirectionVariance: 0.5
+  _EjectionDirection: {x: -1, y: 0, z: 0}
+  _EjectionDirectionVariance: 0.2
   _EjectionRadiusRange: {x: 0.5, y: 0.5}
-  _EjectionSpeedRange: {x: 5, y: 10}
+  _EjectionSpeedRange: {x: 4, y: 8}
   _DestroyOnAllCollisions: 0
   _BoundingAreaType: 1
   _BoundingCollider: {fileID: 0}
   _BoundingRadius: 30
   _UseSpawnDuration: 1
-  _SpawnObjectDuration: {x: 6, y: 8}
+  _SpawnObjectDuration: {x: 3, y: 6}
   _AllowSiblingSurfaceContact: 1
   _AllowSiblingCollisionTrigger: 1
   _EmissiveFlashTrigger: 1
@@ -669,7 +669,7 @@ MonoBehaviour:
   _SpeakerGrainArraySize: 100
   _SpeakerBusyLoadLimit: 0.5
   _SpeakerAttachArcDegrees: 20
-  _SpeakerTrackingSpeed: 10
+  _SpeakerTrackingSpeed: 20
   _SpeakerLingerTime: 300
   _StatsValuesText: {fileID: 1931825995}
   _StatsValuesPeakText: {fileID: 475395361}

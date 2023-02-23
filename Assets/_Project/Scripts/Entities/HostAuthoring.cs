@@ -21,12 +21,19 @@ namespace PlaneWaver
         private Transform _HeadTransform;
 
         [AllowNesting]
-        [BoxGroup("Speaker Assignment")]
+        [BoxGroup("Speaker Attachment")]
         [Tooltip("Parent transform position for speakers to target for this host. Defaults to this transform.")]
         [SerializeField] private Transform _SpeakerTarget;
         [AllowNesting]
-        [BoxGroup("Speaker Assignment")]
+        [BoxGroup("Speaker Attachment")]
         [SerializeField] private Transform _SpeakerTransform;
+        [AllowNesting]
+        [BoxGroup("Speaker Attachment")]
+        [SerializeField] private Renderer _AttachmentRenderer;
+        [AllowNesting]
+        [BoxGroup("Speaker Attachment")]
+        [MinMaxSlider(-10, 10)] public Vector2 _EmissionRange = new(2, 10);
+        private MaterialColourModulator _MaterialModulator;
 
         private AttachmentLine _AttachmentLine;
 
@@ -116,6 +123,9 @@ namespace PlaneWaver
             _LocalActor = new(_LocalTransform);
             _RemoteActor = _RemoteTransform != null ? new(_RemoteTransform) : null;
 
+            if (_AttachmentRenderer != null)
+                _MaterialModulator = new MaterialColourModulator(_AttachmentRenderer, "_EmissiveColor");
+
             if (_AttachmentLine = TryGetComponent(out _AttachmentLine) ? _AttachmentLine : gameObject.AddComponent<AttachmentLine>())
                 _AttachmentLine._TransformA = _SpeakerTarget;
 
@@ -196,6 +206,7 @@ namespace PlaneWaver
             _AttachedSpeakerIndex = connected ? hostData._SpeakerIndex : int.MaxValue;
             _Connected = connected;
 
+            _MaterialModulator.SetIntensity(connected ? 10 : 1);
             UpdateSpeakerAttachmentLine();
             ProcessRigidity();
 

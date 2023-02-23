@@ -9,6 +9,7 @@ using NaughtyAttributes;
 using MaxVRAM;
 using MaxVRAM.Ticker;
 using MaxVRAM.Extensions;
+using static PlaneWaver.ObjectSpawner;
 
 namespace PlaneWaver
 {
@@ -94,7 +95,7 @@ namespace PlaneWaver
         [Range(0, 1)][SerializeField] private float _EmissiveFlashFade = 0.5f;
         [Tooltip("Supply list of renderers to modulate/flash emissive brightness on selected triggers.")]
         [SerializeField] private List<Renderer> _ControllerRenderers = new();
-        private List<Color> _EmissiveColours = new();
+        private List<MaterialColourModulator> _EmissiveRenderers = new();
         private float _EmissiveIntensity = 0;
         public bool VisualFeedbackOn => _EmissiveFlashTrigger is not ControllerEvent.Off;
 
@@ -131,10 +132,7 @@ namespace PlaneWaver
                 _ControllerObject = gameObject;
 
             foreach (Renderer renderer in _ControllerRenderers)
-            {
-                Color colour = renderer.material.GetColor("_EmissiveColor");
-                _EmissiveColours.Add(colour);
-            }
+                _EmissiveRenderers.Add(new MaterialColourModulator(renderer, "_EmissiveColor"));
 
             if (_SpawnableHost == null)
                 _SpawnableHost = gameObject;
@@ -283,10 +281,8 @@ namespace PlaneWaver
 
         public void UpdateShaderModulation()
         {
-            for (int i = 0; i < _ControllerRenderers.Count; i++)
-            {
-                _ControllerRenderers[i].material.SetColor("_EmissiveColor", _EmissiveColours[i] * _EmissiveIntensity * 2);
-            }
+            foreach (MaterialColourModulator renderer in _EmissiveRenderers)
+                renderer.SetIntensity(_EmissiveIntensity * 2);
 
             float glow = _EmissiveBrightness.x + (1 + Mathf.Sin(_SecondsSinceSpawn / _SpawnPeriodSeconds * 2)) * 0.5f;
             _EmissiveIntensity = _EmissiveIntensity.Smooth(glow, _EmissiveFlashFade);

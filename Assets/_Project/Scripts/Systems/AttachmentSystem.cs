@@ -65,6 +65,7 @@ public partial class AttachmentSystem : SystemBase
 
         NativeArray<Entity> hostEntities;
         NativeArray<Entity> speakerEntities;
+        NativeArray<SpeakerIndex> speakerIndexes;
         NativeArray<HostComponent> hostComponents;
         NativeArray<SpeakerComponent> speakerComponents;
 
@@ -107,153 +108,103 @@ public partial class AttachmentSystem : SystemBase
         updateHostRangeJob.Complete();
         _CommandBufferSystem.AddJobHandleForProducer(updateHostRangeJob);
 
-        hostQuery = GetEntityQuery(hostNotAloneQueryDesc);
-        hostComponents = hostQuery.ToComponentDataArray<HostComponent>(Allocator.TempJob);
-        JobHandle loneHostToGroupJob = Entities.WithName("LoneHostToGroup")
+        speakerQuery = GetEntityQuery(speakerQueryDesc);
+        speakerIndexes = speakerQuery.ToComponentDataArray<SpeakerIndex>(Allocator.TempJob);
+        JobHandle groupLoneHostsJob = Entities.WithName("GroupLoneHosts")
             .WithAll<InListenerRadiusTag, ConnectedTag, LoneHostOnSpeakerTag>()
-            .WithReadOnly(speakerComponents).WithReadOnly(hostComponents).ForEach
+            .WithReadOnly(speakerIndexes).WithReadOnly(speakerComponents).ForEach
         (
             (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
             {
-                for (int i = 0; i < hostComponents.Length; i++)
+                if (host._SpeakerIndex > speakerComponents.Length)
+                    return;
+
+                int otherIndex = int.MaxValue;
+                float currentInactiveDuration = float.MaxValue;
+                float otherSpeakerInactiveDuration = float.MaxValue;
+
+                for (int s = 0; s < speakerComponents.Length; s++)
                 {
-                    int otherIndex = hostComponents[i]._SpeakerIndex;
-                    if (otherIndex >= speakerComponents.Length || otherIndex == host._SpeakerIndex)
+                    if (speakerComponents[s]._State != ConnectionState.Active)
                         continue;
 
-                    SpeakerComponent otherSpeaker = speakerComponents[otherIndex];
-                    if (math.distance(host._WorldPos, otherSpeaker._WorldPos) < otherSpeaker._ConnectionRadius)
+                    if (speakerIndexes[s].Value == host._SpeakerIndex)
                     {
-                        host._SpeakerIndex = otherIndex;
-                        ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
-                        return;
+                        currentInactiveDuration = speakerComponents[s]._InactiveDuration;
+                        if (otherSpeakerInactiveDuration < 0)
+                            break;
+                    }
+                    else if (speakerComponents[s]._ConnectedHostCount > 0 && 
+                        math.distance(host._WorldPos, speakerComponents[s]._WorldPos) < speakerComponents[s]._ConnectionRadius)
+                    {
+                        otherIndex = speakerIndexes[s].Value;
+                        otherSpeakerInactiveDuration = speakerComponents[s]._InactiveDuration;
+                        if (currentInactiveDuration < 0)
+                            break;
                     }
                 }
+
+                if (currentInactiveDuration > 0 || otherIndex > speakerComponents.Length)
+                    return;
+
+                if (otherSpeakerInactiveDuration < currentInactiveDuration)
+                {
+                    host._SpeakerIndex = otherIndex;
+                    ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
+                }
             }
-        ).WithDisposeOnCompletion(hostComponents)
-        .ScheduleParallel(updateHostRangeJob);
-        loneHostToGroupJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(loneHostToGroupJob);
+        ).ScheduleParallel(updateHostRangeJob);
+        groupLoneHostsJob.Complete();
+        _CommandBufferSystem.AddJobHandleForProducer(groupLoneHostsJob);
 
-        //hostQuery = GetEntityQuery(hostDisconnectedQueryDesc);
-        //hostEntities = hostQuery.ToEntityArray(Allocator.TempJob);
-        //speakerEntities = speakerQuery.ToEntityArray(Allocator.TempJob);
-        //speakerComponents = speakerQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);
-        //JobHandle loneHostToGroupJob = Job.WithName("LoneHostToGroup").WithoutBurst().WithCode(() =>
-        //{
-        //    for (int h = 0; h < hostEntities.Length; h++)
-        //    {
-        //        for (int s = 0; s < speakerComponents.Length; s++)
-        //        {
-        //            if (speakerComponents[s]._State != ConnectionState.Pooled)
-        //                continue;
-
-        //            // Update host component with speaker link
-        //            ecb.AddComponent(h, hostEntities, new ConnectedTag());
-        //            ecb.AddComponent(h, hostEntities, new LoneHostOnSpeakerTag());
-        //            HostComponent host = GetComponent<HostComponent>(hostEntities[h]);
-        //            host._SpeakerIndex = GetComponent<SpeakerIndex>(speakerEntities[s]).Value;
-        //            host._Connected = true;
-        //            SetComponent(hostEntities[h], host);
-
-        //            // Set active pooled status and update attachment radius
-        //            SpeakerComponent speakerComponent = GetComponent<SpeakerComponent>(speakerEntities[s]);
-        //            speakerComponent._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, host._WorldPos, connectionConfig._ArcDegrees);
-        //            speakerComponent._State = ConnectionState.Active;
-        //            speakerComponent._ConnectedHostCount = 1;
-        //            speakerComponent._InactiveDuration = 0;
-        //            speakerComponent._WorldPos = host._WorldPos;
-        //            SetComponent(speakerEntities[s], speakerComponent);
-        //            break;
-        //        }
-        //    }
-        //}).WithDisposeOnCompletion(speakerEntities).WithDisposeOnCompletion(speakerComponents)
-        //.WithDisposeOnCompletion(hostEntities)
-        //.Schedule(updateHostRangeJob);
-        //loneHostToGroupJob.Complete();
-        //_CommandBufferSystem.AddJobHandleForProducer(loneHostToGroupJob);
-
-        hostQuery = GetEntityQuery(hostAloneQueryDesc);
-        hostComponents = hostQuery.ToComponentDataArray<HostComponent>(Allocator.TempJob);
-        JobHandle pairLoneHostsJob = Entities.WithName("PairLoneHosts")
-            .WithAll<InListenerRadiusTag, ConnectedTag, LoneHostOnSpeakerTag>()
-            .WithReadOnly(speakerComponents).WithReadOnly(hostComponents).ForEach
+        JobHandle connectToActiveSpeakerJob = Entities.WithName("ConnectToActiveSpeaker").
+            WithNone<ConnectedTag>().WithAll<InListenerRadiusTag>().WithReadOnly(speakerIndexes)
+            .WithReadOnly(speakerComponents).ForEach
         (
             (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
             {
-                for (int i = 0; i < hostComponents.Length; i++)
+                int newSpeakerIndex = int.MaxValue;
+                int bestLingeringSpeaker = int.MaxValue;
+
+                float lowestActiveGrainLoad = 1;
+                float closestLingeringDistance = float.MaxValue;
+
+                for (int i = 0; i < speakerComponents.Length; i++)
                 {
-                    int otherIndex = hostComponents[i]._SpeakerIndex;
-                    //Console.WriteLine($"This host: {host._HostIndex} current speaker: {host._SpeakerIndex}     Other host: {hostComponents[i]._HostIndex} other speaker: {hostComponents[i]._SpeakerIndex}");
-                    if (otherIndex >= speakerComponents.Length || otherIndex == host._SpeakerIndex)
+                    SpeakerComponent speaker = speakerComponents[i];
+                    if (speaker._State == ConnectionState.Pooled)
                         continue;
 
-                    SpeakerComponent otherSpeaker = speakerComponents[otherIndex];
-                    if (math.distance(host._WorldPos, otherSpeaker._WorldPos) < otherSpeaker._ConnectionRadius)
+                    float dist = math.distance(host._WorldPos, speaker._WorldPos);
+                    if (dist > speaker._ConnectionRadius)
+                        continue;
+
+                    if (speaker._State == ConnectionState.Lingering)
                     {
-                        // Use inactive duration to prevent the same host from swapping with this one
-                        if (otherSpeaker._InactiveDuration < speakerComponents[host._SpeakerIndex]._InactiveDuration)
+                        if (dist < closestLingeringDistance)
                         {
-                            host._SpeakerIndex = otherIndex;
-                            ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
-                            return;
+                            closestLingeringDistance = dist;
+                            bestLingeringSpeaker = speakerIndexes[i].Value;
                         }
                     }
+                    else if (speaker._GrainLoad < connectionConfig._BusyLoadLimit && speaker._GrainLoad < lowestActiveGrainLoad)
+                    {
+                        lowestActiveGrainLoad = speaker._GrainLoad;
+                        newSpeakerIndex = speakerIndexes[i].Value;
+                    }
                 }
+
+                if (newSpeakerIndex == int.MaxValue && bestLingeringSpeaker == int.MaxValue)
+                    return;
+
+                host._SpeakerIndex = newSpeakerIndex != int.MaxValue ? newSpeakerIndex : bestLingeringSpeaker;
+                host._Connected = true;
+                ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
             }
-        ).WithDisposeOnCompletion(speakerComponents).WithDisposeOnCompletion(hostComponents)
-        .ScheduleParallel(loneHostToGroupJob);
-        pairLoneHostsJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(pairLoneHostsJob);
-
-        //speakerEntities = speakerQuery.ToEntityArray(Allocator.TempJob);
-        //JobHandle connectToActiveSpeakerJob = Entities.WithName("ConnectToActiveSpeaker").
-        //    WithNone<ConnectedTag>().WithAll<InListenerRadiusTag>().WithReadOnly(speakerEntities).ForEach
-        //(
-        //    (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
-        //    {
-        //        int newSpeakerIndex = int.MaxValue;
-        //        int bestLingeringSpeaker = int.MaxValue;
-
-        //        float lowestActiveGrainLoad = 1;
-        //        float closestLingeringDistance = float.MaxValue;
-
-        //        for (int i = 0; i < speakerEntities.Length; i++)
-        //        {
-        //            SpeakerComponent speaker = GetComponent<SpeakerComponent>(speakerEntities[i]);
-        //            if (speaker._State == ConnectionState.Pooled)
-        //                continue;
-
-        //            float dist = math.distance(host._WorldPos, speaker._WorldPos);
-        //            if (dist > speaker._ConnectionRadius)
-        //                continue;
-
-        //            if (speaker._State == ConnectionState.Lingering)
-        //            {
-        //                if (dist < closestLingeringDistance)
-        //                {
-        //                    closestLingeringDistance = dist;
-        //                    bestLingeringSpeaker = GetComponent<SpeakerIndex>(speakerEntities[i]).Value;
-        //                }
-        //            }
-        //            else if (speaker._GrainLoad < connectionConfig._BusyLoadLimit && speaker._GrainLoad < lowestActiveGrainLoad)
-        //            {
-        //                lowestActiveGrainLoad = speaker._GrainLoad;
-        //                newSpeakerIndex = GetComponent<SpeakerIndex>(speakerEntities[i]).Value;
-        //            }
-        //        }
-
-        //        if (newSpeakerIndex == int.MaxValue && bestLingeringSpeaker == int.MaxValue)
-        //            return;
-
-        //        host._SpeakerIndex = newSpeakerIndex != int.MaxValue ? newSpeakerIndex : bestLingeringSpeaker;
-        //        host._Connected = true;
-        //        ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
-        //    }
-        //).WithDisposeOnCompletion(speakerEntities)
-        //.ScheduleParallel(pairLoneHostsJob);
-        //connectToActiveSpeakerJob.Complete();
-        //_CommandBufferSystem.AddJobHandleForProducer(connectToActiveSpeakerJob);
+        ).WithDisposeOnCompletion(speakerComponents).WithDisposeOnCompletion(speakerIndexes)
+        .ScheduleParallel(groupLoneHostsJob);
+        connectToActiveSpeakerJob.Complete();
+        _CommandBufferSystem.AddJobHandleForProducer(connectToActiveSpeakerJob);
 
         hostQuery = GetEntityQuery(hostConnectedQueryDesc);
         hostComponents = hostQuery.ToComponentDataArray<HostComponent>(Allocator.TempJob);
@@ -313,7 +264,7 @@ public partial class AttachmentSystem : SystemBase
                 speaker._ConnectionRadius = CalculateSpeakerRadius(connectionConfig._ListenerPos, targetPosition, connectionConfig._ArcDegrees);
             }
         ).WithDisposeOnCompletion(hostComponents)
-        .ScheduleParallel(pairLoneHostsJob);
+        .ScheduleParallel(groupLoneHostsJob);
         moveSpeakersJob.Complete();
         _CommandBufferSystem.AddJobHandleForProducer(moveSpeakersJob);
 

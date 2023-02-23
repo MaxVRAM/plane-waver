@@ -136,7 +136,7 @@ namespace EXPToolkit
                 TempoTimers.Add((Tempo)i, new TempoTimer((Tempo)i));
         }
 
-        // Update is called once per frame
+        // Tick is called once per frame
         void Update()
         {
             #region KB INPUT
@@ -212,16 +212,16 @@ namespace EXPToolkit
             // Adjust scaledTime by frequency and the override scaler in case you want to slow or reverse it
             scaledDelta *= Frequency * _OverrideScaler;
 
-            // Update position in cycle
+            // Tick position in cycle
             _NormPosInCycle += scaledDelta;
 
             // Wrap it to 0-1 		
             _NormPosInCycle %= 1;
 
-            // Update continuous value
+            // Tick continuous value
             _ContinuousValue += scaledDelta;          
 
-            // Update all Rhythm timers
+            // Tick all Rhythm timers
             foreach (KeyValuePair<Tempo, TempoTimer> timer in TempoTimers)
                 timer.Value.Update(_ContinuousValue);
 

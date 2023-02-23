@@ -282,7 +282,8 @@ public partial class GrainSynthSystem : SystemBase
         // ----------------------------------- GRAIN PROCESSOR UPDATE
         //---   TAKES GRAIN PROCESSOR INFORMATION AND FILLS THE SAMPLE BUFFER + DSP BUFFER (W/ 0s TO THE SAME LENGTH AS SAMPLE BUFFER)
         //NativeArray<Entity> grainProcessorEntities = GetEntityQuery(typeof(GrainComponent)).ToEntityArray(Allocator.TempJob);
-        JobHandle processGrainSamplesJob = Entities.WithName("ProcessGrainSamples").WithNone<PingPongTag, SamplesProcessedTag>().ForEach
+        JobHandle processGrainSamplesJob = Entities.WithName("ProcessGrainSamples")
+            .WithNone<PingPongTag, SamplesProcessedTag>().ForEach
         (
             (int entityInQueryIndex, Entity entity, DynamicBuffer<GrainSampleBufferElement> sampleOutputBuffer,
             DynamicBuffer<DSPSampleBufferElement> dspBuffer, in GrainComponent grain) =>
@@ -291,27 +292,30 @@ public partial class GrainSynthSystem : SystemBase
                 float sourceIndex = grain._PlayheadNorm * clipArray.Length;
                 float increment = grain._Pitch;
 
-                // Suck up all the juicy samples from the source content
                 for (int i = 0; i < grain._SampleCount - 1; i++)
                 {
                     // Set rate of sample read to alter pitch - interpolate sample if not integer to create 
                     sourceIndex += increment;
+
+                    if (sourceIndex + 1 >= clipArray.Length)
+                    {
+                        for (int j = i; j < grain._SampleCount - 1; j++)
+                            sampleOutputBuffer.Add(new GrainSampleBufferElement { Value = 0 });
+                        break;
+                    }
+
                     float sourceIndexRemainder = sourceIndex % 1;
                     float sourceValue;
 
-                    if (sourceIndex + 1 >= clipArray.Length) sampleOutputBuffer.Add(new GrainSampleBufferElement { Value = 0 });
+                    if (sourceIndexRemainder != 0)
+                        sourceValue = math.lerp(clipArray[(int)sourceIndex], clipArray[(int)sourceIndex + 1], sourceIndexRemainder);
                     else
-                    {
-                        if (sourceIndexRemainder != 0)
-                            sourceValue = math.lerp(clipArray[(int)sourceIndex], clipArray[(int)sourceIndex + 1], sourceIndexRemainder);
-                        else
-                            sourceValue = grain._AudioClipDataComponent._ClipDataBlobAsset.Value.array[(int)sourceIndex];
-                        // Adjusted for volume and windowing
-                        sourceValue *= grain._Volume;
-                        sourceValue *= windowingData._WindowingArray.Value.array[
-                            (int)MaxMath.Map(i, 0, grain._SampleCount, 0, windowingData._WindowingArray.Value.array.Length)];
-                        sampleOutputBuffer.Add(new GrainSampleBufferElement { Value = sourceValue });
-                    }
+                        sourceValue = clipArray[(int)sourceIndex];
+                    // Adjusted for volume and windowing
+                    sourceValue *= grain._Volume;
+                    sourceValue *= windowingData._WindowingArray.Value.array[
+                        (int)MaxMath.Map(i, 0, grain._SampleCount, 0, windowingData._WindowingArray.Value.array.Length)];
+                    sampleOutputBuffer.Add(new GrainSampleBufferElement { Value = sourceValue });
                     dspBuffer.Add(new DSPSampleBufferElement { Value = 0 });
                 }
                 // --Add additional samples to increase grain playback size based on DSP effect tail length
@@ -331,31 +335,31 @@ public partial class GrainSynthSystem : SystemBase
         #region POPULATE PiNG PONG GRAINS
         //-----------------------------------GRAIN PROCESSOR UPDATE
         //---TAKES GRAIN PROCESSOR INFORMATION AND FILLS THE SAMPLE BUFFER +DSP BUFFER(W / 0s TO THE SAME LENGTH AS SAMPLE BUFFER)
-        JobHandle processPingPongSamplesJob = Entities.WithName("ProcessPingPongSamples").WithNone<SamplesProcessedTag>().ForEach
+        JobHandle processPingPongSamplesJob = Entities.WithName("ProcessPingPongSamples")
+            .WithAll<PingPongTag>().WithNone<SamplesProcessedTag>().ForEach
         (
             (int entityInQueryIndex, Entity entity, DynamicBuffer <GrainSampleBufferElement> sampleOutputBuffer,
-                DynamicBuffer<DSPSampleBufferElement> dspBuffer, in GrainComponent grain, in PingPongTag pingpong) =>
+                DynamicBuffer<DSPSampleBufferElement> dspBuffer, in GrainComponent grain) =>
             {
                 ref BlobArray<float> clipArray = ref grain._AudioClipDataComponent._ClipDataBlobAsset.Value.array;
-                int clipLength = clipArray.Length;
-                float sourceIndex = grain._PlayheadNorm * clipLength;
+                float sourceIndex = grain._PlayheadNorm * clipArray.Length;
                 float increment = grain._Pitch;
 
                 for (int i = 0; i < grain._SampleCount; i++)
                 {
                     // Ping pong samples at the limit of the sample
-                    if (sourceIndex + increment < 0 || sourceIndex + increment > clipLength - 1)
+                    if (sourceIndex + increment < 0 || sourceIndex + increment > clipArray.Length - 1)
                         increment = -increment;
                     // Set rate of sample read to alter pitch - interpolate sample if not integer to create 
                     sourceIndex += increment;
+
                     float sourceIndexRemainder = sourceIndex % 1;
                     float sourceValue;
+
                     if (sourceIndexRemainder != 0)
-                        sourceValue = math.lerp(
-                            clipArray[(int)sourceIndex],
-                            clipArray[(int)sourceIndex + 1],
-                            sourceIndexRemainder);
-                    else sourceValue = clipArray[(int)sourceIndex];
+                        sourceValue = math.lerp(clipArray[(int)sourceIndex], clipArray[(int)sourceIndex + 1], sourceIndexRemainder);
+                    else
+                        sourceValue = clipArray[(int)sourceIndex];
                     // Adjusted for volume and windowing
                     sourceValue *= grain._Volume;
                     sourceValue *= windowingData._WindowingArray.Value.array[

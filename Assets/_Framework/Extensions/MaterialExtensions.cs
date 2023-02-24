@@ -77,7 +77,6 @@ public static class MaterialExtensions
 		}
 	}
 
-
 	public static Color GetMatCol( this Material mat )
 	{
 		if (mat.HasProperty("_TintColor"))

@@ -114,25 +114,8 @@ namespace PlaneWaver
             _LocalActor = new(_LocalTransform);
             _RemoteActor = _RemoteTransform != null ? new(_RemoteTransform) : null;
 
-            _SpeakerTarget = _SpeakerTarget != null ? _SpeakerTarget : _LocalTransform;
-            _SpeakerTransform = _SpeakerTarget;
-
-            if (!TryGetComponent(out _SpeakerAttachmentLine))
-                _SpeakerAttachmentLine = gameObject.AddComponent<AttachmentLine>();
-            {
-                _SpeakerAttachmentLine._SpeakerAttachment = true;
-                _SpeakerAttachmentLine._TransformA = _SpeakerTarget;
-            }
-
-            if (TryGetComponent(out _SurfaceProperties) || _LocalTransform.gameObject.TryGetComponent(out _SurfaceProperties))
-            {
-                _SelfRigidity = _SurfaceProperties._Rigidity;
-            }
-            else
-            {
-                _SurfaceProperties = _LocalTransform.gameObject.AddComponent<SurfaceProperties>();
-                _SurfaceProperties._Rigidity = _SelfRigidity;
-            }
+            InitialiseSpeakerAttachment();
+            InitialiseSurfaceProperties();
 
             if (_MaterialModulator._Renderer == null)
                 _MaterialModulator._Renderer = _LocalTransform.GetComponentInChildren<Renderer>();
@@ -143,6 +126,35 @@ namespace PlaneWaver
 
             foreach (EmitterAuthoring emitter in _HostedEmitters)
                 emitter.InitialiseByHost(this);
+        }
+
+        private void InitialiseSpeakerAttachment()
+        {
+            if (_SpeakerTarget == null || _SpeakerTarget == _LocalTransform || _SpeakerTarget == transform)
+            {
+                _SpeakerTarget = new GameObject("SpeakerTarget").SetParentAndZero(_LocalTransform).transform;
+            }
+
+            _SpeakerTransform = _SpeakerTarget;
+
+            if (!_SpeakerTarget.TryGetComponent(out _SpeakerAttachmentLine))
+                _SpeakerAttachmentLine = _SpeakerTarget.gameObject.AddComponent<AttachmentLine>();
+            {
+                _SpeakerAttachmentLine._TransformA = _SpeakerTarget;
+            }
+        }
+
+        private void InitialiseSurfaceProperties()
+        {
+            if (TryGetComponent(out _SurfaceProperties) || _LocalTransform.gameObject.TryGetComponent(out _SurfaceProperties))
+            {
+                _SelfRigidity = _SurfaceProperties._Rigidity;
+            }
+            else
+            {
+                _SurfaceProperties = _LocalTransform.gameObject.AddComponent<SurfaceProperties>();
+                _SurfaceProperties._Rigidity = _SelfRigidity;
+            }
         }
 
         public void AssignControllers(ObjectSpawner objectSpawner, SpawnableManager spawnableManager, Transform local, Transform remote)
@@ -253,13 +265,10 @@ namespace PlaneWaver
             if (_SpeakerAttachmentLine == null)
                 return;
 
-            if (_Connected && _SpeakerTransform != _SpeakerTarget)
-            {
-                _SpeakerAttachmentLine._Active = true;
+            if (_SpeakerTransform != _SpeakerTarget)
                 _SpeakerAttachmentLine._TransformB = _SpeakerTransform;
-            }
-            else
-                _SpeakerAttachmentLine._Active = false;
+
+            _SpeakerAttachmentLine._Active = _Connected && GrainBrain.Instance._DrawAttachmentLines;
         }
 
         #endregion
@@ -274,8 +283,10 @@ namespace PlaneWaver
             if (ContactAllowed(other)) _LocalActor.LatestCollision = collision;
 
             if (_Spawner == null || _Spawner.UniqueCollision(_LocalTransform.gameObject, other))
+            {
                 foreach (EmitterAuthoring emitter in _HostedEmitters)
                     emitter.NewCollision(collision);
+            }
         }
 
         public void OnCollisionStay(Collision collision)

@@ -84,9 +84,9 @@ namespace PlaneWaver
         [ShowIf("ClipLimitingApplied")]
         [AllowNesting]
         [SerializeField][Range(0.5f, 5.0f)] private float _ModulationExponent = 1f;
+        [SerializeField][Range(-1f, 1f)] private float _ModulationAmount = 0;
 
         [HorizontalLine(color: EColor.Gray)]
-        [SerializeField][Range(-1f, 1f)] private float _ModulationAmount = 0;
         [SerializeField][Range(0f, 1f)] private float _Result = 0;
 
         private Vector3 _PreviousVector = Vector3.zero;
@@ -128,7 +128,7 @@ namespace PlaneWaver
 
         private float ProcessValue(float inputValue)
         {
-            float newValue = MaxMath.Map(inputValue, _InputRange, 0, 1) * _AdjustMultiplier;
+            float newValue = Mathf.Clamp01(MaxMath.Map(inputValue, _InputRange, 0, 1) * _AdjustMultiplier);
             _PreSmoothValue = _OnNewValue == InputOnNewValue.Accumulate ? _PreSmoothValue + newValue : newValue;
             newValue = MaxMath.Smooth(_PreviousSmoothedValue, _PreSmoothValue, Smoothing);
             _PreviousSmoothedValue = newValue;

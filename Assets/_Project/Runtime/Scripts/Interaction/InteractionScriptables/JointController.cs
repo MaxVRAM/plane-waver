@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
+using MaxVRAM.Extensions;
 
 namespace PlaneWaver
 {
@@ -67,10 +68,13 @@ namespace PlaneWaver
             _JointComponent = _JointSetup.AssignJointConfig(_JointComponent);
             _JointComponent.connectedBody = _RemoteRigidbody;
 
-            GameObject lineObject = new GameObject($"{name}.JointLine");
+            GameObject lineObject = new("JointLine");
             lineObject.SetParentAndZero(gameObject);
             AttachmentLine jointLine = lineObject.AddComponent<AttachmentLine>();
-            jointLine.Initialise(_LocalTransform, _RemoteTransform, false);
+            jointLine._TransformA = _LocalTransform;
+            jointLine._TransformB = _RemoteTransform;
+            jointLine.JointLineWidth = _JointSetup.JointLineWidth;
+            jointLine._Active = true;
             _Initialised = true;
         }
     }

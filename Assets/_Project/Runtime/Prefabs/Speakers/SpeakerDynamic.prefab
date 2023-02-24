@@ -48,10 +48,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 688e5dfc58d903e4e9071cb2f4363c8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _EntityType: 0
-  _EntityIndex: 2147483647
-  _EntityInitialised: 0
-  _ManagerInitialised: 0
   _State: 0
   _GrainArraySize: 100
   _NumGrainsFree: 0
@@ -206,7 +202,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enableSpatialization: 1
-  gain: 3
+  gain: 5
   useInvSqr: 0
   near: 0.2
   far: 50

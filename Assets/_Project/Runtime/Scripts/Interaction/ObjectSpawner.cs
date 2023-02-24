@@ -30,6 +30,7 @@ namespace PlaneWaver
         [Header("Object Configuration")]
         [Tooltip("Object providing the spawn location and controller behaviour.")]
         public GameObject _ControllerObject;
+        public Transform _ControllerAnchor;
         [Tooltip("Parent GameObject to attach spawned prefabs.")]
         public GameObject _SpawnableHost;
         [Tooltip("Prefab to spawn.")]
@@ -57,13 +58,15 @@ namespace PlaneWaver
         [Header("Ejection Physics")]
         [Tooltip("Direction that determines a spawnables position and velocity on instantiation. Converts to unit vector.")]
         public Vector3 _EjectionDirection = new(0, 0, 0);
+        [Tooltip("Direction to rotate the exit velocity from its inital direction (enables initiating a velocity spinning around the spawner). Converts to unit vector.")]
+        [MinValue(-1)][MaxValue(1)] public Vector3 _VelocityUpOffset = new(0, 1, 0);
         [Tooltip("Amount of random spread applied to each spawn direction.")]
         [Range(0f, 1f)] public float _EjectionDirectionVariance = 0;
         [Tooltip("Distance from the anchor that objects will be spawned.")]
         [MinMaxSlider(0f, 10f)] public Vector2 _EjectionRadiusRange = new(1, 2);
         [Tooltip("Speed that spawned objects leave the anchor.")]
         [MinMaxSlider(0f, 100f)] public Vector2 _EjectionSpeedRange = new(5, 10);
-
+        
         [Header("Spawned Object Removal")]
         public bool _DestroyOnAllCollisions = false;
         [Tooltip("Coodinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Collider Bounds, defined instead by the supplied collider bounding area, deaulting to the controller's collider if it has one.")]
@@ -135,6 +138,12 @@ namespace PlaneWaver
                 Debug.LogWarning($"{name} not assigned any prefabs!");
                 _Initialised = false;
                 return false;
+            }
+
+            if (_ControllerAnchor != null && _ControllerObject.TryGetComponent(out Rigidbody rb)
+                && _ControllerAnchor.TryGetComponent(out SpringJoint joint))
+            {
+                joint.connectedBody = rb;
             }
 
             _Initialised = true;
@@ -218,7 +227,7 @@ namespace PlaneWaver
             Vector3 randomDirection = Random.onUnitSphere;
             Vector3 spawnDirection = Vector3.Slerp(_EjectionDirection.normalized, randomDirection, _EjectionDirectionVariance);
             Vector3 spawnPosition = _ControllerObject.transform.position + spawnDirection * Rando.Range(_EjectionRadiusRange);
-            Quaternion directionRotation = Quaternion.FromToRotation(Vector3.up, spawnDirection);
+            Quaternion directionRotation = Quaternion.FromToRotation(_VelocityUpOffset, spawnDirection);
 
             newObject = Instantiate(objectToSpawn, spawnPosition, directionRotation, _SpawnableHost.transform);
             newObject.name = newObject.name + " (" + _ObjectCounter + ")";

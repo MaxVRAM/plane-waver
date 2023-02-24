@@ -30,6 +30,7 @@ namespace PlaneWaver
 
         [HorizontalLine(color: EColor.Blue)]
         [Range(0f, 2f)] public float _VolumeIdle = 0f;
+        public Vector2 _VolumeDefault = new(0, 1);
         public float VolumeIdleNorm => Mathf.InverseLerp(Ranges._Volume.x, Ranges._Volume.y, _VolumeIdle);
         public ModulationInput _VolumeModulation;
         public NoiseModule _VolumeNoise;

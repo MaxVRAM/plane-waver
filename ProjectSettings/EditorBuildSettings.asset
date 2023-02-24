@@ -5,27 +5,6 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
-    path: Assets/_Project/Scenes/XR Interactions - Instruments Demo.unity
-    guid: 7ced78fbbd96d914f819dd18630888d3
   - enabled: 1
     path: Assets/_Project/Runtime/Scenes/PlaneWaver_Demo.unity
     guid: 4b1d12fd04e7988479486ee2360e6908

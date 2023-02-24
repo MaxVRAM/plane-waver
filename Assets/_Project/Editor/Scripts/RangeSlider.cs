@@ -1,100 +1,99 @@
 using UnityEditor;
 using UnityEngine;
 
-using MaxVRAM;
-
-[CustomPropertyDrawer(typeof(RangeSliderAttribute))]
-public class RangeSlider : PropertyDrawer
+namespace MaxVRAM.GUI
 {
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    [CustomPropertyDrawer(typeof(RangeSliderAttribute))]
+    public class RangeSlider : PropertyDrawer
     {
-        RangeSliderAttribute rangeAttribute = (RangeSliderAttribute)attribute;
-        SerializedPropertyType propertyType = property.propertyType;
-
-        label.tooltip = rangeAttribute.Min.ToString("F2") + " to " + rangeAttribute.Max.ToString("F2");
-        Rect controlRect = EditorGUI.PrefixLabel(position, label);
-        Rect[] splittedRect = SplitRect(controlRect, 3);
-
-        EditorGUI.BeginChangeCheck();
-
-        if (propertyType == SerializedPropertyType.Vector2)
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            Vector2 sliderValues = property.vector2Value;
-            EditorGUI.MinMaxSlider(splittedRect[1], ref sliderValues.x, ref sliderValues.y, rangeAttribute.Min, rangeAttribute.Max);
+            RangeSliderAttribute rangeAttribute = (RangeSliderAttribute)attribute;
+            SerializedPropertyType propertyType = property.propertyType;
 
-            Vector2 displayValues = ConvertDisplayValue(sliderValues, rangeAttribute, true);
-            sliderValues.x = EditorGUI.FloatField(splittedRect[0], displayValues.x);
-            sliderValues.y = EditorGUI.FloatField(splittedRect[2], displayValues.y);
-            sliderValues = ConvertDisplayValue(sliderValues, rangeAttribute, false);
+            label.tooltip = rangeAttribute.Min.ToString("F2") + " to " + rangeAttribute.Max.ToString("F2");
+            Rect controlRect = EditorGUI.PrefixLabel(position, label);
+            Rect[] splittedRect = SplitRect(controlRect, 3);
 
-            if (EditorGUI.EndChangeCheck())
-                property.vector2Value = sliderValues;
-        }
-        else if (propertyType == SerializedPropertyType.Vector2Int)
-        {
-            Vector2 sliderValues = property.vector2IntValue;
-            EditorGUI.MinMaxSlider(splittedRect[1], ref sliderValues.x, ref sliderValues.y, rangeAttribute.Min, rangeAttribute.Max);
+            EditorGUI.BeginChangeCheck();
 
-            Vector2 displayValues = ConvertDisplayValue(sliderValues, rangeAttribute, true);
-            sliderValues.x = EditorGUI.FloatField(splittedRect[0], (int)displayValues.x);
-            sliderValues.y = EditorGUI.FloatField(splittedRect[2], (int)displayValues.y);
-            sliderValues = ConvertDisplayValue(sliderValues, rangeAttribute, false);
-            sliderValues.x = Mathf.FloorToInt(sliderValues.x);
-            sliderValues.y = Mathf.FloorToInt(sliderValues.y);
-
-            if (EditorGUI.EndChangeCheck())
-                property.vector2Value = sliderValues;
-        }
-
-
-        static Vector2 ConvertDisplayValue(Vector2 inputValues, RangeSliderAttribute attributes, bool toDisplay)
-        {
-            Vector2 inRange, outRange;
-
-            if (toDisplay)
+            if (propertyType == SerializedPropertyType.Vector2)
             {
-                inRange = new Vector2(attributes.Min, attributes.Max);
-                outRange = new Vector2(attributes.MinDisplay, attributes.MaxDisplay);
+                Vector2 sliderValues = property.vector2Value;
+                EditorGUI.MinMaxSlider(splittedRect[1], ref sliderValues.x, ref sliderValues.y, rangeAttribute.Min, rangeAttribute.Max);
+
+                Vector2 displayValues = ConvertDisplayValue(sliderValues, rangeAttribute, true);
+                sliderValues.x = EditorGUI.FloatField(splittedRect[0], displayValues.x);
+                sliderValues.y = EditorGUI.FloatField(splittedRect[2], displayValues.y);
+                sliderValues = ConvertDisplayValue(sliderValues, rangeAttribute, false);
+
+                if (EditorGUI.EndChangeCheck())
+                    property.vector2Value = sliderValues;
             }
-            else
+            else if (propertyType == SerializedPropertyType.Vector2Int)
             {
-                inRange = new Vector2(attributes.MinDisplay, attributes.MaxDisplay);
-                outRange = new Vector2(attributes.Min, attributes.Max);
+                Vector2 sliderValues = property.vector2IntValue;
+                EditorGUI.MinMaxSlider(splittedRect[1], ref sliderValues.x, ref sliderValues.y, rangeAttribute.Min, rangeAttribute.Max);
+
+                Vector2 displayValues = ConvertDisplayValue(sliderValues, rangeAttribute, true);
+                sliderValues.x = EditorGUI.FloatField(splittedRect[0], (int)displayValues.x);
+                sliderValues.y = EditorGUI.FloatField(splittedRect[2], (int)displayValues.y);
+                sliderValues = ConvertDisplayValue(sliderValues, rangeAttribute, false);
+
+                Vector2Int propertyOutput = new (Mathf.FloorToInt(sliderValues.x), Mathf.FloorToInt(sliderValues.y));
+
+                if (EditorGUI.EndChangeCheck())
+                    property.vector2IntValue = propertyOutput;
             }
 
-            float outMin = Mathf.Clamp(inputValues.x, inRange.x, Mathf.Min(inRange.y, inputValues.y));
-            float outMax = Mathf.Clamp(inputValues.y, Mathf.Max(outMin, inputValues.x), inRange.y);
+            static Vector2 ConvertDisplayValue(Vector2 inputValues, RangeSliderAttribute attributes, bool toDisplay)
+            {
+                Vector2 inRange, outRange;
 
-            Vector2 returnValue = new (
-                MaxMath.Map(outMin, inRange.x, inRange.y, outRange.x, outRange.y),
-                MaxMath.Map(outMax, inRange.x, inRange.y, outRange.x, outRange.y));
+                if (toDisplay)
+                {
+                    inRange = new Vector2(attributes.Min, attributes.Max);
+                    outRange = new Vector2(attributes.MinDisplay, attributes.MaxDisplay);
+                }
+                else
+                {
+                    inRange = new Vector2(attributes.MinDisplay, attributes.MaxDisplay);
+                    outRange = new Vector2(attributes.Min, attributes.Max);
+                }
 
-            return returnValue;
+                float clampedMin = Mathf.Clamp(inputValues.x, inRange.x, Mathf.Min(inRange.y, inputValues.y));
+                float clampedMax = Mathf.Clamp(inputValues.y, Mathf.Max(clampedMin, inputValues.x), inRange.y);
+
+                float scaledMin = (clampedMin - inRange.x) / (inRange.y - inRange.x) * (outRange.y - outRange.x) + outRange.x;
+                float scaledMax = (clampedMax - inRange.x) / (inRange.y - inRange.x) * (outRange.y - outRange.x) + outRange.x;
+
+                return new(scaledMin, scaledMax); ;
+            }
         }
-    }
 
-    Rect[] SplitRect(Rect rectToSplit, int n)
-    {
-        Rect[] rects = new Rect[n];
-
-        for (int i = 0; i < n; i++)
+        Rect[] SplitRect(Rect rectToSplit, int n)
         {
-            rects[i] = new Rect(
-                rectToSplit.position.x + (i * rectToSplit.width / n),
-                rectToSplit.position.y, rectToSplit.width / n, rectToSplit.height);
+            Rect[] rects = new Rect[n];
+
+            for (int i = 0; i < n; i++)
+            {
+                rects[i] = new Rect(
+                    rectToSplit.position.x + (i * rectToSplit.width / n),
+                    rectToSplit.position.y, rectToSplit.width / n, rectToSplit.height);
+            }
+
+            int padding = (int)rects[0].width - 50;
+            int space = 5;
+
+            rects[0].width -= padding + space;
+            rects[2].width -= padding + space;
+
+            rects[1].x -= padding;
+            rects[1].width += padding * 2;
+
+            rects[2].x += padding + space;
+
+            return rects;
         }
-
-        int padding = (int)rects[0].width - 50;
-        int space = 5;
-
-        rects[0].width -= padding + space;
-        rects[2].width -= padding + space;
-
-        rects[1].x -= padding;
-        rects[1].width += padding * 2;
-
-        rects[2].x += padding + space;
-
-        return rects;
     }
 }

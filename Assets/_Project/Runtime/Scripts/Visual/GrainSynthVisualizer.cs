@@ -4,10 +4,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using PlaneWaver;
-
-public class GrainSynthVisualizer : MonoBehaviour
+namespace PlaneWaver
 {
+    public class GrainSynthVisualizer : MonoBehaviour
+    {
     #region ------------------------------------- VARIABLES 
     float _SampleRate;
     public ContinuousAuthoring _Emitter;
@@ -41,7 +41,6 @@ public class GrainSynthVisualizer : MonoBehaviour
     WaveformVizGrain[] _WaveformVizGrainPool;
     int _WaveformGrainIndex;
 
-
     // ----------------------------------- TIMELINE
     [Header("Timeline")]
     public float _TimelineScale = .1f;
@@ -55,8 +54,6 @@ public class GrainSynthVisualizer : MonoBehaviour
     public Transform _XAxisPivot;
     public Transform _XAxisPivot_FrameTime;
     public Transform _YAxisPivot;
-
-   
 
     public GrainSynthVisualizerBlock _TimelineBlockPrefab;
     GrainSynthVisualizerBlock[] _TimelineBlocks;
@@ -141,16 +138,18 @@ public class GrainSynthVisualizer : MonoBehaviour
 
             for (int i = 0; i < _BorderVerts; i++)
             {
-                float norm = 1 - (i / (_BorderVerts - 1f));
+                float norm = 1 - i / (_BorderVerts - 1f);
                 norm = Mathf.Lerp(-.01f, 1.01f, norm);
                 _WaveformBorderLine.SetPosition(borderIndex, GetPositionOnArc(norm, _WaveformBlockHeight * -.5f));
                 borderIndex++;
             }
         }
         else
-            _WaveformParent.gameObject.SetActive(false);
+            {
+                _WaveformParent.gameObject.SetActive(false);
+            }
 
-        if (_DrawTimeline)
+            if (_DrawTimeline)
         {
             // Create grain blocks
             _TimelineBlocks = new GrainSynthVisualizerBlock[_TimelinePoolAmount];
@@ -172,7 +171,6 @@ public class GrainSynthVisualizer : MonoBehaviour
         //{
         //    // Waveform       
         //    float playheadWidth = Mathf.Max(.005f, _Emitter._EmissionProps._PlayheadRand);
-
 
         //    float startPos = _Emitter._EmissionProps._Playhead - .005f;
         //    for (int i = 0; i < _PlayheadLine.positionCount; i++)
@@ -198,21 +196,21 @@ public class GrainSynthVisualizer : MonoBehaviour
         if (_DrawTimeline)
         {
             // Grain timeline
-            if (_YAxisPivot != null)
-                _YAxisPivot.SetScaleY(_TimelineScale * _TimelineHeightCount);
+            //if (_YAxisPivot != null)
+            //    _YAxisPivot.SetScaleY(_TimelineScale * _TimelineHeightCount);
 
-            if (_XAxisPivot != null)
-                _XAxisPivot.SetScaleX(_TimelineDistance);
+            //if (_XAxisPivot != null)
+            //    _XAxisPivot.SetScaleX(_TimelineDistance);
 
-            if (Application.isPlaying && _XAxisPivot_FrameTime != null)
-                _XAxisPivot_FrameTime.SetScaleX(-GrainBrain.Instance._QueueDurationMS * .001f * (_TimelineDistance / _TimelineDuration));
+            //if (Application.isPlaying && _XAxisPivot_FrameTime != null)
+            //    _XAxisPivot_FrameTime.SetScaleX(-GrainBrain.Instance._QueueDurationMS * .001f * (_TimelineDistance / _TimelineDuration));
 
             for (int i = 0; i < _TimelineBlocks.Length; i++)
             {
                 if (_TimelineBlocks[i].gameObject.activeSelf)
                 {
                     int sampleDiff = _TimelineBlocks[i]._StartIndex - GrainBrain.Instance.CurrentSampleIndex;
-                    Vector3 pos = transform.position + transform.right * (sampleDiff / _SampleRate) * (_TimelineDistance / _TimelineDuration);
+                    Vector3 pos = transform.position + _TimelineDistance / _TimelineDuration * (sampleDiff / _SampleRate) * transform.right;
                     pos.y = _TimelineBlocks[i].transform.position.y;
 
                     _TimelineBlocks[i].transform.position = pos;
@@ -224,7 +222,7 @@ public class GrainSynthVisualizer : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine(transform.position, transform.position + -transform.right * _TimelineDistance);
-        Gizmos.DrawLine(transform.position, transform.position + transform.up * _TimelineScale * _TimelineHeightCount);
+        Gizmos.DrawLine(transform.position, transform.position + _TimelineHeightCount * _TimelineScale * transform.up);
 
         for (int i = 1; i < 10; i++)
         {
@@ -247,9 +245,9 @@ public class GrainSynthVisualizer : MonoBehaviour
     Vector3 PosFromStartSampleIndex(int startSampleIndex)
     {
         int sampleDiff = startSampleIndex - GrainBrain.Instance.CurrentSampleIndex;
-        Vector3 pos = transform.position + transform.right * (sampleDiff / _SampleRate) * (_TimelineDistance / _TimelineDuration);
+        Vector3 pos = transform.position + _TimelineDistance / _TimelineDuration * (sampleDiff / _SampleRate) * transform.right;
 
-        pos.y += (_IncrementY % _TimelineHeightCount) * _TimelineScale;
+        pos.y += _IncrementY % _TimelineHeightCount * _TimelineScale;
         pos.y += _TimelineScale * .5f;
         _IncrementY++;
 
@@ -258,7 +256,7 @@ public class GrainSynthVisualizer : MonoBehaviour
 
     public Vector3 GetPositionOnArc(float norm, float yOffset = 0, float radiusOffset = 0)
     {
-        float radians = (-_ArcTotalAngle * .5f * Mathf.Deg2Rad) + (norm * _ArcTotalAngle * Mathf.Deg2Rad);
+        float radians = -_ArcTotalAngle * .5f * Mathf.Deg2Rad + norm * _ArcTotalAngle * Mathf.Deg2Rad;
 
         Vector3 pos = Vector3.zero;
 
@@ -287,7 +285,6 @@ public class GrainSynthVisualizer : MonoBehaviour
             _BlockCounter %= _TimelineBlocks.Length;
         }
 
-
         if (_DrawWaveform)
         {
             // Waveform grain
@@ -306,3 +303,5 @@ public class GrainSynthVisualizer : MonoBehaviour
         }
     }
 }
+}
+

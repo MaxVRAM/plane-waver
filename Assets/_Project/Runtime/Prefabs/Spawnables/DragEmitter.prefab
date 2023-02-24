@@ -1,0 +1,696 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3882578780487733966
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3882578780487733967}
+  - component: {fileID: 3882578780487734000}
+  - component: {fileID: 3882578780487733960}
+  - component: {fileID: 3882578780487734001}
+  - component: {fileID: 3882578780487733963}
+  - component: {fileID: 3882578780487733965}
+  - component: {fileID: 3882578780487733964}
+  m_Layer: 8
+  m_Name: DragEmitter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &3882578780487733967
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882578780487733966}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 5996254599165549833}
+  - {fileID: 5996254598875044092}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3882578780487734000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882578780487733966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1dc6aac3ee08b846b7c9c82fe36fcc2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _SpeakerTarget: {fileID: 0}
+  _SpeakerTransform: {fileID: 0}
+  _MaterialModulator:
+    _Enabled: 1
+    _Renderer: {fileID: 3882578780487733964}
+    _Colour: {r: 0.41568628, g: 0.87058824, b: 0.6156863, a: 1}
+    _ColourParam: _EmissiveColor
+    _UseExistingColour: 1
+    _ActiveState: 0
+    _ActiveIntensity: 20
+    _InactiveIntensity: 0
+    _Smoothing: 0.5
+  _Spawner: {fileID: 0}
+  _SpawnLife: {fileID: 0}
+  _LocalTransform: {fileID: 0}
+  _LocalActor:
+    _Transform: {fileID: 0}
+  _RemoteTransform: {fileID: 0}
+  _RemoteActor:
+    _Transform: {fileID: 0}
+  _SelfRigidity: 0.5
+  _EaseCollidingRigidity: 0.5
+  _CollidingRigidity: 0
+  _HostedEmitters: []
+  _CollidingObjects: []
+  _Connected: 0
+  _AttachedSpeakerIndex: 2147483647
+  _InListenerRadius: 0
+  _ListenerDistance: 0
+  _IsColliding: 0
+--- !u!114 &3882578780487733960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882578780487733966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad34abafad169848a38072baa96cdb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_InteractionManager: {fileID: 0}
+  m_Colliders:
+  - {fileID: 0}
+  m_InteractionLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_InteractionLayers:
+    m_Bits: 8192
+  m_DistanceCalculationMode: 0
+  m_SelectMode: 0
+  m_CustomReticle: {fileID: 0}
+  m_FirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Activated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Deactivated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_StartingHoverFilters: []
+  m_StartingSelectFilters: []
+  m_OnFirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnLastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectCanceled:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnActivate:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnDeactivate:
+    m_PersistentCalls:
+      m_Calls: []
+  m_AttachTransform: {fileID: 0}
+  m_UseDynamicAttach: 0
+  m_MatchAttachPosition: 1
+  m_MatchAttachRotation: 1
+  m_SnapToColliderVolume: 1
+  m_AttachEaseInTime: 0.15
+  m_MovementType: 0
+  m_VelocityDamping: 1
+  m_VelocityScale: 1
+  m_AngularVelocityDamping: 1
+  m_AngularVelocityScale: 1
+  m_TrackPosition: 1
+  m_SmoothPosition: 1
+  m_SmoothPositionAmount: 5
+  m_TightenPosition: 0.5
+  m_TrackRotation: 1
+  m_SmoothRotation: 1
+  m_SmoothRotationAmount: 5
+  m_TightenRotation: 0.5
+  m_ThrowOnDetach: 1
+  m_ThrowSmoothingDuration: 0.25
+  m_ThrowSmoothingCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_ThrowVelocityScale: 1.5
+  m_ThrowAngularVelocityScale: 1
+  m_ForceGravityOnDetach: 0
+  m_RetainTransformParent: 1
+  m_AttachPointCompatibilityMode: 0
+  m_StartingSingleGrabTransformers: []
+  m_StartingMultipleGrabTransformers: []
+  m_AddDefaultGrabTransformers: 1
+--- !u!65 &3882578780487734001
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882578780487733966}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &3882578780487733963
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882578780487733966}
+  serializedVersion: 2
+  m_Mass: 0.5
+  m_Drag: 0.2
+  m_AngularDrag: 0.1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 1
+  m_Constraints: 0
+  m_CollisionDetection: 3
+--- !u!33 &3882578780487733965
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882578780487733966}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!23 &3882578780487733964
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3882578780487733966}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 257
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 2708dbba31e53dc4eadbdf57b6c9e2ee, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &5996254598875044091
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5996254598875044092}
+  - component: {fileID: 5996254598875044093}
+  m_Layer: 8
+  m_Name: StableEmitter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5996254598875044092
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5996254598875044091}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3882578780487733967}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5996254598875044093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5996254598875044091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae83aa2f25cab0049b0b46e068f56707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _AudioAsset: {fileID: 11400000, guid: 4d0aa371df820e64a94624302fbb0ee1, type: 2}
+  _Host: {fileID: 0}
+  _EmitterType: 0
+  _PlaybackCondition: 1
+  _VolumeAdjust: 0.5
+  _DistanceAttenuationFactor: 1
+  _AgeFadeout: 0.9
+  _PingPongGrainPlayheads: 1
+  _CollisionRigidityScaleVolume: 0
+  _DSPChainParams: []
+  _IsPlaying: 0
+  _AdjustedDistance: 0
+  _DistanceAmplitude: 0
+  _ColliderRigidityVolume: 1
+  _LastTriggeredAt: 0
+  _LastSampleIndex: 0
+  _VolumeIdle: 0
+  _VolumeModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 1
+    _SceneProperties: 0
+    _PrimaryActor: 6
+    _LinkedActors: 3
+    _ActorCollisions: 0
+    _InputValue: 0
+    _InputRange: {x: 0, y: 10}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0.2
+    _LimiterMode: 0
+    _ModulationExponent: 2
+    _ModulationAmount: 0.9
+    _Result: 0
+  _VolumeNoise:
+    _Influence: 0
+    _Multiplier: 0.1
+    _Speed: 1
+    _Perlin: 0
+  _PlayheadStartPosition: {x: 0.8, y: 0.9}
+  _PlayheadIdle: 0.5
+  _PlayheadModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 1
+    _SceneProperties: 0
+    _PrimaryActor: 6
+    _LinkedActors: 3
+    _ActorCollisions: 0
+    _InputValue: 0
+    _InputRange: {x: 0, y: 10}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0.2
+    _LimiterMode: 0
+    _ModulationExponent: 2
+    _ModulationAmount: -0.3
+    _Result: 0
+  _PlayheadNoise:
+    _Influence: 0.1
+    _Multiplier: 0.1
+    _Speed: 1
+    _Perlin: 1
+  _DurationIdle: 30
+  _DurationModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 0
+    _SceneProperties: 0
+    _PrimaryActor: 3
+    _LinkedActors: 3
+    _ActorCollisions: 0
+    _InputValue: 0
+    _InputRange: {x: 0, y: 1}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0.2
+    _LimiterMode: 0
+    _ModulationExponent: 1
+    _ModulationAmount: 0
+    _Result: 0
+  _DurationNoise:
+    _Influence: 0
+    _Multiplier: 0.1
+    _Speed: 1
+    _Perlin: 0
+  _DensityIdle: 3
+  _DensityModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 0
+    _SceneProperties: 0
+    _PrimaryActor: 3
+    _LinkedActors: 3
+    _ActorCollisions: 0
+    _InputValue: 0
+    _InputRange: {x: 0, y: 1}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0.2
+    _LimiterMode: 0
+    _ModulationExponent: 1
+    _ModulationAmount: 0
+    _Result: 0
+  _DensityNoise:
+    _Influence: 0
+    _Multiplier: 0.1
+    _Speed: 1
+    _Perlin: 0
+  _TransposeIdle: 0
+  _TransposeModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 0
+    _SceneProperties: 0
+    _PrimaryActor: 3
+    _LinkedActors: 3
+    _ActorCollisions: 0
+    _InputValue: 0
+    _InputRange: {x: 0, y: 1}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0.2
+    _LimiterMode: 0
+    _ModulationExponent: 1
+    _ModulationAmount: 0
+    _Result: 0
+  _TransposeNoise:
+    _Influence: 0.1
+    _Multiplier: 0.1
+    _Speed: 1
+    _Perlin: 0
+--- !u!1 &5996254599165549832
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5996254599165549833}
+  - component: {fileID: 5996254599165549834}
+  m_Layer: 8
+  m_Name: VolatileEmitter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5996254599165549833
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5996254599165549832}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3882578780487733967}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5996254599165549834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5996254599165549832}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82176498da827a14399bfa643052dc47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _AudioAsset: {fileID: 11400000, guid: 30715883175a9f0429f0c46dc3031d4f, type: 2}
+  _Host: {fileID: 0}
+  _EmitterType: 1
+  _PlaybackCondition: 1
+  _VolumeAdjust: 0.8
+  _DistanceAttenuationFactor: 0.6
+  _AgeFadeout: 0.9
+  _PingPongGrainPlayheads: 0
+  _CollisionRigidityScaleVolume: 0
+  _DSPChainParams: []
+  _IsPlaying: 0
+  _AdjustedDistance: 0
+  _DistanceAmplitude: 0
+  _ColliderRigidityVolume: 1
+  _LastTriggeredAt: 0
+  _LastSampleIndex: 0
+  _VolumeModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 3
+    _SceneProperties: 0
+    _PrimaryActor: 3
+    _LinkedActors: 3
+    _ActorCollisions: 1
+    _InputValue: 0
+    _InputRange: {x: 0, y: 20}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0
+    _LimiterMode: 0
+    _ModulationExponent: 3
+    _ModulationAmount: 1
+    _Result: 0
+  _VolumeNoise:
+    _Influence: 0
+    _Multiplier: 0.1
+    _HoldForBurstDuration: 0
+  _LengthDefault: 200
+  _LengthModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 0
+    _SceneProperties: 0
+    _PrimaryActor: 3
+    _LinkedActors: 3
+    _ActorCollisions: 1
+    _InputValue: 0
+    _InputRange: {x: 0, y: 1}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0.2
+    _LimiterMode: 0
+    _ModulationExponent: 1
+    _ModulationAmount: 0
+    _Result: 0
+  _LengthNoise:
+    _Influence: 0
+    _Multiplier: 0.1
+    _HoldForBurstDuration: 0
+  _PlayheadPath: {x: 0.13, y: 0.9}
+  _PlayheadFixedStart: 0
+  _PlayheadFixedEnd: 1
+  _PlayheadModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 3
+    _SceneProperties: 0
+    _PrimaryActor: 3
+    _LinkedActors: 3
+    _ActorCollisions: 1
+    _InputValue: 0
+    _InputRange: {x: 0, y: 20}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0
+    _LimiterMode: 0
+    _ModulationExponent: 1
+    _ModulationAmount: -0.1
+    _Result: 0
+  _PlayheadNoise:
+    _Influence: 0
+    _Multiplier: 0.1
+    _HoldForBurstDuration: 0
+  _DurationPath: {x: 30, y: 70}
+  _DurationFixedStart: 1
+  _DurationFixedEnd: 0
+  _DurationModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 2
+    _SceneProperties: 0
+    _PrimaryActor: 3
+    _LinkedActors: 3
+    _ActorCollisions: 1
+    _InputValue: 0
+    _InputRange: {x: 0, y: 5}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0.2
+    _LimiterMode: 0
+    _ModulationExponent: 1
+    _ModulationAmount: 0.5
+    _Result: 0
+  _DurationNoise:
+    _Influence: 0
+    _Multiplier: 0.1
+    _HoldForBurstDuration: 0
+  _DensityPath: {x: 3, y: 3}
+  _DensityFixedStart: 0
+  _DensityFixedEnd: 0
+  _DensityModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 0
+    _SceneProperties: 0
+    _PrimaryActor: 3
+    _LinkedActors: 3
+    _ActorCollisions: 1
+    _InputValue: 0
+    _InputRange: {x: 0, y: 1}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0.2
+    _LimiterMode: 0
+    _ModulationExponent: 1
+    _ModulationAmount: 0
+    _Result: 0
+  _DensityNoise:
+    _Influence: 0
+    _Multiplier: 0.1
+    _HoldForBurstDuration: 0
+  _TransposePath: {x: 0, y: 0}
+  _TransposeFixedStart: 0
+  _TransposeFixedEnd: 1
+  _TransposeModulation:
+    _LocalActor:
+      _Transform: {fileID: 0}
+    _RemoteActor:
+      _Transform: {fileID: 0}
+    _ValueSource: 0
+    _SceneProperties: 0
+    _PrimaryActor: 3
+    _LinkedActors: 3
+    _ActorCollisions: 1
+    _InputValue: 0
+    _InputRange: {x: 0, y: 1}
+    _AdjustMultiplier: 1
+    _OnNewValue: 0
+    _PreSmoothValue: 0
+    _Smoothing: 0.2
+    _LimiterMode: 0
+    _ModulationExponent: 1
+    _ModulationAmount: 0
+    _Result: 0
+  _TransposeNoise:
+    _Influence: 0.1
+    _Multiplier: 0.1
+    _HoldForBurstDuration: 0

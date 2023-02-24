@@ -25,11 +25,12 @@ namespace PlaneWaver
         [Header("Runtime Dynamics")]
         [SerializeField] private bool _Initialised = false;
         [SerializeField] private int _ObjectCounter = 0;
-        [SerializeField] public HashSet<GameObject> _CollidedThisUpdate;
+        public HashSet<GameObject> _CollidedThisUpdate;
 
         [Header("Object Configuration")]
         [Tooltip("Object providing the spawn location and controller behaviour.")]
         public GameObject _ControllerObject;
+        public Transform _ControllerAnchor;
         [Tooltip("Parent GameObject to attach spawned prefabs.")]
         public GameObject _SpawnableHost;
         [Tooltip("Prefab to spawn.")]
@@ -57,13 +58,15 @@ namespace PlaneWaver
         [Header("Ejection Physics")]
         [Tooltip("Direction that determines a spawnables position and velocity on instantiation. Converts to unit vector.")]
         public Vector3 _EjectionDirection = new(0, 0, 0);
+        [Tooltip("Direction to rotate the exit velocity from its inital direction (enables initiating a velocity spinning around the spawner). Converts to unit vector.")]
+        [MinValue(-1)][MaxValue(1)] public Vector3 _VelocityUpOffset = new(0, 1, 0);
         [Tooltip("Amount of random spread applied to each spawn direction.")]
         [Range(0f, 1f)] public float _EjectionDirectionVariance = 0;
         [Tooltip("Distance from the anchor that objects will be spawned.")]
         [MinMaxSlider(0f, 10f)] public Vector2 _EjectionRadiusRange = new(1, 2);
         [Tooltip("Speed that spawned objects leave the anchor.")]
         [MinMaxSlider(0f, 100f)] public Vector2 _EjectionSpeedRange = new(5, 10);
-
+        
         [Header("Spawned Object Removal")]
         public bool _DestroyOnAllCollisions = false;
         [Tooltip("Coodinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Collider Bounds, defined instead by the supplied collider bounding area, deaulting to the controller's collider if it has one.")]
@@ -137,6 +140,12 @@ namespace PlaneWaver
                 return false;
             }
 
+            if (_ControllerAnchor != null && _ControllerObject.TryGetComponent(out Rigidbody rb)
+                && _ControllerAnchor.TryGetComponent(out SpringJoint joint))
+            {
+                joint.connectedBody = rb;
+            }
+
             _Initialised = true;
             _StartTime = Time.time + _SpawnDelaySeconds;
             return true;
@@ -175,21 +184,15 @@ namespace PlaneWaver
 
         public bool SpawningAllowed()
         {
-            switch (_SpawnCondition)
+            return _SpawnCondition switch
             {
-                case SpawnCondition.Never:
-                    return false;
-                case SpawnCondition.Always:
-                    return true;
-                case SpawnCondition.AfterSpeakersPopulated:
-                    return !GrainBrain.Instance.PopulatingSpeakers;
-                case SpawnCondition.IfSpeakerAvailable:
-                    return !GrainBrain.Instance._Speakers.TrueForAll(s => s.IsActive);
-                case SpawnCondition.AfterDelayPeriod:
-                    return _StartTimeReached || (_StartTimeReached = Time.time > _StartTime);
-                default:
-                    return false;
-            }
+                SpawnCondition.Never => false,
+                SpawnCondition.Always => true,
+                SpawnCondition.AfterSpeakersPopulated => !GrainBrain.Instance.PopulatingSpeakers,
+                SpawnCondition.IfSpeakerAvailable => !GrainBrain.Instance._Speakers.TrueForAll(s => s.IsActive),
+                SpawnCondition.AfterDelayPeriod => _StartTimeReached || (_StartTimeReached = Time.time > _StartTime),
+                _ => false,
+            };
         }
 
         public void CreateSpawnable()
@@ -224,7 +227,7 @@ namespace PlaneWaver
             Vector3 randomDirection = Random.onUnitSphere;
             Vector3 spawnDirection = Vector3.Slerp(_EjectionDirection.normalized, randomDirection, _EjectionDirectionVariance);
             Vector3 spawnPosition = _ControllerObject.transform.position + spawnDirection * Rando.Range(_EjectionRadiusRange);
-            Quaternion directionRotation = Quaternion.FromToRotation(Vector3.up, spawnDirection);
+            Quaternion directionRotation = Quaternion.FromToRotation(_VelocityUpOffset, spawnDirection);
 
             newObject = Instantiate(objectToSpawn, spawnPosition, directionRotation, _SpawnableHost.transform);
             newObject.name = newObject.name + " (" + _ObjectCounter + ")";

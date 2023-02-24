@@ -124,7 +124,7 @@ namespace PlaneWaver
         [BoxGroup("Visual Feedback")]
         public Material _AttachmentLineMat;
         [BoxGroup("Visual Feedback")]
-        [Range(0, 0.05f)] public float _AttachmentLineWidth = 0.002f;
+        [Range(0, 0.02f)] public float _AttachmentLineWidth = 0.005f;
 
         [BoxGroup("Interaction Behaviour")]
         [Tooltip("During collision/contact between two emitter hosts, only trigger the emitter with the greatest surface rigidity, using an average of the two values.")]

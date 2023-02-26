@@ -17,6 +17,18 @@ namespace MaxVRAM.Extensions
             return gO.SetParentAndZero(parent.gameObject);
         }
 
+        public static GameObject SetParentAndZero(this GameObject gO, string name, GameObject parent)
+        {
+            gO.name = name;
+            return gO.SetParentAndZero(parent);
+        }
+
+        public static GameObject SetParentAndZero(this GameObject gO, string name, Transform parent)
+        {
+            gO.name = name;
+            return gO.SetParentAndZero(parent.gameObject);
+        }
+
         public static void DestroyAllChildren(this GameObject obj)
         {
             for (int i = 0; i < obj.transform.childCount; i++)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using UnityEngine;
+using MaxVRAM.Extensions;
 
 namespace PlaneWaver
 {
@@ -10,14 +11,18 @@ namespace PlaneWaver
     {
         [Header("Anchors")]
         public Transform _StartAnchorTransform;
+        private GameObject _StartAnchor;
         public Transform _EndAnchorTransform;
+        private GameObject _EndAnchor;
         public GameObject _AnchorPrefab;
+        private bool _AnchorsInitialised = false;
 
         [Header("Nodes")]
         public GameObject _NodePrefab;
         public int _NodeCount = 5;
         public float _NodeRadius = 0.1f;
-        public List<Transform> _SliderPoints = new();
+        public List<Transform> _Nodes = new();
+        private bool _NodesInitialised = false;
 
         [Header("Joint Configs")]
         public BaseJointScriptable _AnchorJoint = null;
@@ -25,8 +30,8 @@ namespace PlaneWaver
 
         [Header("Visualisation")]
         public bool _VisualiseLine = true;
+        private bool _LineInitialised = false;
         private LineRenderer _Line;
-        private bool _Initialised = false;
 
         void Update()
         {
@@ -36,31 +41,10 @@ namespace PlaneWaver
 
         private bool Initialised()
         {
-            if (_Initialised)
-                return true;
 
-            if (_VisualiseLine && TryGetComponent(out _Line))
-                _Line = gameObject.AddComponent<LineRenderer>();
+            _Nodes.RemoveAll(item => item == null);
 
-            _SliderPoints.RemoveAll(item => item == null);
-            _Line.positionCount = _SliderPoints.Count;
-
-            if (_StartAnchorTransform == null)
-            {
-                //GameObject startAnchor = Instantiate(_AnchorPrefab);
-                _StartAnchorTransform = Instantiate(_AnchorPrefab, transform).transform;
-                _StartAnchorTransform.name = "Anchor.Start";
-                _StartAnchorTransform.position = transform.position;
-            }
-
-            for (int i = 0; i < _SliderPoints.Count; i++)
-            {
-                _Line.SetPosition(i, _SliderPoints[i].position);
-            }
-
-            _Line.SetPositions(_SliderPoints.Select(t => t.position).ToArray());
-            _Line.enabled = _VisualiseLine;
-            return _Initialised = true;
+            return true;
         }
 
         public void PrepareRigidbodies()
@@ -68,9 +52,56 @@ namespace PlaneWaver
 
         }
 
-        private void PreUpdatePointCheck()
+        private bool InitialiseAnchors()
         {
+            if (_AnchorPrefab == null || _StartAnchorTransform == null || _EndAnchorTransform == null)
+                return _AnchorsInitialised = false;
 
+            if (_StartAnchor == null)
+                _StartAnchor = Instantiate(_AnchorPrefab).SetParentAndZero("Anchor.Start", _StartAnchorTransform);
+
+            if (_EndAnchor == null)
+                _EndAnchor = Instantiate(_AnchorPrefab).SetParentAndZero("Anchor.End", _EndAnchorTransform);
+
+            return _AnchorsInitialised = _StartAnchor != null && _EndAnchor != null;
+        }
+
+        private bool InitialiseNodes()
+        {
+            return true;
+        }
+
+        private bool InitialiseLine()
+        {
+            if (!_VisualiseLine)
+            {
+                if (_Line != null)
+                    _Line.enabled = false;
+                _LineInitialised = false;
+                return true;
+            }
+
+            if (!_AnchorsInitialised || !_NodesInitialised)
+                return _LineInitialised = false;
+
+            if (TryGetComponent(out _Line))
+                _Line = gameObject.AddComponent<LineRenderer>();
+
+            if (_Nodes == null)
+            {
+                _NodesInitialised = false;
+                return _LineInitialised = false;
+            }
+
+            _Line.positionCount = _Nodes.Count;
+
+            for (int i = 0; i < _Nodes.Count; i++)
+            {
+                _Line.SetPosition(i, _Nodes[i].position);
+            }
+
+            _Line.enabled = _VisualiseLine;
+            return _LineInitialised = true;
         }
     }
 }

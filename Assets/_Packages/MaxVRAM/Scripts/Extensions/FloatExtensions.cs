@@ -1,5 +1,4 @@
 
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace MaxVRAM.Extensions
@@ -22,7 +21,7 @@ namespace MaxVRAM.Extensions
                 return value > min && value < max;
         }
 
-        public static bool IsInRange(this float value, float2 minMax, bool inclusive = true)
+        public static bool IsInRange(this float value, Vector2 minMax, bool inclusive = true)
         {
             if (inclusive)
                 return value >= minMax.x && value <= minMax.y;
@@ -131,7 +130,6 @@ namespace MaxVRAM.Extensions
             float pete = reeh.RepeatNorm();
             return offset + (pete - offset) * amount.Abs();
         }
-
 
         public static Vector2 MakeMirroredVector(this float value, float mid)
         {

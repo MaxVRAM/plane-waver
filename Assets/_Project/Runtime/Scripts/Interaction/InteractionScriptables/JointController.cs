@@ -15,6 +15,8 @@ namespace PlaneWaver
         private Rigidbody _RemoteRigidbody;
         public Joint _JointComponent;
         public BaseJointScriptable _JointSetup;
+        public bool _VisualiseJointLine = true;
+        private AttachmentLine _JointLine = null;
 
         void Start()
         {
@@ -24,6 +26,8 @@ namespace PlaneWaver
         {
             if (!_Initialised)
                 return;
+
+            UpdateLine();
         }
 
         public void Initialise(BaseJointScriptable jointConfig, Transform remoteTransform)
@@ -68,14 +72,28 @@ namespace PlaneWaver
             _JointComponent = _JointSetup.AssignJointConfig(_JointComponent);
             _JointComponent.connectedBody = _RemoteRigidbody;
 
-            GameObject lineObject = new("JointLine");
-            lineObject.SetParentAndZero(gameObject);
-            AttachmentLine jointLine = lineObject.AddComponent<AttachmentLine>();
-            jointLine._TransformA = _LocalTransform;
-            jointLine._TransformB = _RemoteTransform;
-            jointLine.JointLineWidth = _JointSetup.JointLineWidth;
-            jointLine._Active = true;
             _Initialised = true;
+        }
+
+        public void UpdateLine()
+        {
+            if (!_VisualiseJointLine)
+            {
+                if (_JointLine != null)
+                    _JointLine._Active = false;
+                return;
+            }
+
+            if (_LocalTransform == null || _RemoteTransform == null)
+                return;
+
+            if (_JointLine == null)
+                _JointLine = new GameObject("JointLine").SetParentAndZero(gameObject).AddComponent<AttachmentLine>();
+            
+            _JointLine._TransformA = _LocalTransform;
+            _JointLine._TransformB = _RemoteTransform;
+            _JointLine.JointLineWidth = _JointSetup.JointLineWidth;
+            _JointLine._Active = true;
         }
     }
 }

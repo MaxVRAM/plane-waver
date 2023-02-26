@@ -17,7 +17,7 @@ namespace PlaneWaver
     {
         public bool _Enabled = true;
         [SerializeField][Range(0f,1f)] private float _JointLineWidth = 0.1f;
-        public float JointLineWidth { get => _JointLineWidth * 0.2f; }
+        public float JointLineWidth => _JointLineWidth * 0.2f;
 
         public override void Initialise()
         {

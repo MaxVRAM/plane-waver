@@ -1,50 +1,76 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+
 using UnityEngine;
 
 namespace PlaneWaver
 {
     public class SliderLineMultiPoint : MonoBehaviour
     {
-        public List<Transform> _SliderPoints;
+        [Header("Anchors")]
+        public Transform _StartAnchorTransform;
+        public Transform _EndAnchorTransform;
+        public GameObject _AnchorPrefab;
+
+        [Header("Nodes")]
+        public GameObject _NodePrefab;
+        public int _NodeCount = 5;
+        public float _NodeRadius = 0.1f;
+        public List<Transform> _SliderPoints = new();
+
+        [Header("Joint Configs")]
+        public BaseJointScriptable _AnchorJoint = null;
+        public BaseJointScriptable _NodeNeighbourJoint = null;
+
+        [Header("Visualisation")]
+        public bool _VisualiseLine = true;
         private LineRenderer _Line;
         private bool _Initialised = false;
 
-        private List<Transform>.Enumerator GetEnumerator()
-        {
-            return _SliderPoints.GetEnumerator();
-        }
-
         void Update()
         {
-            if (!LineConfigured())
+            if (!Initialised())
                 return;
-
-            _Line.SetPositions(enumerator(t => t.position).ToArray());
         }
 
-        private bool LineConfigured()
+        private bool Initialised()
         {
             if (_Initialised)
                 return true;
 
+            if (_VisualiseLine && TryGetComponent(out _Line))
+                _Line = gameObject.AddComponent<LineRenderer>();
+
             _SliderPoints.RemoveAll(item => item == null);
+            _Line.positionCount = _SliderPoints.Count;
+
+            if (_StartAnchorTransform == null)
+            {
+                //GameObject startAnchor = Instantiate(_AnchorPrefab);
+                _StartAnchorTransform = Instantiate(_AnchorPrefab, transform).transform;
+                _StartAnchorTransform.name = "Anchor.Start";
+                _StartAnchorTransform.position = transform.position;
+            }
 
             for (int i = 0; i < _SliderPoints.Count; i++)
             {
-                if (_SliderPoints[i] == null)
-                    return _Initialised = false;
+                _Line.SetPosition(i, _SliderPoints[i].position);
+            }
 
-            if (TryGetComponent(out _Line))
-                _Line = gameObject.AddComponent<LineRenderer>();
-
-            if (_Line == null)
-                return _Initialised = false;
-
-            _Line.positionCount = _SliderPoints.Length;
             _Line.SetPositions(_SliderPoints.Select(t => t.position).ToArray());
-            _Line.enabled = true;
+            _Line.enabled = _VisualiseLine;
             return _Initialised = true;
+        }
+
+        public void PrepareRigidbodies()
+        {
+
+        }
+
+        private void PreUpdatePointCheck()
+        {
+
         }
     }
 }

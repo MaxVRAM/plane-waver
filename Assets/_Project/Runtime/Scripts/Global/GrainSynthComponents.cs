@@ -13,34 +13,34 @@ using Unity.Transforms;
 
 public struct WindowingDataComponent : IComponentData
 {
-    public BlobAssetReference<FloatBlobAsset> _WindowingArray;
+    public BlobAssetReference<FloatBlobAsset> WindowingArray;
 }
 
 public struct AudioClipDataComponent :IComponentData
 {
-    public int _ClipIndex;
-    public BlobAssetReference<FloatBlobAsset> _ClipDataBlobAsset;
+    public int ClipIndex;
+    public BlobAssetReference<FloatBlobAsset> ClipDataBlobAsset;
 }
 
 public struct AudioTimerComponent : IComponentData
 {
-    public int _NextFrameIndexEstimate;
-    public int _GrainQueueSampleDuration;
-    public int _PreviousFrameSampleDuration;
-    public int _RandomiseBurstStartIndex;
-    public int _AverageGrainAge;
+    public int NextFrameIndexEstimate;
+    public int GrainQueueSampleDuration;
+    public int PreviousFrameSampleDuration;
+    public int RandomiseBurstStartIndex;
+    public int AverageGrainAge;
 }
 
 public struct ConnectionConfig : IComponentData
 {
-    public float _DeltaTime;
-    public float _ArcDegrees;
-    public float _ListenerRadius;
-    public float _BusyLoadLimit;
-    public float _SpeakerLingerTime;
-    public float _TranslationSmoothing;
-    public float3 _DisconnectedPosition;
-    public float3 _ListenerPos;
+    public float DeltaTime;
+    public float ArcDegrees;
+    public float ListenerRadius;
+    public float BusyLoadLimit;
+    public float SpeakerLingerTime;
+    public float TranslationSmoothing;
+    public float3 DisconnectedPosition;
+    public float3 ListenerPos;
 }
 
 //    ________             .__               
@@ -54,14 +54,14 @@ public struct SamplesProcessedTag : IComponentData { }
 
 public struct GrainComponent : IComponentData
 {
-    public AudioClipDataComponent _AudioClipDataComponent;
-    public int _StartSampleIndex;
-    public int _SampleCount;
-    public float _PlayheadNorm;
-    public float _Pitch;
-    public float _Volume;
-    public int _SpeakerIndex;
-    public int _EffectTailSampleLength;
+    public AudioClipDataComponent AudioClipDataComponent;
+    public int StartSampleIndex;
+    public int SampleCount;
+    public float PlayheadNorm;
+    public float Pitch;
+    public float Volume;
+    public int SpeakerIndex;
+    public int EffectTailSampleLength;
 }
 
 //    _________                     __                        
@@ -87,12 +87,12 @@ public enum ConnectionState
 
 public struct SpeakerComponent : IComponentData
 {
-    public ConnectionState _State;
-    public int _ConnectedHostCount;
-    public float _ConnectionRadius;
-    public float _InactiveDuration;
-    public float _GrainLoad;
-    public float3 _WorldPos;
+    public ConnectionState State;
+    public int ConnectedHostCount;
+    public float ConnectionRadius;
+    public float InactiveDuration;
+    public float GrainLoad;
+    public float3 WorldPos;
 }
 
 //  ___________       .__  __    __                       
@@ -108,68 +108,70 @@ public struct LoneHostOnSpeakerTag : IComponentData { }
 
 public struct HostComponent : IComponentData
 {
-    public int _HostIndex;
-    public int _SpeakerIndex;
-    public bool _Connected;
-    public bool _InListenerRadius;
-    public float3 _WorldPos;
+    public int HostIndex;
+    public int SpeakerIndex;
+    public bool Connected;
+    public bool InListenerRadius;
+    public float3 WorldPos;
 }
+
 public struct PlayingTag : IComponentData { }
 public struct PingPongTag : IComponentData { }
-public struct ModulationComponent : IComponentData
-{
-    public float _StartValue;
-    public float _EndValue;
-    public float _Noise;
-    public bool _PerlinNoise;
-    public bool _LockNoise;
-    public float _PerlinValue;
-    public float _Exponent;
-    public float _Modulation;
-    public float _Min;
-    public float _Max;
-    public bool _FixedStart;
-    public bool _FixedEnd;
-    public float _Input;
-}
 
 public struct ContinuousComponent : IComponentData
 {
-    public int _HostIndex;
-    public int _EmitterIndex;
-    public int _SpeakerIndex;
-    public int _AudioClipIndex;
-    public bool _PingPong;
-    public bool _IsPlaying;
-    public float _VolumeAdjust;
-    public float _DistanceAmplitude;
-    public int _LastSampleIndex;
-    public int _PreviousGrainDuration;
-    public int _SamplesUntilFade;
-    public int _SamplesUntilDeath;
-    public ModulationComponent _Playhead;
-    public ModulationComponent _Density;
-    public ModulationComponent _Duration;
-    public ModulationComponent _Transpose;
-    public ModulationComponent _Volume;
+    public int HostIndex;
+    public int EmitterIndex;
+    public int SpeakerIndex;
+    public int AudioClipIndex;
+    public bool PingPong;
+    public bool IsPlaying;
+    public float VolumeAdjust;
+    public float DistanceAmplitude;
+    public int LastSampleIndex;
+    public int PreviousGrainDuration;
+    public int SamplesUntilFade;
+    public int SamplesUntilDeath;
+    public ModulationComponent Playhead;
+    public ModulationComponent Density;
+    public ModulationComponent Duration;
+    public ModulationComponent Transpose;
+    public ModulationComponent Volume;
 }
 
 public struct BurstComponent : IComponentData
 {
-    public int _HostIndex;
-    public int _EmitterIndex;
-    public int _SpeakerIndex;
-    public int _AudioClipIndex;
-    public bool _PingPong;
-    public bool _IsPlaying;
-    public float _VolumeAdjust;
-    public float _DistanceAmplitude;
-    public ModulationComponent _Length;
-    public ModulationComponent _Density;
-    public ModulationComponent _Playhead;
-    public ModulationComponent _Duration;
-    public ModulationComponent _Transpose;
-    public ModulationComponent _Volume;
+    public int HostIndex;
+    public int EmitterIndex;
+    public int SpeakerIndex;
+    public int AudioClipIndex;
+    public bool PingPong;
+    public bool IsPlaying;
+    public float VolumeAdjust;
+    public float DistanceAmplitude;
+    public ModulationComponent Length;
+    public ModulationComponent Density;
+    public ModulationComponent Playhead;
+    public ModulationComponent Duration;
+    public ModulationComponent Transpose;
+    public ModulationComponent Volume;
+}
+
+public struct ModulationComponent : IComponentData
+{
+    public float StartValue;
+    public float EndValue;
+    public float Noise;
+    public bool PerlinNoise;
+    public bool LockNoise;
+    public float PerlinValue;
+    public float Exponent;
+    public float Modulation;
+    public float Min;
+    public float Max;
+    public bool FixedStart;
+    public bool FixedEnd;
+    public float Input;
 }
 
 #endregion
@@ -190,23 +192,23 @@ public struct DSPSampleBufferElement : IBufferElementData
 [System.Serializable]
 public struct DSPParametersElement : IBufferElementData
 {
-    public DSPTypes _DSPType;
-    public bool _DelayBasedEffect;
-    public int _SampleRate;
-    public int _SampleTail;
-    public int _SampleStartTime;
-    public float _Mix;
-    public float _Value0;
-    public float _Value1;
-    public float _Value2;
-    public float _Value3;
-    public float _Value4;
-    public float _Value5;
-    public float _Value6;
-    public float _Value7;
-    public float _Value8;
-    public float _Value9;
-    public float _Value10;
+    public DSPTypes DSPType;
+    public bool DelayBasedEffect;
+    public int SampleRate;
+    public int SampleTail;
+    public int SampleStartTime;
+    public float Mix;
+    public float Value0;
+    public float Value1;
+    public float Value2;
+    public float Value3;
+    public float Value4;
+    public float Value5;
+    public float Value6;
+    public float Value7;
+    public float Value8;
+    public float Value9;
+    public float Value10;
 }
 
 public enum DSPTypes
@@ -224,7 +226,7 @@ public enum DSPTypes
 
 public struct FloatBlobAsset
 {
-    public BlobArray<float> array;
+    public BlobArray<float> Array;
 }
 
 #endregion

@@ -99,71 +99,79 @@ namespace MaxVRAM
             return FadeInOut(normPosition, inOutPoint, 1 - inOutPoint);
         }
 
-        public static void SphericalToCartesian(float radius, float polar, float elevation, out Vector3 outCart)
+        public static void SphericalToCartesian(float radius, float polar, float elevation, out Vector3 cartesianCoords)
         {
             // https://blog.nobel-joergensen.com/2010/10/22/spherical-coordinates-in-unity/
             float a = radius * Mathf.Cos(elevation);
-            outCart.x = a * Mathf.Cos(polar);
-            outCart.y = radius * Mathf.Sin(elevation);
-            outCart.z = a * Mathf.Sin(polar);
+            cartesianCoords.x = a * Mathf.Cos(polar);
+            cartesianCoords.y = radius * Mathf.Sin(elevation);
+            cartesianCoords.z = a * Mathf.Sin(polar);
+        }
+        
+        public static Vector3 SphericalToCartesian(float radius, float polar, float elevation)
+        {
+            SphericalToCartesian(radius, polar, elevation, out Vector3 outCart);
+            return outCart;
+        }
+        
+        public static Vector3 SphericalToCartesian(SphericalCoordinates sphericalCoordinates)
+        {
+            SphericalToCartesian(sphericalCoordinates.Radius, sphericalCoordinates.Polar, sphericalCoordinates.Elevation, out Vector3 outCart);
+            return outCart;
         }
 
-        public static void CartesianToSpherical(Vector3 cartCoords, out float outRadius, out float outPolar, out float outElevation)
+        public static void CartesianToSpherical(Vector3 cartesianCoords, out float outRadius, out float outPolar, out float outElevation)
         {
             // https://blog.nobel-joergensen.com/2010/10/22/spherical-coordinates-in-unity/
-            if (cartCoords.x == 0)
-                cartCoords.x = Mathf.Epsilon;
-            outRadius = Mathf.Sqrt((cartCoords.x * cartCoords.x)
-                            + (cartCoords.y * cartCoords.y)
-                            + (cartCoords.z * cartCoords.z));
-            outPolar = Mathf.Atan(cartCoords.z / cartCoords.x);
-            if (cartCoords.x < 0)
+            if (cartesianCoords.x == 0)
+                cartesianCoords.x = Mathf.Epsilon;
+            outRadius = Mathf.Sqrt((cartesianCoords.x * cartesianCoords.x)
+                            + (cartesianCoords.y * cartesianCoords.y)
+                            + (cartesianCoords.z * cartesianCoords.z));
+            outPolar = Mathf.Atan(cartesianCoords.z / cartesianCoords.x);
+            if (cartesianCoords.x < 0)
                 outPolar += Mathf.PI;
-            outElevation = Mathf.Asin(cartCoords.y / outRadius);
+            outElevation = Mathf.Asin(cartesianCoords.y / outRadius);
+        }
+        
+        public static SphericalCoordinates CartesianToSpherical(Vector3 cartesianCoords)
+        {
+            CartesianToSpherical(cartesianCoords, out float outRadius, out float outPolar, out float outElevation);
+            return new SphericalCoordinates(outRadius, outPolar, outElevation);
         }
 
-        public class SphericalCoords
+        public struct SphericalCoordinates
         {
-            private float _Radius;
-            private float _Polar;
-            private float _Elevation;
-            public float Radius { get { return _Radius; } }
-            public float Polar { get { return _Polar; } }
-            public float Elevation { get { return _Elevation; } }
-
-            public SphericalCoords(Vector3 cartesianCoords)
+            private float _radius;
+            private float _polar;
+            private float _elevation;
+            public float Radius { get => _radius; set => _radius = value; }
+            public float Polar { get => _polar; set => _polar = value; }
+            public float Elevation { get => _elevation; set => _elevation = value; }
+            
+            public SphericalCoordinates(float radius, float polar, float elevation)
             {
-                CartesianToSpherical(cartesianCoords, out _Radius, out _Polar, out _Elevation);
+                _radius = radius;
+                _polar = polar;
+                _elevation = elevation;
             }
-            public SphericalCoords(SphericalCoords sphericalCoords)
+            
+            public SphericalCoordinates(Vector3 cartesianCoords)
             {
-                _Radius = sphericalCoords._Radius;
-                _Polar = sphericalCoords._Polar;
-                _Elevation = sphericalCoords._Elevation;
+                CartesianToSpherical(cartesianCoords, out _radius, out _polar, out _elevation);
             }
-
-            public Vector3 GetAsVector() { return new Vector3(_Radius, _Polar, _Elevation); }
-            public void GetAsVector(out Vector3 sphericalCoods) { sphericalCoods = GetAsVector(); }
-
-            public SphericalCoords FromCartesian(Vector3 cartesianCoords)
-            {
-                CartesianToSpherical(cartesianCoords, out _Radius, out _Polar, out _Elevation);
-                return this;
-            }
-
+            
             public Vector3 ToCartesian()
             {
-                SphericalToCartesian(_Radius, _Polar, _Elevation, out Vector3 cartesianCoords);
+                SphericalToCartesian(_radius, _polar, _elevation, out Vector3 cartesianCoords);
                 return cartesianCoords;
             }
         }
 
-        public static float TangentalSpeedFromQuaternion(Quaternion quat)
+        public static float TangentalSpeedFromQuaternion(Quaternion quaternion)
         {
-            float angleInDegrees;
-            Vector3 rotationAxis;
-            quat.ToAngleAxis(out angleInDegrees, out rotationAxis);
-            Vector3 angularDisplacement = rotationAxis * angleInDegrees * Mathf.Deg2Rad;
+            quaternion.ToAngleAxis(out float angleInDegrees, out Vector3 rotationAxis);
+            Vector3 angularDisplacement = rotationAxis * (angleInDegrees * Mathf.Deg2Rad);
             Vector3 angularSpeed = angularDisplacement / Time.deltaTime;
             return angularSpeed.magnitude;
         }
@@ -176,8 +184,8 @@ namespace MaxVRAM
 
         public static int[] RandomIntList(int size = 10, int min = 0, int max = 100) 
         { 
-            int[] outputArray = new int[size];
-            for (int i = 0; i < size; i++) { outputArray[i] = Random.Range(min, max); }
+            var outputArray = new int[size];
+            for (var i = 0; i < size; i++) { outputArray[i] = Random.Range(min, max); }
             return outputArray;
         }
     }

@@ -10,8 +10,8 @@ using Ranges = PlaneWaver.EmitterParameterRanges;
 namespace PlaneWaver
 {
     /// <summary>
-    //  Emitter class for building and spawning a continuous stream of audio grain playback.
-    /// <summary>
+    ///  Emitter class for building and spawning a continuous stream of audio grain playback.
+    /// </summary>
     public class ContinuousAuthoring : EmitterAuthoring
     {
         #region MODULATION PARAMETERS
@@ -93,42 +93,42 @@ namespace PlaneWaver
         {
             _EntityManager.AddComponentData(_Entity, new ContinuousComponent
             {
-                _IsPlaying = false,
-                _EmitterIndex = _EntityIndex,
-                _AudioClipIndex = _AudioAsset.ClipEntityIndex,
-                _SpeakerIndex = Host.AttachedSpeakerIndex,
-                _HostIndex = Host.EntityIndex,
-                _VolumeAdjust = _VolumeAdjust,
-                _DistanceAmplitude = 1,
-                _PingPong = _PingPongGrainPlayheads,
-                _SamplesUntilFade = Host._SpawnLife.GetSamplesUntilFade(_AgeFadeout),
-                _SamplesUntilDeath = Host._SpawnLife.GetSamplesUntilDeath(),
-                _LastSampleIndex = -1,
+                IsPlaying = false,
+                EmitterIndex = _EntityIndex,
+                AudioClipIndex = _AudioAsset.ClipEntityIndex,
+                SpeakerIndex = Host.AttachedSpeakerIndex,
+                HostIndex = Host.EntityIndex,
+                VolumeAdjust = _VolumeAdjust,
+                DistanceAmplitude = 1,
+                PingPong = _PingPongGrainPlayheads,
+                SamplesUntilFade = Host._SpawnLife.GetSamplesUntilFade(_AgeFadeout),
+                SamplesUntilDeath = Host._SpawnLife.GetSamplesUntilDeath(),
+                LastSampleIndex = -1,
 
-                _Volume = new ModulationComponent
+                Volume = new ModulationComponent
                 {
-                    _Min = Ranges._Volume.x,
-                    _Max = Ranges._Volume.y,
+                    Min = Ranges._Volume.x,
+                    Max = Ranges._Volume.y,
                 },
-                _Playhead = new ModulationComponent
+                Playhead = new ModulationComponent
                 {
-                    _Min = Ranges._Playhead.x,
-                    _Max = Ranges._Playhead.y,
+                    Min = Ranges._Playhead.x,
+                    Max = Ranges._Playhead.y,
                 },
-                _Duration = new ModulationComponent
+                Duration = new ModulationComponent
                 {
-                    _Min = Ranges._Duration.x,
-                    _Max = Ranges._Duration.y,
+                    Min = Ranges._Duration.x,
+                    Max = Ranges._Duration.y,
                 },
-                _Density = new ModulationComponent
+                Density = new ModulationComponent
                 {
-                    _Min = Ranges._Density.x,
-                    _Max = Ranges._Density.y,
+                    Min = Ranges._Density.x,
+                    Max = Ranges._Density.y,
                 },
-                _Transpose = new ModulationComponent
+                Transpose = new ModulationComponent
                 {
-                    _Min = Ranges._Transpose.x,
-                    _Max = Ranges._Transpose.y,
+                    Min = Ranges._Transpose.x,
+                    Max = Ranges._Transpose.y,
                 }
             });
 
@@ -155,69 +155,69 @@ namespace PlaneWaver
             {
                 ContinuousComponent entity = _EntityManager.GetComponentData<ContinuousComponent>(_Entity);
                 // Reset grain offset if attached to a new speaker
-                if (Host.AttachedSpeakerIndex != entity._SpeakerIndex)
+                if (Host.AttachedSpeakerIndex != entity.SpeakerIndex)
                 {
                     _LastSampleIndex = -1;
-                    entity._PreviousGrainDuration = -1;
+                    entity.PreviousGrainDuration = -1;
                 }
 
-                _LastSampleIndex = entity._LastSampleIndex;
+                _LastSampleIndex = entity.LastSampleIndex;
 
-                entity._IsPlaying = IsPlaying;
-                entity._AudioClipIndex = _AudioAsset.ClipEntityIndex;
-                entity._SpeakerIndex = Host.AttachedSpeakerIndex;
-                entity._HostIndex = Host.EntityIndex;
-                entity._LastSampleIndex = _LastSampleIndex;
-                entity._PingPong = _PingPongGrainPlayheads;
-                entity._SamplesUntilFade = Host._SpawnLife.GetSamplesUntilFade(_AgeFadeout);
-                entity._SamplesUntilDeath = Host._SpawnLife.GetSamplesUntilDeath();
-                entity._VolumeAdjust = _VolumeAdjust;
-                entity._DistanceAmplitude = DistanceAmplitude;
+                entity.IsPlaying = IsPlaying;
+                entity.AudioClipIndex = _AudioAsset.ClipEntityIndex;
+                entity.SpeakerIndex = Host.AttachedSpeakerIndex;
+                entity.HostIndex = Host.EntityIndex;
+                entity.LastSampleIndex = _LastSampleIndex;
+                entity.PingPong = _PingPongGrainPlayheads;
+                entity.SamplesUntilFade = Host._SpawnLife.GetSamplesUntilFade(_AgeFadeout);
+                entity.SamplesUntilDeath = Host._SpawnLife.GetSamplesUntilDeath();
+                entity.VolumeAdjust = _VolumeAdjust;
+                entity.DistanceAmplitude = DistanceAmplitude;
 
-                entity._Volume = new ModulationComponent
+                entity.Volume = new ModulationComponent
                 {
-                    _StartValue = VolumeModulated * (_CollisionRigidityScaleVolume ? _ColliderRigidityVolume : 1),
-                    _Noise = _VolumeNoise.Amount,
-                    _PerlinNoise = _VolumeNoise._Perlin,
-                    _PerlinValue = GetPerlinValue(0, _VolumeNoise._Speed),
-                    _Min = Ranges._Volume.x,
-                    _Max = Ranges._Volume.y,
+                    StartValue = VolumeModulated * (_CollisionRigidityScaleVolume ? _ColliderRigidityVolume : 1),
+                    Noise = _VolumeNoise.Amount,
+                    PerlinNoise = _VolumeNoise._Perlin,
+                    PerlinValue = GetPerlinValue(0, _VolumeNoise._Speed),
+                    Min = Ranges._Volume.x,
+                    Max = Ranges._Volume.y,
                 };
-                entity._Playhead = new ModulationComponent
+                entity.Playhead = new ModulationComponent
                 {
-                    _StartValue = PlayheadModulated,
-                    _Noise = _PlayheadNoise.Amount,
-                    _PerlinNoise = _PlayheadNoise._Perlin,
-                    _PerlinValue = GetPerlinValue(1, _PlayheadNoise._Speed),
-                    _Min = Ranges._Playhead.x,
-                    _Max = Ranges._Playhead.y,
+                    StartValue = PlayheadModulated,
+                    Noise = _PlayheadNoise.Amount,
+                    PerlinNoise = _PlayheadNoise._Perlin,
+                    PerlinValue = GetPerlinValue(1, _PlayheadNoise._Speed),
+                    Min = Ranges._Playhead.x,
+                    Max = Ranges._Playhead.y,
                 };
-                entity._Duration = new ModulationComponent
+                entity.Duration = new ModulationComponent
                 {
-                    _StartValue = DurationModulated,
-                    _Noise = _DurationNoise.Amount,
-                    _PerlinNoise = _DurationNoise._Perlin,
-                    _PerlinValue = GetPerlinValue(2, _DurationNoise._Speed),
-                    _Min = Ranges._Duration.x,
-                    _Max = Ranges._Duration.y,
+                    StartValue = DurationModulated,
+                    Noise = _DurationNoise.Amount,
+                    PerlinNoise = _DurationNoise._Perlin,
+                    PerlinValue = GetPerlinValue(2, _DurationNoise._Speed),
+                    Min = Ranges._Duration.x,
+                    Max = Ranges._Duration.y,
                 };
-                entity._Density = new ModulationComponent
+                entity.Density = new ModulationComponent
                 {
-                    _StartValue = DensityModulated,
-                    _Noise = _DensityNoise.Amount,
-                    _PerlinNoise = _DensityNoise._Perlin,
-                    _PerlinValue = GetPerlinValue(3, _DensityNoise._Speed),
-                    _Min = Ranges._Density.x,
-                    _Max = Ranges._Density.y,
+                    StartValue = DensityModulated,
+                    Noise = _DensityNoise.Amount,
+                    PerlinNoise = _DensityNoise._Perlin,
+                    PerlinValue = GetPerlinValue(3, _DensityNoise._Speed),
+                    Min = Ranges._Density.x,
+                    Max = Ranges._Density.y,
                 };
-                entity._Transpose = new ModulationComponent
+                entity.Transpose = new ModulationComponent
                 {
-                    _StartValue = TransposeModulated,
-                    _Noise = _TransposeNoise.Amount,
-                    _PerlinNoise = _TransposeNoise._Perlin,
-                    _PerlinValue = GetPerlinValue(4, _TransposeNoise._Speed),
-                    _Min = Ranges._Transpose.x,
-                    _Max = Ranges._Transpose.y,
+                    StartValue = TransposeModulated,
+                    Noise = _TransposeNoise.Amount,
+                    PerlinNoise = _TransposeNoise._Perlin,
+                    PerlinValue = GetPerlinValue(4, _TransposeNoise._Speed),
+                    Min = Ranges._Transpose.x,
+                    Max = Ranges._Transpose.y,
                 };
                 _EntityManager.SetComponentData(_Entity, entity);
 

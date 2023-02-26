@@ -169,7 +169,7 @@ namespace PlaneWaver
                     _LocalActor.GetActorValue(ref _InputValue, ref _PreviousVector, _PrimaryActor);
                     break;
                 case InputSourceGroups.LinkedActors:
-                    _LocalActor.GetActorPairValue(ref _InputValue, ref _PreviousVector, _RemoteActor, _LinkedActors);
+                    _LocalActor.GetActorOtherValue(ref _InputValue, ref _PreviousVector, _RemoteActor, _LinkedActors);
                     break;
                 case InputSourceGroups.ActorCollisions:
                     _LocalActor.GetCollisionValue(ref _InputValue, _ActorCollisions);

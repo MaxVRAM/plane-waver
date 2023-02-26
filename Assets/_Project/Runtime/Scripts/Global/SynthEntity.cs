@@ -175,7 +175,7 @@ namespace PlaneWaver
         }
     }
 
-    public enum SynthEntityType { Blank, Speaker, Host, Emitter };
+    public enum SynthEntityType { Blank, Speaker, Host, Emitter, Frame };
 
     #endregion
 }

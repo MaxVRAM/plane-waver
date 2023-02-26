@@ -4,14 +4,12 @@ using Random = UnityEngine.Random;
 
 using MaxVRAM.Audio;
 using NaughtyAttributes;
-using System;
-using Unity.Transforms;
 
 namespace PlaneWaver
 {
     /// <summary>
-    //  Abstract class for managing emitter entities
-    /// <summary>
+    ///  Abstract class for managing emitter entities
+    /// </summary>
     public abstract class EmitterAuthoring : SynthEntity
     {
         #region FIELDS & PROPERTIES
@@ -220,8 +218,8 @@ namespace PlaneWaver
 
         public static bool ColliderMoreRigid(Collider collider, float rigidity, out float otherRigidity)
         {
-            otherRigidity = collider.TryGetComponent(out SurfaceProperties otherSurface) ? otherSurface._Rigidity : 0.5f;
-            return otherSurface != null && otherSurface.IsEmitter && otherSurface._Rigidity >= rigidity;
+            otherRigidity = collider.TryGetComponent(out SurfaceProperties otherSurface) ? otherSurface.Rigidity : 0.5f;
+            return otherSurface != null && otherSurface.IsEmitter && otherSurface.Rigidity >= rigidity;
         }
 
         public void InitialisePerlinNoise()

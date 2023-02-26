@@ -43,17 +43,17 @@ public class DSP_Flange : DSP_Class
     public override DSPParametersElement GetDSPBufferElement()
     {
         DSPParametersElement dspParams = new DSPParametersElement();
-        dspParams._DSPType = DSPTypes.Flange;
-        dspParams._DelayBasedEffect = true;
-        dspParams._SampleRate = _SampleRate;
-        dspParams._SampleTail = (int) (_Delay * _Depth * _SampleRate / 1000) * 2;
-        dspParams._Mix = _Mix;
-        dspParams._Value0 = _Delay * _SampleRate / 1000;
-        dspParams._Value1 = _Depth;
-        dspParams._Value2 = _Frequency;
-        dspParams._Value3 = _Feedback;
-        dspParams._Value4 = _Original;
-        dspParams._Value5 = _PhaseSync;
+        dspParams.DSPType = DSPTypes.Flange;
+        dspParams.DelayBasedEffect = true;
+        dspParams.SampleRate = _SampleRate;
+        dspParams.SampleTail = (int) (_Delay * _Depth * _SampleRate / 1000) * 2;
+        dspParams.Mix = _Mix;
+        dspParams.Value0 = _Delay * _SampleRate / 1000;
+        dspParams.Value1 = _Depth;
+        dspParams.Value2 = _Frequency;
+        dspParams.Value3 = _Feedback;
+        dspParams.Value4 = _Original;
+        dspParams.Value5 = _PhaseSync;
 
         return dspParams;
     }
@@ -65,7 +65,7 @@ public class DSP_Flange : DSP_Class
         float modIndex = 0;
 
         //-- Set initial phase based on DSP time to sync effect between grains
-        float phase = dspParams._SampleStartTime * (dspParams._Value2 * 2 * Mathf.PI / dspParams._SampleRate) * dspParams._Value5;
+        float phase = dspParams.SampleStartTime * (dspParams.Value2 * 2 * Mathf.PI / dspParams.SampleRate) * dspParams.Value5;
         while (phase >= Mathf.PI * 2)
             phase -= Mathf.PI * 2;
 
@@ -73,23 +73,23 @@ public class DSP_Flange : DSP_Class
         for (int i = 0; i < sampleBuffer.Length; i++)
         {
             // Modulation (delay offset) is a -1 to 1 sine wave, multiplied by the depth (0 to 1), scaled to the current sample delay offset parameter
-            modIndex = (DSP_Utils_DOTS.SineOcillator(ref phase, dspParams._Value2, dspParams._SampleRate) * dspParams._Value1 * dspParams._Value0);
+            modIndex = (DSP_Utils_DOTS.SineOcillator(ref phase, dspParams.Value2, dspParams.SampleRate) * dspParams.Value1 * dspParams.Value0);
 
             // Set delay index to current index, offset by the centre delay parameter and modulation value
-            writeIndex = (int)Mathf.Clamp(i + dspParams._Value0 + modIndex, 0, sampleBuffer.Length - 1);
+            writeIndex = (int)Mathf.Clamp(i + dspParams.Value0 + modIndex, 0, sampleBuffer.Length - 1);
             //Debug.Log("Current Sample: " + i + "     Flange Mod: " + modIndex + "     Write Index: " + writeIndex);
 
             // Combine sample in delayed buffer with current pos original sample and current pos delay sample multipled by "feedback" value
-            delaySample = dspBuffer[writeIndex].Value + sampleBuffer[i].Value + dspBuffer[i].Value * dspParams._Value3;
+            delaySample = dspBuffer[writeIndex].Value + sampleBuffer[i].Value + dspBuffer[i].Value * dspParams.Value3;
 
             // Write the delayed sample
             dspBuffer[writeIndex] = new DSPSampleBufferElement { Value = delaySample };
 
             // Add the current input sample to the current DSP buffer for output
-            dspBuffer[i] = new DSPSampleBufferElement { Value = sampleBuffer[i].Value * dspParams._Value4 + dspBuffer[i].Value };
+            dspBuffer[i] = new DSPSampleBufferElement { Value = sampleBuffer[i].Value * dspParams.Value4 + dspBuffer[i].Value };
 
             // Mix current sample with DSP buffer combowombo
-            sampleBuffer[i] = new GrainSampleBufferElement { Value = Mathf.Lerp(sampleBuffer[i].Value, dspBuffer[i].Value, dspParams._Mix) };
+            sampleBuffer[i] = new GrainSampleBufferElement { Value = Mathf.Lerp(sampleBuffer[i].Value, dspBuffer[i].Value, dspParams.Mix) };
         }
     }
 }

@@ -65,20 +65,20 @@ public class DSP_Chopper : DSP_Class
     public override DSPParametersElement GetDSPBufferElement()
     {
         DSPParametersElement dspParams = new DSPParametersElement();
-        dspParams._DSPType = DSPTypes.Chopper;
-        dspParams._DelayBasedEffect = true;
-        dspParams._SampleRate = _SampleRate;
-        dspParams._SampleTail = _NumSegments * 2;
-        dspParams._Mix = _Mix;
-        dspParams._Value0 = _Crossings;
-        dspParams._Value1 = _MaxSegmentLength;
-        dspParams._Value2 = _MinSegmentLength;
-        dspParams._Value3 = _Repeats;
-        dspParams._Value4 = (int)_PlayMode;
-        dspParams._Value5 = (int)_PitchedMode;
-        dspParams._Value6 = _Frequency;
-        dspParams._Value7 = _Rate;
-        dspParams._Value8 = _NumSegments;
+        dspParams.DSPType = DSPTypes.Chopper;
+        dspParams.DelayBasedEffect = true;
+        dspParams.SampleRate = _SampleRate;
+        dspParams.SampleTail = _NumSegments * 2;
+        dspParams.Mix = _Mix;
+        dspParams.Value0 = _Crossings;
+        dspParams.Value1 = _MaxSegmentLength;
+        dspParams.Value2 = _MinSegmentLength;
+        dspParams.Value3 = _Repeats;
+        dspParams.Value4 = (int)_PlayMode;
+        dspParams.Value5 = (int)_PitchedMode;
+        dspParams.Value6 = _Frequency;
+        dspParams.Value7 = _Rate;
+        dspParams.Value8 = _NumSegments;
 
 
         return dspParams;
@@ -93,9 +93,9 @@ public class DSP_Chopper : DSP_Class
         const int _MinLength = 100;
         const int _MaxSegmentLength = 2000;
 
-        int segmentDataStartIndex = sampleBuffer.Length - dspParams._SampleTail - 1;
+        int segmentDataStartIndex = sampleBuffer.Length - dspParams.SampleTail - 1;
 
-        int numSegments = (int)dspParams._Value8;
+        int numSegments = (int)dspParams.Value8;
 
         // NOTE: The DSP buffer size is extended by samples to include segment length and offset.
 
@@ -131,7 +131,7 @@ public class DSP_Chopper : DSP_Class
                     crossingCount++;
 
                     // If segment is complete
-                    if (crossingCount > dspParams._Value0 && sampleIndexInSegment >= _MinLength)
+                    if (crossingCount > dspParams.Value0 && sampleIndexInSegment >= _MinLength)
                     {
                         //-- Set length
                         SetSegmentData(0, segmentCurrent, sampleIndexInSegment);
@@ -156,7 +156,7 @@ public class DSP_Chopper : DSP_Class
         // Once the recording section is complete, update segment number to ACTUAL number of segements recorded
         numSegments = segmentCurrent;
 
-        float rate = dspParams._Value7;
+        float rate = dspParams.Value7;
 
         float playIndex = 0;
         int playSegment = 0;
@@ -167,18 +167,18 @@ public class DSP_Chopper : DSP_Class
         for (int i = 0; i < segmentDataStartIndex; i++)
         {
             // Normal pitch mode
-            if (dspParams._Value5 == 0)
+            if (dspParams.Value5 == 0)
             {
                 // Maintain default playback rate
             }
             // Ascending pitch mode
-            else if (dspParams._Value5 == 1)
+            else if (dspParams.Value5 == 1)
             {
                 float d = playIndex / playLength;
                 rate = rate * Mathf.Max(1, d);
             }
             // Decending pitch mode
-            else if (dspParams._Value5 == 2)
+            else if (dspParams.Value5 == 2)
             {
                 float d = Mathf.Ceil(playIndex / playLength);
                 rate = rate / Mathf.Max(1, d*d);
@@ -186,7 +186,7 @@ public class DSP_Chopper : DSP_Class
             // Pitched pitch mode
             else
             {
-                rate = dspParams._Value6 * playLength / (dspParams._SampleRate * dspParams._Value0);
+                rate = dspParams.Value6 * playLength / (dspParams.SampleRate * dspParams.Value0);
             }
 
             // Increase playback index by playback rate
@@ -199,28 +199,28 @@ public class DSP_Chopper : DSP_Class
             int sampleToPlay = (int)Mathf.Repeat(playOffset + sampleInSegment, segmentDataStartIndex - 1);
 
             // Populate output sample with interpolated DSP sample
-            sampleBuffer[i] = new GrainSampleBufferElement { Value = Mathf.Lerp(sampleBuffer[i].Value, DSP_Utils_DOTS.LinearInterpolate(dspBuffer, sampleToPlay), dspParams._Mix) };
+            sampleBuffer[i] = new GrainSampleBufferElement { Value = Mathf.Lerp(sampleBuffer[i].Value, DSP_Utils_DOTS.LinearInterpolate(dspBuffer, sampleToPlay), dspParams.Mix) };
 
             // Prepare phase for noise mode
-            float phase = i / (dspBuffer.Length - dspParams._SampleTail);
+            float phase = i / (dspBuffer.Length - dspParams.SampleTail);
 
             //-- Switch to a new playback segment?
-            if (playIndex >= playLength * Mathf.Floor(dspParams._Value3))
+            if (playIndex >= playLength * Mathf.Floor(dspParams.Value3))
             {
                 playIndex = sampleInSegment;
 
                 // Forward
-                if (dspParams._Value4 == 0)
+                if (dspParams.Value4 == 0)
                 {
                     playSegment++;
                 }
                 // Reverse
-                else if (dspParams._Value4 == 1)
+                else if (dspParams.Value4 == 1)
                 {
                     playSegment--;
                 }
                 // Walk
-                else if (dspParams._Value4 == 2)
+                else if (dspParams.Value4 == 2)
                 {
                     int direction = (int)Mathf.PerlinNoise(phase, phase * 0.5f) * 2 - 1;
                     playSegment += direction;

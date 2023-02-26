@@ -78,35 +78,35 @@ public partial class AttachmentSystem : SystemBase
         (
             (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
             {
-                if (math.distance(host._WorldPos, attachConfig._ListenerPos) > attachConfig._ListenerRadius)
+                if (math.distance(host.WorldPos, attachConfig.ListenerPos) > attachConfig.ListenerRadius)
                 {
-                    host._Connected = false;
-                    host._InListenerRadius = false;
+                    host.Connected = false;
+                    host.InListenerRadius = false;
                     ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<InListenerRadiusTag>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
-                    host._SpeakerIndex = int.MaxValue;
+                    host.SpeakerIndex = int.MaxValue;
                     return;
                 }
 
-                host._InListenerRadius = true;
+                host.InListenerRadius = true;
                 ecb.AddComponent(entityInQueryIndex, entity, new InListenerRadiusTag());
 
-                if (host._SpeakerIndex < speakerComponents.Length)
+                if (host.SpeakerIndex < speakerComponents.Length)
                 {
                     for (int s = 0;  s < speakerComponents.Length; s++)
                     {
-                        if (host._SpeakerIndex != s)
+                        if (host.SpeakerIndex != s)
                             continue;
 
                         SpeakerComponent speaker = speakerComponents[s];
 
-                        if (math.distance(host._WorldPos, speaker._WorldPos) <= speaker._ConnectionRadius)
+                        if (math.distance(host.WorldPos, speaker.WorldPos) <= speaker.ConnectionRadius)
                         {
-                            if (speakerComponents[host._SpeakerIndex]._ConnectedHostCount == 1)
+                            if (speakerComponents[host.SpeakerIndex].ConnectedHostCount == 1)
                                 ecb.AddComponent(entityInQueryIndex, entity, new LoneHostOnSpeakerTag());
                             ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
-                            host._Connected = true;
+                            host.Connected = true;
                             return;
                         }
 
@@ -114,8 +114,8 @@ public partial class AttachmentSystem : SystemBase
                     }
                 }
 
-                host._Connected = false;
-                host._SpeakerIndex = int.MaxValue;
+                host.Connected = false;
+                host.SpeakerIndex = int.MaxValue;
                 ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
                 ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
             }
@@ -130,7 +130,7 @@ public partial class AttachmentSystem : SystemBase
         (
             (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
             {
-                if (host._SpeakerIndex >= speakerComponents.Length)
+                if (host.SpeakerIndex >= speakerComponents.Length)
                     return;
 
                 int otherIndex = int.MaxValue;
@@ -139,20 +139,20 @@ public partial class AttachmentSystem : SystemBase
 
                 for (int s = 0; s < speakerComponents.Length; s++)
                 {
-                    if (speakerComponents[s]._State != ConnectionState.Active)
+                    if (speakerComponents[s].State != ConnectionState.Active)
                         continue;
 
-                    if (speakerIndexes[s].Value == host._SpeakerIndex)
+                    if (speakerIndexes[s].Value == host.SpeakerIndex)
                     {
-                        currentInactiveDuration = speakerComponents[s]._InactiveDuration;
+                        currentInactiveDuration = speakerComponents[s].InactiveDuration;
                         if (otherSpeakerInactiveDuration < 0)
                             break;
                     }
-                    else if (speakerComponents[s]._ConnectedHostCount > 0 && 
-                        math.distance(host._WorldPos, speakerComponents[s]._WorldPos) < speakerComponents[s]._ConnectionRadius)
+                    else if (speakerComponents[s].ConnectedHostCount > 0 && 
+                        math.distance(host.WorldPos, speakerComponents[s].WorldPos) < speakerComponents[s].ConnectionRadius)
                     {
                         otherIndex = speakerIndexes[s].Value;
-                        otherSpeakerInactiveDuration = speakerComponents[s]._InactiveDuration;
+                        otherSpeakerInactiveDuration = speakerComponents[s].InactiveDuration;
                         if (currentInactiveDuration < 0)
                             break;
                     }
@@ -163,7 +163,7 @@ public partial class AttachmentSystem : SystemBase
 
                 if (otherSpeakerInactiveDuration < currentInactiveDuration)
                 {
-                    host._SpeakerIndex = otherIndex;
+                    host.SpeakerIndex = otherIndex;
                     ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
                 }
             }
@@ -184,21 +184,21 @@ public partial class AttachmentSystem : SystemBase
                 {
                     SpeakerComponent speaker = speakerComponents[i];
 
-                    if (speaker._State == ConnectionState.Pooled && speaker._GrainLoad < attachConfig._BusyLoadLimit)
+                    if (speaker.State == ConnectionState.Pooled && speaker.GrainLoad < attachConfig.BusyLoadLimit)
                         continue;
 
-                    float dist = math.distance(host._WorldPos, speaker._WorldPos);
+                    float dist = math.distance(host.WorldPos, speaker.WorldPos);
 
-                    if (speaker._ConnectionRadius < dist)
+                    if (speaker.ConnectionRadius < dist)
                         continue;
 
-                    if (speaker._State == ConnectionState.Lingering)
+                    if (speaker.State == ConnectionState.Lingering)
                     {
                         newSpeakerIndex = speakerIndexes[i].Value;
                         break;
                     }
 
-                    lowestActiveGrainLoad = speaker._GrainLoad;
+                    lowestActiveGrainLoad = speaker.GrainLoad;
                     newSpeakerIndex = speakerIndexes[i].Value;
                     break;
                 }
@@ -206,8 +206,8 @@ public partial class AttachmentSystem : SystemBase
                 if (newSpeakerIndex == int.MaxValue)
                     return;
 
-                host._SpeakerIndex = newSpeakerIndex;
-                host._Connected = true;
+                host.SpeakerIndex = newSpeakerIndex;
+                host.Connected = true;
                 ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
             }
         ).WithDisposeOnCompletion(speakerIndexes).WithDisposeOnCompletion(speakerComponents)
@@ -222,65 +222,65 @@ public partial class AttachmentSystem : SystemBase
             (ref SpeakerComponent speaker, in SpeakerIndex index) =>
             {
                 int attachedHosts = 0;
-                float3 currentPosition = speaker._WorldPos;
+                float3 currentPosition = speaker.WorldPos;
                 float3 targetPosition = new(0, 0, 0);
                 
                 for (int e = 0; e < hostComponents.Length; e++)
                 {
-                    if (hostComponents[e]._SpeakerIndex != index.Value)
+                    if (hostComponents[e].SpeakerIndex != index.Value)
                         continue;
 
-                    if (math.distance(currentPosition, hostComponents[e]._WorldPos) > speaker._ConnectionRadius)
+                    if (math.distance(currentPosition, hostComponents[e].WorldPos) > speaker.ConnectionRadius)
                     {
                         continue;
                     }
 
-                    targetPosition += hostComponents[e]._WorldPos;
+                    targetPosition += hostComponents[e].WorldPos;
                     attachedHosts++;
                 }
 
-                speaker._ConnectedHostCount = attachedHosts;
+                speaker.ConnectedHostCount = attachedHosts;
 
                 if (attachedHosts == 0)
                 {
-                    speaker._InactiveDuration += attachConfig._DeltaTime;
-                    if (speaker._State == ConnectionState.Lingering && speaker._InactiveDuration >= attachConfig._SpeakerLingerTime)
+                    speaker.InactiveDuration += attachConfig.DeltaTime;
+                    if (speaker.State == ConnectionState.Lingering && speaker.InactiveDuration >= attachConfig.SpeakerLingerTime)
                     {
-                        speaker._State = ConnectionState.Pooled;
-                        speaker._ConnectionRadius = 0.001f;
-                        speaker._WorldPos = attachConfig._DisconnectedPosition;
+                        speaker.State = ConnectionState.Pooled;
+                        speaker.ConnectionRadius = 0.001f;
+                        speaker.WorldPos = attachConfig.DisconnectedPosition;
                     }
-                    else if (speaker._State == ConnectionState.Active)
+                    else if (speaker.State == ConnectionState.Active)
                     {
-                        speaker._State = ConnectionState.Lingering;
-                        speaker._InactiveDuration = 0;
-                        speaker._WorldPos = currentPosition;
-                        speaker._ConnectionRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, currentPosition, attachConfig._ArcDegrees);
+                        speaker.State = ConnectionState.Lingering;
+                        speaker.InactiveDuration = 0;
+                        speaker.WorldPos = currentPosition;
+                        speaker.ConnectionRadius = CalculateSpeakerRadius(attachConfig.ListenerPos, currentPosition, attachConfig.ArcDegrees);
                     }
                     return;
                 }
 
-                if (speaker._State != ConnectionState.Active)
+                if (speaker.State != ConnectionState.Active)
                 {
-                    speaker._InactiveDuration = 0;
-                    speaker._State = ConnectionState.Active;
+                    speaker.InactiveDuration = 0;
+                    speaker.State = ConnectionState.Active;
                 }
 
-                speaker._InactiveDuration -= attachConfig._DeltaTime;
+                speaker.InactiveDuration -= attachConfig.DeltaTime;
 
                 targetPosition = attachedHosts == 1 ? targetPosition : targetPosition / attachedHosts;
-                float3 lerpedPosition = math.lerp(currentPosition, targetPosition, attachConfig._TranslationSmoothing);
-                float lerpedRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, lerpedPosition, attachConfig._ArcDegrees);
+                float3 lerpedPosition = math.lerp(currentPosition, targetPosition, attachConfig.TranslationSmoothing);
+                float lerpedRadius = CalculateSpeakerRadius(attachConfig.ListenerPos, lerpedPosition, attachConfig.ArcDegrees);
 
                 if (lerpedRadius > math.distance(lerpedPosition, targetPosition))
                 {
-                    speaker._WorldPos = lerpedPosition;
-                    speaker._ConnectionRadius = lerpedRadius;
+                    speaker.WorldPos = lerpedPosition;
+                    speaker.ConnectionRadius = lerpedRadius;
                 }
                 else
                 {
-                    speaker._WorldPos = targetPosition;
-                    speaker._ConnectionRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, targetPosition, attachConfig._ArcDegrees);
+                    speaker.WorldPos = targetPosition;
+                    speaker.ConnectionRadius = CalculateSpeakerRadius(attachConfig.ListenerPos, targetPosition, attachConfig.ArcDegrees);
                 }
             }
         ).WithDisposeOnCompletion(hostComponents)
@@ -298,24 +298,24 @@ public partial class AttachmentSystem : SystemBase
             {
                 for (int s = 0; s < speakerComponents.Length; s++)
                 {
-                    if (speakerComponents[s]._State != ConnectionState.Pooled)
+                    if (speakerComponents[s].State != ConnectionState.Pooled)
                         continue;
 
                     // Tick host component with speaker link
                     ecb.AddComponent(h, hostEntities, new ConnectedTag());
                     ecb.AddComponent(h, hostEntities, new LoneHostOnSpeakerTag());
                     HostComponent host = GetComponent<HostComponent>(hostEntities[h]);
-                    host._SpeakerIndex = GetComponent<SpeakerIndex>(speakerEntities[s]).Value;
-                    host._Connected = true;
+                    host.SpeakerIndex = GetComponent<SpeakerIndex>(speakerEntities[s]).Value;
+                    host.Connected = true;
                     SetComponent(hostEntities[h], host);
 
                     // Set active pooled status and update attachment radius
                     SpeakerComponent speakerComponent = GetComponent<SpeakerComponent>(speakerEntities[s]);
-                    speakerComponent._ConnectionRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, host._WorldPos, attachConfig._ArcDegrees);
-                    speakerComponent._State = ConnectionState.Active;
-                    speakerComponent._ConnectedHostCount = 1;
-                    speakerComponent._InactiveDuration = 0;
-                    speakerComponent._WorldPos = host._WorldPos;
+                    speakerComponent.ConnectionRadius = CalculateSpeakerRadius(attachConfig.ListenerPos, host.WorldPos, attachConfig.ArcDegrees);
+                    speakerComponent.State = ConnectionState.Active;
+                    speakerComponent.ConnectedHostCount = 1;
+                    speakerComponent.InactiveDuration = 0;
+                    speakerComponent.WorldPos = host.WorldPos;
                     SetComponent(speakerEntities[s], speakerComponent);
                     return;
                 }

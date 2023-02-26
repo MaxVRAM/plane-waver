@@ -64,14 +64,14 @@ public class DSP_Filter : DSP_Class
         else
             newCoefficients = AllPass(cutoffFreq, gain, q, _SampleRate);
 
-        dspParams._DSPType = DSPTypes.Filter;
-        dspParams._SampleRate = _SampleRate;
-        dspParams._Mix = _Mix;
-        dspParams._Value0 = newCoefficients.a0;
-        dspParams._Value1 = newCoefficients.a1;
-        dspParams._Value2 = newCoefficients.a2;
-        dspParams._Value3 = newCoefficients.b1;
-        dspParams._Value4 = newCoefficients.b2;
+        dspParams.DSPType = DSPTypes.Filter;
+        dspParams.SampleRate = _SampleRate;
+        dspParams.Mix = _Mix;
+        dspParams.Value0 = newCoefficients.a0;
+        dspParams.Value1 = newCoefficients.a1;
+        dspParams.Value2 = newCoefficients.a2;
+        dspParams.Value3 = newCoefficients.b1;
+        dspParams.Value4 = newCoefficients.b2;
 
         return dspParams;
     }
@@ -88,11 +88,11 @@ public class DSP_Filter : DSP_Class
         for (int i = 0; i < sampleBuffer.Length; i++)
         {
             // Apply coefficients to input signal and history data
-            outputSample = (sampleBuffer[i].Value * dspParams._Value0 +
-                             previousX1 * dspParams._Value1 +
-                             previousX2 * dspParams._Value2) -
-                             (previousY1 * dspParams._Value3 +
-                             previousY2 * dspParams._Value4);
+            outputSample = (sampleBuffer[i].Value * dspParams.Value0 +
+                             previousX1 * dspParams.Value1 +
+                             previousX2 * dspParams.Value2) -
+                             (previousY1 * dspParams.Value3 +
+                             previousY2 * dspParams.Value4);
 
             // Set history states for signal data
             previousX2 = previousX1;
@@ -100,7 +100,7 @@ public class DSP_Filter : DSP_Class
             previousY2 = previousY1;
             previousY1 = outputSample;
 
-            sampleBuffer[i] = new GrainSampleBufferElement { Value = Mathf.Lerp(sampleBuffer[i].Value, outputSample, dspParams._Mix) };
+            sampleBuffer[i] = new GrainSampleBufferElement { Value = Mathf.Lerp(sampleBuffer[i].Value, outputSample, dspParams.Mix) };
         }
     }
 

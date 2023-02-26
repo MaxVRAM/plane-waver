@@ -85,14 +85,14 @@ namespace PlaneWaver
                 using BlobBuilder blobBuilder = new BlobBuilder(Allocator.Temp);
                 ref FloatBlobAsset audioClipBlobAsset = ref blobBuilder.ConstructRoot<FloatBlobAsset>();
 
-                BlobBuilderArray<float> sampleArray = blobBuilder.Allocate(ref audioClipBlobAsset.array, (clipData.Length / clipChannels));
+                BlobBuilderArray<float> sampleArray = blobBuilder.Allocate(ref audioClipBlobAsset.Array, (clipData.Length / clipChannels));
                 GetAudioClipSampleBlob(ref sampleArray, clipData, clipChannels);
 
                 BlobAssetReference<FloatBlobAsset> audioClipBlobAssetRef = blobBuilder.CreateBlobAssetReference<FloatBlobAsset>(Allocator.Persistent);
                 entityManager.AddComponentData(audioClipSamplesEntity, new AudioClipDataComponent 
                 { 
-                    _ClipDataBlobAsset = audioClipBlobAssetRef,
-                    _ClipIndex = audioAsset.ClipEntityIndex
+                    ClipDataBlobAsset = audioClipBlobAssetRef,
+                    ClipIndex = audioAsset.ClipEntityIndex
                 });
 
 #if UNITY_EDITOR

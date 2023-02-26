@@ -6,7 +6,7 @@ namespace PlaneWaver
 
     /// <summary>
     /// MonoBehaviour component that controls the spawned GameObject's lifespan and interactions with
-    /// boundaries.<para />The script is dynamically attached on instantiation by the ObjectSpawner class.
+    /// boundaries. script is dynamically attached on instantiation by the ObjectSpawner class.
     /// </summary>
     public class SpawnableManager : BehaviourClass
     {

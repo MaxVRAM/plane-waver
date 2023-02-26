@@ -9,8 +9,8 @@ using Ranges = PlaneWaver.EmitterParameterRanges;
 namespace PlaneWaver
 {
     /// <summary>
-    //  Emitter class for building and spawning bursts of audio grains.
-    /// <summary>
+    ///  Emitter class for building and spawning bursts of audio grains.
+    /// </summary>
     public class BurstAuthoring : EmitterAuthoring
     {
         #region MODULATION PARAMETERS
@@ -94,89 +94,89 @@ namespace PlaneWaver
         {
             _EntityManager.AddComponentData(_Entity, new BurstComponent
             {
-                _IsPlaying = false,
-                _EmitterIndex = _EntityIndex,
-                _AudioClipIndex = _AudioAsset.ClipEntityIndex,
-                _SpeakerIndex = Host.AttachedSpeakerIndex,
-                _HostIndex = Host.EntityIndex,
-                _VolumeAdjust = _VolumeAdjust,
-                _DistanceAmplitude = 1,
-                _PingPong = _PingPongGrainPlayheads,
+                IsPlaying = false,
+                EmitterIndex = _EntityIndex,
+                AudioClipIndex = _AudioAsset.ClipEntityIndex,
+                SpeakerIndex = Host.AttachedSpeakerIndex,
+                HostIndex = Host.EntityIndex,
+                VolumeAdjust = _VolumeAdjust,
+                DistanceAmplitude = 1,
+                PingPong = _PingPongGrainPlayheads,
 
-                _Volume = new ModulationComponent
+                Volume = new ModulationComponent
                 {
-                    _StartValue = _VolumePath.x,
-                    _EndValue = _VolumePath.y,
-                    _Modulation = _VolumeModulation.Amount,
-                    _Exponent = _VolumeModulation.Exponent,
-                    _Noise = _VolumeNoise.Amount,
-                    _LockNoise = _VolumeNoise._HoldForBurstDuration,
-                    _Min = Ranges._Volume.x,
-                    _Max = Ranges._Volume.y,
-                    _FixedStart = _VolumeFixedStart,
-                    _FixedEnd = _VolumeFixedEnd
+                    StartValue = _VolumePath.x,
+                    EndValue = _VolumePath.y,
+                    Modulation = _VolumeModulation.Amount,
+                    Exponent = _VolumeModulation.Exponent,
+                    Noise = _VolumeNoise.Amount,
+                    LockNoise = _VolumeNoise._HoldForBurstDuration,
+                    Min = Ranges._Volume.x,
+                    Max = Ranges._Volume.y,
+                    FixedStart = _VolumeFixedStart,
+                    FixedEnd = _VolumeFixedEnd
                 },
-                _Length = new ModulationComponent
+                Length = new ModulationComponent
                 {
-                    _StartValue = _LengthDefault,
-                    _Modulation = _LengthModulation.Amount,
-                    _Exponent = _LengthModulation.Exponent,
-                    _Noise = _LengthNoise.Amount,
-                    _LockNoise = true,
-                    _Min = Ranges._Length.x,
-                    _Max = Ranges._Length.y,
-                    _FixedStart = _LengthFixedStart,
-                    _FixedEnd = _LengthFixedStart
+                    StartValue = _LengthDefault,
+                    Modulation = _LengthModulation.Amount,
+                    Exponent = _LengthModulation.Exponent,
+                    Noise = _LengthNoise.Amount,
+                    LockNoise = true,
+                    Min = Ranges._Length.x,
+                    Max = Ranges._Length.y,
+                    FixedStart = _LengthFixedStart,
+                    FixedEnd = _LengthFixedStart
                 },
-                _Playhead = new ModulationComponent
+                Playhead = new ModulationComponent
                 {
-                    _StartValue = _PlayheadPath.x,
-                    _EndValue = _PlayheadPath.y,
-                    _Modulation = _PlayheadModulation.Amount,
-                    _Exponent = _PlayheadModulation.Exponent,
-                    _Noise = _PlayheadNoise.Amount,
-                    _LockNoise = _PlayheadNoise._HoldForBurstDuration,
-                    _Min = Ranges._Playhead.x,
-                    _Max = Ranges._Playhead.y,
-                    _FixedStart = _PlayheadFixedStart,
-                    _FixedEnd = _PlayheadFixedEnd
+                    StartValue = _PlayheadPath.x,
+                    EndValue = _PlayheadPath.y,
+                    Modulation = _PlayheadModulation.Amount,
+                    Exponent = _PlayheadModulation.Exponent,
+                    Noise = _PlayheadNoise.Amount,
+                    LockNoise = _PlayheadNoise._HoldForBurstDuration,
+                    Min = Ranges._Playhead.x,
+                    Max = Ranges._Playhead.y,
+                    FixedStart = _PlayheadFixedStart,
+                    FixedEnd = _PlayheadFixedEnd
                 },
-                _Duration = new ModulationComponent
+                Duration = new ModulationComponent
                 {
-                    _StartValue = _DurationPath.x,
-                    _EndValue = _DurationPath.y,
-                    _Modulation = _DurationModulation.Amount,
-                    _Exponent = _DurationModulation.Exponent,
-                    _Noise = _DurationNoise.Amount,
-                    _LockNoise = _DurationNoise._HoldForBurstDuration,
-                    _Min = Ranges._Duration.x,
-                    _Max = Ranges._Duration.y,
-                    _FixedStart = _DurationFixedStart,
-                    _FixedEnd = _DurationFixedEnd
+                    StartValue = _DurationPath.x,
+                    EndValue = _DurationPath.y,
+                    Modulation = _DurationModulation.Amount,
+                    Exponent = _DurationModulation.Exponent,
+                    Noise = _DurationNoise.Amount,
+                    LockNoise = _DurationNoise._HoldForBurstDuration,
+                    Min = Ranges._Duration.x,
+                    Max = Ranges._Duration.y,
+                    FixedStart = _DurationFixedStart,
+                    FixedEnd = _DurationFixedEnd
                 },
-                _Density = new ModulationComponent
+                Density = new ModulationComponent
                 {
-                    _StartValue = _DensityPath.x,
-                    _EndValue = _DensityPath.y,
-                    _Modulation = _DensityModulation.Amount,
-                    _Exponent = _DensityModulation.Exponent,
-                    _Noise = _DensityNoise.Amount,
-                    _Min = Ranges._Density.x,
-                    _Max = Ranges._Density.y,
-                    _FixedStart = _DensityFixedStart,
-                    _FixedEnd = _DensityFixedEnd
+                    StartValue = _DensityPath.x,
+                    EndValue = _DensityPath.y,
+                    Modulation = _DensityModulation.Amount,
+                    Exponent = _DensityModulation.Exponent,
+                    Noise = _DensityNoise.Amount,
+                    Min = Ranges._Density.x,
+                    Max = Ranges._Density.y,
+                    FixedStart = _DensityFixedStart,
+                    FixedEnd = _DensityFixedEnd
                 },
-                _Transpose = new ModulationComponent
+                Transpose = new ModulationComponent
                 {
-                    _StartValue = _TransposePath.x,
-                    _EndValue = _TransposePath.y,
-                    _Modulation = _TransposeModulation.Amount,
-                    _Exponent = _TransposeModulation.Exponent,
-                    _Noise = _TransposeNoise.Amount,
-                    _Min = Ranges._Transpose.x,
-                    _Max = Ranges._Transpose.y,
-                    _FixedStart = _TransposeFixedStart,
-                    _FixedEnd = _TransposeFixedEnd
+                    StartValue = _TransposePath.x,
+                    EndValue = _TransposePath.y,
+                    Modulation = _TransposeModulation.Amount,
+                    Exponent = _TransposeModulation.Exponent,
+                    Noise = _TransposeNoise.Amount,
+                    Min = Ranges._Transpose.x,
+                    Max = Ranges._Transpose.y,
+                    FixedStart = _TransposeFixedStart,
+                    FixedEnd = _TransposeFixedEnd
                 }
             });
 
@@ -201,96 +201,96 @@ namespace PlaneWaver
             {
                 BurstComponent entity = _EntityManager.GetComponentData<BurstComponent>(_Entity);
 
-                entity._IsPlaying = true;
-                entity._AudioClipIndex = _AudioAsset.ClipEntityIndex;
-                entity._SpeakerIndex = Host.AttachedSpeakerIndex;
-                entity._HostIndex = Host.EntityIndex;
-                entity._PingPong = _PingPongGrainPlayheads;
-                entity._VolumeAdjust = _VolumeAdjust;
-                entity._DistanceAmplitude = DistanceAmplitude;
+                entity.IsPlaying = true;
+                entity.AudioClipIndex = _AudioAsset.ClipEntityIndex;
+                entity.SpeakerIndex = Host.AttachedSpeakerIndex;
+                entity.HostIndex = Host.EntityIndex;
+                entity.PingPong = _PingPongGrainPlayheads;
+                entity.VolumeAdjust = _VolumeAdjust;
+                entity.DistanceAmplitude = DistanceAmplitude;
 
-                entity._Volume = new ModulationComponent
+                entity.Volume = new ModulationComponent
                 {
-                    _StartValue = _VolumePath.x * (_CollisionRigidityScaleVolume ? _ColliderRigidityVolume : 1),
-                    _EndValue = _VolumePath.y * (_CollisionRigidityScaleVolume ? _ColliderRigidityVolume : 1),
-                    _Modulation = _VolumeModulation.Amount,
-                    _Exponent = _VolumeModulation.Exponent,
-                    _Noise = _VolumeNoise.Amount,
-                    _LockNoise = _VolumeNoise._HoldForBurstDuration,
-                    _Min = Ranges._Volume.x,
-                    _Max = Ranges._Volume.y,
-                    _FixedStart = _VolumeFixedStart,
-                    _FixedEnd = _VolumeFixedEnd,
-                    _Input = _VolumeModulation.GetProcessedValue()
+                    StartValue = _VolumePath.x * (_CollisionRigidityScaleVolume ? _ColliderRigidityVolume : 1),
+                    EndValue = _VolumePath.y * (_CollisionRigidityScaleVolume ? _ColliderRigidityVolume : 1),
+                    Modulation = _VolumeModulation.Amount,
+                    Exponent = _VolumeModulation.Exponent,
+                    Noise = _VolumeNoise.Amount,
+                    LockNoise = _VolumeNoise._HoldForBurstDuration,
+                    Min = Ranges._Volume.x,
+                    Max = Ranges._Volume.y,
+                    FixedStart = _VolumeFixedStart,
+                    FixedEnd = _VolumeFixedEnd,
+                    Input = _VolumeModulation.GetProcessedValue()
                 };
-                entity._Length = new ModulationComponent
+                entity.Length = new ModulationComponent
                 {
-                    _StartValue = _LengthDefault,
-                    _Modulation = _LengthModulation.Amount,
-                    _Exponent = _LengthModulation.Exponent,
-                    _Noise = _LengthNoise.Amount,
-                    _LockNoise = true,
-                    _Min = Ranges._Length.x,
-                    _Max = Ranges._Length.y,
-                    _FixedStart = _LengthFixedStart,
-                    _FixedEnd = _LengthFixedEnd,
-                    _Input = _LengthModulation.GetProcessedValue()
+                    StartValue = _LengthDefault,
+                    Modulation = _LengthModulation.Amount,
+                    Exponent = _LengthModulation.Exponent,
+                    Noise = _LengthNoise.Amount,
+                    LockNoise = true,
+                    Min = Ranges._Length.x,
+                    Max = Ranges._Length.y,
+                    FixedStart = _LengthFixedStart,
+                    FixedEnd = _LengthFixedEnd,
+                    Input = _LengthModulation.GetProcessedValue()
                 };
-                entity._Playhead = new ModulationComponent
+                entity.Playhead = new ModulationComponent
                 {
-                    _StartValue = _PlayheadPath.x,
-                    _EndValue = _PlayheadPath.y,
-                    _Modulation = _PlayheadModulation.Amount,
-                    _Exponent = _PlayheadModulation.Exponent,
-                    _Noise = _PlayheadNoise.Amount,
-                    _LockNoise = _PlayheadNoise._HoldForBurstDuration,
-                    _Min = Ranges._Playhead.x,
-                    _Max = Ranges._Playhead.y,
-                    _FixedStart = _PlayheadFixedStart,
-                    _FixedEnd = _PlayheadFixedEnd,
-                    _Input = _PlayheadModulation.GetProcessedValue()
+                    StartValue = _PlayheadPath.x,
+                    EndValue = _PlayheadPath.y,
+                    Modulation = _PlayheadModulation.Amount,
+                    Exponent = _PlayheadModulation.Exponent,
+                    Noise = _PlayheadNoise.Amount,
+                    LockNoise = _PlayheadNoise._HoldForBurstDuration,
+                    Min = Ranges._Playhead.x,
+                    Max = Ranges._Playhead.y,
+                    FixedStart = _PlayheadFixedStart,
+                    FixedEnd = _PlayheadFixedEnd,
+                    Input = _PlayheadModulation.GetProcessedValue()
                 };
-                entity._Duration = new ModulationComponent
+                entity.Duration = new ModulationComponent
                 {
-                    _StartValue = _DurationPath.x,
-                    _EndValue = _DurationPath.y,
-                    _Modulation = _DurationModulation.Amount,
-                    _Exponent = _DurationModulation.Exponent,
-                    _Noise = _DurationNoise.Amount,
-                    _LockNoise = _DurationNoise._HoldForBurstDuration,
-                    _Min = Ranges._Duration.x,
-                    _Max = Ranges._Duration.y,
-                    _FixedStart = _DurationFixedStart,
-                    _FixedEnd = _DurationFixedEnd,
-                    _Input = _DurationModulation.GetProcessedValue()
+                    StartValue = _DurationPath.x,
+                    EndValue = _DurationPath.y,
+                    Modulation = _DurationModulation.Amount,
+                    Exponent = _DurationModulation.Exponent,
+                    Noise = _DurationNoise.Amount,
+                    LockNoise = _DurationNoise._HoldForBurstDuration,
+                    Min = Ranges._Duration.x,
+                    Max = Ranges._Duration.y,
+                    FixedStart = _DurationFixedStart,
+                    FixedEnd = _DurationFixedEnd,
+                    Input = _DurationModulation.GetProcessedValue()
                 };
-                entity._Density = new ModulationComponent
+                entity.Density = new ModulationComponent
                 {
-                    _StartValue = _DensityPath.x,
-                    _EndValue = _DensityPath.y,
-                    _Modulation = _DensityModulation.Amount,
-                    _Exponent = _DensityModulation.Exponent,
-                    _Noise = _DensityNoise.Amount,
-                    _LockNoise = _DensityNoise._HoldForBurstDuration,
-                    _Min = Ranges._Density.x,
-                    _Max = Ranges._Density.y,
-                    _FixedStart = _DensityFixedStart,
-                    _FixedEnd = _DensityFixedEnd,
-                    _Input = _DensityModulation.GetProcessedValue()
+                    StartValue = _DensityPath.x,
+                    EndValue = _DensityPath.y,
+                    Modulation = _DensityModulation.Amount,
+                    Exponent = _DensityModulation.Exponent,
+                    Noise = _DensityNoise.Amount,
+                    LockNoise = _DensityNoise._HoldForBurstDuration,
+                    Min = Ranges._Density.x,
+                    Max = Ranges._Density.y,
+                    FixedStart = _DensityFixedStart,
+                    FixedEnd = _DensityFixedEnd,
+                    Input = _DensityModulation.GetProcessedValue()
                 };
-                entity._Transpose = new ModulationComponent
+                entity.Transpose = new ModulationComponent
                 {
-                    _StartValue = _TransposePath.x,
-                    _EndValue = _TransposePath.y,
-                    _Modulation = _TransposeModulation.Amount,
-                    _Exponent = _TransposeModulation.Exponent,
-                    _Noise = _TransposeNoise.Amount,
-                    _LockNoise = _TransposeNoise._HoldForBurstDuration,
-                    _Min = Ranges._Transpose.x,
-                    _Max = Ranges._Transpose.y,
-                    _FixedStart = _TransposeFixedStart,
-                    _FixedEnd = _TransposeFixedEnd,
-                    _Input = _TransposeModulation.GetProcessedValue()
+                    StartValue = _TransposePath.x,
+                    EndValue = _TransposePath.y,
+                    Modulation = _TransposeModulation.Amount,
+                    Exponent = _TransposeModulation.Exponent,
+                    Noise = _TransposeNoise.Amount,
+                    LockNoise = _TransposeNoise._HoldForBurstDuration,
+                    Min = Ranges._Transpose.x,
+                    Max = Ranges._Transpose.y,
+                    FixedStart = _TransposeFixedStart,
+                    FixedEnd = _TransposeFixedEnd,
+                    Input = _TransposeModulation.GetProcessedValue()
                 };
                 _EntityManager.SetComponentData(_Entity, entity);
 

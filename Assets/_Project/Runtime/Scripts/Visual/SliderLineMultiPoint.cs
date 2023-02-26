@@ -4,34 +4,35 @@ using System.Linq;
 
 using UnityEngine;
 using MaxVRAM.Extensions;
+using UnityEngine.Serialization;
 
 namespace PlaneWaver
 {
     public class SliderLineMultiPoint : MonoBehaviour
     {
         [Header("Anchors")]
-        public Transform _StartAnchorTransform;
-        private GameObject _StartAnchor;
-        public Transform _EndAnchorTransform;
-        private GameObject _EndAnchor;
-        public GameObject _AnchorPrefab;
-        private bool _AnchorsInitialised = false;
+        public Transform StartAnchorTransform;
+        private GameObject _startAnchor;
+        public Transform EndAnchorTransform;
+        private GameObject _endAnchor;
+        public GameObject AnchorPrefab;
+        private bool _anchorsInitialised = false;
 
         [Header("Nodes")]
-        public GameObject _NodePrefab;
-        public int _NodeCount = 5;
-        public float _NodeRadius = 0.1f;
-        public List<Transform> _Nodes = new();
-        private bool _NodesInitialised = false;
+        public GameObject NodePrefab;
+        public int NodeCount = 5;
+        public float NodeRadius = 0.1f;
+        public List<Transform> Nodes = new();
+        private bool _nodesInitialised = false;
 
         [Header("Joint Configs")]
-        public BaseJointScriptable _AnchorJoint = null;
-        public BaseJointScriptable _NodeNeighbourJoint = null;
+        public BaseJointScriptable AnchorJoint = null;
+        public BaseJointScriptable NodeNeighbourJoint = null;
 
         [Header("Visualisation")]
-        public bool _VisualiseLine = true;
-        private bool _LineInitialised = false;
-        private LineRenderer _Line;
+        public bool VisualiseLine = true;
+        private bool _lineInitialised = false;
+        private LineRenderer _line;
 
         void Update()
         {
@@ -42,7 +43,7 @@ namespace PlaneWaver
         private bool Initialised()
         {
 
-            _Nodes.RemoveAll(item => item == null);
+            Nodes.RemoveAll(item => item == null);
 
             return true;
         }
@@ -54,16 +55,16 @@ namespace PlaneWaver
 
         private bool InitialiseAnchors()
         {
-            if (_AnchorPrefab == null || _StartAnchorTransform == null || _EndAnchorTransform == null)
-                return _AnchorsInitialised = false;
+            if (AnchorPrefab == null || StartAnchorTransform == null || EndAnchorTransform == null)
+                return _anchorsInitialised = false;
 
-            if (_StartAnchor == null)
-                _StartAnchor = Instantiate(_AnchorPrefab).SetParentAndZero("Anchor.Start", _StartAnchorTransform);
+            if (_startAnchor == null)
+                _startAnchor = Instantiate(AnchorPrefab).SetParentAndZero("Anchor.Start", StartAnchorTransform);
 
-            if (_EndAnchor == null)
-                _EndAnchor = Instantiate(_AnchorPrefab).SetParentAndZero("Anchor.End", _EndAnchorTransform);
+            if (_endAnchor == null)
+                _endAnchor = Instantiate(AnchorPrefab).SetParentAndZero("Anchor.End", EndAnchorTransform);
 
-            return _AnchorsInitialised = _StartAnchor != null && _EndAnchor != null;
+            return _anchorsInitialised = _startAnchor != null && _endAnchor != null;
         }
 
         private bool InitialiseNodes()
@@ -73,35 +74,35 @@ namespace PlaneWaver
 
         private bool InitialiseLine()
         {
-            if (!_VisualiseLine)
+            if (!VisualiseLine)
             {
-                if (_Line != null)
-                    _Line.enabled = false;
-                _LineInitialised = false;
+                if (_line != null)
+                    _line.enabled = false;
+                _lineInitialised = false;
                 return true;
             }
 
-            if (!_AnchorsInitialised || !_NodesInitialised)
-                return _LineInitialised = false;
+            if (!_anchorsInitialised || !_nodesInitialised)
+                return _lineInitialised = false;
 
-            if (TryGetComponent(out _Line))
-                _Line = gameObject.AddComponent<LineRenderer>();
+            if (TryGetComponent(out _line))
+                _line = gameObject.AddComponent<LineRenderer>();
 
-            if (_Nodes == null)
+            if (Nodes == null)
             {
-                _NodesInitialised = false;
-                return _LineInitialised = false;
+                _nodesInitialised = false;
+                return _lineInitialised = false;
             }
 
-            _Line.positionCount = _Nodes.Count;
+            _line.positionCount = Nodes.Count;
 
-            for (int i = 0; i < _Nodes.Count; i++)
+            for (int i = 0; i < Nodes.Count; i++)
             {
-                _Line.SetPosition(i, _Nodes[i].position);
+                _line.SetPosition(i, Nodes[i].position);
             }
 
-            _Line.enabled = _VisualiseLine;
-            return _LineInitialised = true;
+            _line.enabled = VisualiseLine;
+            return _lineInitialised = true;
         }
     }
 }

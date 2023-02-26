@@ -9,29 +9,23 @@ using NaughtyAttributes;
 namespace PlaneWaver
 {
     /// <summary>
-    //      Multiple emitters are often spawned and attached to the same object and modulated by
-    //      the same game-world interactions. Emitter Hosts manage emitters designed to create
-    //      a single "profile" for an interactive sound object.
-    /// <summary>
+    ///      Multiple emitters are often spawned and attached to the same object and modulated by
+    ///      the same game-world interactions. Emitter Hosts manage emitters designed to create
+    ///      a single "profile" for an interactive sound object.
+    /// </summary>
     public class HostAuthoring : SynthEntity
     {
         #region FIELDS & PROPERTIES
 
-        private Transform _HeadTransform;
-
-        [AllowNesting]
-        [BoxGroup("Speaker Attachment")]
+        private Transform _headTransform;
+        [AllowNesting][BoxGroup("Speaker Attachment")]
         [Tooltip("Parent transform position for speakers to target for this host. Creates a new child transform if not provided.")]
-        [SerializeField] private Transform _SpeakerTarget;
-        [AllowNesting]
-        [BoxGroup("Speaker Attachment")]
+        public Transform SpeakerTarget;
+        [AllowNesting][BoxGroup("Speaker Attachment")]
         [Tooltip("Sets to the connected speaker's transform. Sets to this host's Speaker Target if no speaker is connected.")]
-        [SerializeField] private Transform _SpeakerTransform;
-        [AllowNesting]
-        [BoxGroup("Speaker Attachment")]
-        public MaterialColourModulator _MaterialModulator = new();
-
-        //private AttachmentLine _SpeakerAttachmentLine;
+        public Transform SpeakerTransform;
+        [AllowNesting][BoxGroup("Speaker Attachment")]
+        public MaterialColourModulator MaterialModulator = new();
 
         [AllowNesting]
         [BoxGroup("Interaction")]
@@ -118,10 +112,10 @@ namespace PlaneWaver
             InitialiseSpeakerAttachment();
             InitialiseSurfaceProperties();
 
-            if (_MaterialModulator._Renderer == null)
-                _MaterialModulator._Renderer = _LocalTransform.GetComponentInChildren<Renderer>();
+            if (MaterialModulator._Renderer == null)
+                MaterialModulator._Renderer = _LocalTransform.GetComponentInChildren<Renderer>();
 
-            _HeadTransform = FindObjectOfType<Camera>().transform;
+            _headTransform = FindObjectOfType<Camera>().transform;
 
             _HostedEmitters.AddRange(_LocalTransform.GetComponentsInChildren<EmitterAuthoring>());
 
@@ -131,12 +125,12 @@ namespace PlaneWaver
 
         private void InitialiseSpeakerAttachment()
         {
-            if (_SpeakerTarget == null || _SpeakerTarget == _LocalTransform || _SpeakerTarget == transform)
+            if (SpeakerTarget == null || SpeakerTarget == _LocalTransform || SpeakerTarget == transform)
             {
-                _SpeakerTarget = new GameObject("SpeakerTarget").SetParentAndZero(_LocalTransform).transform;
+                SpeakerTarget = new GameObject("SpeakerTarget").SetParentAndZero(_LocalTransform).transform;
             }
 
-            _SpeakerTransform = _SpeakerTarget;
+            SpeakerTransform = SpeakerTarget;
 
             //if (!_SpeakerTarget.TryGetComponent(out _SpeakerAttachmentLine))
             //    _SpeakerAttachmentLine = _SpeakerTarget.gameObject.AddComponent<AttachmentLine>();
@@ -149,12 +143,12 @@ namespace PlaneWaver
         {
             if (TryGetComponent(out _SurfaceProperties) || _LocalTransform.gameObject.TryGetComponent(out _SurfaceProperties))
             {
-                _SelfRigidity = _SurfaceProperties._Rigidity;
+                _SelfRigidity = _SurfaceProperties.Rigidity;
             }
             else
             {
                 _SurfaceProperties = _LocalTransform.gameObject.AddComponent<SurfaceProperties>();
-                _SurfaceProperties._Rigidity = _SelfRigidity;
+                _SurfaceProperties.Rigidity = _SelfRigidity;
             }
         }
 
@@ -188,29 +182,29 @@ namespace PlaneWaver
         {
             _EntityManager.SetComponentData(_Entity, new HostComponent
             {
-                _HostIndex = _EntityIndex,
-                _Connected = false,
-                _SpeakerIndex = int.MaxValue,
-                _InListenerRadius = InListenerRadius,
-                _WorldPos = _SpeakerTarget.position
+                HostIndex = _EntityIndex,
+                Connected = false,
+                SpeakerIndex = int.MaxValue,
+                InListenerRadius = InListenerRadius,
+                WorldPos = SpeakerTarget.position
             });
         }
 
         public override void ProcessComponents()
         {
             HostComponent hostData = _EntityManager.GetComponentData<HostComponent>(_Entity);
-            hostData._HostIndex = _EntityIndex;
-            hostData._WorldPos = _SpeakerTarget.position;
+            hostData.HostIndex = _EntityIndex;
+            hostData.WorldPos = SpeakerTarget.position;
             _EntityManager.SetComponentData(_Entity, hostData);
 
-            bool connected = GrainBrain.Instance.IsSpeakerAtIndex(hostData._SpeakerIndex, out SpeakerAuthoring speaker);
-            _InListenerRadius = hostData._InListenerRadius;
-            _SpeakerTransform = connected ? speaker.gameObject.transform : _SpeakerTarget;
-            _AttachedSpeakerIndex = connected ? hostData._SpeakerIndex : int.MaxValue;
+            bool connected = GrainBrain.Instance.IsSpeakerAtIndex(hostData.SpeakerIndex, out SpeakerAuthoring speaker);
+            _InListenerRadius = hostData.InListenerRadius;
+            SpeakerTransform = connected ? speaker.gameObject.transform : SpeakerTarget;
+            _AttachedSpeakerIndex = connected ? hostData.SpeakerIndex : int.MaxValue;
             
             
-            _MaterialModulator.SetActiveState(connected);
-            _MaterialModulator.Tick();
+            MaterialModulator.SetActiveState(connected);
+            MaterialModulator.Tick();
 
             _Connected = connected;
 
@@ -221,10 +215,10 @@ namespace PlaneWaver
 
             float speakerAmplitudeFactor = ScaleAmplitude.SpeakerOffsetFactor(
                 transform.position,
-                _HeadTransform.position,
-                _SpeakerTransform.position);
+                _headTransform.position,
+                SpeakerTransform.position);
             
-            _ListenerDistance = Vector3.Distance(_SpeakerTarget.position, _HeadTransform.position);
+            _ListenerDistance = Vector3.Distance(SpeakerTarget.position, _headTransform.position);
 
             foreach (EmitterAuthoring emitter in _HostedEmitters)
             {
@@ -252,7 +246,7 @@ namespace PlaneWaver
             {
                 if (go.TryGetComponent(out SurfaceProperties props))
                 {
-                    _TargetCollidingRigidity = _TargetCollidingRigidity > props._Rigidity ? _TargetCollidingRigidity : props._Rigidity;
+                    _TargetCollidingRigidity = _TargetCollidingRigidity > props.Rigidity ? _TargetCollidingRigidity : props.Rigidity;
                 }
             }
             // Smooth transition to upward rigidity values to avoid randomly triggering surface contact emitters from short collisions
@@ -285,7 +279,7 @@ namespace PlaneWaver
 
             if (ContactAllowed(other)) _LocalActor.LatestCollision = collision;
 
-            if (_Spawner == null || _Spawner.UniqueCollision(_LocalTransform.gameObject, other))
+            if (_Spawner == null || _Spawner.CollisionAllowed(_LocalTransform.gameObject, other))
             {
                 foreach (EmitterAuthoring emitter in _HostedEmitters)
                     emitter.NewCollision(collision);
@@ -323,7 +317,7 @@ namespace PlaneWaver
 
         public bool ContactAllowed(GameObject other)
         {
-            return _Spawner == null || _Spawner.IsContactAllowed(gameObject, other);
+            return _Spawner == null || _Spawner.ContactAllowed(gameObject, other);
         }
 
         #endregion
@@ -331,11 +325,11 @@ namespace PlaneWaver
 
         private void OnDrawGizmos()
         {
-            if (!_Connected || _SpeakerTransform == _SpeakerTarget)
+            if (!_Connected || SpeakerTransform == SpeakerTarget)
                 return;
 
-            Gizmos.DrawLine(_SpeakerTarget.position, _SpeakerTransform.position);
-            Gizmos.DrawWireSphere(_SpeakerTarget.position, .1f);
+            Gizmos.DrawLine(SpeakerTarget.position, SpeakerTransform.position);
+            Gizmos.DrawWireSphere(SpeakerTarget.position, .1f);
         }
     }
 }

@@ -71,10 +71,10 @@ namespace PlaneWaver
             _EntityManager.SetComponentData(_Entity, new SpeakerIndex { Value = EntityIndex });
             _EntityManager.SetComponentData(_Entity, new SpeakerComponent
             {
-                _State = ConnectionState.Pooled,
-                _ConnectionRadius = _ConnectionRadius,
-                _ConnectedHostCount = 0,
-                _GrainLoad = 0
+                State = ConnectionState.Pooled,
+                ConnectionRadius = _ConnectionRadius,
+                ConnectedHostCount = 0,
+                GrainLoad = 0
             });
         }
 
@@ -96,16 +96,16 @@ namespace PlaneWaver
         {
             SpeakerComponent pooling = _EntityManager.GetComponentData<SpeakerComponent>(_Entity);
             _GrainLoad = _GrainLoad.Smooth(1 - (float)_NumGrainsFree / _GrainArraySize, 0.5f);
-            pooling._GrainLoad = _GrainLoad;
+            pooling.GrainLoad = _GrainLoad;
             _EntityManager.SetComponentData(_Entity, pooling);
 
-            bool stateChanged = _State != pooling._State;
-            _State = pooling._State;
-            _ConnectionRadius = pooling._ConnectionRadius;
-            _ConnectedHosts = pooling._ConnectedHostCount;
-            _InactiveDuration = pooling._InactiveDuration;
+            bool stateChanged = _State != pooling.State;
+            _State = pooling.State;
+            _ConnectionRadius = pooling.ConnectionRadius;
+            _ConnectedHosts = pooling.ConnectedHostCount;
+            _InactiveDuration = pooling.InactiveDuration;
 
-            transform.position = pooling._WorldPos;
+            transform.position = pooling.WorldPos;
             transform.localScale = Vector3.one * _ConnectionRadius;
 
             _TargetVolume = _State != ConnectionState.Pooled ? 1 : 0;

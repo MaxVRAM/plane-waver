@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MaxVRAM.Extensions
 {
-    public static class ExtendFloats
+    public static class FloatExtensions
     {
         public static bool IsInRange(this float value, bool inclusive = true)
         {

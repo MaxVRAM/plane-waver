@@ -5,6 +5,7 @@ using Random = UnityEngine.Random;
 using MaxVRAM.Audio;
 using NaughtyAttributes;
 using System;
+using Unity.Transforms;
 
 namespace PlaneWaver
 {

@@ -2,7 +2,6 @@
 using Unity.Mathematics;
 using Unity.Transforms;
 
-
 #region ---------- COMPONENTS
 
 //    _________.__                             .___ ________          __          
@@ -44,7 +43,6 @@ public struct ConnectionConfig : IComponentData
     public float3 _ListenerPos;
 }
 
-
 //    ________             .__               
 //   /  _____/___________  |__| ____   ______
 //  /   \  __\_  __ \__  \ |  |/    \ /  ___/
@@ -65,7 +63,6 @@ public struct GrainComponent : IComponentData
     public int _SpeakerIndex;
     public int _EffectTailSampleLength;
 }
-
 
 //    _________                     __                        
 //   /   _____/_____   ____ _____  |  | __ ___________  ______
@@ -97,7 +94,6 @@ public struct SpeakerComponent : IComponentData
     public float _GrainLoad;
     public float3 _WorldPos;
 }
-
 
 //  ___________       .__  __    __                       
 //  \_   _____/ _____ |__|/  |__/  |_  ___________  ______
@@ -232,5 +228,4 @@ public struct FloatBlobAsset
 }
 
 #endregion
-
 

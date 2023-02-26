@@ -94,18 +94,13 @@ public partial class AttachmentSystem : SystemBase
 
                 if (host._SpeakerIndex < speakerComponents.Length)
                 {
-                    int speakerIndex = int.MaxValue;
-
                     for (int s = 0;  s < speakerComponents.Length; s++)
-                        if (host._SpeakerIndex == s)
-                        {
-                            speakerIndex = s;
-                            break;
-                        }
-
-                    if (speakerIndex <= speakerComponents.Length)
                     {
-                        SpeakerComponent speaker = speakerComponents[speakerIndex];
+                        if (host._SpeakerIndex != s)
+                            continue;
+
+                        SpeakerComponent speaker = speakerComponents[s];
+
                         if (math.distance(host._WorldPos, speaker._WorldPos) <= speaker._ConnectionRadius)
                         {
                             if (speakerComponents[host._SpeakerIndex]._ConnectedHostCount == 1)
@@ -114,6 +109,8 @@ public partial class AttachmentSystem : SystemBase
                             host._Connected = true;
                             return;
                         }
+
+                        break;
                     }
                 }
 
@@ -133,7 +130,7 @@ public partial class AttachmentSystem : SystemBase
         (
             (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
             {
-                if (host._SpeakerIndex > speakerComponents.Length)
+                if (host._SpeakerIndex >= speakerComponents.Length)
                     return;
 
                 int otherIndex = int.MaxValue;
@@ -181,43 +178,35 @@ public partial class AttachmentSystem : SystemBase
             (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
             {
                 int newSpeakerIndex = int.MaxValue;
-                int bestLingeringSpeaker = int.MaxValue;
-
                 float lowestActiveGrainLoad = 1;
-                float closestLingeringDistance = float.MaxValue;
 
                 for (int i = 0; i < speakerComponents.Length; i++)
                 {
                     SpeakerComponent speaker = speakerComponents[i];
-                    if (speaker._State == ConnectionState.Pooled)
+
+                    if (speaker._State == ConnectionState.Pooled && speaker._GrainLoad < attachConfig._BusyLoadLimit)
                         continue;
 
                     float dist = math.distance(host._WorldPos, speaker._WorldPos);
 
-                    if (speaker._State == ConnectionState.Active)
-                    {
-                        if (speaker._ConnectionRadius > dist &&
-                            speaker._GrainLoad < attachConfig._BusyLoadLimit &&
-                            speaker._GrainLoad < lowestActiveGrainLoad)
-                        {
-                            lowestActiveGrainLoad = speaker._GrainLoad;
-                            newSpeakerIndex = speakerIndexes[i].Value;
-                        }
-
+                    if (speaker._ConnectionRadius < dist)
                         continue;
+
+                    if (speaker._State == ConnectionState.Lingering)
+                    {
+                        newSpeakerIndex = speakerIndexes[i].Value;
+                        break;
                     }
 
-                    if (dist < closestLingeringDistance)
-                    {
-                        closestLingeringDistance = dist;
-                        bestLingeringSpeaker = speakerIndexes[i].Value;
-                    }
+                    lowestActiveGrainLoad = speaker._GrainLoad;
+                    newSpeakerIndex = speakerIndexes[i].Value;
+                    break;
                 }
 
-                if (newSpeakerIndex == int.MaxValue && bestLingeringSpeaker == int.MaxValue)
+                if (newSpeakerIndex == int.MaxValue)
                     return;
 
-                host._SpeakerIndex = newSpeakerIndex != int.MaxValue ? newSpeakerIndex : bestLingeringSpeaker;
+                host._SpeakerIndex = newSpeakerIndex;
                 host._Connected = true;
                 ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
             }
@@ -242,7 +231,9 @@ public partial class AttachmentSystem : SystemBase
                         continue;
 
                     if (math.distance(currentPosition, hostComponents[e]._WorldPos) > speaker._ConnectionRadius)
+                    {
                         continue;
+                    }
 
                     targetPosition += hostComponents[e]._WorldPos;
                     attachedHosts++;
@@ -326,7 +317,7 @@ public partial class AttachmentSystem : SystemBase
                     speakerComponent._InactiveDuration = 0;
                     speakerComponent._WorldPos = host._WorldPos;
                     SetComponent(speakerEntities[s], speakerComponent);
-                    break;
+                    return;
                 }
             }
         }).WithDisposeOnCompletion(speakerEntities).WithDisposeOnCompletion(speakerComponents)

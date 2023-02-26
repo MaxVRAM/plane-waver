@@ -32,26 +32,20 @@ namespace EXP
             Vector3 lineVec3 = linePoint2 - linePoint1;
             Vector3 crossVec1and2 = Vector3.Cross(lineVec1, lineVec2);
             Vector3 crossVec3and2 = Vector3.Cross(lineVec3, lineVec2);
-
             float planarFactor = Vector3.Dot(lineVec3, crossVec1and2);
 
             //Lines are not coplanar. Take into account rounding errors.
-            if ((planarFactor >= 0.00001f) || (planarFactor <= -0.00001f))
-            {
-
+            if (planarFactor is >= 0.00001f or <= (-0.00001f))
                 return false;
-            }
 
             //Note: sqrMagnitude does x*x+y*y+z*z on the input vector.
             float s = Vector3.Dot(crossVec3and2, crossVec1and2) / crossVec1and2.sqrMagnitude;
 
-            if ((s >= 0.0f) && (s <= 1.0f))
+            if (s is >= 0.0f and <= 1.0f)
             {
-
-                intersection = linePoint1 + (lineVec1 * s);
+                intersection = linePoint1 + lineVec1 * s;
                 return true;
             }
-
             else
             {
                 return false;
@@ -136,6 +130,8 @@ namespace EXP
 
         public static Vector3 RotatePointAroundPivot(this Vector3 point, Vector3 pivot, Vector3 angles)
         {
+            // ref: https://answers.unity.com/questions/532297/rotate-a-vector-around-a-certain-point.html
+
             Vector3 dir = point - pivot; // get point direction relative to pivot
             dir = Quaternion.Euler(angles) * dir; // rotate it
             point = dir + pivot; // calculate rotated point

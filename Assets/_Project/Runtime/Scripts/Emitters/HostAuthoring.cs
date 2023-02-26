@@ -21,16 +21,17 @@ namespace PlaneWaver
 
         [AllowNesting]
         [BoxGroup("Speaker Attachment")]
-        [Tooltip("Parent transform position for speakers to target for this host. Defaults to this transform.")]
+        [Tooltip("Parent transform position for speakers to target for this host. Creates a new child transform if not provided.")]
         [SerializeField] private Transform _SpeakerTarget;
         [AllowNesting]
         [BoxGroup("Speaker Attachment")]
+        [Tooltip("Sets to the connected speaker's transform. Sets to this host's Speaker Target if no speaker is connected.")]
         [SerializeField] private Transform _SpeakerTransform;
         [AllowNesting]
         [BoxGroup("Speaker Attachment")]
         public MaterialColourModulator _MaterialModulator = new();
 
-        private AttachmentLine _SpeakerAttachmentLine;
+        //private AttachmentLine _SpeakerAttachmentLine;
 
         [AllowNesting]
         [BoxGroup("Interaction")]
@@ -137,11 +138,11 @@ namespace PlaneWaver
 
             _SpeakerTransform = _SpeakerTarget;
 
-            if (!_SpeakerTarget.TryGetComponent(out _SpeakerAttachmentLine))
-                _SpeakerAttachmentLine = _SpeakerTarget.gameObject.AddComponent<AttachmentLine>();
-            {
-                _SpeakerAttachmentLine._TransformA = _SpeakerTarget;
-            }
+            //if (!_SpeakerTarget.TryGetComponent(out _SpeakerAttachmentLine))
+            //    _SpeakerAttachmentLine = _SpeakerTarget.gameObject.AddComponent<AttachmentLine>();
+            //{
+            //    _SpeakerAttachmentLine._TransformA = _SpeakerTarget;
+            //}
         }
 
         private void InitialiseSurfaceProperties()
@@ -213,8 +214,10 @@ namespace PlaneWaver
 
             _Connected = connected;
 
-            UpdateSpeakerAttachmentLine();
             ProcessRigidity();
+
+            if (!connected)
+                return;
 
             float speakerAmplitudeFactor = ScaleAmplitude.SpeakerOffsetFactor(
                 transform.position,
@@ -260,16 +263,16 @@ namespace PlaneWaver
             if (CollidingRigidity < 0.001f) _CollidingRigidity = 0;
         }
 
-        public void UpdateSpeakerAttachmentLine()
-        {
-            if (_SpeakerAttachmentLine == null)
-                return;
+        //public void UpdateSpeakerAttachmentLine()
+        //{
+        //    if (_SpeakerAttachmentLine == null)
+        //        return;
 
-            if (_SpeakerTransform != _SpeakerTarget)
-                _SpeakerAttachmentLine._TransformB = _SpeakerTransform;
+        //    if (_SpeakerTransform != _SpeakerTarget)
+        //        _SpeakerAttachmentLine._TransformB = _SpeakerTransform;
 
-            _SpeakerAttachmentLine._Active = _Connected && GrainBrain.Instance._DrawAttachmentLines;
-        }
+        //    _SpeakerAttachmentLine._Active = _Connected && GrainBrain.Instance._DrawAttachmentLines;
+        //}
 
         #endregion
 
@@ -324,5 +327,15 @@ namespace PlaneWaver
         }
 
         #endregion
+
+
+        private void OnDrawGizmos()
+        {
+            if (!_Connected || _SpeakerTransform == _SpeakerTarget)
+                return;
+
+            Gizmos.DrawLine(_SpeakerTarget.position, _SpeakerTransform.position);
+            Gizmos.DrawWireSphere(_SpeakerTarget.position, .1f);
+        }
     }
 }

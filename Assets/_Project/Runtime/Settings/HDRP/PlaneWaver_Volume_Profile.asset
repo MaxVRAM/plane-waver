@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e9e4ed5a6f56fb4ebd693e39684f36f, type: 3}
   m_Name: VolumetricClouds
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   enable:
     m_OverrideState: 1
     m_Value: 1
@@ -877,7 +877,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d7fd9488000d3734a9e00ee676215985, type: 3}
-  m_Name: EmitterSynth_Volume_Profile
+  m_Name: PlaneWaver_Volume_Profile
   m_EditorClassIdentifier: 
   components:
   - {fileID: 1549182801326375407}
@@ -1036,7 +1036,7 @@ MonoBehaviour:
   active: 1
   opacity:
     m_OverrideState: 1
-    m_Value: 0.5
+    m_Value: 0.7
   upperHemisphereOnly:
     m_OverrideState: 0
     m_Value: 1
@@ -1047,8 +1047,8 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 1024
   shadowMultiplier:
-    m_OverrideState: 1
-    m_Value: 0.5
+    m_OverrideState: 0
+    m_Value: 0.7
   shadowTint:
     m_OverrideState: 0
     m_Value: {r: 0, g: 0, b: 0, a: 1}
@@ -1056,7 +1056,7 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 256
   shadowSize:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 50
   layerA:
     cloudMap:
@@ -1111,7 +1111,7 @@ MonoBehaviour:
       m_Value: 4
     thickness:
       m_OverrideState: 1
-      m_Value: 0.25
+      m_Value: 0.8
     castShadows:
       m_OverrideState: 1
       m_Value: 1
@@ -1168,7 +1168,7 @@ MonoBehaviour:
       m_Value: 4
     thickness:
       m_OverrideState: 0
-      m_Value: 0.5
+      m_Value: 0.7
     castShadows:
       m_OverrideState: 0
       m_Value: 0

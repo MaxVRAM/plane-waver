@@ -8,6 +8,7 @@ using NaughtyAttributes;
 
 using MaxVRAM;
 using MaxVRAM.Ticker;
+using MaxVRAM.Extensions;
 
 namespace PlaneWaver
 {
@@ -55,19 +56,30 @@ namespace PlaneWaver
         private bool _StartTimeReached = false;
         private Trigger _SpawnTimer;
 
-        [Header("Ejection Physics")]
-        [Tooltip("Direction that determines a spawnables position and velocity on instantiation. Converts to unit vector.")]
-        public Vector3 _EjectionDirection = new(0, 0, 0);
-        [Tooltip("Direction to rotate the exit velocity from its inital direction (enables initiating a velocity spinning around the spawner). Converts to unit vector.")]
-        [MinValue(-1)][MaxValue(1)] public Vector3 _VelocityUpOffset = new(0, 1, 0);
-        [Tooltip("Amount of random spread applied to each spawn direction.")]
-        [Range(0f, 1f)] public float _EjectionDirectionVariance = 0;
-        [Tooltip("Distance from the anchor that objects will be spawned.")]
-        [MinMaxSlider(0f, 10f)] public Vector2 _EjectionRadiusRange = new(1, 2);
-        [Tooltip("Speed that spawned objects leave the anchor.")]
-        [MinMaxSlider(0f, 100f)] public Vector2 _EjectionSpeedRange = new(5, 10);
+        [Header("Object Properties")]
+        [SerializeField]
+        [MinMaxSlider(0.01f, 2)]
+        private Vector2 _SpawnObjectScale = new(1, 1);
+
+        [Header("Spawn Position")]
+        [Tooltip("Spawn position relative to the controller object. Converts to unit vector.")]
+        [MinValue(-1)][MaxValue(1)]
+        public Vector3 _EjectionPosition = new(1, 0, 0);
+        [Tooltip("Apply randomisation to the spawn position unit vector.")]
+        [Range(0f, 1f)] public float _PositionVariance = 0;
+        [Tooltip("Distance from the controller to spawn objects.")]
+        [MinMaxSlider(0f, 10f)] public Vector2 _EjectionRadius = new(1, 2);
+
+        [Header("Spawn Velocity")]
+        [MinValue(-1)][MaxValue(1)]
+        public Vector3 _EjectionDirection = new(0, 0, 1);
+        public Vector3 EjectionDirection => Vector3.Scale(_EjectionDirection, new Vector3(1,1,-1));
+        [Tooltip("Apply randomisation to the spawn direction.")]
+        [Range(0f, 1f)] public float _DirectionVariance = 0;
+        [Tooltip("Speed that spawned objects leave the controller.")]
+        [MinMaxSlider(0f, 20)] public Vector2 _EjectionSpeed = new(0, 2);
         
-        [Header("Spawned Object Removal")]
+        [Header("Object Removal")]
         public bool _DestroyOnAllCollisions = false;
         [Tooltip("Coodinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Collider Bounds, defined instead by the supplied collider bounding area, deaulting to the controller's collider if it has one.")]
         public BoundingArea _BoundingAreaType = BoundingArea.ControllerTransform;
@@ -224,16 +236,25 @@ namespace PlaneWaver
             int index = (!_RandomiseSpawnPrefab || _SpawnablePrefabs.Count < 2) ? Random.Range(0, _SpawnablePrefabs.Count) : 0;
             GameObject objectToSpawn = _SpawnablePrefabs[index];
 
-            Vector3 randomDirection = Random.onUnitSphere;
-            Vector3 spawnDirection = Vector3.Slerp(_EjectionDirection.normalized, randomDirection, _EjectionDirectionVariance);
-            Vector3 spawnPosition = _ControllerObject.transform.position + spawnDirection * Rando.Range(_EjectionRadiusRange);
-            Quaternion directionRotation = Quaternion.FromToRotation(_VelocityUpOffset, spawnDirection);
+            float spawnDistance = Rando.Range(_EjectionRadius);
+            Vector3 randomPosition = Random.onUnitSphere;
+            Vector3 spawnUnitPosition = Vector3.Slerp(_EjectionPosition.normalized, randomPosition, _PositionVariance);
+            Vector3 spawnPositionLocal = spawnUnitPosition * spawnDistance;
+            Vector3 spawnPositionWorld = _ControllerObject.transform.position + spawnPositionLocal;
+            Quaternion lookAtSpawner = Quaternion.LookRotation(Vector3.zero - spawnUnitPosition);
 
-            newObject = Instantiate(objectToSpawn, spawnPosition, directionRotation, _SpawnableHost.transform);
+            newObject = Instantiate(objectToSpawn, spawnPositionWorld, lookAtSpawner, _SpawnableHost.transform);
+            newObject.transform.localScale *= Rando.Range(_SpawnObjectScale);
             newObject.name = newObject.name + " (" + _ObjectCounter + ")";
 
-            if (!newObject.TryGetComponent(out Rigidbody rb)) rb = newObject.AddComponent<Rigidbody>();
-            rb.velocity = spawnDirection * Rando.Range(_EjectionSpeedRange);
+            if (!newObject.TryGetComponent(out Rigidbody rb))
+                rb = newObject.AddComponent<Rigidbody>();
+
+            Vector3 randomDirection = Random.onUnitSphere;
+            Vector3 spawnUnitDirection = Vector3.Slerp(EjectionDirection.normalized, randomDirection, _DirectionVariance);
+
+            Vector3 velocity = newObject.transform.localRotation * spawnUnitDirection * EjectionDirection.magnitude * Rando.Range(_EjectionSpeed);
+            rb.velocity = velocity;
 
             return true;
         }
@@ -256,16 +277,18 @@ namespace PlaneWaver
         // TODO: Decouple Synthesis authoring from this
         public void ConfigureSpawnedObject(GameObject spawned, GameObject controller)
         {
+            SpawnableManager spawnableManager = AttachSpawnableManager(spawned);
+
+            if (_AttachmentJoint != null)
+                spawned.AddComponent<InteractionJointController>().Initialise(_AttachmentJoint, controller.transform);
+
             if (!spawned.TryGetComponent(out HostAuthoring newHost))
                 newHost = spawned.GetComponentInChildren(typeof(HostAuthoring), true) as HostAuthoring;
 
             if (newHost == null)
                 return;
 
-            newHost.AssignControllers(this, AttachSpawnableManager(spawned), spawned.transform, controller.transform);
-
-            if (_AttachmentJoint != null)
-                spawned.AddComponent<InteractionJointController>().Initialise(_AttachmentJoint, controller.transform);
+            newHost.AssignControllers(this, spawnableManager, spawned.transform, controller.transform);
         }
         #endregion
 

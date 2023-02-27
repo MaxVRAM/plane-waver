@@ -9,7 +9,7 @@ namespace PlaneWaver
     /// Any number of Emitter objects can be assigned to Hosts, which interface Emitters with the Host's interaction Actors.
     /// </summary>
     [CreateAssetMenu(fileName = "EmitterVolatile", menuName = "Plane Waver/Emitters/Volatile", order = 1)]
-    public class VolatileEmitterScriptable : ScriptableObject
+    public class VolatileEmitterScriptable : BaseEmitterScriptable
     {
         #region FIELDS & PROPERTIES
         #endregion

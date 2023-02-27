@@ -10,23 +10,11 @@ namespace PlaneWaver
     [Serializable]
     public class ModulationInput
     {
-        [SerializeField] private Actor _LocalActor;
-        [SerializeField] private Actor _RemoteActor;
-
+        private Actor _localActor;
+        
         public void SetLocalActor(Actor localActor)
         {
-            _LocalActor = localActor;
-        }
-
-        public void SetRemoteActor(Actor remoteActor)
-        {
-            _RemoteActor = remoteActor;
-        }
-
-        public void SetActors(Actor localActor, Actor remoteActor)
-        {
-            _LocalActor = localActor;
-            _RemoteActor = remoteActor;
+            _localActor = localActor;
         }
 
         public void ResetModulation()
@@ -38,12 +26,12 @@ namespace PlaneWaver
             _ActorCollisions = ActorCollisionSources.CollisionSpeed;
             _InputValue = 0;
             _PreviousSmoothedValue = 0;
-            _InputRange = new(0, 1);
+            _InputRange = new Vector2(0, 1);
             _AdjustMultiplier = 1;
             _OnNewValue = InputOnNewValue.Replace;
             _PreSmoothValue = 0;
             _Smoothing = 0.2f;
-            _LimiterMode = InputLimitMode.Clip;
+            _LimiterMode = ValueLimiter.Clip;
             _ModulationExponent = 1f;
             _ModulationAmount = 0;
             _Result = 0;
@@ -80,7 +68,7 @@ namespace PlaneWaver
 
         [HorizontalLine(color: EColor.Clear)]
         [SerializeField][Range(0f, 1f)] private float _Smoothing = 0.2f;
-        [SerializeField] private InputLimitMode _LimiterMode = InputLimitMode.Clip;
+        [SerializeField] private ValueLimiter _LimiterMode = ValueLimiter.Clip;
         [ShowIf("ClipLimitingApplied")]
         [AllowNesting]
         [SerializeField][Range(0.5f, 5.0f)] private float _ModulationExponent = 1f;
@@ -100,11 +88,11 @@ namespace PlaneWaver
         public bool PrimaryActorSelected() { return _ValueSource == InputSourceGroups.PrimaryActor; }
         public bool LinkedActorsSelected() { return _ValueSource == InputSourceGroups.LinkedActors; }
         public bool CollisionInputSelected() { return _ValueSource == InputSourceGroups.ActorCollisions; }
-        public bool ClipLimitingApplied => _LimiterMode == InputLimitMode.Clip;
+        public bool ClipLimitingApplied => _LimiterMode == ValueLimiter.Clip;
 
         public float GetProcessedValue()
         {
-            if (_LocalActor == null || _ModulationAmount == 0)
+            if (_localActor == null || _ModulationAmount == 0)
                 _Result = 0;
             else
             {
@@ -116,7 +104,7 @@ namespace PlaneWaver
 
         public float GetProcessedValue(float offset)
         {
-            if (_LocalActor == null || _ModulationAmount == 0)
+            if (_localActor == null || _ModulationAmount == 0)
                 _Result = offset;
             else
             {
@@ -133,10 +121,12 @@ namespace PlaneWaver
             newValue = MaxMath.Smooth(_PreviousSmoothedValue, _PreSmoothValue, Smoothing);
             _PreviousSmoothedValue = newValue;
 
-            if (_LimiterMode == InputLimitMode.Repeat)
-                newValue = newValue.RepeatNorm();
-            else if (_LimiterMode == InputLimitMode.PingPong)
-                newValue = newValue.PingPongNorm();
+            newValue = _LimiterMode switch
+            {
+                    ValueLimiter.Repeat   => newValue.RepeatNorm(),
+                    ValueLimiter.PingPong => newValue.PingPongNorm(),
+                    _                     => newValue
+            };
 
             return Mathf.Clamp01(newValue);
         }
@@ -148,12 +138,13 @@ namespace PlaneWaver
             newValue = MaxMath.Smooth(_PreviousSmoothedValue, _PreSmoothValue, Smoothing);
             _PreviousSmoothedValue = newValue;
 
-            if (_LimiterMode == InputLimitMode.Clip)
-                newValue = offset + Mathf.Pow(newValue, Exponent) * Amount;
-            else if (_LimiterMode == InputLimitMode.Repeat)
-                newValue = newValue.RepeatNorm(Amount, offset);
-            else if (_LimiterMode == InputLimitMode.PingPong)
-                newValue = newValue.PingPongNorm(Amount, offset);
+            newValue = _LimiterMode switch
+            {
+                    ValueLimiter.Clip     => offset + Mathf.Pow(newValue, Exponent) * Amount,
+                    ValueLimiter.Repeat   => newValue.RepeatNorm(Amount, offset),
+                    ValueLimiter.PingPong => newValue.PingPongNorm(Amount, offset),
+                    _                     => newValue
+            };
 
             return Mathf.Clamp01(newValue);
         }
@@ -166,16 +157,16 @@ namespace PlaneWaver
                     GenerateScenePropertyValue();
                     break;
                 case InputSourceGroups.PrimaryActor:
-                    _LocalActor.GetActorValue(ref _InputValue, ref _PreviousVector, _PrimaryActor);
+                    _localActor.GetActorValue(ref _InputValue, ref _PreviousVector, _PrimaryActor);
                     break;
                 case InputSourceGroups.LinkedActors:
-                    _LocalActor.GetActorOtherValue(ref _InputValue, ref _PreviousVector, _RemoteActor, _LinkedActors);
+                    _localActor.GetActorOtherValue(ref _InputValue, ref _PreviousVector, _LinkedActors);
                     break;
                 case InputSourceGroups.ActorCollisions:
-                    _LocalActor.GetCollisionValue(ref _InputValue, _ActorCollisions);
+                    _localActor.GetCollisionValue(ref _InputValue, _ActorCollisions);
                     break;
                 default:
-                    break;
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -196,7 +187,7 @@ namespace PlaneWaver
                 case GeneralSources.SpawnAgeNorm:
                     break;
                 default:
-                    break;
+                    throw new ArgumentOutOfRangeException();
             }
         }
     }

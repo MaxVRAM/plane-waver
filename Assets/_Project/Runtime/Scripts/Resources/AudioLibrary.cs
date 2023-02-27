@@ -36,7 +36,7 @@ namespace PlaneWaver
         {
             Instance = this;
             if (InitialiseLibrary())
-                BuildAudioEntities(SynthComponentType.AudioClip);
+                BuildAudioEntities(BrainComponentType.AudioClip);
         }
 
         public bool InitialiseLibrary()

@@ -10,7 +10,7 @@ namespace PlaneWaver
     /// <summary>
     ///  Abstract class for managing emitter entities
     /// </summary>
-    public abstract class EmitterAuthoring : SynthEntity
+    public abstract class EmitterAuthoring : SynthElement
     {
         #region FIELDS & PROPERTIES
 
@@ -98,7 +98,7 @@ namespace PlaneWaver
             InitialisePerlinNoise();
             InitialiseModulationInputs();
 
-            _EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
             SetIndex(GrainBrain.Instance.RegisterEmitter(this));
         }
 
@@ -107,7 +107,7 @@ namespace PlaneWaver
         public void InitialiseModulationInputs()
         { 
             foreach (var input in GatherModulationInputs())
-                input.SetActors(Host._LocalActor, Host._RemoteActor);
+                input.SetLocalActor(Host._LocalActor);
         }
 
         #endregion
@@ -116,41 +116,41 @@ namespace PlaneWaver
 
         public void UpdateEntityTags()
         {
-            if (_Host.InListenerRadius != _EntityManager.HasComponent<InListenerRadiusTag>(_Entity))
+            if (_Host.InListenerRadius != Manager.HasComponent<InListenerRadiusTag>(ElementEntity))
             {
                 if (_Host.InListenerRadius)
-                    _EntityManager.AddComponent<InListenerRadiusTag>(_Entity);
+                    Manager.AddComponent<InListenerRadiusTag>(ElementEntity);
                 else
-                    _EntityManager.RemoveComponent<InListenerRadiusTag>(_Entity);
+                    Manager.RemoveComponent<InListenerRadiusTag>(ElementEntity);
             }
 
-            if (_Host.IsConnected != _EntityManager.HasComponent<ConnectedTag>(_Entity))
+            if (_Host.IsConnected != Manager.HasComponent<ConnectedTag>(ElementEntity))
             {
                 if (_Host.IsConnected)
-                    _EntityManager.AddComponent<ConnectedTag>(_Entity);
+                    Manager.AddComponent<ConnectedTag>(ElementEntity);
                 else
-                    _EntityManager.RemoveComponent<ConnectedTag>(_Entity);
+                    Manager.RemoveComponent<ConnectedTag>(ElementEntity);
             }
 
-            if (IsPlaying != _EntityManager.HasComponent<PlayingTag>(_Entity))
+            if (IsPlaying != Manager.HasComponent<PlayingTag>(ElementEntity))
             {
                 if (IsPlaying)
-                    _EntityManager.AddComponent<PlayingTag>(_Entity);
+                    Manager.AddComponent<PlayingTag>(ElementEntity);
                 else
-                    _EntityManager.RemoveComponent<PlayingTag>(_Entity);
+                    Manager.RemoveComponent<PlayingTag>(ElementEntity);
             }
         }
 
         protected void UpdateDSPEffectsBuffer(bool clear = true)
         {
             //--- TODO not sure if clearing and adding again is the best way to do this.
-            DynamicBuffer<DSPParametersElement> dspBuffer = _EntityManager.GetBuffer<DSPParametersElement>(_Entity);
+            DynamicBuffer<DSPParametersElement> dspBuffer = Manager.GetBuffer<DSPParametersElement>(ElementEntity);
             if (clear) dspBuffer.Clear();
             for (int i = 0; i < _DSPChainParams.Length; i++)
                 dspBuffer.Add(_DSPChainParams[i].GetDSPBufferElement());
         }
 
-        public override void Deregister()
+        protected override void Deregister()
         {
             GrainBrain.Instance.DeregisterEmitter(this);
         }

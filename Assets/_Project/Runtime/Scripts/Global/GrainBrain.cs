@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using Unity.Entities;
@@ -132,7 +133,7 @@ namespace PlaneWaver
         public bool _OnlyTriggerMostRigidSurface = true;
 
         [BoxGroup("Registered Elements")]
-        public List<EmitterFrame> _Frames = new ();
+        public List<GrainFrame> _Frames = new ();
         [BoxGroup("Registered Elements")]
         public List<HostAuthoring> _Hosts = new ();
         [BoxGroup("Registered Elements")]
@@ -170,9 +171,9 @@ namespace PlaneWaver
             _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
             _grainQuery = _entityManager.CreateEntityQuery(typeof(GrainComponent), typeof(SamplesProcessedTag));
 
-            _windowingEntity = UpdateEntity(_windowingEntity, SynthComponentType.Windowing);
-            _audioTimerEntity = UpdateEntity(_audioTimerEntity, SynthComponentType.AudioTimer);
-            _attachmentEntity = UpdateEntity(_attachmentEntity, SynthComponentType.Connection);
+            _windowingEntity = UpdateEntity(_windowingEntity, BrainComponentType.Windowing);
+            _audioTimerEntity = UpdateEntity(_audioTimerEntity, BrainComponentType.AudioTimer);
+            _attachmentEntity = UpdateEntity(_attachmentEntity, BrainComponentType.Connection);
         }
 
         private void Update()
@@ -181,7 +182,7 @@ namespace PlaneWaver
             _lastFrameSampleDuration = (int)(Time.deltaTime * SampleRate);
 
             CheckSpeakerAllocation();
-            UpdateEntity(_attachmentEntity, SynthComponentType.Connection);
+            UpdateEntity(_attachmentEntity, BrainComponentType.Connection);
 
             SpeakerUpkeep();
             UpdateSpeakers();
@@ -190,7 +191,7 @@ namespace PlaneWaver
             UpdateHosts();
             UpdateEmitters();
 
-            UpdateEntity(_audioTimerEntity, SynthComponentType.AudioTimer);
+            UpdateEntity(_audioTimerEntity, BrainComponentType.AudioTimer);
 
             UpdateStatsUI();
         }
@@ -211,16 +212,16 @@ namespace PlaneWaver
 
         private Entity UpdateEntity(Entity entity, string entityType)
         {
-            if (!SynthComponentType.IsValid(entityType) || entityType == SynthComponentType.AudioClip)
+            if (!BrainComponentType.IsValid(entityType) || entityType == BrainComponentType.AudioClip)
                 return entity;
 
             entity = entity != Entity.Null ? entity : CreateEntity(entityType);
 
-            if (entityType == SynthComponentType.Windowing)
+            if (entityType == BrainComponentType.Windowing)
                 PopulateWindowingEntity(entity);
-            else if (entityType == SynthComponentType.Connection)
+            else if (entityType == BrainComponentType.Connection)
                 PopulateConnectionEntity(entity);
-            else if (entityType == SynthComponentType.AudioTimer)
+            else if (entityType == BrainComponentType.AudioTimer)
                 PopulateTimerEntity(entity);
 
             return entity;
@@ -331,13 +332,13 @@ namespace PlaneWaver
                 try
                 {
                     NativeArray<float> grainSamples = _entityManager.GetBuffer<GrainSampleBufferElement>(grainEntities[i]).Reinterpret<float>().ToNativeArray(Allocator.Temp);
-                    NativeToManagedCopyMemory(grainOutput._SampleData, grainSamples);
-                    grainOutput._Pooled = false;
-                    grainOutput._IsPlaying = true;
-                    grainOutput._PlayheadIndex = 0;
-                    grainOutput._SizeInSamples = grainSamples.Length;
-                    grainOutput._DSPStartTime = grain.StartSampleIndex;
-                    grainOutput._PlayheadNormalised = grain.PlayheadNorm;
+                    NativeToManagedCopyMemory(grainOutput.SampleData, grainSamples);
+                    grainOutput.Pooled = false;
+                    grainOutput.IsPlaying = true;
+                    grainOutput.PlayheadIndex = 0;
+                    grainOutput.SizeInSamples = grainSamples.Length;
+                    grainOutput.DSPStartTime = grain.StartSampleIndex;
+                    grainOutput.PlayheadNormalised = grain.PlayheadNorm;
                     speaker.GrainAdded(grainOutput);
                 }
                 catch (Exception ex) when (ex is ArgumentException || ex is NullReferenceException)
@@ -407,11 +408,11 @@ namespace PlaneWaver
                                                       _SpeakerPoolingPosition,
                                                       Quaternion.identity,
                                                       _SpeakerParentTransform);
-            newSpeaker.SetIndex(index);
+            // newSpeaker.SetIndex(index);
             newSpeaker.SetGrainArraySize(_SpeakerGrainArraySize);
             return newSpeaker;
         }
-
+        
         public void DeregisterSpeaker(SpeakerAuthoring speaker)
         {
         }
@@ -469,7 +470,19 @@ namespace PlaneWaver
 
         #region SYNTH ENTITY REGISTRATION
 
-        public int RegisterFrame(EmitterFrame frame)
+        public int RegisterEntity(SynthElement synthElement, SynthElementType type)
+        {
+            return type switch
+            {
+                    SynthElementType.Speaker => GetIndexOfSpeaker((SpeakerAuthoring)synthElement),
+                    SynthElementType.Frame   => RegisterFrame((GrainFrame)synthElement),
+                    SynthElementType.Host    => RegisterHost((HostAuthoring)synthElement),
+                    SynthElementType.Emitter => RegisterEmitter((EmitterAuthoring)synthElement),
+                    _                        => -1
+            };
+        }
+        
+        public int RegisterFrame(GrainFrame frame)
         {
             for (var i = 0; i < _Frames.Count; i++)
                 if (_Frames[i] == null)
@@ -535,7 +548,7 @@ namespace PlaneWaver
             }
         }
 
-        public void DeregisterFrame(EmitterFrame frame)
+        public void DeregisterFrame(GrainFrame frame)
         {
         }
         
@@ -593,4 +606,25 @@ namespace PlaneWaver
 
         #endregion
     }
+    
+    #region BRAIN COMPONENT TYPES
+        
+    public static class BrainComponentType
+    {
+        public const string Connection = "_AttachmentParameters";
+        public const string Windowing = "_WindowingBlob";
+        public const string AudioTimer = "_AudioTimer";
+        public const string AudioClip = "_AudioClip";
+
+        public static bool IsValid(string entityType)
+        {
+            return typeof(BrainComponentType)
+                  .GetFields()
+                  .Any(field => field
+                               .GetValue(null)
+                               .ToString() == entityType);
+        }
+    }
+
+    #endregion
 }

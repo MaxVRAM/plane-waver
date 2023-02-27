@@ -5,6 +5,8 @@ namespace PlaneWaver
 {
     public class ActorLife : MonoBehaviour
     {
+        #region CLASS DEFINITIONS
+        
         private int _sampleRate;
         public bool LiveForever = true;
         public float Lifespan = -1;
@@ -20,6 +22,26 @@ namespace PlaneWaver
         private Vector3 BoundingPosition =>
             _boundingAreaType == ActorBounds.SpawnPosition ? _spawnPosition : _boundingTransform.position;
 
+        #endregion
+        
+        #region INITIALISATION METHODS
+        
+        public void InitialiseActorLife(ActorLifeData actorLifeData)
+        {
+            if (actorLifeData.Lifespan < 0)
+                LiveForever = true;
+            Lifespan = actorLifeData.Lifespan;
+            BoundingRadius = actorLifeData.BoundingRadius;
+            _boundingAreaType = actorLifeData.BoundingAreaType;
+            _boundingCollider = actorLifeData.BoundingCollider;
+            _boundingTransform = actorLifeData.BoundingTransform;
+            _age = 0;
+        }
+        
+        #endregion
+
+        #region RUNTIME UPDATES
+        
         public void Start()
         {
             _sampleRate = AudioSettings.outputSampleRate;
@@ -32,16 +54,6 @@ namespace PlaneWaver
 
             if ((!LiveForever && _age >= Lifespan) || OutsideBoundsCheck())
                 Destroy(gameObject);
-        }
-        
-        public int GetSamplesUntilFade(float normFadeStart)
-        {
-            return LiveForever ? int.MaxValue : (int)((Lifespan * normFadeStart - _age) * _sampleRate);
-        }
-
-        public int GetSamplesUntilDeath()
-        {
-            return LiveForever ? int.MaxValue : (int)(Lifespan - _age) * _sampleRate;
         }
         
         private bool OutsideBoundsCheck()
@@ -81,18 +93,24 @@ namespace PlaneWaver
             _useCollider = true;
         }
 
-        public void InitialiseActorLife(ActorLifeData actorLifeData)
+        #endregion
+
+        #region PROPERTY RETURN METHODS
+        
+        public int GetSamplesUntilFade(float normFadeStart)
         {
-            if (actorLifeData.Lifespan < 0)
-                LiveForever = true;
-            Lifespan = actorLifeData.Lifespan;
-            BoundingRadius = actorLifeData.BoundingRadius;
-            _boundingAreaType = actorLifeData.BoundingAreaType;
-            _boundingCollider = actorLifeData.BoundingCollider;
-            _boundingTransform = actorLifeData.BoundingTransform;
-            _age = 0;
+            return LiveForever ? int.MaxValue : (int)((Lifespan * normFadeStart - _age) * _sampleRate);
         }
+
+        public int GetSamplesUntilDeath()
+        {
+            return LiveForever ? int.MaxValue : (int)(Lifespan - _age) * _sampleRate;
+        }
+
+        #endregion
     }
+
+    #region PUBLIC ACTOR TYPE DEFINITIONS
 
     public enum ActorBounds
     {
@@ -121,4 +139,6 @@ namespace PlaneWaver
             BoundingTransform = boundingTransform;
         }
     }
+    
+    #endregion
 }

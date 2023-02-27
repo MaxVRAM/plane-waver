@@ -272,14 +272,14 @@ namespace PlaneWaver
         if (_DrawTimeline)
         {
             // Scale based on duration
-            float durationInSeconds = grainData._SizeInSamples / _SampleRate;
+            float durationInSeconds = grainData.SizeInSamples / _SampleRate;
             durationInSeconds *= _TimelineDistance / _TimelineDuration;
             Vector3 size = new Vector3(durationInSeconds, _TimelineScale, .001f);
 
             GrainSynthVisualizerBlock block = _TimelineBlocks[_BlockCounter];
-            block.transform.position = PosFromStartSampleIndex(grainData._DSPStartTime);
+            block.transform.position = PosFromStartSampleIndex(grainData.DSPStartTime);
             block.transform.localScale = size;
-            block._StartIndex = grainData._DSPStartTime;
+            block._StartIndex = grainData.DSPStartTime;
             block.gameObject.SetActive(true);
             _BlockCounter++;
             _BlockCounter %= _TimelineBlocks.Length;
@@ -289,13 +289,13 @@ namespace PlaneWaver
         {
             // Waveform grain
             WaveformVizGrain grain = _WaveformVizGrainPool[_WaveformGrainIndex];
-            grain.transform.position = GetPositionOnArc(grainData._PlayheadNormalised, 0, -_PlayheadZOffset);
+            grain.transform.position = GetPositionOnArc(grainData.PlayheadNormalised, 0, -_PlayheadZOffset);
 
             // Width from duration
-            float width = grainData._SizeInSamples / (float)_ClipSampleCount;
+            float width = grainData.SizeInSamples / (float)_ClipSampleCount;
             grain.transform.localScale = new Vector3(width, _WaveformBlockHeight * .9f, 1);
             grain.transform.LookAt(_LookAtPos);
-            grain._Lifetime = grainData._SampleData.Length / (float)_SampleRate;
+            grain._Lifetime = grainData.SampleData.Length / (float)_SampleRate;
             grain.gameObject.SetActive(true);
 
             _WaveformGrainIndex++;

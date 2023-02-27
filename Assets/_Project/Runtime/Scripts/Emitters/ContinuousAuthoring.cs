@@ -80,21 +80,21 @@ namespace PlaneWaver
 
         #region CONCISE CONTINUOUS COMPONENT INIT
 
-        public override void SetEntityType()
+        protected override void SetElementType()
         {
             _EmitterType = EmitterType.Continuous;
-            _EntityType = SynthEntityType.Emitter;
-            _Archetype = _EntityManager.CreateArchetype(typeof(ContinuousComponent));
+            ElementType = SynthElementType.Emitter;
+            Archetype = Manager.CreateArchetype(typeof(ContinuousComponent));
             _IsPlaying = _PlaybackCondition != Condition.NotColliding;
             _PlayheadIdle = Random.Range(_PlayheadStartPosition.x, _PlayheadStartPosition.y);
         }
 
-        public override void InitialiseComponents()
+        protected override void InitialiseComponents()
         {
-            _EntityManager.AddComponentData(_Entity, new ContinuousComponent
+            Manager.AddComponentData(ElementEntity, new ContinuousComponent
             {
                 IsPlaying = false,
-                EmitterIndex = _EntityIndex,
+                EmitterIndex = EntityIndex,
                 AudioClipIndex = _AudioAsset.ClipEntityIndex,
                 SpeakerIndex = Host.AttachedSpeakerIndex,
                 HostIndex = Host.EntityIndex,
@@ -132,20 +132,20 @@ namespace PlaneWaver
                 }
             });
 
-            _EntityManager.AddBuffer<DSPParametersElement>(_Entity);
-            DynamicBuffer<DSPParametersElement> dspParams = _EntityManager.GetBuffer<DSPParametersElement>(_Entity);
+            Manager.AddBuffer<DSPParametersElement>(ElementEntity);
+            DynamicBuffer<DSPParametersElement> dspParams = Manager.GetBuffer<DSPParametersElement>(ElementEntity);
 
             for (int i = 0; i < _DSPChainParams.Length; i++)
                 dspParams.Add(_DSPChainParams[i].GetDSPBufferElement());
 
-            _EntityManager.AddComponentData(_Entity, new QuadEntityType { _Type = QuadEntityType.QuadEntityTypeEnum.Emitter });
+            Manager.AddComponentData(ElementEntity, new QuadEntityType { _Type = QuadEntityType.QuadEntityTypeEnum.Emitter });
         }
 
         #endregion
 
         #region CRAZY CONTINUOUS COMPONENT UPDATE
 
-        public override void ProcessComponents()
+        protected override void ProcessComponents()
         {
             _IsPlaying = _PlaybackCondition == Condition.Always || _IsPlaying;
 
@@ -153,7 +153,7 @@ namespace PlaneWaver
 
             if (IsPlaying)
             {
-                ContinuousComponent entity = _EntityManager.GetComponentData<ContinuousComponent>(_Entity);
+                ContinuousComponent entity = Manager.GetComponentData<ContinuousComponent>(ElementEntity);
                 // Reset grain offset if attached to a new speaker
                 if (Host.AttachedSpeakerIndex != entity.SpeakerIndex)
                 {
@@ -219,7 +219,7 @@ namespace PlaneWaver
                     Min = Ranges._Transpose.x,
                     Max = Ranges._Transpose.y,
                 };
-                _EntityManager.SetComponentData(_Entity, entity);
+                Manager.SetComponentData(ElementEntity, entity);
 
                 UpdateDSPEffectsBuffer();
             }

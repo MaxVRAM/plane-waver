@@ -9,30 +9,23 @@ namespace PlaneWaver
     /// Speakers are passed Grains entities by the GrainBrain, which they write directly to the attached AudioSource output buffer.
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
-    public class SpeakerAuthoring : SynthEntity
+    public class SpeakerAuthoring : SynthElement
     {
         #region FIELDS & PROPERTIES
 
-        [SerializeField] private ConnectionState _State = ConnectionState.Pooled;
-        public bool IsActive => _State == ConnectionState.Active;
-        [SerializeField] private int _GrainArraySize = 100;
-        [SerializeField] private int _NumGrainsFree = 0;
-        [SerializeField] private float _GrainLoad = 0;
-        [SerializeField] private int _ConnectedHosts = 0;
-        [SerializeField] private float _InactiveDuration = 0;
-        [SerializeField] private float _ConnectionRadius = 1;
-        [SerializeField] private float _TargetVolume = 0;
-
-        [Range(0f,1f)]private float _VolumeSmoothing = 0.5f;
-        private int _SampleRate;
-
-        private MeshRenderer _MeshRenderer;
-        private Material _Material;
-        private Color _ActiveColor = new (1, 1, 1, 0.01f);
-        private Color _OverloadColor = new (1, 0, 0, 0.02f);
-        private Color _CurrentColour;
-        private AudioSource _AudioSource;
-        private Grain[] _GrainArray;
+        [SerializeField] private ConnectionState State = ConnectionState.Pooled;
+        public bool IsActive => State == ConnectionState.Active;
+        private int _grainArraySize = 100;
+        private int _numGrainsFree = 0;
+        private float _grainLoad = 0;
+        private int _connectedHosts = 0;
+        private float _inactiveDuration = 0;
+        private float _connectionRadius = 1;
+        private float _targetVolume = 0;
+        private const float VolumeSmoothing = 0.5f;
+        private int _sampleRate;
+        private AudioSource _audioSource;
+        private Grain[] _grainArray;
 
         public delegate void GrainEmitted(Grain data, int currentDSPSample);
         public event GrainEmitted OnGrainEmitted;
@@ -43,92 +36,69 @@ namespace PlaneWaver
 
         private void Start()
         {
-            _SampleRate = AudioSettings.outputSampleRate;
-            _MeshRenderer = gameObject.GetComponentInChildren<MeshRenderer>();
-            if (_MeshRenderer != null) _Material = _MeshRenderer.material;
-            _AudioSource = gameObject.GetComponent<AudioSource>();
-            _AudioSource.rolloffMode = AudioRolloffMode.Custom;
-            _AudioSource.maxDistance = 500;
+            _sampleRate = AudioSettings.outputSampleRate;
+            _audioSource = gameObject.GetComponent<AudioSource>();
+            _audioSource.rolloffMode = AudioRolloffMode.Custom;
+            _audioSource.maxDistance = 500;
             InitialiseGrainArray();
 
-            _EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            _Archetype = _EntityManager.CreateArchetype(
-                typeof(SpeakerComponent),
-                typeof(SpeakerIndex));
+            ElementType = SynthElementType.Speaker;
+            Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            Archetype = Manager.CreateArchetype(typeof(SpeakerComponent), typeof(SpeakerIndex));
+            InitialiseEntity();
         }
 
         #endregion
 
         #region SECRET SPEAKER COMPONENT BUSINESS
 
-        public override void SetEntityType()
+        protected override void InitialiseComponents()
         {
-            _EntityType = SynthEntityType.Speaker;
-        }
-
-        public override void InitialiseComponents()
-        {
-            _EntityManager.SetComponentData(_Entity, new SpeakerIndex { Value = EntityIndex });
-            _EntityManager.SetComponentData(_Entity, new SpeakerComponent
+            Manager.SetComponentData(ElementEntity, new SpeakerIndex { Value = EntityIndex });
+            Manager.SetComponentData(ElementEntity, new SpeakerComponent
             {
                 State = ConnectionState.Pooled,
-                ConnectionRadius = _ConnectionRadius,
+                ConnectionRadius = _connectionRadius,
                 ConnectedHostCount = 0,
                 GrainLoad = 0
             });
         }
 
-        public override void ProcessComponents()
+        protected override void ProcessComponents()
         {
             UpdateGrainPool();
             ProcessIndex();
             ProcessPooling();
         }
 
-        public void ProcessIndex()
+        private void ProcessIndex()
         {
-            SpeakerIndex index = _EntityManager.GetComponentData<SpeakerIndex>(_Entity);
+            var index = Manager.GetComponentData<SpeakerIndex>(ElementEntity);
             if (EntityIndex != index.Value)
-                _EntityManager.SetComponentData(_Entity, new SpeakerIndex { Value = EntityIndex });
+                Manager.SetComponentData(ElementEntity, new SpeakerIndex { Value = EntityIndex });
         }
 
-        public void ProcessPooling()
+        private void ProcessPooling()
         {
-            SpeakerComponent pooling = _EntityManager.GetComponentData<SpeakerComponent>(_Entity);
-            _GrainLoad = _GrainLoad.Smooth(1 - (float)_NumGrainsFree / _GrainArraySize, 0.5f);
-            pooling.GrainLoad = _GrainLoad;
-            _EntityManager.SetComponentData(_Entity, pooling);
+            var pooling = Manager.GetComponentData<SpeakerComponent>(ElementEntity);
+            _grainLoad = _grainLoad.Smooth(1 - (float)_numGrainsFree / _grainArraySize, 0.5f);
+            pooling.GrainLoad = _grainLoad;
+            Manager.SetComponentData(ElementEntity, pooling);
 
-            bool stateChanged = _State != pooling.State;
-            _State = pooling.State;
-            _ConnectionRadius = pooling.ConnectionRadius;
-            _ConnectedHosts = pooling.ConnectedHostCount;
-            _InactiveDuration = pooling.InactiveDuration;
+            bool stateChanged = State != pooling.State;
+            State = pooling.State;
+            _connectionRadius = pooling.ConnectionRadius;
+            _connectedHosts = pooling.ConnectedHostCount;
+            _inactiveDuration = pooling.InactiveDuration;
 
             transform.position = pooling.WorldPos;
-            transform.localScale = Vector3.one * _ConnectionRadius;
+            transform.localScale = Vector3.one * _connectionRadius;
 
-            _TargetVolume = _State != ConnectionState.Pooled ? 1 : 0;
-            _AudioSource.volume = _AudioSource.volume.Smooth(_TargetVolume, _VolumeSmoothing);
-
-            if (_MeshRenderer == null)
-                return;
-
-            if (_State == ConnectionState.Active && !stateChanged)
-            {
-                _MeshRenderer.enabled = true;
-                _CurrentColour = Color.Lerp(_ActiveColor, _OverloadColor, _GrainLoad);
-                _Material.color = _CurrentColour;
-            }
-            else
-            {
-                _MeshRenderer.enabled = false;
-                _CurrentColour = _ActiveColor;
-                _Material.color = _CurrentColour;
-            }
+            _targetVolume = State != ConnectionState.Pooled ? 1 : 0;
+            _audioSource.volume = _audioSource.volume.Smooth(_targetVolume, VolumeSmoothing);
         }
 
-        public override void Deregister()
+        protected override void Deregister()
         {
             GrainBrain.Instance.DeregisterSpeaker(this);
         }
@@ -137,72 +107,72 @@ namespace PlaneWaver
 
         #region GRAIN POOLING MANAGEMENT
 
-        Grain CreateNewGrain(int? numSamples = null)
+        private Grain CreateNewGrain(int? numSamples = null)
         {
-            int samples = numSamples.HasValue ? numSamples.Value : _SampleRate;
+            int samples = numSamples ?? _sampleRate;
             return new Grain(samples);
         }
 
         public void SetGrainArraySize(int size)
         {
-            if (size == _GrainArraySize)
+            if (size == _grainArraySize)
                 return;
 
-            _GrainArraySize = size;
+            _grainArraySize = size;
             InitialiseGrainArray();
         }
 
-        public void InitialiseGrainArray()
+        private void InitialiseGrainArray()
         {
-            _GrainArray = new Grain[_GrainArraySize];
-            for (int i = 0; i < _GrainArraySize; i++)
-                _GrainArray[i] = CreateNewGrain();
+            _grainArray = new Grain[_grainArraySize];
+            for (var i = 0; i < _grainArraySize; i++)
+                _grainArray[i] = CreateNewGrain();
 
-            _NumGrainsFree = _GrainArray.Length;
+            _numGrainsFree = _grainArray.Length;
         }
 
         public void ResetGrainPool()
         {
-            for (int i = 0; i < _GrainArray.Length; i++)
+            foreach (Grain g in _grainArray)
             {
-                _GrainArray[i]._Pooled = true;
-                _GrainArray[i]._IsPlaying = false;
+                g.Pooled = true;
+                g.IsPlaying = false;
             }
-            _NumGrainsFree = _GrainArray.Length;
+
+            _numGrainsFree = _grainArray.Length;
         }
 
-        public void UpdateGrainPool()
+        private void UpdateGrainPool()
         {
-            _NumGrainsFree = 0;
-            for (int i = 0; i < _GrainArray.Length; i++)
-                if (!_GrainArray[i]._IsPlaying)
+            _numGrainsFree = 0;
+            foreach (Grain g in _grainArray)
+                if (!g.IsPlaying)
                 {
-                    _GrainArray[i]._Pooled = true;
-                    _NumGrainsFree++;
+                    g.Pooled = true;
+                    _numGrainsFree++;
                 }
         }
 
         public void GrainAdded(Grain grainData)
         {
-            if (!_EntityInitialised)
+            if (!EntityInitialised)
                 return;
-            _NumGrainsFree--;
+            _numGrainsFree--;
             OnGrainEmitted?.Invoke(grainData, GrainBrain.Instance.CurrentSampleIndex);
         }
 
         public Grain GetEmptyGrain(out Grain grain)
         {
             grain = null;
-            if (_EntityInitialised)
-            {
-                if (_NumGrainsFree > 0)
-                    for (int i = 0; i < _GrainArray.Length; i++)
-                        if (_GrainArray[i]._Pooled)
-                        {
-                            grain = _GrainArray[i];
-                            return grain;
-                        }
-            }
+            if (!EntityInitialised || _numGrainsFree <= 0) return grain;
+            
+            foreach (Grain g in _grainArray)
+                if (g.Pooled)
+                {
+                    grain = g;
+                    return grain;
+                }
+
             return grain;
         }
 
@@ -210,32 +180,29 @@ namespace PlaneWaver
 
         #region AUDIO OUTPUT BUFFER POPULATION
 
-        void OnAudioFilterRead(float[] data, int channels)
+        private void OnAudioFilterRead(float[] data, int channels)
         {
-            if (!_EntityInitialised || _GrainArray == null || _NumGrainsFree == _GrainArraySize)
+            if (!EntityInitialised || _grainArray == null || _numGrainsFree == _grainArraySize)
                 return;
 
-            Grain grainData;
-            int _CurrentDSPSample = GrainBrain.Instance.CurrentSampleIndex;
+            int currentDSPSample = GrainBrain.Instance.CurrentSampleIndex;
 
-            for (int dataIndex = 0; dataIndex < data.Length; dataIndex += channels)
-                for (int i = 0; i < _GrainArray.Length; i++)
+            for (var dataIndex = 0; dataIndex < data.Length; dataIndex += channels)
+                foreach (Grain g in _grainArray)
                 {
-                    if (!_GrainArray[i]._IsPlaying)
+                    if (!g.IsPlaying || currentDSPSample < g.DSPStartTime)
                         continue;
-
-                    grainData = _GrainArray[i];
-                    if (_CurrentDSPSample >= grainData._DSPStartTime)
-                        if (grainData._PlayheadIndex >= grainData._SizeInSamples)
-                        {
-                            grainData._IsPlaying = false;
-                        }
-                        else
-                        {
-                            for (int chan = 0; chan < channels; chan++)
-                                data[dataIndex + chan] += grainData._SampleData[grainData._PlayheadIndex];
-                            grainData._PlayheadIndex++;
-                        }
+                    
+                    if (g.PlayheadIndex >= g.SizeInSamples)
+                    {
+                        g.IsPlaying = false;
+                    }
+                    else
+                    {
+                        for (var chan = 0; chan < channels; chan++)
+                            data[dataIndex + chan] += g.SampleData[g.PlayheadIndex];
+                        g.PlayheadIndex++;
+                    }
                 }
         }
 
@@ -246,17 +213,17 @@ namespace PlaneWaver
 
     public class Grain
     {
-        public bool _Pooled = true;
-        public bool _IsPlaying = false;
-        public float[] _SampleData;
-        public int _PlayheadIndex = 0;
-        public float _PlayheadNormalised = 0;
-        public int _SizeInSamples = -1;
-        public int _DSPStartTime;
+        public bool Pooled = true;
+        public bool IsPlaying = false;
+        public float[] SampleData;
+        public int PlayheadIndex = 0;
+        public float PlayheadNormalised = 0;
+        public int SizeInSamples = -1;
+        public int DSPStartTime;
 
         public Grain(int maxGrainSize)
         {
-            _SampleData = new float[maxGrainSize];
+            SampleData = new float[maxGrainSize];
         }
     }
 

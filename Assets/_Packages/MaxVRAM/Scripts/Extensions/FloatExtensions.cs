@@ -76,7 +76,7 @@ namespace MaxVRAM.Extensions
         }
 
         /// <summary>
-        /// Replicates the functionality of Mathf.Abs() more efficently.
+        /// Replicates the functionality of Mathf.Abs() more efficiently.
         /// </summary>
         public static float Abs(this float value)
         {
@@ -84,7 +84,7 @@ namespace MaxVRAM.Extensions
         }
 
         /// <summary>
-        /// Replicates the functionality of Mathf.PingPong() more efficently. Limited to normalised output range.
+        /// Replicates the functionality of Mathf.PingPong() more efficiently. Limited to normalised output range.
         /// </summary>
         public static float PingPongNorm(this float value)
         {
@@ -92,12 +92,11 @@ namespace MaxVRAM.Extensions
             value %= 2;
             if (value < 1)
                 return value;
-            else
-                return 2 * 1 - value;
+            return 2 * 1 - value;
         }
 
         /// <summary>
-        /// Applies a scaled PingPong-limited float to an abitrary normalised offset.
+        /// Applies a scaled PingPong-limited float to an arbitrary normalised offset.
         /// </summary>
         /// <param name="amount">Float between -1 and 1. Negative values determine the direction of the PingPonged value.</param>
         /// <param name="offset">Float between 0. and 1. which offsets the resultant value. If amount = 0, return will always = offset.</param>
@@ -105,13 +104,13 @@ namespace MaxVRAM.Extensions
         public static float PingPongNorm(this float value, float amount, float offset)
         {
             value = value.Abs();
-            float pinged = amount > 0 ? offset + value : offset - value;
-            float ponged = Mathf.PingPong(pinged, 1f);
-            return offset + (ponged - offset) * amount.Abs();
+            float normalised = amount > 0 ? offset + value : offset - value;
+            float pingponged = Mathf.PingPong(normalised, 1f);
+            return offset + (pingponged - offset) * amount.Abs();
         }
 
         /// <summary>
-        /// Replicates the functionality of Mathf.Repeat() more efficently. Limited to normalised output range.
+        /// Replicates the functionality of Mathf.Repeat() more efficiently. Limited to normalised output range.
         /// </summary>
         public static float RepeatNorm(this float value)
         {
@@ -119,16 +118,16 @@ namespace MaxVRAM.Extensions
         }
 
         /// <summary>
-        /// Limits the value to a normalised range using a directional repeat limiter, to a value abitrary normalised offset.
+        /// Limits the value to a normalised range using a directional repeat limiter, to a value arbitrary normalised offset.
         /// </summary>
-        /// <param name="amount">Float between -1 and 1. Negative values reverse the direction of the reapeat loop.</param>
+        /// <param name="amount">Float between -1 and 1. Negative values reverse the direction of the repeat loop.</param>
         /// <param name="offset">Float between 0 and 1 to offset the output value. Resultant value will always equal the offset when amount parameter is 0.</param>
         /// <returns>A normalised float between 0 and 1.</returns>
         public static float RepeatNorm(this float value, float amount, float offset)
         {
-            float reeh = amount > 0 ? offset + value : offset - value;
-            float pete = reeh.RepeatNorm();
-            return offset + (pete - offset) * amount.Abs();
+            float normalised = amount > 0 ? offset + value : offset - value;
+            float repeated = normalised.RepeatNorm();
+            return offset + (repeated - offset) * amount.Abs();
         }
 
         public static Vector2 MakeMirroredVector(this float value, float mid)

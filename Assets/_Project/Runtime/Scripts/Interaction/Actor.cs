@@ -83,6 +83,12 @@ namespace PlaneWaver
 
         private void UpdateContactRigidity()
         {
+            if (_activeCollisions.Count == 0)
+            {
+                _highestContactRigidity = 0;
+                _smoothedContactRigidity = 0;
+                return;
+            }
             _highestContactRigidity = _activeCollisions.Max(x => x.Rigidity);
             _smoothedContactRigidity = Smooth(_smoothedContactRigidity,
                                               _highestContactRigidity,
@@ -248,6 +254,8 @@ namespace PlaneWaver
         
         #region COLLISION HANDLING
 
+        public Action<CollisionData> OnNewValidCollision;
+        
         public void OnCollisionEnter(Collision collision)
         {
             if (ContactAllowed(collision.collider.gameObject))
@@ -257,7 +265,7 @@ namespace PlaneWaver
 
             _latestCollision = new CollisionData(collision);
             _hasCollided = true;
-            // TODO - trigger an event using the collision data
+            OnNewValidCollision?.Invoke(_latestCollision);
         }
 
         public void OnCollisionStay(Collision collision)
@@ -313,50 +321,54 @@ namespace PlaneWaver
             return !OnlyTriggerMostRigid || collisionData.Value.Rigidity < SurfaceRigidity;
         }
         
-        /// <summary>
-        /// A struct to hold collision data for a single collision.
-        /// </summary>
-        private struct CollisionData
-        {
-            public float CollisionTime;
-            public Collision Collision;
-            public GameObject OtherObject;
-            public SurfaceProperties Surface;
-            public bool IsEmitter;
-            public bool IsMoreRigidEmitter;
-            public float Rigidity;
-            public float Speed;
-            public float Force;
-            public float Momentum;
-            public float Impulse;
-            public float Energy;
-
-            public CollisionData(Collision collision)
-            {
-                CollisionTime = Time.fixedTime;
-                Collision = collision;
-                OtherObject = collision.collider.gameObject;
-                Speed = collision.relativeVelocity.magnitude;
-                Force = collision.impulse.magnitude;
-                Momentum = Force * Speed;
-                Impulse = Force / Time.fixedDeltaTime;
-                Energy = 0.5f * Speed * Speed;
-
-                if (OtherObject.TryGetComponent(out Surface))
-                {
-                    Rigidity = Surface.Rigidity;
-                    IsEmitter = Surface.IsEmitter;
-                    IsMoreRigidEmitter = IsEmitter && Surface.Rigidity > Rigidity;
-                }
-                else
-                {
-                    Rigidity = 1;
-                    IsEmitter = false;   
-                    IsMoreRigidEmitter = false;
-                }
-            }
-        }
-
         #endregion
     }
+    
+    #region COLLISION DATA STRUCT
+
+    /// <summary>
+    /// A struct to hold collision data for a single collision.
+    /// </summary>
+    public struct CollisionData
+    {
+        public readonly float CollisionTime;
+        public readonly Collision Collision;
+        public readonly GameObject OtherObject;
+        public readonly SurfaceProperties Surface;
+        public readonly bool IsEmitter;
+        public readonly bool IsMoreRigidEmitter;
+        public readonly float Rigidity;
+        public readonly float Speed;
+        public readonly float Force;
+        public readonly float Momentum;
+        public readonly float Impulse;
+        public readonly float Energy;
+
+        public CollisionData(Collision collision)
+        {
+            CollisionTime = Time.fixedTime;
+            Collision = collision;
+            OtherObject = collision.collider.gameObject;
+            Speed = collision.relativeVelocity.magnitude;
+            Force = collision.impulse.magnitude;
+            Momentum = Force * Speed;
+            Impulse = Force / Time.fixedDeltaTime;
+            Energy = 0.5f * Speed * Speed;
+
+            if (OtherObject.TryGetComponent(out Surface))
+            {
+                Rigidity = Surface.Rigidity;
+                IsEmitter = Surface.IsEmitter;
+                IsMoreRigidEmitter = IsEmitter && Surface.Rigidity > Rigidity;
+            }
+            else
+            {
+                Rigidity = 1;
+                IsEmitter = false;   
+                IsMoreRigidEmitter = false;
+            }
+        }
+    }
+
+    #endregion
 }

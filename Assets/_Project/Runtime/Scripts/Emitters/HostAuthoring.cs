@@ -13,7 +13,7 @@ namespace PlaneWaver
     ///      the same game-world interactions. Emitter Hosts manage emitters designed to create
     ///      a single "profile" for an interactive sound object.
     /// </summary>
-    public class HostAuthoring : SynthEntity
+    public class HostAuthoring : SynthElement
     {
         #region FIELDS & PROPERTIES
 
@@ -92,8 +92,8 @@ namespace PlaneWaver
         {
             InitialiseModules();
 
-            _EntityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            _Archetype = _EntityManager.CreateArchetype(typeof(HostComponent));
+            Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            Archetype = Manager.CreateArchetype(typeof(HostComponent));
             SetIndex(GrainBrain.Instance.RegisterHost(this));
         }
 
@@ -106,8 +106,8 @@ namespace PlaneWaver
                     _SpawnLife = _LocalTransform.gameObject.AddComponent<SpawnableManager>();
             }
 
-            _LocalActor = new(_LocalTransform);
-            _RemoteActor = _RemoteTransform != null ? new(_RemoteTransform) : null;
+            // _LocalActor = new(_LocalTransform);
+            // _RemoteActor = _RemoteTransform != null ? new(_RemoteTransform) : null;
 
             InitialiseSpeakerAttachment();
             InitialiseSurfaceProperties();
@@ -173,16 +173,16 @@ namespace PlaneWaver
 
         #region HEFTY HOST COMPONENT BUSINESS
 
-        public override void SetEntityType()
+        protected override void SetElementType()
         {
-            _EntityType = SynthEntityType.Host;
+            ElementType = SynthElementType.Host;
         }
 
-        public override void InitialiseComponents()
+        protected override void InitialiseComponents()
         {
-            _EntityManager.SetComponentData(_Entity, new HostComponent
+            Manager.SetComponentData(ElementEntity, new HostComponent
             {
-                HostIndex = _EntityIndex,
+                HostIndex = EntityIndex,
                 Connected = false,
                 SpeakerIndex = int.MaxValue,
                 InListenerRadius = InListenerRadius,
@@ -190,12 +190,12 @@ namespace PlaneWaver
             });
         }
 
-        public override void ProcessComponents()
+        protected override void ProcessComponents()
         {
-            HostComponent hostData = _EntityManager.GetComponentData<HostComponent>(_Entity);
-            hostData.HostIndex = _EntityIndex;
+            HostComponent hostData = Manager.GetComponentData<HostComponent>(ElementEntity);
+            hostData.HostIndex = EntityIndex;
             hostData.WorldPos = SpeakerTarget.position;
-            _EntityManager.SetComponentData(_Entity, hostData);
+            Manager.SetComponentData(ElementEntity, hostData);
 
             bool connected = GrainBrain.Instance.IsSpeakerAtIndex(hostData.SpeakerIndex, out SpeakerAuthoring speaker);
             _InListenerRadius = hostData.InListenerRadius;
@@ -226,7 +226,7 @@ namespace PlaneWaver
             }
         }
 
-        public override void Deregister()
+        protected override void Deregister()
         {
             if (GrainBrain.Instance != null)
                 GrainBrain.Instance.DeregisterHost(this);
@@ -272,53 +272,53 @@ namespace PlaneWaver
 
         #region COLLISION HANDLING
 
-        public void OnCollisionEnter(Collision collision)
-        {
-            GameObject other = collision.collider.gameObject;
-            _CollidingObjects.Add(other);
-
-            if (ContactAllowed(other)) _LocalActor.LatestCollision = collision;
-
-            if (_Spawner == null || _Spawner.CollisionAllowed(_LocalTransform.gameObject, other))
-            {
-                foreach (EmitterAuthoring emitter in _HostedEmitters)
-                    emitter.NewCollision(collision);
-            }
-        }
-
-        public void OnCollisionStay(Collision collision)
-        {
-            Collider collider = collision.collider;
-            _IsColliding = true;
-
-            if (ContactAllowed(collider.gameObject))
-            {
-                _LocalActor.IsColliding = true;
-
-                foreach (EmitterAuthoring emitter in _HostedEmitters)
-                    emitter.UpdateContactStatus(collision);
-            }
-        }
-
-        public void OnCollisionExit(Collision collision)
-        {
-            _CollidingObjects.Remove(collision.collider.gameObject);
-
-            if (_CollidingObjects.Count == 0)
-            {
-                _IsColliding = false;
-                _LocalActor.IsColliding = false;
-                _TargetCollidingRigidity = 0;
-                _CollidingRigidity = 0;
-                foreach (EmitterAuthoring emitter in _HostedEmitters)
-                    emitter.UpdateContactStatus(null);
-            }
-        }
-
-        public bool ContactAllowed(GameObject other)
-        {
-            return _Spawner == null || _Spawner.ContactAllowed(gameObject, other);
-        }
+        // public void OnCollisionEnter(Collision collision)
+        // {
+        //     GameObject other = collision.collider.gameObject;
+        //     _CollidingObjects.Add(other);
+        //
+        //     if (ContactAllowed(other)) _LocalActor.LatestCollision = collision;
+        //
+        //     if (_Spawner == null || _Spawner.CollisionAllowed(_LocalTransform.gameObject, other))
+        //     {
+        //         foreach (EmitterAuthoring emitter in _HostedEmitters)
+        //             emitter.NewCollision(collision);
+        //     }
+        // }
+        //
+        // public void OnCollisionStay(Collision collision)
+        // {
+        //     Collider collider = collision.collider;
+        //     _IsColliding = true;
+        //
+        //     if (ContactAllowed(collider.gameObject))
+        //     {
+        //         _LocalActor.IsColliding = true;
+        //
+        //         foreach (EmitterAuthoring emitter in _HostedEmitters)
+        //             emitter.UpdateContactStatus(collision);
+        //     }
+        // }
+        //
+        // public void OnCollisionExit(Collision collision)
+        // {
+        //     _CollidingObjects.Remove(collision.collider.gameObject);
+        //
+        //     if (_CollidingObjects.Count == 0)
+        //     {
+        //         _IsColliding = false;
+        //         _LocalActor.IsColliding = false;
+        //         _TargetCollidingRigidity = 0;
+        //         _CollidingRigidity = 0;
+        //         foreach (EmitterAuthoring emitter in _HostedEmitters)
+        //             emitter.UpdateContactStatus(null);
+        //     }
+        // }
+        //
+        // public bool ContactAllowed(GameObject other)
+        // {
+        //     return _Spawner == null || _Spawner.ContactAllowed(gameObject, other);
+        // }
 
         #endregion
 

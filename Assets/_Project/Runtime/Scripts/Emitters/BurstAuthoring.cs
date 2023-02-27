@@ -82,20 +82,20 @@ namespace PlaneWaver
 
         #region BANGIN BURST COMPONENT INIT
 
-        public override void SetEntityType()
+        protected override void SetElementType()
         {
             _EmitterType = EmitterType.Burst;
-            _EntityType = SynthEntityType.Emitter;
-            _Archetype = _EntityManager.CreateArchetype(typeof(BurstComponent));
+            ElementType = SynthElementType.Emitter;
+            Archetype = Manager.CreateArchetype(typeof(BurstComponent));
             _IsPlaying = false;
         }
 
-        public override void InitialiseComponents()
+        protected override void InitialiseComponents()
         {
-            _EntityManager.AddComponentData(_Entity, new BurstComponent
+            Manager.AddComponentData(ElementEntity, new BurstComponent
             {
                 IsPlaying = false,
-                EmitterIndex = _EntityIndex,
+                EmitterIndex = EntityIndex,
                 AudioClipIndex = _AudioAsset.ClipEntityIndex,
                 SpeakerIndex = Host.AttachedSpeakerIndex,
                 HostIndex = Host.EntityIndex,
@@ -180,26 +180,26 @@ namespace PlaneWaver
                 }
             });
 
-            _EntityManager.AddBuffer<DSPParametersElement>(_Entity);
-            DynamicBuffer<DSPParametersElement> dspParams = _EntityManager.GetBuffer<DSPParametersElement>(_Entity);
+            Manager.AddBuffer<DSPParametersElement>(ElementEntity);
+            DynamicBuffer<DSPParametersElement> dspParams = Manager.GetBuffer<DSPParametersElement>(ElementEntity);
 
             for (int i = 0; i < _DSPChainParams.Length; i++)
                 dspParams.Add(_DSPChainParams[i].GetDSPBufferElement());
 
-            _EntityManager.AddComponentData(_Entity, new QuadEntityType { _Type = QuadEntityType.QuadEntityTypeEnum.Emitter });
+            Manager.AddComponentData(ElementEntity, new QuadEntityType { _Type = QuadEntityType.QuadEntityTypeEnum.Emitter });
         }
 
         #endregion
 
         #region BUOYANT BURST COMPONENT UPDATE
 
-        public override void ProcessComponents()
+        protected override void ProcessComponents()
         {
             UpdateEntityTags();
 
             if (_IsPlaying)
             {
-                BurstComponent entity = _EntityManager.GetComponentData<BurstComponent>(_Entity);
+                BurstComponent entity = Manager.GetComponentData<BurstComponent>(ElementEntity);
 
                 entity.IsPlaying = true;
                 entity.AudioClipIndex = _AudioAsset.ClipEntityIndex;
@@ -292,7 +292,7 @@ namespace PlaneWaver
                     FixedEnd = _TransposeFixedEnd,
                     Input = _TransposeModulation.GetProcessedValue()
                 };
-                _EntityManager.SetComponentData(_Entity, entity);
+                Manager.SetComponentData(ElementEntity, entity);
 
                 UpdateDSPEffectsBuffer();
                 // Burst emitters generate their entire output in one pass, so switching off

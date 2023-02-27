@@ -126,13 +126,14 @@ namespace PlaneWaver
             _activeObjects = new List<GameObject>();
         }
 
-        IEnumerator ClearCollisions()
+        private IEnumerator ClearCollisions()
         {
             while (true)
             {
                 yield return new WaitForEndOfFrame();
                 _collidedThisUpdate.Clear();
             }
+            // ReSharper disable once IteratorNeverReturns
         }
 
         private bool InitialiseSpawner()

@@ -306,6 +306,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 610769173}
+  - component: {fileID: 610769174}
   m_Layer: 0
   m_Name: GrainFrame
   m_TagString: Untagged
@@ -328,6 +329,35 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &610769174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610769172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d167efd7e0ffb4cbcaa90e4e7ac6de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ActorObject: {fileID: 0}
+  SpeakerTarget: {fileID: 0}
+  SpeakerTransform: {fileID: 0}
+  MaterialModulator:
+    _Enabled: 1
+    _Renderer: {fileID: 0}
+    _Colour: {r: 0, g: 0, b: 0, a: 0}
+    _ColourParam: _EmissiveColor
+    _UseExistingColour: 1
+    _ActiveState: 0
+    _ActiveIntensity: 10
+    _InactiveIntensity: 0
+    _Smoothing: 0.5
+  ConstantEmitters: []
+  ContactEmitters: []
+  NonContactEmitters: []
+  CollisionEmitters: []
 --- !u!1 &1831216240
 GameObject:
   m_ObjectHideFlags: 0

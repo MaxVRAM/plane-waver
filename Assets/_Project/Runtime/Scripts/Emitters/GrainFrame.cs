@@ -20,7 +20,7 @@ namespace PlaneWaver
         [Header("Speaker Attachment")]
         [Tooltip("Parent transform for speakers to target. Defaults to this frame's Actor's transform.")]
         public Transform SpeakerTarget;
-        [Tooltip("Points to the speaker's transform when connected, otherwise the frame's Speaker Target.")]
+        [Tooltip("Assigned to the speaker's transform when connected, otherwise the frame's Speaker Target.")]
         public Transform SpeakerTransform;
         public MaterialColourModulator MaterialModulator = new();
         

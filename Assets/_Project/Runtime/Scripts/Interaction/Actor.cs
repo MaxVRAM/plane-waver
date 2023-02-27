@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
+using PlaneWaver.Modulation;
 using static MaxVRAM.MaxMath;
 
 namespace PlaneWaver

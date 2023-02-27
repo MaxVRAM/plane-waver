@@ -83,6 +83,7 @@ namespace PlaneWaver
 
         #region ENTITY-SPECIFIC START CALL
 
+        protected virtual void InitialiseEmitter() { }
 
         public void InitialiseByHost(HostAuthoring host)
         {
@@ -97,16 +98,16 @@ namespace PlaneWaver
             UpdateContactStatus(null);
             InitialisePerlinNoise();
             InitialiseModulationInputs();
-
+            ElementType = SynthElementType.Emitter;
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            SetIndex(GrainBrain.Instance.RegisterEmitter(this));
+            InitialiseEmitter();
         }
 
-        public virtual ModulationInput[] GatherModulationInputs() { return new ModulationInput[0]; }
+        protected virtual ModulationInput[] GatherModulationInputs() { return new ModulationInput[0]; }
 
-        public void InitialiseModulationInputs()
+        private void InitialiseModulationInputs()
         { 
-            foreach (var input in GatherModulationInputs())
+            foreach (ModulationInput input in GatherModulationInputs())
                 input.SetLocalActor(Host._LocalActor);
         }
 
@@ -114,7 +115,7 @@ namespace PlaneWaver
 
         #region ERRORNOUS EMITTER COMPONENT BUSINESS
 
-        public void UpdateEntityTags()
+        protected void UpdateEntityTags()
         {
             if (_Host.InListenerRadius != Manager.HasComponent<InListenerRadiusTag>(ElementEntity))
             {
@@ -146,8 +147,8 @@ namespace PlaneWaver
             //--- TODO not sure if clearing and adding again is the best way to do this.
             DynamicBuffer<DSPParametersElement> dspBuffer = Manager.GetBuffer<DSPParametersElement>(ElementEntity);
             if (clear) dspBuffer.Clear();
-            for (int i = 0; i < _DSPChainParams.Length; i++)
-                dspBuffer.Add(_DSPChainParams[i].GetDSPBufferElement());
+            foreach (DSP_Class t in _DSPChainParams)
+                dspBuffer.Add(t.GetDSPBufferElement());
         }
 
         protected override void Deregister()
@@ -184,7 +185,7 @@ namespace PlaneWaver
         }
 
         // TODO: Move this over to Actor struct
-        public void UpdateContactStatus(Collision collision)
+        private void UpdateContactStatus(Collision collision)
         {
             if (_EmitterType != EmitterType.Continuous)
                 return;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
@@ -423,10 +424,6 @@ namespace PlaneWaver
             {
                 if (_Speakers[i] == null)
                     _Speakers[i] = CreateSpeaker(i);
-                if (_Speakers[i] != null && _Speakers[i].EntityIndex != i)
-                    _Speakers[i].SetIndex(i);
-                if (_Speakers[i] != null)
-                    _Speakers[i].SetGrainArraySize(_SpeakerGrainArraySize);
             }
             while (_Speakers.Count < SpeakersAllocated && _SpeakerAllocationTimer.DrainTrigger())
             {
@@ -439,13 +436,11 @@ namespace PlaneWaver
             }
         }
 
-        public bool IsSpeakerAtIndex(int index, out SpeakerAuthoring speaker)
+        public bool IsSpeakerAtIndex(int index, [CanBeNull] out SpeakerAuthoring speaker)
         {
-            if (index >= _Speakers.Count)
-                speaker = null;
-            else
-                speaker = _Speakers[index];
-            return speaker != null;
+            bool foundSpeaker = index >= 0 && index < _Speakers.Count;
+            speaker = _Speakers[index];
+            return foundSpeaker;
         }
 
         private SpeakerAuthoring GetSpeakerForGrain(GrainComponent grain)

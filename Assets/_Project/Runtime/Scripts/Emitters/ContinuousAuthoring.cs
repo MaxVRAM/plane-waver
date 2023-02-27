@@ -31,7 +31,7 @@ namespace PlaneWaver
         [HorizontalLine(color: EColor.Blue)]
         [Range(0f, 2f)] public float _VolumeIdle = 0f;
         public Vector2 _VolumeDefault = new(0, 1);
-        public float VolumeIdleNorm => Mathf.InverseLerp(Ranges._Volume.x, Ranges._Volume.y, _VolumeIdle);
+        public float VolumeIdleNorm => Mathf.InverseLerp(Ranges.Volume.x, Ranges.Volume.y, _VolumeIdle);
         public ModulationInput _VolumeModulation;
         public NoiseModule _VolumeNoise;
         public float VolumeModulated => _VolumeModulation.GetProcessedValue(VolumeIdleNorm);
@@ -39,33 +39,33 @@ namespace PlaneWaver
         [HorizontalLine(color: EColor.Blue)]
         [MinMaxSlider(0f, 1f)] public Vector2 _PlayheadStartPosition = new(0.25f,0.75f);
         [SerializeField] private float _PlayheadIdle = 0.5f;
-        public float PlayheadIdleNorm => Mathf.InverseLerp(Ranges._Playhead.x, Ranges._Playhead.y, _PlayheadIdle);
+        public float PlayheadIdleNorm => Mathf.InverseLerp(Ranges.Playhead.x, Ranges.Playhead.y, _PlayheadIdle);
         public ModulationInput _PlayheadModulation;
         public NoiseModule _PlayheadNoise;
         public float PlayheadModulated => _PlayheadModulation.GetProcessedValue(PlayheadIdleNorm);
 
         [HorizontalLine(color: EColor.Blue)]
         [Range(10f, 500f)] public float _DurationIdle = 80f;
-        public float DurationIdleNorm => Mathf.InverseLerp(Ranges._Duration.x, Ranges._Duration.y, _DurationIdle);
+        public float DurationIdleNorm => Mathf.InverseLerp(Ranges.Duration.x, Ranges.Duration.y, _DurationIdle);
         public ModulationInput _DurationModulation;
         public NoiseModule _DurationNoise;
         public float DurationModulated => _DurationModulation.GetProcessedValue(DurationIdleNorm);
 
         [HorizontalLine(color: EColor.Blue)]
         [Range(1f, 10f)] public float _DensityIdle = 3f;
-        public float DensityIdleNorm => Mathf.InverseLerp(Ranges._Density.x, Ranges._Density.y, _DensityIdle);
+        public float DensityIdleNorm => Mathf.InverseLerp(Ranges.Density.x, Ranges.Density.y, _DensityIdle);
         public ModulationInput _DensityModulation;
         public NoiseModule _DensityNoise;
         public float DensityModulated => _DensityModulation.GetProcessedValue(DensityIdleNorm);
 
         [HorizontalLine(color: EColor.Blue)]
         [Range(-3f, 3f)] public float _TransposeIdle = 0f;
-        public float TransposeIdleNorm => Mathf.InverseLerp(Ranges._Transpose.x, Ranges._Transpose.y, _TransposeIdle);
+        public float TransposeIdleNorm => Mathf.InverseLerp(Ranges.Transpose.x, Ranges.Transpose.y, _TransposeIdle);
         public ModulationInput _TransposeModulation;
         public NoiseModule _TransposeNoise;
         public float TransposeModulated => _TransposeModulation.GetProcessedValue(TransposeIdleNorm);
 
-        public override ModulationInput[] GatherModulationInputs()
+        protected override ModulationInput[] GatherModulationInputs()
         {
             ModulationInput[] modulationInputs = new ModulationInput[5];
             modulationInputs[0] = _VolumeModulation;
@@ -80,10 +80,9 @@ namespace PlaneWaver
 
         #region CONCISE CONTINUOUS COMPONENT INIT
 
-        protected override void SetElementType()
+        protected override void InitialiseEmitter()
         {
             _EmitterType = EmitterType.Continuous;
-            ElementType = SynthElementType.Emitter;
             Archetype = Manager.CreateArchetype(typeof(ContinuousComponent));
             _IsPlaying = _PlaybackCondition != Condition.NotColliding;
             _PlayheadIdle = Random.Range(_PlayheadStartPosition.x, _PlayheadStartPosition.y);
@@ -107,28 +106,28 @@ namespace PlaneWaver
 
                 Volume = new ModulationComponent
                 {
-                    Min = Ranges._Volume.x,
-                    Max = Ranges._Volume.y,
+                    Min = Ranges.Volume.x,
+                    Max = Ranges.Volume.y,
                 },
                 Playhead = new ModulationComponent
                 {
-                    Min = Ranges._Playhead.x,
-                    Max = Ranges._Playhead.y,
+                    Min = Ranges.Playhead.x,
+                    Max = Ranges.Playhead.y,
                 },
                 Duration = new ModulationComponent
                 {
-                    Min = Ranges._Duration.x,
-                    Max = Ranges._Duration.y,
+                    Min = Ranges.Duration.x,
+                    Max = Ranges.Duration.y,
                 },
                 Density = new ModulationComponent
                 {
-                    Min = Ranges._Density.x,
-                    Max = Ranges._Density.y,
+                    Min = Ranges.Density.x,
+                    Max = Ranges.Density.y,
                 },
                 Transpose = new ModulationComponent
                 {
-                    Min = Ranges._Transpose.x,
-                    Max = Ranges._Transpose.y,
+                    Min = Ranges.Transpose.x,
+                    Max = Ranges.Transpose.y,
                 }
             });
 
@@ -178,46 +177,46 @@ namespace PlaneWaver
                 {
                     StartValue = VolumeModulated * (_CollisionRigidityScaleVolume ? _ColliderRigidityVolume : 1),
                     Noise = _VolumeNoise.Amount,
-                    PerlinNoise = _VolumeNoise._Perlin,
+                    UsePerlin = _VolumeNoise._Perlin,
                     PerlinValue = GetPerlinValue(0, _VolumeNoise._Speed),
-                    Min = Ranges._Volume.x,
-                    Max = Ranges._Volume.y,
+                    Min = Ranges.Volume.x,
+                    Max = Ranges.Volume.y,
                 };
                 entity.Playhead = new ModulationComponent
                 {
                     StartValue = PlayheadModulated,
                     Noise = _PlayheadNoise.Amount,
-                    PerlinNoise = _PlayheadNoise._Perlin,
+                    UsePerlin = _PlayheadNoise._Perlin,
                     PerlinValue = GetPerlinValue(1, _PlayheadNoise._Speed),
-                    Min = Ranges._Playhead.x,
-                    Max = Ranges._Playhead.y,
+                    Min = Ranges.Playhead.x,
+                    Max = Ranges.Playhead.y,
                 };
                 entity.Duration = new ModulationComponent
                 {
                     StartValue = DurationModulated,
                     Noise = _DurationNoise.Amount,
-                    PerlinNoise = _DurationNoise._Perlin,
+                    UsePerlin = _DurationNoise._Perlin,
                     PerlinValue = GetPerlinValue(2, _DurationNoise._Speed),
-                    Min = Ranges._Duration.x,
-                    Max = Ranges._Duration.y,
+                    Min = Ranges.Duration.x,
+                    Max = Ranges.Duration.y,
                 };
                 entity.Density = new ModulationComponent
                 {
                     StartValue = DensityModulated,
                     Noise = _DensityNoise.Amount,
-                    PerlinNoise = _DensityNoise._Perlin,
+                    UsePerlin = _DensityNoise._Perlin,
                     PerlinValue = GetPerlinValue(3, _DensityNoise._Speed),
-                    Min = Ranges._Density.x,
-                    Max = Ranges._Density.y,
+                    Min = Ranges.Density.x,
+                    Max = Ranges.Density.y,
                 };
                 entity.Transpose = new ModulationComponent
                 {
                     StartValue = TransposeModulated,
                     Noise = _TransposeNoise.Amount,
-                    PerlinNoise = _TransposeNoise._Perlin,
+                    UsePerlin = _TransposeNoise._Perlin,
                     PerlinValue = GetPerlinValue(4, _TransposeNoise._Speed),
-                    Min = Ranges._Transpose.x,
-                    Max = Ranges._Transpose.y,
+                    Min = Ranges.Transpose.x,
+                    Max = Ranges.Transpose.y,
                 };
                 Manager.SetComponentData(ElementEntity, entity);
 

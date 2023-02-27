@@ -1,9 +1,12 @@
 using UnityEngine;
 using System;
 
+using NaughtyAttributes;
+
 using MaxVRAM;
 using MaxVRAM.Extensions;
-using NaughtyAttributes;
+
+using PlaneWaver.Modulation;
 
 namespace PlaneWaver
 {

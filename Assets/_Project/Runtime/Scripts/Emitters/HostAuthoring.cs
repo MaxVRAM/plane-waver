@@ -92,9 +92,10 @@ namespace PlaneWaver
         {
             InitialiseModules();
 
+            ElementType = SynthElementType.Host;
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
             Archetype = Manager.CreateArchetype(typeof(HostComponent));
-            SetIndex(GrainBrain.Instance.RegisterHost(this));
+            InitialiseEntity();
         }
 
         public void InitialiseModules()
@@ -105,9 +106,6 @@ namespace PlaneWaver
                 if (!_LocalTransform.TryGetComponent(out _SpawnLife))
                     _SpawnLife = _LocalTransform.gameObject.AddComponent<SpawnableManager>();
             }
-
-            // _LocalActor = new(_LocalTransform);
-            // _RemoteActor = _RemoteTransform != null ? new(_RemoteTransform) : null;
 
             InitialiseSpeakerAttachment();
             InitialiseSurfaceProperties();
@@ -131,12 +129,6 @@ namespace PlaneWaver
             }
 
             SpeakerTransform = SpeakerTarget;
-
-            //if (!_SpeakerTarget.TryGetComponent(out _SpeakerAttachmentLine))
-            //    _SpeakerAttachmentLine = _SpeakerTarget.gameObject.AddComponent<AttachmentLine>();
-            //{
-            //    _SpeakerAttachmentLine._TransformA = _SpeakerTarget;
-            //}
         }
 
         private void InitialiseSurfaceProperties()
@@ -172,12 +164,7 @@ namespace PlaneWaver
         #endregion
 
         #region HEFTY HOST COMPONENT BUSINESS
-
-        protected override void SetElementType()
-        {
-            ElementType = SynthElementType.Host;
-        }
-
+        
         protected override void InitialiseComponents()
         {
             Manager.SetComponentData(ElementEntity, new HostComponent

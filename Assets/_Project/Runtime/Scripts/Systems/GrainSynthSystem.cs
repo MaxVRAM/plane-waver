@@ -422,7 +422,7 @@ public partial class GrainSynthSystem : SystemBase
     public static float ComputeEmitterParameter(ModulationComponent mod, float randomValue)
     {
         float parameterRange = Mathf.Abs(mod.Max - mod.Min);
-        float random = mod.PerlinNoise ? mod.PerlinValue * mod.Noise : randomValue * mod.Noise;
+        float random = mod.UsePerlin ? mod.PerlinValue * mod.Noise : randomValue * mod.Noise;
         return Mathf.Clamp(mod.Min + (mod.StartValue + random) * parameterRange, mod.Min, mod.Max);
     }
 

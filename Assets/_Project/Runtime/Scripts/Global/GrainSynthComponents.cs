@@ -162,7 +162,7 @@ public struct ModulationComponent : IComponentData
     public float StartValue;
     public float EndValue;
     public float Noise;
-    public bool PerlinNoise;
+    public bool UsePerlin;
     public bool LockNoise;
     public float PerlinValue;
     public float Exponent;

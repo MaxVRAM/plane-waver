@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using UnityEngine;
 using Unity.Entities;
@@ -21,7 +22,7 @@ namespace PlaneWaver.Emitters
         private Entity _emitterEntity;
         private bool _entityInitialised;
         
-        public PropagateCondition Propagation;
+        public PropagateCondition PlaybackCondition;
         public EmitterObject EmitterAsset;
         [Range(0f, 2f)] public float EmitterVolume = 1;
         public DynamicAmplitude Amplitude;
@@ -56,10 +57,10 @@ namespace PlaneWaver.Emitters
             if (EmitterAsset.AudioAsset == null)
                 throw new Exception("EmitterAuth: EmitterAsset.AudioAsset is null.");
 
-            if (Propagation == PropagateCondition.Volatile && !IsVolatile)
+            if (PlaybackCondition == PropagateCondition.Volatile && !IsVolatile)
                 throw new Exception("EmitterAuth: PlaybackType is Volatile but EmitterAsset is not Volatile.");
 
-            if (Propagation != PropagateCondition.Volatile && IsVolatile)
+            if (PlaybackCondition != PropagateCondition.Volatile && IsVolatile)
                 throw new Exception("EmitterAuth: PlaybackType is not Volatile but EmitterAsset is Volatile.");
             
             EmitterAsset.InitialiseParameters(_actor);
@@ -78,7 +79,7 @@ namespace PlaneWaver.Emitters
 #if UNITY_EDITOR
             _manager.SetName(
                 _emitterEntity,
-                _frameName + "." + EntityIndex + "." + Enum.GetName(typeof(PropagateCondition), Propagation)
+                _frameName + "." + EntityIndex + "." + Enum.GetName(typeof(PropagateCondition), PlaybackCondition)
             );
 #endif
             _entityInitialised = true;
@@ -126,33 +127,30 @@ namespace PlaneWaver.Emitters
         
         public void UpdateEmitterEntity(bool isConnected, int speakerIndex)
         {
-            _isConnected = isConnected;
-            
             if (!_entityInitialised)
                 return;
+
+            _isConnected = isConnected;
             
-            
-            if (IsVolatile)
+            if (!_isConnected || (IsVolatile && !_isPlaying))
             {
-                if (_isPlaying)
-                {
-                    if (!_isConnected)
-                    {
-                        _manager.RemoveComponent<EmitterPlaybackReadyTag>(_emitterEntity);
-                        _isConnected = false;
-                    }
-                }
-                else
-                {
-                    if (_isConnected)
-                    {
-                        _manager.AddComponentData(_emitterEntity, new EmitterPlaybackReadyTag());
-                        _isConnected = true;
-                    }
-                }
+                _isPlaying = false;
+                _manager.RemoveComponent<EmitterPlaybackReadyTag>(_emitterEntity);
+                return;
             }
             
-            _manager.SetComponentData(_emitterEntity, UpdateEmitterComponent());
+            if (!IsVolatile)
+                _isPlaying = _actor.IsColliding || PlaybackCondition != PropagateCondition.Contact;
+            
+            if (!_isConnected || !_isPlaying)
+            {
+                _manager.RemoveComponent<EmitterPlaybackReadyTag>(_emitterEntity);
+                return;
+            }
+            
+            var data = _manager.GetComponentData<EmitterComponent>(_emitterEntity);
+            UpdateEmitterComponent(ref data);
+            _manager.SetComponentData(_emitterEntity, data);
             
             if (IsVolatile)
                 _isPlaying = false;
@@ -162,26 +160,25 @@ namespace PlaneWaver.Emitters
 
         #region UPDATE EMITTER COMPONENT
         
-        public EmitterComponent UpdateEmitterComponent()
+        public void UpdateEmitterComponent(ref EmitterComponent data)
         {
-            IEnumerable<ModComponent> modulations = EmitterAsset.BuildModulations(_actor);
-            
-            return new EmitterComponent
+            ModComponent[] modulations = EmitterAsset.BuildModulations(_actor);
+            data = new EmitterComponent
             {
                 AudioClipIndex = EmitterAsset.AudioAsset.ClipEntityIndex,
-                LastSampleIndex = -1,
-                SamplesUntilFade = -1,
-                SamplesUntilDeath = -1,
-                LastGrainDuration = -1,
+                LastSampleIndex = data.LastSampleIndex,
+                SamplesUntilFade = _actor.ActorLifeController.SamplesUntilFade(EmitterAsset.AgeFadeOut),
+                SamplesUntilDeath = _actor.ActorLifeController.SamplesUntilDeath(),
+                LastGrainDuration = data.LastGrainDuration,
                 ReflectPlayhead = ReflectPlayhead,
                 EmitterVolume = EmitterVolume,
                 DynamicAmplitude = Amplitude.CalculateAmplitudeMultiplier(_isConnected, _actor),
-                ParamVolume = EmitterAsset.ParamVolume.GetModComponent(),
-                ParamPlayhead = EmitterAsset.ParamPlayhead.GetModComponent(),
-                ParamDuration = EmitterAsset.ParamDuration.GetModComponent(),
-                ParamDensity = EmitterAsset.ParamDensity.GetModComponent(),
-                ParamTranspose = EmitterAsset.ParamTranspose.GetModComponent(),
-                ParamLength = IsVolatile ? EmitterAsset.ParamLength.GetModComponent() : new ModComponent()
+                ParamVolume = modulations[0],
+                ParamPlayhead = modulations[1],
+                ParamDuration = modulations[2],
+                ParamDensity = modulations[3],
+                ParamTranspose = modulations[4],
+                ParamLength = IsVolatile ? modulations[5] : new ModComponent()
             };
         }
         
@@ -207,6 +204,6 @@ namespace PlaneWaver.Emitters
     }
     
     public struct EmitterPlaybackReadyTag : IComponentData { }
-    public struct AloneOnSpeakerTag : IComponentData { }
     public struct EmitterVolatileTag : IComponentData { }
+    public struct AloneOnSpeakerTag : IComponentData { }
 }

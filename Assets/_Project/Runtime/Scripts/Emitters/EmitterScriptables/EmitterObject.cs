@@ -21,6 +21,8 @@ namespace PlaneWaver.Emitters
         public Parameter Density = new Parameter(ParamDefault.Density);
         public Parameter Transpose = new Parameter(ParamDefault.Transpose);
 
+        [Range(0f,1f)] public float AgeFadeOut = 0.95f;
+        
         protected Actor ActorObject;
         protected int ParameterCount = 5;
         protected float[] PreviousSmoothedValues;
@@ -44,7 +46,7 @@ namespace PlaneWaver.Emitters
 
         #region PARAMETER COMPONENT BUILDERS
 
-        public virtual IEnumerable<ModComponent> BuildModulations(Actor actor) { return null; }
+        public virtual ModComponent[] BuildModulations(Actor actor) { return null; }
 
         #endregion
     }

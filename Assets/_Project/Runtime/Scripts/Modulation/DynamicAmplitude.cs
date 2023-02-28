@@ -14,7 +14,7 @@ namespace PlaneWaver.Modulation
         public bool MuteOnDisconnection;
         private bool _muted;
         private float _reconnectionTimer;
-        [Range(0,200)] public int ReconnectionFadeInMS;
+        [Range(0,500)] public int ReconnectionFadeInMS;
         
         public DynamicAmplitude()
         {
@@ -24,7 +24,7 @@ namespace PlaneWaver.Modulation
             MuteOnDisconnection = true;
             _muted = false;
             _reconnectionTimer = 0;
-            ReconnectionFadeInMS = 50;
+            ReconnectionFadeInMS = 100;
         }
 
         public float CalculateAmplitudeMultiplier(bool connected, Actor actor)
@@ -71,23 +71,24 @@ namespace PlaneWaver.Modulation
             return DistanceFactor * (1 - actor.DistanceFromListener()); 
         }
         
+        // TODO - Not implemented yet. Move these calculations to the Synthesis system for sample accuracy fades.
         public float CalculateAgeAmplitude(Actor actor)
         {
-            if (actor == null || actor.ActorLifeController.LiveForever)
-                return 1;
-            
-            float age = actor.ActorLifeController.NormalisedAge();
-            
-            if (age < AgeFadeIn)
-                return !Mathf.Approximately(AgeFadeIn, 0)
-                    ? Mathf.Clamp01(actor.ActorLifeController.NormalisedAge() / AgeFadeIn)
-                    : 1;
-
-            if (age > AgeFadeOut)
-                return !Mathf.Approximately(AgeFadeOut, 1)
-                    ? Mathf.Clamp01(1 - actor.ActorLifeController.NormalisedAge() / AgeFadeOut)
-                    : 1;
-            
+            // if (actor == null || actor.ActorLifeController.LiveForever)
+            //     return 1;
+            //
+            // float age = actor.ActorLifeController.NormalisedAge();
+            //
+            // if (age < AgeFadeIn)
+            //     return !Mathf.Approximately(AgeFadeIn, 0)
+            //         ? Mathf.Clamp01(actor.ActorLifeController.NormalisedAge() / AgeFadeIn)
+            //         : 1;
+            //
+            // if (age > AgeFadeOut)
+            //     return !Mathf.Approximately(AgeFadeOut, 1)
+            //         ? Mathf.Clamp01(1 - actor.ActorLifeController.NormalisedAge() / AgeFadeOut)
+            //         : 1;
+            //
             return 1;
         }
     }

@@ -29,7 +29,7 @@ namespace PlaneWaver.Emitters
         
         #region PARAMETER COMPONENT BUILDERS
 
-        public override IEnumerable<ModComponent> BuildModulations(Actor actor)
+        public override ModComponent[] BuildModulations(Actor actor)
         {
             if (!IsInitialised)
                 throw new System.Exception("StableEmitter: Attempted to build ModComponents before initialisation.");

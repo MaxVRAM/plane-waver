@@ -14,12 +14,7 @@ using NaughtyAttributes;
 using MaxVRAM.Ticker;
 using MaxVRAM.Audio;
 
-// PROJECT AUDIO CONFIGURATION NOTES
-// ---------------------------------
-// DSP Buffer size in audio settings
-// Best performance - 46.43991
-// Good latency - 23.21995
-// Best latency - 11.60998
+using PlaneWaver.Emitters;
 
 namespace PlaneWaver
 {
@@ -72,7 +67,7 @@ namespace PlaneWaver
         [BoxGroup("Audio Config")][Range(0, 40)] public float _BurstStartOffsetRangeMS = 8;
         [Tooltip("Burst emitters ignore subsequent collisions for this duration to avoid fluttering from weird physics.")]
         [BoxGroup("Audio Config")][Range(0, 50)] public float _BurstDebounceDurationMS = 25;
-        [BoxGroup("Audio Config")][SerializeField] private WindowFunction _GrainEnvelope;
+        [BoxGroup("Audio Config")][SerializeField] private Windowing _GrainEnvelope;
 
         private int _samplesPerMS = 0;
         public int SampleRate => _sampleRate;
@@ -285,7 +280,7 @@ namespace PlaneWaver
             using BlobBuilder blobTheBuilder = new BlobBuilder(Allocator.Temp);
             ref FloatBlobAsset windowingBlobAsset = ref blobTheBuilder.ConstructRoot<FloatBlobAsset>();
 
-            BlobBuilderArray<float> windowArray = blobTheBuilder.Allocate(ref windowingBlobAsset.Array, _GrainEnvelope._EnvelopeSize);
+            BlobBuilderArray<float> windowArray = blobTheBuilder.Allocate(ref windowingBlobAsset.Array, _GrainEnvelope.EnvelopeSize);
 
             for (int i = 0; i < windowArray.Length; i++)
                 windowArray[i] = window[i];

@@ -17,8 +17,8 @@ namespace PlaneWaver.Modulation
         public static float ProcessModulation(Parameter parameter, float inputValue)
         {
             float outputValue = 0;
-            float input = inputValue * parameter.InputMultiplier;
-            float inputNormalised = Mathf.InverseLerp(parameter.InputRange.x, parameter.InputRange.y, input);
+            float input = inputValue * parameter.ModInputMultiplier;
+            float inputNormalised = Mathf.InverseLerp(parameter.ModInputRange.x, parameter.ModInputRange.y, input);
             float preSmoothing = parameter.Accumulate ? parameter.PreviousValue + inputNormalised : inputNormalised;
             float smoothedValue = parameter.PreviousValue.Smooth(preSmoothing, parameter.Smoothing);
             parameter.PreviousValue = smoothedValue;
@@ -26,25 +26,25 @@ namespace PlaneWaver.Modulation
             if (parameter.VolatileEmitter)
                 outputValue = parameter.LimiterMode switch
                 {
-                    ValueLimiter.Clip     => Mathf.Clamp(smoothedValue, 0, 1),
-                    ValueLimiter.Repeat   => smoothedValue.RepeatNorm(),
-                    ValueLimiter.PingPong => smoothedValue.PingPongNorm(),
+                    ModulationLimiter.Clip     => Mathf.Clamp(smoothedValue, 0, 1),
+                    ModulationLimiter.Repeat   => smoothedValue.RepeatNorm(),
+                    ModulationLimiter.PingPong => smoothedValue.PingPongNorm(),
                     _                     => smoothedValue
                 };
             else
                 outputValue = parameter.LimiterMode switch
                 {
-                    ValueLimiter.Clip => parameter.OutputOffset +
+                    ModulationLimiter.Clip => parameter.OutputOffset +
                                          Mathf.Pow(
                                              Mathf.Clamp01(smoothedValue),
-                                             parameter.ModulationExponent
-                                         ) * parameter.ModulationInfluence,
-                    ValueLimiter.Repeat => smoothedValue.RepeatNorm(
-                        parameter.ModulationInfluence,
+                                             parameter.ModExponent
+                                         ) * parameter.ModInfluence,
+                    ModulationLimiter.Repeat => smoothedValue.RepeatNorm(
+                        parameter.ModInfluence,
                         parameter.OutputOffset
                     ),
-                    ValueLimiter.PingPong => smoothedValue.PingPongNorm(
-                        parameter.ModulationInfluence,
+                    ModulationLimiter.PingPong => smoothedValue.PingPongNorm(
+                        parameter.ModInfluence,
                         parameter.OutputOffset
                     ),
                     _ => smoothedValue

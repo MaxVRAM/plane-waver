@@ -15,7 +15,7 @@ namespace PlaneWaver
 
         public int EntityIndex { get; private set; }
         protected EntityManager Manager;
-        protected EntityArchetype Archetype;
+        protected EntityArchetype ElementArchetype;
         protected Entity ElementEntity;
         protected SynthElementType ElementType = SynthElementType.Blank;
         protected bool EntityInitialised;
@@ -34,7 +34,7 @@ namespace PlaneWaver
         protected void InitialiseEntity()
         {
             EntityIndex = GrainBrain.Instance.RegisterEntity(this, ElementType);
-            ElementEntity = Manager.CreateEntity(Archetype);
+            ElementEntity = Manager.CreateEntity(ElementArchetype);
             name = $"{Enum.GetName(typeof(SynthElementType), ElementType)}.{EntityIndex}";
 #if UNITY_EDITOR
             Manager.SetName(ElementEntity, name);

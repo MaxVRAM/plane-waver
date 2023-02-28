@@ -1,51 +1,50 @@
-using System;
 
 using UnityEngine;
 
 namespace PlaneWaver.Modulation
 {
-    public enum ValueLimiter
-    {
-        Clip, Repeat, PingPong
-    }
-
-    public enum InputOnNewValue
-    {
-        Replace, Accumulate
-    }
-
-    public enum InputSourceGroups
+    public enum ModulationSourceGroups
     {
         General, PrimaryActor, LinkedActors,
         ActorCollisions
     }
 
-    public enum GeneralSources
+    public enum ModulationSourceMisc
     {
-        StaticValue, TimeSinceStart, DeltaTime,
+        Disabled, TimeSinceStart, DeltaTime,
         SpawnAge, SpawnAgeNorm
     }
 
-    public enum PrimaryActorSources
+    public enum ModulationSourceActor
     {
-        Scale, Mass, MassTimesScale,
-        Speed, AngularSpeed, Acceleration,
+        Speed, Scale, Mass,
+        MassTimesScale, AngularSpeed, Acceleration,
         SlideMomentum, RollMomentum
     }
 
-    public enum LinkedActorSources
+    public enum ModulationSourceRelational
     {
         DistanceX, DistanceY, DistanceZ,
         Radius, Polar, Elevation,
         RelativeSpeed, TangentialSpeed
     }
 
-    public enum ActorCollisionSources
+    public enum ModulationSourceCollision
     {
         CollisionSpeed, CollisionForce
     }
 
-    public struct ParamDefaults
+    public enum ModulationLimiter
+    {
+        Clip, Repeat, PingPong
+    }
+
+    public enum ModulationAccumulate
+    {
+        Replace, Accumulate
+    }
+
+    public struct ParamDefault
     {
         public readonly int Index;
         public readonly string Name;
@@ -54,8 +53,8 @@ namespace PlaneWaver.Modulation
         public readonly bool FixedStart;
         public readonly bool FixedEnd;
 
-        public ParamDefaults(int index, string name, Vector2 range,
-                                 bool volatileOnly, bool fixedStart, bool fixedEnd)
+        public ParamDefault(int index, string name, Vector2 range,
+                            bool volatileOnly, bool fixedStart, bool fixedEnd)
         {
             Index = index;
             Name = name;
@@ -65,17 +64,53 @@ namespace PlaneWaver.Modulation
             FixedEnd = fixedEnd;
         }
 
-        public static ParamDefaults Volume = new(
-            0, "Volume", new Vector2(0f, 2f), false, false, true);
-        public static ParamDefaults Playhead = new(
-            1, "Playhead", new Vector2(0f, 1f), false, false, false);
-        public static ParamDefaults Duration = new(
-            2, "Duration", new Vector2(10f, 500f), false, false, false);
-        public static ParamDefaults Density = new(
-            3, "Density", new Vector2(0.1f, 10f), false, false, false);
-        public static ParamDefaults Transpose = new(
-            4, "Transpose", new Vector2(-3f, 3f), false, false, false);
-        public static ParamDefaults Length = new(
-            5, "Length", new Vector2(10f, 1000f), true, true, true);
+        public static ParamDefault Volume = new(
+            0,
+            "Volume",
+            new Vector2(0f, 2f),
+            false,
+            false,
+            true
+        );
+        public static ParamDefault Playhead = new(
+            1,
+            "Playhead",
+            new Vector2(0f, 1f),
+            false,
+            false,
+            false
+        );
+        public static ParamDefault Duration = new(
+            2,
+            "Duration",
+            new Vector2(10f, 500f),
+            false,
+            false,
+            false
+        );
+        public static ParamDefault Density = new(
+            3,
+            "Density",
+            new Vector2(0.1f, 10f),
+            false,
+            false,
+            false
+        );
+        public static ParamDefault Transpose = new(
+            4,
+            "Transpose",
+            new Vector2(-3f, 3f),
+            false,
+            false,
+            false
+        );
+        public static ParamDefault Length = new(
+            5,
+            "Length",
+            new Vector2(10f, 1000f),
+            true,
+            true,
+            true
+        );
     }
 }

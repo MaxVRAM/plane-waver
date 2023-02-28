@@ -11,6 +11,11 @@ namespace MaxVRAM.Noise
             return Mathf.PerlinNoise(x, y);
         }
         
+        public static float Perlin(Vector2 position)
+        {
+            return Mathf.PerlinNoise(position.x, position.y);
+        }
+        
         public struct Perlin2D
         {
             public float X;

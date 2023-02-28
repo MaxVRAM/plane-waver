@@ -83,7 +83,7 @@ namespace PlaneWaver
         protected override void InitialiseEmitter()
         {
             _EmitterType = EmitterType.Continuous;
-            Archetype = Manager.CreateArchetype(typeof(ContinuousComponent));
+            ElementArchetype = Manager.CreateArchetype(typeof(ContinuousComponent));
             _IsPlaying = _PlaybackCondition != Condition.NotColliding;
             _PlayheadIdle = Random.Range(_PlayheadStartPosition.x, _PlayheadStartPosition.y);
         }

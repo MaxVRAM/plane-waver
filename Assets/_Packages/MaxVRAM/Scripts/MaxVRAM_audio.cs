@@ -1,69 +1,68 @@
 ﻿using System;
 using UnityEngine;
 
+// PROJECT AUDIO CONFIGURATION NOTES
+// ---------------------------------
+// DSP Buffer size in audio settings
+// Best performance - 46.43991
+// Good latency - 23.21995
+// Best latency - 11.60998
+
 namespace MaxVRAM.Audio
 {
     [Serializable]
-    public class WindowFunction
+    public class Windowing
     {
         // Source: https://michaelkrzyzaniak.com/AudioSynthesis/2_Audio_Synthesis/11_Granular_Synthesis/1_Window_Functions/
-        public enum FunctionSelect { sine = 0, hann = 1, hamming = 2, tukey = 3, gaussian = 4 }
-        public FunctionSelect _WindowFunction = FunctionSelect.hann;
+        public enum FunctionSelect { Sine = 0, Hann = 1, Hamming = 2, Tukey = 3, Gaussian = 4 }
+        public FunctionSelect WindowFunction;
 
-        public int _EnvelopeSize = 512;
-        [Range(0.1f, 1.0f)] public float _TukeyHeight = 0.5f;
-        [Range(0.1f, 1.0f)] public float _GaussianSigma = 0.5f;
-        [Range(0.0f, 0.5f)] public float _LinearInOutFade = 0.1f;
+        public int EnvelopeSize;
+        [Range(0.1f, 1.0f)] public float TukeyHeight;
+        [Range(0.1f, 1.0f)] public float GaussianSigma;
+        [Range(0.0f, 0.5f)] public float LinearInOutFade;
 
-        private float[] _WindowArray;
-        public float[] WindowArray { get { return _WindowArray; } }
+        public float[] WindowArray { get; private set; }
 
-        public WindowFunction(FunctionSelect windowFunction, int envelopeSize, float tukeyHeight, float gaussianSigma, float linearInOutFade)
+        public Windowing(FunctionSelect windowFunction, int envelopeSize = 512, float tukeyHeight = 0.5f, float gaussianSigma = 0.5f, float linearInOutFade = 0.01f)
         {
-            _WindowFunction = windowFunction;
-            _EnvelopeSize = envelopeSize;
-            _TukeyHeight = tukeyHeight;
-            _GaussianSigma = gaussianSigma;
-            _LinearInOutFade = linearInOutFade;
+            WindowFunction = windowFunction;
+            EnvelopeSize = envelopeSize;
+            TukeyHeight = tukeyHeight;
+            GaussianSigma = gaussianSigma;
+            LinearInOutFade = linearInOutFade;
         }
-
+        
         public float[] BuildWindowArray()
         {
-            _WindowArray = new float[_EnvelopeSize];
-            for (int i = 1; i < _WindowArray.Length; i++)
-                _WindowArray[i] = AmplitudeAtIndex(i);
-            return _WindowArray;
+            WindowArray = new float[EnvelopeSize];
+            for (var i = 1; i < WindowArray.Length; i++)
+                WindowArray[i] = AmplitudeAtIndex(i);
+            return WindowArray;
         }
 
         public float AmplitudeAtIndex(int index)
         {
             float amplitude = ApplyFunction(index);
-            amplitude *= MaxMath.FadeInOut((float)index / (_EnvelopeSize - 1), _LinearInOutFade);
+            amplitude *= MaxMath.FadeInOut((float)index / (EnvelopeSize - 1), LinearInOutFade);
             return amplitude;
         }
 
         private float ApplyFunction(int index)
         {
-            float amplitude = 1;
-
-            switch (_WindowFunction)
+            float amplitude = WindowFunction switch
             {
-                case FunctionSelect.sine:
-                    amplitude = Mathf.Sin(Mathf.PI * index / _EnvelopeSize);
-                    break;
-                case FunctionSelect.hann:
-                    amplitude = 0.5f * (1 - Mathf.Cos(2 * Mathf.PI * index / _EnvelopeSize));
-                    break;
-                case FunctionSelect.hamming:
-                    amplitude = 0.54f - 0.46f * Mathf.Cos(2 * Mathf.PI * index / _EnvelopeSize);
-                    break;
-                case FunctionSelect.tukey:
-                    amplitude = 1 / (2 * _TukeyHeight) * (1 - Mathf.Cos(2 * Mathf.PI * index / _EnvelopeSize));
-                    break;
-                case FunctionSelect.gaussian:
-                    amplitude = Mathf.Pow(Mathf.Exp(1), -0.5f * Mathf.Pow((index - (float)_EnvelopeSize / 2) / (_GaussianSigma * _EnvelopeSize / 2), 2));
-                    break;
-            }
+                FunctionSelect.Sine    => Mathf.Sin(Mathf.PI * index / EnvelopeSize),
+                FunctionSelect.Hann    => 0.5f * (1 - Mathf.Cos(2 * Mathf.PI * index / EnvelopeSize)),
+                FunctionSelect.Hamming => 0.54f - 0.46f * Mathf.Cos(2 * Mathf.PI * index / EnvelopeSize),
+                FunctionSelect.Tukey =>
+                        1 / (2 * TukeyHeight) * (1 - Mathf.Cos(2 * Mathf.PI * index / EnvelopeSize)),
+                FunctionSelect.Gaussian => Mathf.Pow(
+                    Mathf.Exp(1),
+                    -0.5f * Mathf.Pow((index - (float)EnvelopeSize / 2) / (GaussianSigma * EnvelopeSize / 2), 2)
+                ),
+                _ => 1
+            };
             return Mathf.Clamp01(amplitude);
         }
     }

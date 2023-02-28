@@ -7,7 +7,7 @@ using UnityEngine;
 using MaxVRAM.Extensions;
 using Unity.Mathematics;
 
-namespace PlaneWaver
+namespace PlaneWaver.Emitters
 {
     public class GrainFrame : SynthElement
     {
@@ -24,14 +24,11 @@ namespace PlaneWaver
         public Transform SpeakerTransform;
         public MaterialColourModulator MaterialModulator = new();
         
-        [Header("Emitter Lists")]
-        public List<BaseEmitterScriptable> ConstantEmitters = new();
-        public List<BaseEmitterScriptable> ContactEmitters = new();
-        public List<BaseEmitterScriptable> NonContactEmitters = new();
-        public List<BaseEmitterScriptable> CollisionEmitters = new();
+        [Header("Emitters")]
+        public List<EmitterAuth> StableEmitters = new ();
+        public List<EmitterAuth> VolatileEmitters = new ();
         
         private Transform _headTransform;
-        private CollisionData _collisionData;
         
         #endregion
 
@@ -42,6 +39,9 @@ namespace PlaneWaver
             ActorObject = GetComponent<Actor>() ?? gameObject.AddComponent<Actor>();
             ActorObject.OnNewValidCollision += TriggerCollisionEmitters;
             
+            foreach (EmitterAuth emitter in StableEmitters)
+                emitter.InitialiseEmitter(this);
+            
             InitialiseAttachmentPoint();
             InitialiseMaterialModulator();
            
@@ -49,9 +49,8 @@ namespace PlaneWaver
             
             ElementType = SynthElementType.Frame;
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            Archetype = Manager.CreateArchetype(typeof(FrameComponent));
+            ElementArchetype = Manager.CreateArchetype(typeof(FrameComponent));
             InitialiseEntity();
-            //SetIndex(GrainBrain.Instance.RegisterFrame(this));
         }
 
         private void InitialiseAttachmentPoint()
@@ -83,19 +82,33 @@ namespace PlaneWaver
         }
 
         #endregion
-
-        private void TriggerCollisionEmitters(CollisionData data)
-        {
-            foreach (BaseEmitterScriptable emitter in CollisionEmitters)
-            {
-                emitter.ArmCollisionEmitter(data);
-            }
-        }
         
         #region RUNTIME UPDATES
         
-        private void Update()
+        protected override void ProcessComponents()
         {
+            UpdatePosition();
+        }
+        
+        private void UpdatePosition()
+        {
+            Manager.SetComponentData(ElementEntity, new FrameComponent
+            {
+                    Index = EntityIndex,
+                    Position = SpeakerTarget.position,
+            });
+        }
+        
+        private void UpdateEmitters()
+        {
+            foreach (EmitterAuth emitter in StableEmitters)
+                emitter.UpdateStableEmitter();
+        }
+        
+        private void TriggerCollisionEmitters(CollisionData data)
+        {
+            foreach (EmitterAuth emitter in VolatileEmitters)
+                emitter.ApplyNewCollision(data);
         }
         
         #endregion
@@ -108,13 +121,8 @@ namespace PlaneWaver
         public int Index;
         public float3 Position;
     }
-
-    public struct ConnectedToSpeaker : IComponentData
-    {
-        public int SpeakerIndex;
-    }
     
-    public struct InListenerRange : IComponentData { }
+    public struct InListenerRangeTag : IComponentData { }
     
     #endregion
 }

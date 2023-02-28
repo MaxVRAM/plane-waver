@@ -86,7 +86,7 @@ namespace PlaneWaver
         {
             _EmitterType = EmitterType.Burst;
             ElementType = SynthElementType.Emitter;
-            Archetype = Manager.CreateArchetype(typeof(BurstComponent));
+            ElementArchetype = Manager.CreateArchetype(typeof(BurstComponent));
             _IsPlaying = false;
         }
 

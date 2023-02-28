@@ -44,7 +44,7 @@ namespace PlaneWaver
 
             ElementType = SynthElementType.Speaker;
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            Archetype = Manager.CreateArchetype(typeof(SpeakerComponent), typeof(SpeakerIndex));
+            ElementArchetype = Manager.CreateArchetype(typeof(SpeakerComponent), typeof(SpeakerIndex));
             InitialiseEntity();
         }
 

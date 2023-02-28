@@ -146,32 +146,32 @@ namespace PlaneWaver
         public float GetActorValue(
             ref float returnValue,
             ref Vector3 previousVector,
-            PrimaryActorSources selection)
+            ModulationSourceActor selection)
         {
             switch (selection)
             {
-                case PrimaryActorSources.Speed:
+                case ModulationSourceActor.Speed:
                     returnValue = Speed;
                     break;
-                case PrimaryActorSources.Scale:
+                case ModulationSourceActor.Scale:
                     returnValue = Scale;
                     break;
-                case PrimaryActorSources.Mass:
+                case ModulationSourceActor.Mass:
                     returnValue = Mass;
                     break;
-                case PrimaryActorSources.MassTimesScale:
+                case ModulationSourceActor.MassTimesScale:
                     returnValue = Mass * Scale;
                     break;
-                case PrimaryActorSources.SlideMomentum:
+                case ModulationSourceActor.SlideMomentum:
                     returnValue = SlideMomentum;
                     break;
-                case PrimaryActorSources.AngularSpeed:
+                case ModulationSourceActor.AngularSpeed:
                     returnValue = AngularSpeed;
                     break;
-                case PrimaryActorSources.RollMomentum:
+                case ModulationSourceActor.RollMomentum:
                     returnValue = RollMomentum;
                     break;
-                case PrimaryActorSources.Acceleration:
+                case ModulationSourceActor.Acceleration:
                     returnValue = Acceleration(previousVector);
                     previousVector = Velocity;
                     break;
@@ -192,33 +192,33 @@ namespace PlaneWaver
         public float GetActorOtherValue(
             ref float returnValue,
             ref Vector3 previousVector,
-            LinkedActorSources selection,
+            ModulationSourceRelational selection,
             Transform otherBody)
         {
             switch (selection)
             {
-                case LinkedActorSources.DistanceX:
+                case ModulationSourceRelational.DistanceX:
                     returnValue = Mathf.Abs(RelativePosition(otherBody).x);
                     break;
-                case LinkedActorSources.DistanceY:
+                case ModulationSourceRelational.DistanceY:
                     returnValue = Mathf.Abs(RelativePosition(otherBody).y);
                     break;
-                case LinkedActorSources.DistanceZ:
+                case ModulationSourceRelational.DistanceZ:
                     returnValue = Mathf.Abs(RelativePosition(otherBody).z);
                     break;
-                case LinkedActorSources.Radius:
+                case ModulationSourceRelational.Radius:
                     returnValue = SphericalCoords(otherBody).Radius;
                     break;
-                case LinkedActorSources.Polar:
+                case ModulationSourceRelational.Polar:
                     returnValue = SphericalCoords(otherBody).Polar;
                     break;
-                case LinkedActorSources.Elevation:
+                case ModulationSourceRelational.Elevation:
                     returnValue = SphericalCoords(otherBody).Elevation;
                     break;
-                case LinkedActorSources.RelativeSpeed:
+                case ModulationSourceRelational.RelativeSpeed:
                     returnValue = RelativeSpeed(otherBody);
                     break;
-                case LinkedActorSources.TangentialSpeed:
+                case ModulationSourceRelational.TangentialSpeed:
                     returnValue = TangentalSpeed(otherBody, previousVector);
                     previousVector = DirectionFromOther(otherBody);
                     break;
@@ -231,7 +231,7 @@ namespace PlaneWaver
         public float GetActorOtherValue(
             ref float returnValue,
             ref Vector3 previousVector,
-            LinkedActorSources selection)
+            ModulationSourceRelational selection)
         {
             if (OtherBody == null)
                 return returnValue;
@@ -240,12 +240,12 @@ namespace PlaneWaver
             return returnValue;
         }
 
-        public float GetCollisionValue(ref float returnValue, ActorCollisionSources selection)
+        public float GetCollisionValue(ref float returnValue, ModulationSourceCollision selection)
         {
             returnValue = selection switch
             {
-                ActorCollisionSources.CollisionSpeed => CollisionSpeed,
-                ActorCollisionSources.CollisionForce => CollisionForce,
+                ModulationSourceCollision.CollisionSpeed => CollisionSpeed,
+                ModulationSourceCollision.CollisionForce => CollisionForce,
                 _                                    => returnValue
             };
             return returnValue;

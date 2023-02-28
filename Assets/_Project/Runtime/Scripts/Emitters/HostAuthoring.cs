@@ -94,7 +94,7 @@ namespace PlaneWaver
 
             ElementType = SynthElementType.Host;
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            Archetype = Manager.CreateArchetype(typeof(HostComponent));
+            ElementArchetype = Manager.CreateArchetype(typeof(HostComponent));
             InitialiseEntity();
         }
 

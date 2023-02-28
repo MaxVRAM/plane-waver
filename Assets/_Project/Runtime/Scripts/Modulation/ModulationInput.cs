@@ -22,19 +22,19 @@ namespace PlaneWaver
 
         public void ResetModulation()
         {
-            _ValueSource = InputSourceGroups.General;
-            _SceneProperties = GeneralSources.StaticValue;
-            _PrimaryActor = PrimaryActorSources.Speed;
-            _LinkedActors = LinkedActorSources.Radius;
-            _ActorCollisions = ActorCollisionSources.CollisionSpeed;
+            _ValueSource = ModulationSourceGroups.General;
+            _SceneProperties = ModulationSourceMisc.Disabled;
+            ModulationSourceActor = ModulationSourceActor.Speed;
+            _LinkedActors = ModulationSourceRelational.Radius;
+            ModulationSourceCollisions = ModulationSourceCollision.CollisionSpeed;
             _InputValue = 0;
             _PreviousSmoothedValue = 0;
             _InputRange = new Vector2(0, 1);
             _AdjustMultiplier = 1;
-            _OnNewValue = InputOnNewValue.Replace;
+            _OnNewValue = ModulationAccumulate.Replace;
             _PreSmoothValue = 0;
             _Smoothing = 0.2f;
-            _LimiterMode = ValueLimiter.Clip;
+            _LimiterMode = ModulationLimiter.Clip;
             _ModulationExponent = 1f;
             _ModulationAmount = 0;
             _Result = 0;
@@ -42,23 +42,23 @@ namespace PlaneWaver
         }
 
         [HorizontalLine(color: EColor.Gray)]
-        public InputSourceGroups _ValueSource = InputSourceGroups.General;
+        public ModulationSourceGroups _ValueSource = ModulationSourceGroups.General;
 
         [ShowIf("ScenePropertySelected")]
         [AllowNesting]
-        public GeneralSources _SceneProperties = GeneralSources.StaticValue;
+        public ModulationSourceMisc _SceneProperties = ModulationSourceMisc.Disabled;
 
         [ShowIf("PrimaryActorSelected")]
         [AllowNesting]
-        public PrimaryActorSources _PrimaryActor = PrimaryActorSources.Speed;
+        public ModulationSourceActor ModulationSourceActor = ModulationSourceActor.Speed;
 
         [ShowIf("LinkedActorsSelected")]
         [AllowNesting]
-        public LinkedActorSources _LinkedActors = LinkedActorSources.Radius;
+        public ModulationSourceRelational _LinkedActors = ModulationSourceRelational.Radius;
 
         [ShowIf("CollisionInputSelected")]
         [AllowNesting]
-        public ActorCollisionSources _ActorCollisions = ActorCollisionSources.CollisionSpeed;
+        public ModulationSourceCollision ModulationSourceCollisions = ModulationSourceCollision.CollisionSpeed;
 
         [SerializeField] private float _InputValue = 0;
         private float _PreviousSmoothedValue = 0;
@@ -66,12 +66,12 @@ namespace PlaneWaver
         [HorizontalLine(color: EColor.Clear)]
         [SerializeField] private Vector2 _InputRange = new (0, 1);
         [SerializeField] private float _AdjustMultiplier = 1;
-        [SerializeField] private InputOnNewValue _OnNewValue = InputOnNewValue.Replace;
+        [SerializeField] private ModulationAccumulate _OnNewValue = ModulationAccumulate.Replace;
         [SerializeField] private float _PreSmoothValue = 0;
 
         [HorizontalLine(color: EColor.Clear)]
         [SerializeField][Range(0f, 1f)] private float _Smoothing = 0.2f;
-        [SerializeField] private ValueLimiter _LimiterMode = ValueLimiter.Clip;
+        [SerializeField] private ModulationLimiter _LimiterMode = ModulationLimiter.Clip;
         [ShowIf("ClipLimitingApplied")]
         [AllowNesting]
         [SerializeField][Range(0.5f, 5.0f)] private float _ModulationExponent = 1f;
@@ -82,16 +82,16 @@ namespace PlaneWaver
 
         private Vector3 _PreviousVector = Vector3.zero;
 
-        public float Smoothing => _ValueSource != InputSourceGroups.ActorCollisions ? _Smoothing : 0;
+        public float Smoothing => _ValueSource != ModulationSourceGroups.ActorCollisions ? _Smoothing : 0;
         public float Exponent => _ModulationExponent;
         public float Amount => _ModulationAmount;
 
 
-        public bool ScenePropertySelected() { return _ValueSource == InputSourceGroups.General; }
-        public bool PrimaryActorSelected() { return _ValueSource == InputSourceGroups.PrimaryActor; }
-        public bool LinkedActorsSelected() { return _ValueSource == InputSourceGroups.LinkedActors; }
-        public bool CollisionInputSelected() { return _ValueSource == InputSourceGroups.ActorCollisions; }
-        public bool ClipLimitingApplied => _LimiterMode == ValueLimiter.Clip;
+        public bool ScenePropertySelected() { return _ValueSource == ModulationSourceGroups.General; }
+        public bool PrimaryActorSelected() { return _ValueSource == ModulationSourceGroups.PrimaryActor; }
+        public bool LinkedActorsSelected() { return _ValueSource == ModulationSourceGroups.LinkedActors; }
+        public bool CollisionInputSelected() { return _ValueSource == ModulationSourceGroups.ActorCollisions; }
+        public bool ClipLimitingApplied => _LimiterMode == ModulationLimiter.Clip;
 
         public float GetProcessedValue()
         {
@@ -120,14 +120,14 @@ namespace PlaneWaver
         private float ProcessValue(float inputValue)
         {
             float newValue = Mathf.Clamp01(MaxMath.Map(inputValue, _InputRange, 0, 1) * _AdjustMultiplier);
-            _PreSmoothValue = _OnNewValue == InputOnNewValue.Accumulate ? _PreSmoothValue + newValue : newValue;
+            _PreSmoothValue = _OnNewValue == ModulationAccumulate.Accumulate ? _PreSmoothValue + newValue : newValue;
             newValue = MaxMath.Smooth(_PreviousSmoothedValue, _PreSmoothValue, Smoothing);
             _PreviousSmoothedValue = newValue;
 
             newValue = _LimiterMode switch
             {
-                    ValueLimiter.Repeat   => newValue.RepeatNorm(),
-                    ValueLimiter.PingPong => newValue.PingPongNorm(),
+                    ModulationLimiter.Repeat   => newValue.RepeatNorm(),
+                    ModulationLimiter.PingPong => newValue.PingPongNorm(),
                     _                     => newValue
             };
 
@@ -137,15 +137,15 @@ namespace PlaneWaver
         private float ProcessValue(float inputValue, float offset)
         {
             float newValue = MaxMath.Map(inputValue, _InputRange, 0, 1) * _AdjustMultiplier;
-            _PreSmoothValue = _OnNewValue == InputOnNewValue.Accumulate ? _PreSmoothValue + newValue : newValue;
+            _PreSmoothValue = _OnNewValue == ModulationAccumulate.Accumulate ? _PreSmoothValue + newValue : newValue;
             newValue = MaxMath.Smooth(_PreviousSmoothedValue, _PreSmoothValue, Smoothing);
             _PreviousSmoothedValue = newValue;
 
             newValue = _LimiterMode switch
             {
-                    ValueLimiter.Clip     => offset + Mathf.Pow(newValue, Exponent) * Amount,
-                    ValueLimiter.Repeat   => newValue.RepeatNorm(Amount, offset),
-                    ValueLimiter.PingPong => newValue.PingPongNorm(Amount, offset),
+                    ModulationLimiter.Clip     => offset + Mathf.Pow(newValue, Exponent) * Amount,
+                    ModulationLimiter.Repeat   => newValue.RepeatNorm(Amount, offset),
+                    ModulationLimiter.PingPong => newValue.PingPongNorm(Amount, offset),
                     _                     => newValue
             };
 
@@ -156,17 +156,17 @@ namespace PlaneWaver
         {
             switch (_ValueSource)
             {
-                case InputSourceGroups.General:
+                case ModulationSourceGroups.General:
                     GenerateScenePropertyValue();
                     break;
-                case InputSourceGroups.PrimaryActor:
-                    _localActor.GetActorValue(ref _InputValue, ref _PreviousVector, _PrimaryActor);
+                case ModulationSourceGroups.PrimaryActor:
+                    _localActor.GetActorValue(ref _InputValue, ref _PreviousVector, ModulationSourceActor);
                     break;
-                case InputSourceGroups.LinkedActors:
+                case ModulationSourceGroups.LinkedActors:
                     _localActor.GetActorOtherValue(ref _InputValue, ref _PreviousVector, _LinkedActors);
                     break;
-                case InputSourceGroups.ActorCollisions:
-                    _localActor.GetCollisionValue(ref _InputValue, _ActorCollisions);
+                case ModulationSourceGroups.ActorCollisions:
+                    _localActor.GetCollisionValue(ref _InputValue, ModulationSourceCollisions);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -177,17 +177,17 @@ namespace PlaneWaver
         {
             switch (_SceneProperties)
             {
-                case GeneralSources.StaticValue:
+                case ModulationSourceMisc.Disabled:
                     break;
-                case GeneralSources.TimeSinceStart:
+                case ModulationSourceMisc.TimeSinceStart:
                     _InputValue = Time.time;
                     break;
-                case GeneralSources.DeltaTime:
+                case ModulationSourceMisc.DeltaTime:
                     _InputValue = Time.deltaTime;
                     break;
-                case GeneralSources.SpawnAge:
+                case ModulationSourceMisc.SpawnAge:
                     break;
-                case GeneralSources.SpawnAgeNorm:
+                case ModulationSourceMisc.SpawnAgeNorm:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

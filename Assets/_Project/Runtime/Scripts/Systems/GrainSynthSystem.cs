@@ -7,6 +7,11 @@ using Unity.Jobs.LowLevel.Unsafe;
 
 using MaxVRAM;
 
+using PlaneWaver.DSP;
+using PlaneWaver.Managers;
+
+namespace PlaneWaver.Systems
+{
 [UpdateInGroup(typeof(InitializationSystemGroup))]
 class RandomSystem : ComponentSystem
 {
@@ -61,7 +66,7 @@ public partial class GrainSynthSystem : SystemBase
             .WithNativeDisableParallelForRestriction(randomArray).WithReadOnly(audioClipData)
             .WithAll<PlayingTag, ConnectedTag, InListenerRadiusTag>().ForEach
         (
-            (int nativeThreadIndex, int entityInQueryIndex, ref DynamicBuffer<DSPParametersElement> dspChain, ref ContinuousComponent emitter) => 
+            (int nativeThreadIndex, int entityInQueryIndex, ref DynamicBuffer<AudioEffectParameters> dspChain, ref ContinuousComponent emitter) => 
             {
                 // Max grains to stop it getting stuck in a while loop
                 int maxGrains = 50;
@@ -101,7 +106,7 @@ public partial class GrainSynthSystem : SystemBase
                         // Prevent infinite loop if there's too many grains for some reason
                         grainCount++;
                         // Find the largest delay DSP effect tail in the chain so that the tail can be added to the sample and DSP buffers
-                        for (int j = 0; j < dspChain.Length; j++)
+                        for (var j = 0; j < dspChain.Length; j++)
                             if (dspChain[j].DelayBasedEffect)
                                 if (dspChain[j].SampleTail > dspTailLength)
                                     dspTailLength = dspChain[j].SampleTail;
@@ -128,10 +133,10 @@ public partial class GrainSynthSystem : SystemBase
                         ecb.AddBuffer<GrainSampleBufferElement>(entityInQueryIndex, grainProcessorEntity);
                         ecb.AddBuffer<DSPSampleBufferElement>(entityInQueryIndex, grainProcessorEntity);
                         // Add DSP parameters to grain processor
-                        DynamicBuffer<DSPParametersElement> dspParameters = ecb.AddBuffer<DSPParametersElement>(entityInQueryIndex, grainProcessorEntity);
+                        DynamicBuffer<AudioEffectParameters> dspParameters = ecb.AddBuffer<AudioEffectParameters>(entityInQueryIndex, grainProcessorEntity);
                         for (int i = 0; i < dspChain.Length; i++)
                         {
-                            DSPParametersElement tempParams = dspChain[i];
+                            AudioEffectParameters tempParams = dspChain[i];
                             tempParams.SampleStartTime = sampleIndexNextGrainStart;
                             dspParameters.Add(tempParams);
                         }
@@ -171,7 +176,7 @@ public partial class GrainSynthSystem : SystemBase
             .WithNativeDisableParallelForRestriction(randomArray).WithReadOnly(audioClipData)
             .WithAll<PlayingTag, ConnectedTag, InListenerRadiusTag>().ForEach
         (
-            (int nativeThreadIndex, int entityInQueryIndex, Entity entity, ref DynamicBuffer<DSPParametersElement> dspChain, ref BurstComponent burst) => 
+            (int nativeThreadIndex, int entityInQueryIndex, Entity entity, ref DynamicBuffer<AudioEffectParameters> dspChain, ref BurstComponent burst) => 
             {
                 int grainsCreated = 0;
                 int dspTailLength = 0;
@@ -239,11 +244,11 @@ public partial class GrainSynthSystem : SystemBase
                         ecb.AddBuffer<GrainSampleBufferElement>(entityInQueryIndex, grainProcessorEntity);
                         ecb.AddBuffer<DSPSampleBufferElement>(entityInQueryIndex, grainProcessorEntity);
                         // Add DSP parameters to grain processor
-                        DynamicBuffer<DSPParametersElement> dspParameters = ecb.AddBuffer<DSPParametersElement>(entityInQueryIndex, grainProcessorEntity);
+                        DynamicBuffer<AudioEffectParameters> dspParameters = ecb.AddBuffer<AudioEffectParameters>(entityInQueryIndex, grainProcessorEntity);
 
                         for (int i = 0; i < dspChain.Length; i++)
                         {
-                            DSPParametersElement tempParams = dspChain[i];
+                            AudioEffectParameters tempParams = dspChain[i];
                             tempParams.SampleStartTime = currentDSPTime + offset;
                             dspParameters.Add(tempParams);
                         }
@@ -386,23 +391,23 @@ public partial class GrainSynthSystem : SystemBase
 
         JobHandle dspEffectSampleJob = Entities.WithName("DSPEffectSampleJob").WithAll<SamplesProcessedTag>().ForEach
         (
-           (DynamicBuffer<DSPParametersElement> dspParamsBuffer, DynamicBuffer<GrainSampleBufferElement> sampleOutputBuffer, DynamicBuffer<DSPSampleBufferElement> dspBuffer, ref GrainComponent grain) =>
+           (DynamicBuffer<AudioEffectParameters> dspParamsBuffer, DynamicBuffer<GrainSampleBufferElement> sampleOutputBuffer, DynamicBuffer<DSPSampleBufferElement> dspBuffer, ref GrainComponent grain) =>
            {
                for (int i = 0; i < dspParamsBuffer.Length; i++)
-                   switch (dspParamsBuffer[i].DSPType)
+                   switch (dspParamsBuffer[i].AudioEffectType)
                    {
-                       case DSPTypes.Bitcrush:
+                       case AudioEffectTypes.Bitcrush:
                            DSP_Bitcrush.ProcessDSP(dspParamsBuffer[i], sampleOutputBuffer, dspBuffer);
                            break;
-                       case DSPTypes.Delay:
+                       case AudioEffectTypes.Delay:
                            break;
-                       case DSPTypes.Flange:
+                       case AudioEffectTypes.Flange:
                            DSP_Flange.ProcessDSP(dspParamsBuffer[i], sampleOutputBuffer, dspBuffer);
                            break;
-                       case DSPTypes.Filter:
+                       case AudioEffectTypes.Filter:
                            DSP_Filter.ProcessDSP(dspParamsBuffer[i], sampleOutputBuffer, dspBuffer);
                            break;
-                       case DSPTypes.Chopper:
+                       case AudioEffectTypes.Chopper:
                            DSP_Chopper.ProcessDSP(dspParamsBuffer[i], sampleOutputBuffer, dspBuffer);
                            break;
                    }
@@ -449,4 +454,5 @@ public partial class GrainSynthSystem : SystemBase
     }
 
     #endregion
+}
 }

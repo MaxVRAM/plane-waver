@@ -1,11 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Entities;
 using UnityEngine;
+using Unity.Entities;
+using Unity.Mathematics;
 
 using MaxVRAM.Extensions;
-using Unity.Mathematics;
+
+using PlaneWaver.DSP;
+using PlaneWaver.Interaction;
 
 namespace PlaneWaver.Emitters
 {
@@ -22,11 +25,14 @@ namespace PlaneWaver.Emitters
         public Transform SpeakerTarget;
         [Tooltip("Assigned to the speaker's transform when connected, otherwise the frame's Speaker Target.")]
         public Transform SpeakerTransform;
+        public int SpeakerIndex;
+        public bool IsConnected => SpeakerTransform != SpeakerTarget;
+        public bool InListenerRange { get; private set; }
         public MaterialColourModulator MaterialModulator = new();
         
         [Header("Emitters")]
-        public List<EmitterAuth> StableEmitters = new ();
-        public List<EmitterAuth> VolatileEmitters = new ();
+        public List<EmitterAuth> StableEmitters = new();
+        public List<EmitterAuth> VolatileEmitters = new();
         
         private Transform _headTransform;
         
@@ -39,9 +45,6 @@ namespace PlaneWaver.Emitters
             ActorObject = GetComponent<Actor>() ?? gameObject.AddComponent<Actor>();
             ActorObject.OnNewValidCollision += TriggerCollisionEmitters;
             
-            foreach (EmitterAuth emitter in StableEmitters)
-                emitter.InitialiseEmitter(this);
-            
             InitialiseAttachmentPoint();
             InitialiseMaterialModulator();
            
@@ -51,6 +54,16 @@ namespace PlaneWaver.Emitters
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
             ElementArchetype = Manager.CreateArchetype(typeof(FrameComponent));
             InitialiseEntity();
+            InitialiseEmitters();
+        }
+        
+        private void InitialiseEmitters()
+        {
+            for (var i = 0; i < StableEmitters.Count; i++)
+                StableEmitters[i].Initialise(name, i, ActorObject);
+            
+            for (var i = 0; i < VolatileEmitters.Count; i++)
+                VolatileEmitters[i].Initialise(name, i, ActorObject);
         }
 
         private void InitialiseAttachmentPoint()
@@ -88,6 +101,8 @@ namespace PlaneWaver.Emitters
         protected override void ProcessComponents()
         {
             UpdatePosition();
+            GetComponentUpdates();
+            UpdateEmitters();
         }
         
         private void UpdatePosition()
@@ -98,11 +113,24 @@ namespace PlaneWaver.Emitters
                     Position = SpeakerTarget.position,
             });
         }
+
+        private void GetComponentUpdates()
+        {
+            InListenerRange = Manager.HasComponent(ElementEntity, typeof(InListenerRangeTag));
+            SpeakerIndex = Manager.GetComponentData<SpeakerIndex>(ElementEntity).Value;
+            
+            SpeakerTransform = GrainBrain.Instance.IsSpeakerAtIndex(SpeakerIndex, out SpeakerAuthoring speaker)
+                    ? speaker.transform
+                    : SpeakerTarget;
+        }
         
         private void UpdateEmitters()
         {
             foreach (EmitterAuth emitter in StableEmitters)
-                emitter.UpdateStableEmitter();
+                emitter.UpdateEmitterEntity(IsConnected, SpeakerIndex);
+            
+            foreach (EmitterAuth emitter in VolatileEmitters)
+                emitter.UpdateEmitterEntity(IsConnected, SpeakerIndex);
         }
         
         private void TriggerCollisionEmitters(CollisionData data)

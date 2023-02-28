@@ -3,12 +3,11 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
-using PlaneWaver.Modulation;
 using static MaxVRAM.MaxMath;
 
-namespace PlaneWaver
+namespace PlaneWaver.Interaction
 {
-    public class Actor : MonoBehaviour
+    public partial class Actor : MonoBehaviour
     {
         #region CLASS DEFINITIONS
 
@@ -47,7 +46,44 @@ namespace PlaneWaver
         public bool IsColliding { get; private set; }
 
         #endregion
+        
+        #region PHYSICS PROPERTY METHODS
 
+        public float Acceleration(Vector3 previousVelocity) => (Velocity - previousVelocity).magnitude;
+        public float Acceleration(float previousSpeed) => Speed - previousSpeed;
+        public Vector3 RelativePosition(Transform other) => other.position - Position;
+        public Vector3 DirectionTowardsOther(Transform other) => (other.position - Position).normalized;
+        public Vector3 DirectionFromOther(Transform other) => (Position - other.position).normalized;
+        public float Distance(Transform other) => Vector3.Distance(Position, other.position);
+
+        public float DistanceFromListener() => Distance(GrainBrain.Instance.ListenerTransform);
+        
+        public float RelativeSpeed(Transform other)
+        {
+            if (!other.TryGetComponent(out Rigidbody otherRb))
+                return 0;
+            
+            return Vector3.Dot(otherRb.velocity, Velocity);
+        }
+        
+        public SphericalCoordinates SphericalCoords(Transform other)
+        {
+            return new SphericalCoordinates(RelativePosition(other));
+        }
+        public Quaternion RotationDelta(Transform other, Vector3 previousDirection)
+        {
+            return Quaternion.FromToRotation(previousDirection, DirectionFromOther(other));
+        }
+        
+        public float TangentalSpeed(Quaternion rotation) => TangentalSpeedFromQuaternion(rotation);
+        
+        public float TangentalSpeed(Transform other, Vector3 previousDirection)
+        {
+            return TangentalSpeedFromQuaternion(RotationDelta(other, previousDirection));
+        }
+        
+        #endregion
+        
         #region INITIALISATION METHODS
         
         private void InitialiseActor()
@@ -92,165 +128,10 @@ namespace PlaneWaver
             }
             _highestContactRigidity = _activeCollisions.Max(x => x.Rigidity);
             _smoothedContactRigidity = Smooth(_smoothedContactRigidity,
-                                              _highestContactRigidity,
-                                              ContactRigiditySmoothing);
+                _highestContactRigidity,
+                ContactRigiditySmoothing);
         }
 
-        #endregion
-        
-        #region PHYSICS PROPERTY METHODS
-
-        public float Acceleration(Vector3 previousVelocity) => (Velocity - previousVelocity).magnitude;
-        public float Acceleration(float previousSpeed) => Speed - previousSpeed;
-        public Vector3 RelativePosition(Transform other) => other.position - Position;
-        public Vector3 DirectionTowardsOther(Transform other) => (other.position - Position).normalized;
-        public Vector3 DirectionFromOther(Transform other) => (Position - other.position).normalized;
-        public float Distance(Transform other) => Vector3.Distance(Position, other.position);
-
-        public float RelativeSpeed(Transform other)
-        {
-            if (!other.TryGetComponent(out Rigidbody otherRb))
-                return 0;
-            
-            return Vector3.Dot(otherRb.velocity, Velocity);
-        }
-        
-        public SphericalCoordinates SphericalCoords(Transform other)
-        {
-            return new SphericalCoordinates(RelativePosition(other));
-        }
-        public Quaternion RotationDelta(Transform other, Vector3 previousDirection)
-        {
-            return Quaternion.FromToRotation(previousDirection, DirectionFromOther(other));
-        }
-        
-        public float TangentalSpeed(Quaternion rotation) => TangentalSpeedFromQuaternion(rotation);
-        
-        public float TangentalSpeed(Transform other, Vector3 previousDirection)
-        {
-            return TangentalSpeedFromQuaternion(RotationDelta(other, previousDirection));
-        }
-        
-        #endregion
-
-        #region INTERACTION VALUES
-        
-        /// <summary>
-        /// Returns the selected interaction property's latest value from this local Actor.
-        /// </summary>
-        /// <param name="returnValue">ref float to be updated with the latest interaction value.</param>
-        /// <param name="previousVector">ref Vector3 to store an arbitrary vector for subsequent calculations.</param>
-        /// <param name="selection">Actor Source Value selection enum.</param>
-        /// <returns>Float: Represents the most current value from the selected interaction parameter.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public float GetActorValue(
-            ref float returnValue,
-            ref Vector3 previousVector,
-            ModulationSourceActor selection)
-        {
-            switch (selection)
-            {
-                case ModulationSourceActor.Speed:
-                    returnValue = Speed;
-                    break;
-                case ModulationSourceActor.Scale:
-                    returnValue = Scale;
-                    break;
-                case ModulationSourceActor.Mass:
-                    returnValue = Mass;
-                    break;
-                case ModulationSourceActor.MassTimesScale:
-                    returnValue = Mass * Scale;
-                    break;
-                case ModulationSourceActor.SlideMomentum:
-                    returnValue = SlideMomentum;
-                    break;
-                case ModulationSourceActor.AngularSpeed:
-                    returnValue = AngularSpeed;
-                    break;
-                case ModulationSourceActor.RollMomentum:
-                    returnValue = RollMomentum;
-                    break;
-                case ModulationSourceActor.Acceleration:
-                    returnValue = Acceleration(previousVector);
-                    previousVector = Velocity;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(selection), selection, null);
-            }
-            return returnValue;
-        }
-
-        /// <summary>
-        /// Returns the selected interaction property's latest value between this local Actor and another transform.
-        /// </summary>
-        /// <param name="returnValue">ref float to be updated with the latest interaction value.</param>
-        /// <param name="previousVector">ref Vector3 to store an arbitrary vector for subsequent calculations.</param>
-        /// <param name="selection">ActorOther Source Value selection enum.</param>
-        /// <param name="otherBody">Another transform to calculate relative interaction properties.</param>
-        /// <returns>Float: Represents the most current value from the selected interaction parameter.</returns>
-        public float GetActorOtherValue(
-            ref float returnValue,
-            ref Vector3 previousVector,
-            ModulationSourceRelational selection,
-            Transform otherBody)
-        {
-            switch (selection)
-            {
-                case ModulationSourceRelational.DistanceX:
-                    returnValue = Mathf.Abs(RelativePosition(otherBody).x);
-                    break;
-                case ModulationSourceRelational.DistanceY:
-                    returnValue = Mathf.Abs(RelativePosition(otherBody).y);
-                    break;
-                case ModulationSourceRelational.DistanceZ:
-                    returnValue = Mathf.Abs(RelativePosition(otherBody).z);
-                    break;
-                case ModulationSourceRelational.Radius:
-                    returnValue = SphericalCoords(otherBody).Radius;
-                    break;
-                case ModulationSourceRelational.Polar:
-                    returnValue = SphericalCoords(otherBody).Polar;
-                    break;
-                case ModulationSourceRelational.Elevation:
-                    returnValue = SphericalCoords(otherBody).Elevation;
-                    break;
-                case ModulationSourceRelational.RelativeSpeed:
-                    returnValue = RelativeSpeed(otherBody);
-                    break;
-                case ModulationSourceRelational.TangentialSpeed:
-                    returnValue = TangentalSpeed(otherBody, previousVector);
-                    previousVector = DirectionFromOther(otherBody);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(selection), selection, null);
-            }
-            return returnValue;
-        }
-        
-        public float GetActorOtherValue(
-            ref float returnValue,
-            ref Vector3 previousVector,
-            ModulationSourceRelational selection)
-        {
-            if (OtherBody == null)
-                return returnValue;
-
-            GetActorOtherValue(ref returnValue, ref previousVector, selection, OtherBody);
-            return returnValue;
-        }
-
-        public float GetCollisionValue(ref float returnValue, ModulationSourceCollision selection)
-        {
-            returnValue = selection switch
-            {
-                ModulationSourceCollision.CollisionSpeed => CollisionSpeed,
-                ModulationSourceCollision.CollisionForce => CollisionForce,
-                _                                    => returnValue
-            };
-            return returnValue;
-        }
-        
         #endregion
         
         #region COLLISION HANDLING
@@ -308,7 +189,7 @@ namespace PlaneWaver
         /// <summary>
         /// A shortcut reference to the OnlyTriggerMostRigid setting in the GrainBrain.
         /// </summary>
-        private bool OnlyTriggerMostRigid => GrainBrain.Instance._OnlyTriggerMostRigidSurface;
+        private bool OnlyTriggerMostRigid => GrainBrain.Instance.OnlyTriggerMostRigidSurface;
 
         /// <summary>
         /// Checks if attached collision emitters are allowed to trigger based on collider rigidities.
@@ -324,52 +205,4 @@ namespace PlaneWaver
         
         #endregion
     }
-    
-    #region COLLISION DATA STRUCT
-
-    /// <summary>
-    /// A struct to hold collision data for a single collision.
-    /// </summary>
-    public struct CollisionData
-    {
-        public readonly float CollisionTime;
-        public readonly Collision Collision;
-        public readonly GameObject OtherObject;
-        public readonly SurfaceProperties Surface;
-        public readonly bool IsEmitter;
-        public readonly bool IsMoreRigidEmitter;
-        public readonly float Rigidity;
-        public readonly float Speed;
-        public readonly float Force;
-        public readonly float Momentum;
-        public readonly float Impulse;
-        public readonly float Energy;
-
-        public CollisionData(Collision collision)
-        {
-            CollisionTime = Time.fixedTime;
-            Collision = collision;
-            OtherObject = collision.collider.gameObject;
-            Speed = collision.relativeVelocity.magnitude;
-            Force = collision.impulse.magnitude;
-            Momentum = Force * Speed;
-            Impulse = Force / Time.fixedDeltaTime;
-            Energy = 0.5f * Speed * Speed;
-
-            if (OtherObject.TryGetComponent(out Surface))
-            {
-                Rigidity = Surface.Rigidity;
-                IsEmitter = Surface.IsEmitter;
-                IsMoreRigidEmitter = IsEmitter && Surface.Rigidity > Rigidity;
-            }
-            else
-            {
-                Rigidity = 1;
-                IsEmitter = false;   
-                IsMoreRigidEmitter = false;
-            }
-        }
-    }
-
-    #endregion
 }

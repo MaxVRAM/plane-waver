@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PlaneWaver
+namespace PlaneWaver.Interaction
 {
     public class ReturnLostObject : MonoBehaviour
     {

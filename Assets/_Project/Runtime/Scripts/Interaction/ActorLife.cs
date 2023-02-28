@@ -1,11 +1,11 @@
 
 using UnityEngine;
 
-namespace PlaneWaver
+namespace PlaneWaver.Interaction
 {
     public class ActorLife : MonoBehaviour
     {
-        #region CLASS DEFINITIONS
+        #region FIELDS & PROPERTIES
         
         private int _sampleRate;
         public bool LiveForever = true;
@@ -24,7 +24,7 @@ namespace PlaneWaver
 
         #endregion
         
-        #region INITIALISATION METHODS
+        #region INITIALISATION
         
         public void InitialiseActorLife(ActorLifeData actorLifeData)
         {
@@ -38,16 +38,16 @@ namespace PlaneWaver
             _age = 0;
         }
         
-        #endregion
-
-        #region RUNTIME UPDATES
-        
         public void Start()
         {
             _sampleRate = AudioSettings.outputSampleRate;
             InitialiseBounds();
         }
         
+        #endregion
+
+        #region UPDATE METHODS
+
         public void Update()
         {
             _age += Time.deltaTime;
@@ -95,50 +95,23 @@ namespace PlaneWaver
 
         #endregion
 
-        #region PROPERTY RETURN METHODS
+        #region PROPERTY METHODS
         
-        public int GetSamplesUntilFade(float normFadeStart)
+        public float NormalisedAge()
+        {
+            return LiveForever || Lifespan == 0 ? 0 : _age / Lifespan;
+        }
+        
+        public int SamplesUntilFade(float normFadeStart)
         {
             return LiveForever ? int.MaxValue : (int)((Lifespan * normFadeStart - _age) * _sampleRate);
         }
 
-        public int GetSamplesUntilDeath()
+        public int SamplesUntilDeath()
         {
             return LiveForever ? int.MaxValue : (int)(Lifespan - _age) * _sampleRate;
         }
 
         #endregion
     }
-
-    #region PUBLIC ACTOR TYPE DEFINITIONS
-
-    public enum ActorBounds
-    {
-        Unrestricted, SpawnPosition, ControllerTransform, ColliderBounds
-    }
-    
-    public struct ActorLifeData
-    {
-        public readonly float Lifespan;
-        public readonly float BoundingRadius;
-        public readonly ActorBounds BoundingAreaType;
-        public readonly Collider BoundingCollider;
-        public readonly Transform BoundingTransform;
-        
-        public ActorLifeData(
-                float lifespan, 
-                float boundingRadius,
-                ActorBounds boundingAreaType, 
-                Collider boundingCollider, 
-                Transform boundingTransform)
-        {
-            Lifespan = lifespan;
-            BoundingRadius = boundingRadius;
-            BoundingAreaType = boundingAreaType;
-            BoundingCollider = boundingCollider;
-            BoundingTransform = boundingTransform;
-        }
-    }
-    
-    #endregion
 }

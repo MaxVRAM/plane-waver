@@ -2,6 +2,8 @@
 using UnityEngine;
 using System;
 
+using PlaneWaver.Interaction;
+
 using Unity.Entities;
 using Random = UnityEngine.Random;
 
@@ -15,11 +17,12 @@ namespace PlaneWaver.Modulation
         public readonly int ParameterIndex;
         public readonly Vector2 ParameterRange;
         public Vector2 StaticRange;
-        public ModulationSourceGroups SourceGroup;
-        public ModulationSourceMisc SourceMisc;
-        public ModulationSourceActor SourceActor;
-        public ModulationSourceRelational SourceRelational;
-        public ModulationSourceCollision SourceCollision;
+        public SourceSelection SourceSelection;
+        // public ModulationSourceGroups SourceGroup;
+        // public ModulationSourceMisc SourceMisc;
+        // public ModulationSourceActor SourceActor;
+        // public ModulationSourceRelational SourceRelational;
+        // public ModulationSourceCollision SourceCollision;
         public Vector2 ModInputRange;
         public float ModInputMultiplier;
         public bool Accumulate;
@@ -49,11 +52,12 @@ namespace PlaneWaver.Modulation
             ParameterIndex = defaultValues.Index;
             ParameterRange = defaultValues.Range;
             StaticRange = new Vector2(0f,1f);
-            SourceGroup = ModulationSourceGroups.General;
-            SourceMisc = ModulationSourceMisc.Disabled;
-            SourceActor = ModulationSourceActor.Scale;
-            SourceRelational = ModulationSourceRelational.DistanceX;
-            SourceCollision = ModulationSourceCollision.CollisionForce;
+            SourceSelection = new SourceSelection();
+            // SourceGroup = ModulationSourceGroups.General;
+            // SourceMisc = ModulationSourceMisc.Disabled;
+            // SourceActor = ModulationSourceActor.Scale;
+            // SourceRelational = ModulationSourceRelational.DistanceX;
+            // SourceCollision = ModulationSourceCollision.CollisionForce;
             ModInputRange = new Vector2(0f,1f);
             ModInputMultiplier = 1;
             Accumulate = false;
@@ -83,6 +87,19 @@ namespace PlaneWaver.Modulation
             OutputOffset = Random.Range(StaticRange.x, StaticRange.y);
             PerlinOffset = Random.Range(0f, 1000f) * (1 + ParameterIndex);
             PerlinSeed = Mathf.PerlinNoise(PerlinOffset + ParameterIndex, PerlinOffset * 0.5f + ParameterIndex);
+        }
+        
+        public float GetModulationValue(in Actor actor)
+        {
+            if (Mathf.Approximately(ModInfluence, 0f))
+                return 0;
+            
+            
+            
+            var value = Mathf.Clamp01((input - ModInputRange.x) / (ModInputRange.y - ModInputRange.x));
+            value = Mathf.Pow(value, ModExponent);
+            value *= ModInfluence * ModInputMultiplier;
+            return value;
         }
         
         public ModComponent BuildComponent(float modulationValue)

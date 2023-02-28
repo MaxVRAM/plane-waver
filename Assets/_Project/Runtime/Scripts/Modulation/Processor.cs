@@ -7,21 +7,22 @@ namespace PlaneWaver.Modulation
     public static class Processor
     {
         // TODO - Turn this into a DOTS job
-        
+
         /// <summary>
         /// Generates an emitter modulation value based on the source input value and the ModulationParameter.
         /// </summary>
         /// <param name="parameter">A struct of parameters that define how the input value is processed.</param>
         /// <param name="inputValue">Can be any float value. Generally supplied via a modulation input source.</param>
+        /// <param name="previousSmoothed">Referenced runtime-persistent float for smoothing calculations.</param>
         /// <returns></returns>
-        public static float ProcessModulation(Parameter parameter, float inputValue)
+        public static float ProcessModulation(in Parameter parameter, float inputValue, ref float previousSmoothed)
         {
             float outputValue = 0;
             float input = inputValue * parameter.ModInputMultiplier;
             float inputNormalised = Mathf.InverseLerp(parameter.ModInputRange.x, parameter.ModInputRange.y, input);
-            float preSmoothing = parameter.Accumulate ? parameter.PreviousValue + inputNormalised : inputNormalised;
+            float preSmoothing = parameter.Accumulate ? previousSmoothed + inputNormalised : inputNormalised;
             float smoothedValue = parameter.PreviousValue.Smooth(preSmoothing, parameter.Smoothing);
-            parameter.PreviousValue = smoothedValue;
+            previousSmoothed = smoothedValue;
 
             if (parameter.VolatileEmitter)
                 outputValue = parameter.LimiterMode switch

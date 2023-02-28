@@ -136,9 +136,7 @@ namespace PlaneWaver
         [BoxGroup("Registered Elements")]
         public List<GrainFrame> Frames = new ();
         [BoxGroup("Registered Elements")]
-        public List<HostAuthoring> Hosts = new ();
-        [BoxGroup("Registered Elements")]
-        public List<EmitterAuthoring> Emitters = new();
+        public List<EmitterAuth> Emitters = new();
         [BoxGroup("Registered Elements")]
         public List<SpeakerAuthoring> Speakers = new ();
         
@@ -195,9 +193,7 @@ namespace PlaneWaver
             UpdateSpeakers();
             DistributeGrains();
 
-            UpdateHosts();
-            UpdateEmitters();
-
+            UpdateFrames();
             UpdateEntity(_audioTimerEntity, BrainComponentType.AudioTimer);
 
             UpdateStatsUI();
@@ -356,23 +352,14 @@ namespace PlaneWaver
                     speaker.PrimaryUpdate();
         }
 
-        public void UpdateHosts()
+        public void UpdateFrames()
         {
-            TrimHostList();
-            foreach (HostAuthoring host in Hosts)
-                if (host != null)
-                    host.PrimaryUpdate();
+            TrimFrameList();
+
+            foreach (GrainFrame frame in Frames.Where(frame => frame != null))
+                frame.PrimaryUpdate();
         }
-
-        public void UpdateEmitters()
-        {
-            TrimEmitterList();
-            foreach (EmitterAuthoring emitter in Emitters)
-                if (emitter != null)
-                    emitter.PrimaryUpdate();
-        }
-
-
+        
         #endregion
 
         #region SPEAKER MANAGEMENT
@@ -454,8 +441,6 @@ namespace PlaneWaver
             {
                     SynthElementType.Speaker => GetIndexOfSpeaker((SpeakerAuthoring)synthElement),
                     SynthElementType.Frame   => RegisterFrame((GrainFrame)synthElement),
-                    SynthElementType.Host    => RegisterHost((HostAuthoring)synthElement),
-                    SynthElementType.Emitter => RegisterEmitter((EmitterAuthoring)synthElement),
                     _                        => -1
             };
         }
@@ -472,30 +457,6 @@ namespace PlaneWaver
             return Frames.Count - 1;
         }
         
-        public int RegisterHost(HostAuthoring host)
-        {
-            for (var i = 0; i < Hosts.Count; i++)
-                if (Hosts[i] == null)
-                {
-                    Hosts[i] = host;
-                    return i;
-                }
-            Hosts.Add(host);
-            return Hosts.Count - 1;
-        }
-
-        public int RegisterEmitter(EmitterAuthoring emitter)
-        {
-            for (var i = 0; i < Emitters.Count; i++)
-                if (Emitters[i] == null)
-                {
-                    Emitters[i] = emitter;
-                    return i;
-                }
-            Emitters.Add(emitter);
-            return Emitters.Count - 1;
-        }
-        
         private void TrimFrameList()
         {
             for (int i = Frames.Count - 1; i >= 0; i--)
@@ -506,35 +467,7 @@ namespace PlaneWaver
             }
         }
         
-        private void TrimHostList()
-        {
-            for (int i = Hosts.Count - 1; i >= 0; i--)
-            {
-                if (Hosts[i] == null)
-                    Hosts.RemoveAt(i);
-                else return;
-            }
-        }
-
-        private void TrimEmitterList()
-        {
-            for (int i = Emitters.Count - 1; i >= 0; i--)
-            {
-                if (Emitters[i] == null)
-                    Emitters.RemoveAt(i);
-                else return;
-            }
-        }
-
         public void DeregisterFrame(GrainFrame frame)
-        {
-        }
-        
-        public void DeregisterHost(HostAuthoring host)
-        {
-        }
-
-        public void DeregisterEmitter(EmitterAuthoring emitter)
         {
         }
 
@@ -555,7 +488,7 @@ namespace PlaneWaver
         public void UpdateStatsUI()
         {
             _speakerCount = Mathf.CeilToInt(Mathf.Lerp(_speakerCount, Speakers.Count, Time.deltaTime * 10));
-            _hostCount = Mathf.CeilToInt(Mathf.Lerp(_hostCount, Hosts.Count, Time.deltaTime * 10));
+            _hostCount = Mathf.CeilToInt(Mathf.Lerp(_hostCount, Frames.Count, Time.deltaTime * 10));
             _emitterCount = Mathf.CeilToInt(Mathf.Lerp(_emitterCount, Emitters.Count, Time.deltaTime * 10));
 
             if (StatsValuesText != null)

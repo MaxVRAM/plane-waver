@@ -5,12 +5,14 @@ using Unity.Jobs;
 using System;
 
 using MaxVRAM;
+using PlaneWaver.DSP;
+using PlaneWaver;
 
 // https://docs.unity3d.com/Packages/com.unity.entities@0.51/api/
 
 /// <summary>
 //     Processes dynamic emitter host <-> speaker link components amd updates entity in-range statuses.
-/// <summary>
+/// </summary>
 [UpdateAfter(typeof(DOTS_QuadrantSystem))]
 public partial class AttachmentSystem : SystemBase
 {

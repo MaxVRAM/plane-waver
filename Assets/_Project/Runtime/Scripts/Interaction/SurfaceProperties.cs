@@ -4,6 +4,8 @@ using UnityEngine;
 
 using MaxVRAM;
 
+using PlaneWaver.Emitters;
+
 namespace PlaneWaver
 {
     public class SurfaceProperties : MonoBehaviour
@@ -16,7 +18,7 @@ namespace PlaneWaver
 
         private void Start()
         {
-            IsEmitter = GetComponentInChildren<HostAuthoring>();
+            IsEmitter = GetComponentInChildren<GrainFrame>();
             if (IsSurfaceChild || !ApplyToChildren) return;
 
             foreach (Collider colliderComponent in GetComponentsInChildren<Collider>())

@@ -7,8 +7,6 @@ namespace PlaneWaver.Interaction
 {
     public partial class Actor
     {
-        #region ACTOR VALUE METHODS
-        
         /// <summary>
         /// Returns the selected interaction property's latest value from this local Actor.
         /// </summary>
@@ -124,7 +122,5 @@ namespace PlaneWaver.Interaction
             };
             return returnValue;
         }
-        
-        #endregion
     }
 }

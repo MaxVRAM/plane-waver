@@ -125,14 +125,14 @@ namespace PlaneWaver.Emitters
             _isPlaying = true;
         }
         
-        public void UpdateEmitterEntity(bool isConnected, int speakerIndex)
+        public void UpdateEmitterEntity(bool isConnected, int speakerIndex, bool inRange)
         {
             if (!_entityInitialised)
                 return;
 
             _isConnected = isConnected;
             
-            if (!_isConnected || (IsVolatile && !_isPlaying))
+            if (!_isConnected || !inRange || (IsVolatile && !_isPlaying))
             {
                 _isPlaying = false;
                 _manager.RemoveComponent<EmitterPlaybackReadyTag>(_emitterEntity);
@@ -142,15 +142,16 @@ namespace PlaneWaver.Emitters
             if (!IsVolatile)
                 _isPlaying = _actor.IsColliding || PlaybackCondition != PropagateCondition.Contact;
             
-            if (!_isConnected || !_isPlaying)
+            if (!_isPlaying)
             {
                 _manager.RemoveComponent<EmitterPlaybackReadyTag>(_emitterEntity);
                 return;
             }
-            
+
             var data = _manager.GetComponentData<EmitterComponent>(_emitterEntity);
             UpdateEmitterComponent(ref data);
             _manager.SetComponentData(_emitterEntity, data);
+            _manager.AddComponent<EmitterPlaybackReadyTag>(_emitterEntity);
             
             if (IsVolatile)
                 _isPlaying = false;
@@ -187,6 +188,7 @@ namespace PlaneWaver.Emitters
 
     public struct EmitterComponent : IComponentData
     {
+        public int SpeakerIndex;
         public int AudioClipIndex;
         public int LastSampleIndex;
         public int SamplesUntilFade;
@@ -205,5 +207,4 @@ namespace PlaneWaver.Emitters
     
     public struct EmitterPlaybackReadyTag : IComponentData { }
     public struct EmitterVolatileTag : IComponentData { }
-    public struct AloneOnSpeakerTag : IComponentData { }
 }

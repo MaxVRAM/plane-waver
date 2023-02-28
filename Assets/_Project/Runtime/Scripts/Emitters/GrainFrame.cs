@@ -127,10 +127,10 @@ namespace PlaneWaver.Emitters
         private void UpdateEmitters()
         {
             foreach (EmitterAuth emitter in StableEmitters)
-                emitter.UpdateEmitterEntity(IsConnected, SpeakerIndex);
+                emitter.UpdateEmitterEntity(IsConnected, SpeakerIndex, InListenerRange);
             
             foreach (EmitterAuth emitter in VolatileEmitters)
-                emitter.UpdateEmitterEntity(IsConnected, SpeakerIndex);
+                emitter.UpdateEmitterEntity(IsConnected, SpeakerIndex, InListenerRange);
         }
         
         private void TriggerCollisionEmitters(CollisionData data)
@@ -151,6 +151,8 @@ namespace PlaneWaver.Emitters
     }
     
     public struct InListenerRangeTag : IComponentData { }
+    
+    public struct AloneOnSpeakerTag : IComponentData { }
     
     #endregion
 }

@@ -93,13 +93,8 @@ namespace PlaneWaver.Modulation
         {
             if (Mathf.Approximately(ModInfluence, 0f))
                 return 0;
-            
-            
-            
-            var value = Mathf.Clamp01((input - ModInputRange.x) / (ModInputRange.y - ModInputRange.x));
-            value = Mathf.Pow(value, ModExponent);
-            value *= ModInfluence * ModInputMultiplier;
-            return value;
+
+            return 0;
         }
         
         public ModComponent BuildComponent(float modulationValue)

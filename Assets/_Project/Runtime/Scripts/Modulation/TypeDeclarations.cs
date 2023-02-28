@@ -22,6 +22,51 @@ namespace PlaneWaver.Modulation
             SourceRelational = ModulationSourceRelational.Radius;
             SourceCollision = ModulationSourceCollision.CollisionForce;
         }
+        
+        // TODO - Implement the input source delegation for the processing module here
+        // see the following snippet for an old example:
+
+        // private void GenerateRawValue()
+        // {
+        //     switch (_ValueSource)
+        //     {
+        //         case ModulationSourceGroups.General:
+        //             GenerateScenePropertyValue();
+        //             break;
+        //         case ModulationSourceGroups.PrimaryActor:
+        //             _localActor.GetActorValue(ref _InputValue, ref _PreviousVector, ModulationSourceActor);
+        //             break;
+        //         case ModulationSourceGroups.LinkedActors:
+        //             _localActor.GetActorOtherValue(ref _InputValue, ref _PreviousVector, _LinkedActors);
+        //             break;
+        //         case ModulationSourceGroups.ActorCollisions:
+        //             _localActor.GetCollisionValue(ref _InputValue, ModulationSourceCollisions);
+        //             break;
+        //         default:
+        //             throw new ArgumentOutOfRangeException();
+        //     }
+        // }
+        //
+        // private void GenerateScenePropertyValue()
+        // {
+        //     switch (_SceneProperties)
+        //     {
+        //         case ModulationSourceMisc.Disabled:
+        //             break;
+        //         case ModulationSourceMisc.TimeSinceStart:
+        //             _InputValue = Time.time;
+        //             break;
+        //         case ModulationSourceMisc.DeltaTime:
+        //             _InputValue = Time.deltaTime;
+        //             break;
+        //         case ModulationSourceMisc.SpawnAge:
+        //             break;
+        //         case ModulationSourceMisc.SpawnAgeNorm:
+        //             break;
+        //         default:
+        //             throw new ArgumentOutOfRangeException();
+        //     }
+        // }
     }
     
     public enum ModulationSourceGroups

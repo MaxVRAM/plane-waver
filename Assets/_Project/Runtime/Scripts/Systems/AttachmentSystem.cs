@@ -5,14 +5,16 @@ using Unity.Jobs;
 using System;
 
 using MaxVRAM;
-using PlaneWaver.DSP;
 using PlaneWaver;
+using PlaneWaver.Emitters;
 
 // https://docs.unity3d.com/Packages/com.unity.entities@0.51/api/
 
 /// <summary>
-//     Processes dynamic emitter host <-> speaker link components amd updates entity in-range statuses.
+///  Processes dynamic emitter frame speaker link components amd updates entity in-range statuses.
 /// </summary>
+
+
 [UpdateAfter(typeof(DOTS_QuadrantSystem))]
 public partial class AttachmentSystem : SystemBase
 {
@@ -26,38 +28,38 @@ public partial class AttachmentSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        AudioTimerComponent dspTimer = GetSingleton<AudioTimerComponent>();
-        ConnectionConfig attachConfig = GetSingleton<ConnectionConfig>();
+        var dspTimer = GetSingleton<AudioTimerComponent>();
+        var attachConfig = GetSingleton<ConnectionConfig>();
         // Acquire an ECB and convert it to a concurrent one to be able to use it from a parallel job.
         EntityCommandBuffer.ParallelWriter ecb = _CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
 
         EntityQueryDesc hostQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent)}
+            All = new ComponentType[] { typeof(FrameComponent)}
         };
 
-        EntityQueryDesc hostConnectedQueryDesc = new()
+        EntityQueryDesc frameConnectedQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(ConnectedTag) }
+            All = new ComponentType[] { typeof(FrameComponent), typeof(SpeakerIndex) }
         };
 
-        EntityQueryDesc hostAloneQueryDesc = new()
+        EntityQueryDesc frameAloneQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(ConnectedTag), typeof(LoneHostOnSpeakerTag) }
+            All = new ComponentType[] { typeof(FrameComponent), typeof(SpeakerIndex), typeof(AloneOnSpeakerTag) }
         };
 
 
-        EntityQueryDesc hostNotAloneQueryDesc = new()
+        EntityQueryDesc frameNotAloneQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(ConnectedTag) },
-            None = new ComponentType[] { typeof(LoneHostOnSpeakerTag) }
+            All = new ComponentType[] { typeof(FrameComponent), typeof(SpeakerIndex) },
+            None = new ComponentType[] { typeof(AloneOnSpeakerTag) }
         };
 
-        EntityQueryDesc hostDisconnectedQueryDesc = new()
+        EntityQueryDesc frameDisconnectedQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(InListenerRadiusTag) },
-            None = new ComponentType[] { typeof(ConnectedTag)}
+            All = new ComponentType[] { typeof(FrameComponent), typeof(InListenerRadiusTag) },
+            None = new ComponentType[] { typeof(SpeakerIndex)}
         };
         EntityQueryDesc speakerQueryDesc = new()
         {
@@ -67,48 +69,43 @@ public partial class AttachmentSystem : SystemBase
         EntityQuery hostQuery;
         EntityQuery speakerQuery;
 
-        NativeArray<Entity> hostEntities;
+        NativeArray<Entity> frameEntities;
         NativeArray<Entity> speakerEntities;
         NativeArray<SpeakerIndex> speakerIndexes;
-        NativeArray<HostComponent> hostComponents;
+        NativeArray<FrameComponent> frameComponents;
         NativeArray<SpeakerComponent> speakerComponents;
 
         speakerQuery = GetEntityQuery(speakerQueryDesc);
         speakerIndexes = speakerQuery.ToComponentDataArray<SpeakerIndex>(Allocator.TempJob);
         speakerComponents = speakerQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);
-        JobHandle updateHostRangeJob = Entities.WithName("UpdateHostRange").WithReadOnly(speakerComponents).ForEach
+        JobHandle updateFrameRangeJob = Entities.WithName("UpdateFrameRange").WithReadOnly(speakerComponents).ForEach
         (
-            (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
+            (int entityInQueryIndex, Entity entity, ref FrameComponent frame) =>
             {
-                if (math.distance(host.WorldPos, attachConfig.ListenerPos) > attachConfig.ListenerRadius)
+                if (math.distance(frame.Position, attachConfig.ListenerPos) > attachConfig.ListenerRadius)
                 {
-                    host.Connected = false;
-                    host.InListenerRadius = false;
-                    ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<InListenerRadiusTag>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
-                    host.SpeakerIndex = int.MaxValue;
+                    ecb.RemoveComponent<SpeakerIndex>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<InListenerRangeTag>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AloneOnSpeakerTag>(entityInQueryIndex, entity);
                     return;
                 }
 
-                host.InListenerRadius = true;
-                ecb.AddComponent(entityInQueryIndex, entity, new InListenerRadiusTag());
-
-                if (host.SpeakerIndex < speakerComponents.Length)
+                ecb.AddComponent(entityInQueryIndex, entity, new InListenerRangeTag());
+                GetComponentDataFromEntity<HostComponent>(true);
+                var speakerIndex = GetComponent<SpeakerIndex>(entity);
+                if (speakerIndex.Value < speakerComponents.Length)
                 {
-                    for (int s = 0;  s < speakerComponents.Length; s++)
+                    for (var s = 0;  s < speakerComponents.Length; s++)
                     {
-                        if (host.SpeakerIndex != s)
+                        if (speakerIndex.Value != s)
                             continue;
 
                         SpeakerComponent speaker = speakerComponents[s];
 
-                        if (math.distance(host.WorldPos, speaker.WorldPos) <= speaker.ConnectionRadius)
+                        if (math.distance(frame.Position, speaker.WorldPos) <= speaker.ConnectionRadius)
                         {
-                            if (speakerComponents[host.SpeakerIndex].ConnectedHostCount == 1)
-                                ecb.AddComponent(entityInQueryIndex, entity, new LoneHostOnSpeakerTag());
-                            ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
-                            host.Connected = true;
+                            if (speakerComponents[speakerIndex.Value].ConnectedHostCount == 1)
+                                ecb.AddComponent(entityInQueryIndex, entity, new AloneOnSpeakerTag());
                             return;
                         }
 
@@ -122,8 +119,8 @@ public partial class AttachmentSystem : SystemBase
                 ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
             }
         ).ScheduleParallel(Dependency);
-        updateHostRangeJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(updateHostRangeJob);
+        updateFrameRangeJob.Complete();
+        _CommandBufferSystem.AddJobHandleForProducer(updateFrameRangeJob);
 
         speakerQuery = GetEntityQuery(speakerQueryDesc);
         JobHandle groupLoneHostsJob = Entities.WithName("GroupLoneHosts")
@@ -169,7 +166,7 @@ public partial class AttachmentSystem : SystemBase
                     ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
                 }
             }
-        ).ScheduleParallel(updateHostRangeJob);
+        ).ScheduleParallel(updateFrameRangeJob);
         groupLoneHostsJob.Complete();
         _CommandBufferSystem.AddJobHandleForProducer(groupLoneHostsJob);
 
@@ -217,9 +214,9 @@ public partial class AttachmentSystem : SystemBase
         connectToActiveSpeakerJob.Complete();
         _CommandBufferSystem.AddJobHandleForProducer(connectToActiveSpeakerJob);
 
-        hostQuery = GetEntityQuery(hostConnectedQueryDesc);
-        hostComponents = hostQuery.ToComponentDataArray<HostComponent>(Allocator.TempJob);
-        JobHandle moveSpeakersJob = Entities.WithName("MoveSpeakers").WithReadOnly(hostComponents).ForEach
+        hostQuery = GetEntityQuery(frameConnectedQueryDesc);
+        frameComponents = hostQuery.ToComponentDataArray<HostComponent>(Allocator.TempJob);
+        JobHandle moveSpeakersJob = Entities.WithName("MoveSpeakers").WithReadOnly(frameComponents).ForEach
         (
             (ref SpeakerComponent speaker, in SpeakerIndex index) =>
             {
@@ -227,17 +224,17 @@ public partial class AttachmentSystem : SystemBase
                 float3 currentPosition = speaker.WorldPos;
                 float3 targetPosition = new(0, 0, 0);
                 
-                for (int e = 0; e < hostComponents.Length; e++)
+                for (int e = 0; e < frameComponents.Length; e++)
                 {
-                    if (hostComponents[e].SpeakerIndex != index.Value)
+                    if (frameComponents[e].SpeakerIndex != index.Value)
                         continue;
 
-                    if (math.distance(currentPosition, hostComponents[e].WorldPos) > speaker.ConnectionRadius)
+                    if (math.distance(currentPosition, frameComponents[e].WorldPos) > speaker.ConnectionRadius)
                     {
                         continue;
                     }
 
-                    targetPosition += hostComponents[e].WorldPos;
+                    targetPosition += frameComponents[e].WorldPos;
                     attachedHosts++;
                 }
 
@@ -285,18 +282,18 @@ public partial class AttachmentSystem : SystemBase
                     speaker.ConnectionRadius = CalculateSpeakerRadius(attachConfig.ListenerPos, targetPosition, attachConfig.ArcDegrees);
                 }
             }
-        ).WithDisposeOnCompletion(hostComponents)
+        ).WithDisposeOnCompletion(frameComponents)
         .ScheduleParallel(groupLoneHostsJob);
         moveSpeakersJob.Complete();
         _CommandBufferSystem.AddJobHandleForProducer(moveSpeakersJob);
 
-        hostQuery = GetEntityQuery(hostDisconnectedQueryDesc);
-        hostEntities = hostQuery.ToEntityArray(Allocator.TempJob);
+        hostQuery = GetEntityQuery(frameDisconnectedQueryDesc);
+        frameEntities = hostQuery.ToEntityArray(Allocator.TempJob);
         speakerEntities = speakerQuery.ToEntityArray(Allocator.TempJob);
         speakerComponents = speakerQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);        
         JobHandle speakerActivationJob = Job.WithName("speakerActivation").WithoutBurst().WithCode(() =>
         {
-            for (int h = 0; h < hostEntities.Length; h++)
+            for (int h = 0; h < frameEntities.Length; h++)
             {
                 for (int s = 0; s < speakerComponents.Length; s++)
                 {
@@ -304,12 +301,12 @@ public partial class AttachmentSystem : SystemBase
                         continue;
 
                     // Tick host component with speaker link
-                    ecb.AddComponent(h, hostEntities, new ConnectedTag());
-                    ecb.AddComponent(h, hostEntities, new LoneHostOnSpeakerTag());
-                    HostComponent host = GetComponent<HostComponent>(hostEntities[h]);
+                    ecb.AddComponent(h, frameEntities, new ConnectedTag());
+                    ecb.AddComponent(h, frameEntities, new LoneHostOnSpeakerTag());
+                    HostComponent host = GetComponent<HostComponent>(frameEntities[h]);
                     host.SpeakerIndex = GetComponent<SpeakerIndex>(speakerEntities[s]).Value;
                     host.Connected = true;
-                    SetComponent(hostEntities[h], host);
+                    SetComponent(frameEntities[h], host);
 
                     // Set active pooled status and update attachment radius
                     SpeakerComponent speakerComponent = GetComponent<SpeakerComponent>(speakerEntities[s]);
@@ -323,7 +320,7 @@ public partial class AttachmentSystem : SystemBase
                 }
             }
         }).WithDisposeOnCompletion(speakerEntities).WithDisposeOnCompletion(speakerComponents)
-        .WithDisposeOnCompletion(hostEntities)
+        .WithDisposeOnCompletion(frameEntities)
         .Schedule(moveSpeakersJob);
         speakerActivationJob.Complete();
         _CommandBufferSystem.AddJobHandleForProducer(speakerActivationJob);

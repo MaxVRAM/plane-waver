@@ -425,21 +425,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ActorObject: {fileID: 0}
+  SpeakerTarget: {fileID: 0}
+  SpeakerTransform: {fileID: 0}
+  SpeakerIndex: 0
   StableEmitters:
   - PlaybackCondition: 0
     EmitterAsset: {fileID: 11400000, guid: 3b4440a3ee268244b9296d52bb1b6656, type: 2}
     EmitterVolume: 1
+    AgeFadeOut: 0.95
     DynamicAttenuation:
       DistanceFactor: 1
       AgeFadeIn: 0
       AgeFadeOut: 1
       MuteOnDisconnection: 1
       ReconnectionFadeInMS: 100
-    ReflectPlayheadAtLimit: 0
+    ReflectPlayheadAtLimit: 1
+    Initialised: 0
+    IsPlaying: 0
+    IsConnected: 0
   VolatileEmitters:
   - PlaybackCondition: 0
-    EmitterAsset: {fileID: 0}
-    EmitterVolume: 0
+    EmitterAsset: {fileID: 11400000, guid: e12ba27095f256848b2dede820c6a445, type: 2}
+    EmitterVolume: 1
+    AgeFadeOut: 0.95
     DynamicAttenuation:
       DistanceFactor: 1
       AgeFadeIn: 0
@@ -447,9 +455,9 @@ MonoBehaviour:
       MuteOnDisconnection: 1
       ReconnectionFadeInMS: 100
     ReflectPlayheadAtLimit: 0
-  SpeakerTarget: {fileID: 0}
-  SpeakerTransform: {fileID: 0}
-  SpeakerIndex: 0
+    Initialised: 0
+    IsPlaying: 0
+    IsConnected: 0
   MaterialModulator:
     _Enabled: 1
     _Renderer: {fileID: 0}
@@ -567,6 +575,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1507485546}
+  - component: {fileID: 1507485547}
   m_Layer: 0
   m_Name: Spawner
   m_TagString: Untagged
@@ -590,6 +599,56 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1507485547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1507485545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abaa7077d43660243b3aa238516d9d30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ControllerObject: {fileID: 0}
+  ControllerAnchor: {fileID: 0}
+  SpawnableHost: {fileID: 0}
+  PrefabToSpawn: {fileID: 1829764201}
+  SpawnablePrefabs: []
+  RandomiseSpawnPrefab: 0
+  AttachmentJoint: {fileID: 0}
+  MaxSpawnedObjects: 10
+  SpawnPeriodSeconds: 0.2
+  SpawnWhen: 1
+  SpawnDelaySeconds: 2
+  AutoSpawn: 1
+  AutoRemove: 1
+  SpawnObjectScale: {x: 1, y: 1}
+  EjectionPosition: {x: 1, y: 0, z: 0}
+  PositionVariance: 0
+  EjectionRadius: {x: 1, y: 2}
+  EjectionDirection: {x: 0, y: 0, z: 1}
+  DirectionVariance: 0
+  EjectionSpeed: {x: 0, y: 2}
+  BoundingAreaType: 2
+  BoundingCollider: {fileID: 0}
+  BoundingRadius: 30
+  UseSpawnLifespan: 1
+  SpawnLifeSpanDuration: {x: 5, y: 10}
+  AllowSiblingSurfaceContact: 1
+  AllowSiblingCollisionTrigger: 1
+  EmissiveFlashTrigger: 1
+  MaterialModulator:
+    _Enabled: 1
+    _Renderer: {fileID: 0}
+    _Colour: {r: 0, g: 0, b: 0, a: 0}
+    _ColourParam: _EmissiveColor
+    _UseExistingColour: 1
+    _ActiveState: 0
+    _ActiveIntensity: 10
+    _InactiveIntensity: 0
+    _Smoothing: 0.5
 --- !u!1 &1829764201
 GameObject:
   m_ObjectHideFlags: 0

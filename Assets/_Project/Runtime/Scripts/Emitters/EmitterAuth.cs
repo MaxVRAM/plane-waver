@@ -82,8 +82,10 @@ namespace PlaneWaver.Emitters
             if (EmitterAsset.AudioObject == null)
                 throw new Exception("EmitterAsset.AudioAsset is null.");
 
-            if (PlaybackCondition == PropagateCondition.Volatile &&
-                !IsVolatile)
+            if (IsVolatile)
+                PlaybackCondition = PropagateCondition.Volatile;
+            
+            if (PlaybackCondition == PropagateCondition.Volatile && !IsVolatile)
                 throw new Exception("PlaybackType is Volatile but EmitterAsset is not Volatile.");
 
             if (PlaybackCondition != PropagateCondition.Volatile && IsVolatile)

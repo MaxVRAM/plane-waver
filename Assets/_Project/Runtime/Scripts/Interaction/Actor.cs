@@ -1,8 +1,7 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-
 using static MaxVRAM.MaxMath;
 
 namespace PlaneWaver.Interaction
@@ -11,7 +10,7 @@ namespace PlaneWaver.Interaction
     {
         #region CLASS DEFINITIONS
 
-        private bool _initialised = false;
+        private bool _initialised;
         public Spawner Spawner;
         private bool _hasSpawner;
         public ActorLife ActorLifeController;
@@ -46,52 +45,72 @@ namespace PlaneWaver.Interaction
         public bool IsColliding { get; private set; }
 
         #endregion
-        
+
         #region PHYSICS PROPERTY METHODS
 
-        public float Acceleration(Vector3 previousVelocity) => (Velocity - previousVelocity).magnitude;
-        public float Acceleration(float previousSpeed) => Speed - previousSpeed;
-        public Vector3 RelativePosition(Transform other) => other.position - Position;
-        public Vector3 DirectionTowardsOther(Transform other) => (other.position - Position).normalized;
-        public Vector3 DirectionFromOther(Transform other) => (Position - other.position).normalized;
-        public float Distance(Transform other) => Vector3.Distance(Position, other.position);
+        public float Acceleration(float previousSpeed) { return Speed - previousSpeed; }
 
-        public float DistanceFromListener() => Distance(GrainBrain.Instance.ListenerTransform);
-        
+        public float Acceleration(Vector3 previousVelocity) { return (Velocity - previousVelocity).magnitude; }
+
+        public float Acceleration(ref Vector3 previousVelocity)
+        {
+            float returnValue = (Velocity - previousVelocity).magnitude;
+            previousVelocity = Velocity;
+            return returnValue;
+        }
+
+        public Vector3 RelativePosition(Transform other) { return other.position - Position; }
+
+        public Vector3 DirectionTowardsOther(Transform other) { return (other.position - Position).normalized; }
+
+        public Vector3 DirectionFromOther(Transform other) { return (Position - other.position).normalized; }
+
+        public float Distance(Transform other) { return Vector3.Distance(Position, other.position); }
+
+        public float DistanceFromListener() { return Distance(GrainBrain.Instance.ListenerTransform); }
+
         public float RelativeSpeed(Transform other)
         {
             if (!other.TryGetComponent(out Rigidbody otherRb))
                 return 0;
-            
+
             return Vector3.Dot(otherRb.velocity, Velocity);
         }
-        
+
         public SphericalCoordinates SphericalCoords(Transform other)
         {
             return new SphericalCoordinates(RelativePosition(other));
         }
+
         public Quaternion RotationDelta(Transform other, Vector3 previousDirection)
         {
             return Quaternion.FromToRotation(previousDirection, DirectionFromOther(other));
         }
-        
-        public float TangentalSpeed(Quaternion rotation) => TangentalSpeedFromQuaternion(rotation);
-        
+
+        public float TangentalSpeed(Quaternion rotation) { return TangentalSpeedFromQuaternion(rotation); }
+
         public float TangentalSpeed(Transform other, Vector3 previousDirection)
         {
             return TangentalSpeedFromQuaternion(RotationDelta(other, previousDirection));
         }
-        
+
+        public float TangentalSpeed(Transform other, ref Vector3 previousDirection)
+        {
+            float returnValue = TangentalSpeedFromQuaternion(RotationDelta(other, previousDirection));
+            previousDirection = DirectionFromOther(other);
+            return returnValue;
+        }
+
         #endregion
-        
+
         #region INITIALISATION METHODS
-        
+
         private void InitialiseActor()
         {
             _hasSpawner = Spawner != null;
             _hasRigidbody = TryGetComponent(out _rigidbody);
             _hasCollider = TryGetComponent(out _collider);
-            
+
             if (ActorLifeController == null)
                 ActorLifeController = GetComponent<ActorLife>() ?? gameObject.AddComponent<ActorLife>();
             ActorLifeController.InitialiseActorLife(ActorLifeData);
@@ -100,25 +119,19 @@ namespace PlaneWaver.Interaction
                 _surfaceProperties = GetComponent<SurfaceProperties>() ?? gameObject.AddComponent<SurfaceProperties>();
             SurfaceRigidity = _surfaceProperties.Rigidity;
 
-            _activeCollisions = new ();
+            _activeCollisions = new List<CollisionData>();
             _hasCollided = false;
             IsColliding = false;
             _initialised = true;
         }
-        
-        private void Start()
-        {
-            InitialiseActor();
-        }
-        
+
+        private void Start() { InitialiseActor(); }
+
         #endregion
 
         #region UPDATE METHODS
 
-        private void Update()
-        {
-            UpdateContactRigidity();
-        }
+        private void Update() { UpdateContactRigidity(); }
 
         private void UpdateContactRigidity()
         {
@@ -128,23 +141,27 @@ namespace PlaneWaver.Interaction
                 _smoothedContactRigidity = 0;
                 return;
             }
+
             _highestContactRigidity = _activeCollisions.Max(x => x.Rigidity);
-            _smoothedContactRigidity = Smooth(_smoothedContactRigidity,
+
+            _smoothedContactRigidity = Smooth(
+                _smoothedContactRigidity,
                 _highestContactRigidity,
-                ContactRigiditySmoothing);
+                ContactRigiditySmoothing
+            );
         }
 
         #endregion
-        
+
         #region COLLISION HANDLING
 
         public Action<CollisionData> OnNewValidCollision;
-        
+
         public void OnCollisionEnter(Collision collision)
         {
             if (ContactAllowed(collision.collider.gameObject))
                 _activeCollisions.Add(new CollisionData(collision));
-            
+
             if (!CollisionAllowed(collision.collider.gameObject)) return;
 
             _latestCollision = new CollisionData(collision);
@@ -162,14 +179,14 @@ namespace PlaneWaver.Interaction
         {
             _activeCollisions.RemoveAll(c => c.OtherObject == collision.collider.gameObject);
             if (_activeCollisions.Count != 0) return;
-            
+
             IsColliding = false;
             _highestContactRigidity = 0;
             _smoothedContactRigidity = 0;
         }
 
         /// <summary>
-        /// Checks if a contact is allowed based on the contact settings of the ObjectSpawner.
+        ///     Checks if a contact is allowed based on the contact settings of the ObjectSpawner.
         /// </summary>
         /// <param name="other">The other GameObject from the collision event.</param>
         /// <returns>Boolean: True if attached emitters should consider this collision's surface properties.</returns>
@@ -179,7 +196,7 @@ namespace PlaneWaver.Interaction
         }
 
         /// <summary>
-        /// Checks if a collision is allowed based on the collision settings of the ObjectSpawner.
+        ///     Checks if a collision is allowed based on the collision settings of the ObjectSpawner.
         /// </summary>
         /// <param name="other">The other GameObject from the collision event.</param>
         /// <returns>Boolean: True if attached emitters can trigger based on spawner config.</returns>
@@ -187,24 +204,26 @@ namespace PlaneWaver.Interaction
         {
             return !_hasSpawner || Spawner.CollisionAllowed(gameObject, other);
         }
-        
+
         /// <summary>
-        /// A shortcut reference to the OnlyTriggerMostRigid setting in the GrainBrain.
+        ///     A shortcut reference to the OnlyTriggerMostRigid setting in the GrainBrain.
         /// </summary>
         private bool OnlyTriggerMostRigid => GrainBrain.Instance.OnlyTriggerMostRigidSurface;
 
         /// <summary>
-        /// Checks if attached collision emitters are allowed to trigger based on collider rigidities.
+        ///     Checks if attached collision emitters are allowed to trigger based on collider rigidities.
         /// </summary>
-        /// <param name="collisionData">CollisionData object for a specific collision.
-        /// Defaults to this Actor's latest collision if no parameter provided.</param>
+        /// <param name="collisionData">
+        ///     CollisionData object for a specific collision.
+        ///     Defaults to this Actor's latest collision if no parameter provided.
+        /// </param>
         /// <returns>Boolean: True if attached emitters can trigger based on rigidity.</returns>
         private bool RigidityTest(CollisionData? collisionData)
         {
             collisionData ??= _latestCollision;
             return !OnlyTriggerMostRigid || collisionData.Value.Rigidity < SurfaceRigidity;
         }
-        
+
         #endregion
     }
 }

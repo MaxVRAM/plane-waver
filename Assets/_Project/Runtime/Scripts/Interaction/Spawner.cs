@@ -1,14 +1,11 @@
-using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using Random = UnityEngine.Random;
 using System.Linq;
-using NaughtyAttributes;
-
 using MaxVRAM;
 using MaxVRAM.Ticker;
-
+using NaughtyAttributes;
 using PlaneWaver.Emitters;
+using UnityEngine;
 
 namespace PlaneWaver.Interaction
 {
@@ -17,34 +14,27 @@ namespace PlaneWaver.Interaction
     /// </summary>
     public class Spawner : MonoBehaviour
     {
-        #region CLASS DEFINITIONS
+        #region MEMBERS & PROPERTIES
 
-        public enum SpawnCondition { Never, AfterSpeakersPopulated, SpeakerAvailable, AfterDelayPeriod, Always }
-        public enum ControllerEvent { Off, OnSpawn, OnCollision, All };
-        public enum SiblingCollision { All, Single, None };
-
-        [Header("Runtime Dynamics")]
-        private bool _initialised;
+        [Header("Runtime Dynamics")] private bool _initialised;
         private HashSet<GameObject> _collidedThisUpdate;
 
-        [Header("Object Configuration")]
-        [Tooltip("Object providing the spawn location and controller behaviour.")]
+        [Header("Object Configuration")] [Tooltip("Object providing the spawn location and controller behaviour.")]
         public GameObject ControllerObject;
         public Transform ControllerAnchor;
         [Tooltip("Parent GameObject to attach spawned prefabs.")]
         public GameObject SpawnableHost;
-        [Tooltip("Prefab to spawn.")]
-        public GameObject PrefabToSpawn;
-        [Tooltip("A list of prefabs to spawn can also be supplied, allowing runtime selection of object spawn selection.")]
+        [Tooltip("Prefab to spawn.")] public GameObject PrefabToSpawn;
+        [Tooltip(
+            "A list of prefabs to spawn can also be supplied, allowing runtime selection of object spawn selection."
+        )]
         public List<GameObject> SpawnablePrefabs;
         public bool RandomiseSpawnPrefab;
         public BaseJointScriptable AttachmentJoint;
 
-        [Header("Spawning Rules")]
-        [Range(0, 100)]
+        [Header("Spawning Rules")] [Range(0, 100)]
         public int MaxSpawnedObjects = 10;
-        [Tooltip("Delay (seconds) between each spawn.")]
-        [Range(0.01f, 1)]
+        [Tooltip("Delay (seconds) between each spawn.")] [Range(0.01f, 1)]
         public float SpawnPeriodSeconds = 0.2f;
         public SpawnCondition SpawnWhen = SpawnCondition.AfterSpeakersPopulated;
         public bool SpawnAfterPeriodSet => SpawnWhen == SpawnCondition.AfterDelayPeriod;
@@ -53,60 +43,54 @@ namespace PlaneWaver.Interaction
         public float SpawnDelaySeconds = 2;
         public bool AutoSpawn = true;
         public bool AutoRemove = true;
-        
+
         private float _startTime = int.MaxValue;
         private bool _startTimeReached;
         private Trigger _spawnTimer;
 
-        [Header("Object Properties")]
-        [SerializeField]
-        [MinMaxSlider(0.01f, 2)]
+        [Header("Object Properties")] [SerializeField] [MinMaxSlider(0.01f, 2)]
         public Vector2 SpawnObjectScale = new(1, 1);
 
         [Header("Spawn Position")]
         [Tooltip("Spawn position relative to the controller object. Converts to unit vector.")]
-        [MinValue(-1)][MaxValue(1)]
+        [MinValue(-1)]
+        [MaxValue(1)]
         public Vector3 EjectionPosition = new(1, 0, 0);
-        [Tooltip("Apply randomisation to the spawn position unit vector.")]
-        [Range(0f, 1f)]
-        public float PositionVariance = 0;
-        [Tooltip("Distance from the controller to spawn objects.")]
-        [MinMaxSlider(0f, 10f)]
+        [Tooltip("Apply randomisation to the spawn position unit vector.")] [Range(0f, 1f)]
+        public float PositionVariance;
+        [Tooltip("Distance from the controller to spawn objects.")] [MinMaxSlider(0f, 10f)]
         public Vector2 EjectionRadius = new(1, 2);
 
-        [Header("Spawn Velocity")]
-        [MinValue(-1)][MaxValue(1)]
+        [Header("Spawn Velocity")] [MinValue(-1)] [MaxValue(1)]
         public Vector3 EjectionDirection = new(0, 0, 1);
-        [Tooltip("Apply randomisation to the spawn direction.")]
-        [Range(0f, 1f)]
-        public float DirectionVariance = 0;
-        [Tooltip("Speed that spawned objects leave the controller.")]
-        [MinMaxSlider(0f, 20)]
+        [Tooltip("Apply randomisation to the spawn direction.")] [Range(0f, 1f)]
+        public float DirectionVariance;
+        [Tooltip("Speed that spawned objects leave the controller.")] [MinMaxSlider(0f, 20)]
         public Vector2 EjectionSpeed = new(0, 2);
-        
+
         [Header("Object Removal")]
-        [Tooltip("Coordinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Collider Bounds, defined instead by the supplied collider bounding area, deaulting to the controller's collider if it has one.")]
+        [Tooltip(
+            "Coordinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Collider Bounds, defined instead by the supplied collider bounding area, deaulting to the controller's collider if it has one."
+        )]
         public ActorBounds BoundingAreaType = ActorBounds.ControllerTransform;
-        [EnableIf("UsingColliderBounds")]
-        public Collider BoundingCollider;
-        [Tooltip("Radius of the bounding volume.")]
-        [EnableIf("UsingBoundingRadius")]
+        [EnableIf("UsingColliderBounds")] public Collider BoundingCollider;
+        [Tooltip("Radius of the bounding volume.")] [EnableIf("UsingBoundingRadius")]
         public float BoundingRadius = 30f;
         [Tooltip("Use a timer to destroy spawned objects after a duration.")]
         public bool UseSpawnLifespan = true;
         [Tooltip("Duration in seconds before destroying spawned object.")]
         [EnableIf("UseSpawnLifespan")]
-        [MinMaxSlider(0f, 60f)] public Vector2 SpawnLifeSpanDuration = new(5, 10);
+        [MinMaxSlider(0f, 60f)]
+        public Vector2 SpawnLifeSpanDuration = new(5, 10);
         private float SpawnLifespan => UseSpawnLifespan ? Rando.Range(SpawnLifeSpanDuration) : -1;
-        public bool UsingBoundingRadius => BoundingAreaType is ActorBounds.SpawnPosition or ActorBounds.ControllerTransform;
+        public bool UsingBoundingRadius =>
+                BoundingAreaType is ActorBounds.SpawnPosition or ActorBounds.ControllerTransform;
         public bool UsingColliderBounds => BoundingAreaType is ActorBounds.ColliderBounds;
 
-        [Header("Emitter Behaviour")]
-        public bool AllowSiblingSurfaceContact = true;
+        [Header("Emitter Behaviour")] public bool AllowSiblingSurfaceContact = true;
         public SiblingCollision AllowSiblingCollisionTrigger = SiblingCollision.Single;
 
-        [Header("Visual Feedback")]
-        public ControllerEvent EmissiveFlashTrigger = ControllerEvent.OnSpawn;
+        [Header("Visual Feedback")] public ControllerEvent EmissiveFlashTrigger = ControllerEvent.OnSpawn;
         public MaterialColourModulator MaterialModulator;
 
         private List<GameObject> _activeObjects;
@@ -148,10 +132,12 @@ namespace PlaneWaver.Interaction
             if (SpawnableHost == null)
                 SpawnableHost = gameObject;
 
-            if (SpawnablePrefabs.Count == 0 && PrefabToSpawn != null)
+            if (SpawnablePrefabs.Count == 0 &&
+                PrefabToSpawn != null)
                 SpawnablePrefabs.Add(PrefabToSpawn);
 
-            if (SpawnablePrefabs.Count >= 1 && PrefabToSpawn == null)
+            if (SpawnablePrefabs.Count >= 1 &&
+                PrefabToSpawn == null)
                 PrefabToSpawn = SpawnablePrefabs[0];
 
             if (SpawnablePrefabs.Count == 0)
@@ -161,11 +147,10 @@ namespace PlaneWaver.Interaction
                 return false;
             }
 
-            if (ControllerAnchor != null && ControllerObject.TryGetComponent(out Rigidbody rb)
-                && ControllerAnchor.TryGetComponent(out SpringJoint joint))
-            {
+            if (ControllerAnchor != null &&
+                ControllerObject.TryGetComponent(out Rigidbody rb) &&
+                ControllerAnchor.TryGetComponent(out SpringJoint joint))
                 joint.connectedBody = rb;
-            }
 
             _initialised = true;
             _startTime = Time.time + SpawnDelaySeconds;
@@ -176,7 +161,7 @@ namespace PlaneWaver.Interaction
 
         #region UPDATE METHODS
 
-        void Update()
+        private void Update()
         {
             _activeObjects.RemoveAll(item => item == null);
             _spawnTimer.UpdateTrigger(Time.deltaTime, SpawnPeriodSeconds);
@@ -194,10 +179,7 @@ namespace PlaneWaver.Interaction
 
         #region SPAWNING MANAGEMENT
 
-        private bool ReadyToSpawn()
-        {
-            return _initialised && SpawningAllowed();
-        }
+        private bool ReadyToSpawn() { return _initialised && SpawningAllowed(); }
 
         private bool SpawningAllowed()
         {
@@ -206,17 +188,17 @@ namespace PlaneWaver.Interaction
                 SpawnCondition.Never => false,
                 SpawnCondition.Always => true,
                 SpawnCondition.AfterSpeakersPopulated => !GrainBrain.Instance.PopulatingSpeakers,
-                SpawnCondition.SpeakerAvailable => GrainBrain.Instance.Speakers
-                                                             .FirstOrDefault(s => !s.IsActive),
+                SpawnCondition.SpeakerAvailable => GrainBrain.Instance.Speakers.FirstOrDefault(s => !s.IsActive),
                 SpawnCondition.AfterDelayPeriod => _startTimeReached || (_startTimeReached = Time.time > _startTime),
-                _ => false,
+                _ => false
             };
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
         private void CreateSpawnable()
         {
-            if (_activeObjects.Count >= MaxSpawnedObjects || !_spawnTimer.DrainTrigger())
+            if (_activeObjects.Count >= MaxSpawnedObjects ||
+                !_spawnTimer.DrainTrigger())
                 return;
 
             InstantiatePrefab(out GameObject newObject);
@@ -230,20 +212,24 @@ namespace PlaneWaver.Interaction
 
         private void RemoveSpawnable(int index)
         {
-            if (_activeObjects.Count <= MaxSpawnedObjects || !_spawnTimer.DrainTrigger())
+            if (_activeObjects.Count <= MaxSpawnedObjects ||
+                !_spawnTimer.DrainTrigger())
                 return;
+
             if (index < _activeObjects.Count)
                 Destroy(_activeObjects[index]);
             _activeObjects.RemoveAt(index);
         }
-        
+
         #endregion
 
         #region SPAWN CONFIGURATION
-        
+
         private void InstantiatePrefab(out GameObject newObject)
         {
-            int index = (!RandomiseSpawnPrefab || SpawnablePrefabs.Count < 2) ? Random.Range(0, SpawnablePrefabs.Count) : 0;
+            int index = !RandomiseSpawnPrefab || SpawnablePrefabs.Count < 2
+                    ? Random.Range(0, SpawnablePrefabs.Count)
+                    : 0;
             GameObject objectToSpawn = SpawnablePrefabs[index];
 
             GenerateSpawnTranslation(out Vector3 spawnPosition, out Quaternion spawnRotation);
@@ -266,8 +252,16 @@ namespace PlaneWaver.Interaction
         {
             Rigidbody rb = newObject.GetComponent<Rigidbody>() ?? newObject.AddComponent<Rigidbody>();
             Vector3 randomDirection = Random.onUnitSphere;
-            Vector3 spawnUnitDirection = Vector3.Slerp(EjectionDirection.normalized, randomDirection, DirectionVariance);
-            Vector3 velocity = newObject.transform.localRotation * spawnUnitDirection * EjectionDirection.magnitude *
+
+            Vector3 spawnUnitDirection = Vector3.Slerp(
+                EjectionDirection.normalized,
+                randomDirection,
+                DirectionVariance
+            );
+
+            Vector3 velocity = newObject.transform.localRotation *
+                               spawnUnitDirection *
+                               EjectionDirection.magnitude *
                                Rando.Range(EjectionSpeed);
             rb.velocity = velocity;
         }
@@ -275,40 +269,48 @@ namespace PlaneWaver.Interaction
         private void ConfigureSpawnedObject(GameObject spawnedObject, GameObject controllerObject)
         {
             if (AttachmentJoint != null)
-                spawnedObject.AddComponent<InteractionJointController>()
-                             .Initialise(AttachmentJoint, controllerObject.transform);
+                spawnedObject.AddComponent<InteractionJointController>().Initialise(
+                    AttachmentJoint,
+                    controllerObject.transform
+                );
 
             Actor actor = spawnedObject.GetComponent<Actor>() ?? spawnedObject.AddComponent<Actor>();
             actor.Spawner = this;
             actor.OtherBody = controllerObject.transform;
+
             actor.ActorLifeData = new ActorLifeData(
                 UseSpawnLifespan ? SpawnLifespan : -1,
                 BoundingRadius,
                 BoundingAreaType,
                 BoundingCollider,
-                controllerObject.transform);
-            
+                controllerObject.transform
+            );
+
             GrainFrame[] frames = spawnedObject.GetComponentsInChildren<GrainFrame>();
             if (frames.Length <= 0) return;
 
             foreach (GrainFrame frame in frames)
                 frame.ActorObject = actor;
         }
-        
+
         #endregion
 
         #region COLLISION MANAGEMENT
 
         public bool CollisionAllowed(GameObject goA, GameObject goB)
         {
-            if (!_activeObjects.Contains(goA) || !_activeObjects.Contains(goB) || AllowSiblingCollisionTrigger == SiblingCollision.All)
+            if (!_activeObjects.Contains(goA) ||
+                !_activeObjects.Contains(goB) ||
+                AllowSiblingCollisionTrigger == SiblingCollision.All)
                 return true;
-            else if (AllowSiblingCollisionTrigger == SiblingCollision.None)
+
+            if (AllowSiblingCollisionTrigger == SiblingCollision.None)
                 return false;
-            else if (AllowSiblingCollisionTrigger == SiblingCollision.Single & _collidedThisUpdate.Add(goA) | _collidedThisUpdate.Add(goB))
+
+            if (((AllowSiblingCollisionTrigger == SiblingCollision.Single) & _collidedThisUpdate.Add(goA)) |
+                _collidedThisUpdate.Add(goB))
                 return true;
-            else
-                return false;
+            return false;
         }
 
         public bool ContactAllowed(GameObject goA, GameObject goB)

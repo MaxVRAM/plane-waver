@@ -34,4 +34,20 @@ namespace PlaneWaver.Interaction
     }
     
     #endregion
+    
+    
+    public enum SpawnCondition
+    {
+        Never, AfterSpeakersPopulated, SpeakerAvailable, AfterDelayPeriod, Always
+    }
+
+    public enum ControllerEvent
+    {
+        Off, OnSpawn, OnCollision, All
+    };
+
+    public enum SiblingCollision
+    {
+        All, Single, None
+    };
 }

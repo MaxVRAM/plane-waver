@@ -6,7 +6,7 @@ using PlaneWaver.Interaction;
 namespace PlaneWaver.Modulation
 {
     [Serializable]
-    public class Attenuator
+    public class EmitterAttenuator
     {
         [Range(0f,1f)] public float DistanceFactor;
         [Range(0f,0.5f)] public float AgeFadeIn;
@@ -16,7 +16,7 @@ namespace PlaneWaver.Modulation
         private float _reconnectionTimer;
         [Range(0,500)] public int ReconnectionFadeInMS;
         
-        public Attenuator()
+        public EmitterAttenuator()
         {
             DistanceFactor = 1f;
             AgeFadeIn = 0f;

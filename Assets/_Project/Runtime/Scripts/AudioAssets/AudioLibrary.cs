@@ -1,17 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using UnityEditor;
-
-using UnityEngine;
-
 using System.IO;
-
+using System.Linq;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 using Unity.Entities;
-
 using NaughtyAttributes;
-
 using PlaneWaver.Emitters;
 
 namespace PlaneWaver.Library
@@ -20,15 +14,18 @@ namespace PlaneWaver.Library
     public class AudioLibrary : MonoBehaviour
     {
         #region FIELDS & PROPERTIES
-        
+
         private bool _initialised;
         public static AudioLibrary Instance;
         public List<AudioObject> AudioObjects;
-        public AudioSource PreviewAudioSource => GetComponent<AudioSource>();
+        public AudioSource PreviewAudioSource =>
+                GetComponent<AudioSource>();
 
-        [Dropdown("CreateAudioObjectDropdown")] public AudioObject PreviewAudioObject;
+        [Dropdown("CreateAudioObjectDropdown")]
+        public AudioObject PreviewAudioObject;
 
-        public int LibrarySize => AudioObjects.Count;
+        public int LibrarySize =>
+                AudioObjects.Count;
 
         #endregion
 
@@ -130,7 +127,7 @@ namespace PlaneWaver.Library
                 var clip = (AudioClip)AssetDatabase.LoadAssetAtPath(filePath, typeof(AudioClip));
                 string[] tags = AssetParsing.ParseAssetTags(clipName);
                 newAudioAsset.AssignAudioClip(clipName, tags, clip, clipType, AudioObjects.Count);
-                
+
                 AudioObjects.Add(newAudioAsset);
 
                 AssetDatabase.CreateAsset(
@@ -148,21 +145,23 @@ namespace PlaneWaver.Library
             AssetDatabase.Refresh();
             Debug.Log($"Audio Library has been rebuilt with '{AudioObjects.Count}' Audio Assets.");
         }
-        
+
         public void CreateEmitterAsset(AudioObject audioObject, bool isVolatile)
         {
             if (audioObject == null)
                 throw new NullReferenceException("AudioObject cannot be null.");
+
             if (!audioObject.ValidClip)
                 throw new NullReferenceException("AudioObject clip asset is null.");
 
             string emitterType = isVolatile ? "Volatile" : "Stable";
             string assetPath = LibraryConfig.EmitterObjectPath + $"/{emitterType}";
+
             if (!AssetDatabase.IsValidFolder(assetPath))
                 Directory.CreateDirectory(assetPath);
 
             EmitterObject newEmitter;
-            
+
             if (isVolatile)
             {
                 newEmitter = (VolatileEmitterObject)ScriptableObject.CreateInstance(typeof(VolatileEmitterObject));
@@ -177,7 +176,7 @@ namespace PlaneWaver.Library
             string shortName = audioObject.Tags.Length > 1
                     ? audioObject.Tags[0] + "." + audioObject.Tags[1]
                     : audioObject.Tags[0];
-            
+
             AssetDatabase.CreateAsset(
                 newEmitter,
                 assetPath +

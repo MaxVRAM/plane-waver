@@ -1,5 +1,4 @@
-using System;
-using System.Collections;
+
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
@@ -27,7 +26,6 @@ namespace PlaneWaver.Emitters
         public Transform SpeakerTransform;
         public int SpeakerIndex;
         
-        [Header("Emitters")]
         public List<EmitterAuth> StableEmitters = new();
         public List<EmitterAuth> VolatileEmitters = new();
         

@@ -1,28 +1,19 @@
-
+﻿using System;
 using UnityEngine;
-using System;
+using Random = UnityEngine.Random;
 
 using PlaneWaver.Interaction;
-
-using Unity.Entities;
-using Random = UnityEngine.Random;
 
 namespace PlaneWaver.Modulation
 {
     [Serializable]
-    public struct Parameter
+    public struct Data
     {
         #region DEFINITIONS
-        
+
         public readonly int ParameterIndex;
         public readonly Vector2 ParameterRange;
         public Vector2 StaticRange;
-        public SourceSelection SourceSelection;
-        // public ModulationSourceGroups SourceGroup;
-        // public ModulationSourceMisc SourceMisc;
-        // public ModulationSourceActor SourceActor;
-        // public ModulationSourceRelational SourceRelational;
-        // public ModulationSourceCollision SourceCollision;
         public Vector2 ModInputRange;
         public float ModInputMultiplier;
         public bool Accumulate;
@@ -42,30 +33,27 @@ namespace PlaneWaver.Modulation
         public float OutputOffset { get; private set; }
         public float PreviousValue { get; set; }
         public bool VolatileEmitter { get; private set; }
-        
-        #endregion
-        
-        #region CONSTRUCTOR / BUILDERS
 
-        public Parameter(ParamDefault defaultValues, bool volatileEmitter = false)
+        public float OutputValue;
+        private Source _inputSource;
+
+        #endregion
+
+        #region CONSTRUCTOR AND INITIALISATION
+
+        public Data(Defaults defaultsValues, bool volatileEmitter = false)
         {
-            ParameterIndex = defaultValues.Index;
-            ParameterRange = defaultValues.Range;
-            StaticRange = new Vector2(0f,1f);
-            SourceSelection = new SourceSelection();
-            // SourceGroup = ModulationSourceGroups.General;
-            // SourceMisc = ModulationSourceMisc.Disabled;
-            // SourceActor = ModulationSourceActor.Scale;
-            // SourceRelational = ModulationSourceRelational.DistanceX;
-            // SourceCollision = ModulationSourceCollision.CollisionForce;
-            ModInputRange = new Vector2(0f,1f);
+            ParameterIndex = defaultsValues.Index;
+            ParameterRange = defaultsValues.Range;
+            StaticRange = new Vector2(0f, 1f);
+            ModInputRange = new Vector2(0f, 1f);
             ModInputMultiplier = 1;
             Accumulate = false;
             Smoothing = 0.2f;
             ModExponent = 1;
             ModInfluence = 0;
-            FixedStart = defaultValues.FixedStart;
-            FixedEnd =  defaultValues.FixedEnd;
+            FixedStart = defaultsValues.FixedStart;
+            FixedEnd = defaultsValues.FixedEnd;
             LimiterMode = ModulationLimiter.Clip;
             NoiseInfluence = 0;
             NoiseMultiplier = 1;
@@ -77,33 +65,35 @@ namespace PlaneWaver.Modulation
             OutputOffset = 0;
             PreviousValue = 0;
             VolatileEmitter = volatileEmitter;
+
+            OutputValue = 0;
+            _inputSource = null;
         }
 
-        public void Initialise(bool volatileEmitter = false)
+        public void Initialise(Actor actor, bool volatileEmitter = false)
         {
+            _inputSource = new Source(actor);
             VolatileEmitter = volatileEmitter;
             if (VolatileEmitter) return;
-            
+
             OutputOffset = Random.Range(StaticRange.x, StaticRange.y);
             PerlinOffset = Random.Range(0f, 1000f) * (1 + ParameterIndex);
             PerlinSeed = Mathf.PerlinNoise(PerlinOffset + ParameterIndex, PerlinOffset * 0.5f + ParameterIndex);
         }
-        
-        public float GetModulationValue(in Actor actor)
-        {
-            if (Mathf.Approximately(ModInfluence, 0f))
-                return 0;
 
-            return 0;
-        }
-        
-        public ModComponent BuildComponent(float modulationValue)
+        public ModulationComponent ProcessModulation()
         {
-            return new ModComponent
+            OutputValue = _inputSource.GetInputValue();
+            return BuildComponent(OutputValue);
+        }
+
+        public ModulationComponent BuildComponent(float outputValue)
+        {
+            return new ModulationComponent
             {
                 StartValue = VolatileEmitter ? StaticRange.x : OutputOffset,
                 EndValue = VolatileEmitter ? StaticRange.y : 0,
-                ModValue = modulationValue,
+                ModValue = outputValue,
                 ModInfluence = ModInfluence,
                 ModExponent = ModExponent,
                 Min = ParameterRange.x,
@@ -119,30 +109,15 @@ namespace PlaneWaver.Modulation
 
         public float GetPerlinValue()
         {
-            if (VolatileEmitter || !UsePerlin || Mathf.Approximately(NoiseInfluence, 0f))
+            if (VolatileEmitter ||
+                !UsePerlin ||
+                Mathf.Approximately(NoiseInfluence, 0f))
                 return 0;
-            
+
             PerlinOffset += NoiseSpeed * Time.deltaTime;
             return Mathf.PerlinNoise(PerlinSeed + PerlinOffset, (PerlinSeed + PerlinOffset) * 0.5f);
         }
-        
-        #endregion
-    }
 
-    public struct ModComponent : IComponentData
-    {
-        public float StartValue;
-        public float EndValue;
-        public float ModValue;
-        public float ModInfluence;
-        public float ModExponent;
-        public float Min;
-        public float Max;
-        public float Noise;
-        public float PerlinValue;
-        public bool UsePerlin;
-        public bool LockNoise;
-        public bool FixedStart;
-        public bool FixedEnd;
+        #endregion
     }
 }

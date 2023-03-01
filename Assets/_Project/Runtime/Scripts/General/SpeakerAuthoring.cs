@@ -1,6 +1,5 @@
 ﻿using Unity.Entities;
 using UnityEngine;
-
 using MaxVRAM.Extensions;
 
 namespace PlaneWaver.DSP
@@ -14,7 +13,8 @@ namespace PlaneWaver.DSP
         #region FIELDS & PROPERTIES
 
         [SerializeField] private ConnectionState State = ConnectionState.Pooled;
-        public bool IsActive => State == ConnectionState.Active;
+        public bool IsActive =>
+                State == ConnectionState.Active;
         private int _grainArraySize = 100;
         private int _numGrainsFree = 0;
         private float _grainLoad = 0;
@@ -59,13 +59,17 @@ namespace PlaneWaver.DSP
         protected override void InitialiseComponents()
         {
             Manager.SetComponentData(ElementEntity, new SpeakerIndex { Value = EntityIndex });
-            Manager.SetComponentData(ElementEntity, new SpeakerComponent
-            {
-                State = ConnectionState.Pooled,
-                ConnectionRadius = _connectionRadius,
-                ConnectedHostCount = 0,
-                GrainLoad = 0
-            });
+
+            Manager.SetComponentData(
+                ElementEntity,
+                new SpeakerComponent
+                {
+                    State = ConnectionState.Pooled,
+                    ConnectionRadius = _connectionRadius,
+                    ConnectedHostCount = 0,
+                    GrainLoad = 0
+                }
+            );
         }
 
         protected override void ProcessComponents()
@@ -78,6 +82,7 @@ namespace PlaneWaver.DSP
         private void ProcessIndex()
         {
             var index = Manager.GetComponentData<SpeakerIndex>(ElementEntity);
+
             if (EntityIndex != index.Value)
                 Manager.SetComponentData(ElementEntity, new SpeakerIndex { Value = EntityIndex });
         }
@@ -102,10 +107,7 @@ namespace PlaneWaver.DSP
             _audioSource.volume = _audioSource.volume.Smooth(_targetVolume, VolumeSmoothing);
         }
 
-        protected override void Deregister()
-        {
-            GrainBrain.Instance.DeregisterSpeaker(this);
-        }
+        protected override void Deregister() { GrainBrain.Instance.DeregisterSpeaker(this); }
 
         #endregion
 
@@ -129,6 +131,7 @@ namespace PlaneWaver.DSP
         private void InitialiseGrainArray()
         {
             _grainArray = new Grain[_grainArraySize];
+
             for (var i = 0; i < _grainArraySize; i++)
                 _grainArray[i] = CreateNewGrain();
 
@@ -149,6 +152,7 @@ namespace PlaneWaver.DSP
         private void UpdateGrainPool()
         {
             _numGrainsFree = 0;
+
             foreach (Grain g in _grainArray)
                 if (!g.IsPlaying)
                 {
@@ -169,7 +173,7 @@ namespace PlaneWaver.DSP
         {
             grain = null;
             if (!EntityInitialised || _numGrainsFree <= 0) return grain;
-            
+
             foreach (Grain g in _grainArray)
                 if (g.Pooled)
                 {
@@ -196,11 +200,8 @@ namespace PlaneWaver.DSP
                 {
                     if (!g.IsPlaying || currentDSPSample < g.DSPStartTime)
                         continue;
-                    
-                    if (g.PlayheadIndex >= g.SizeInSamples)
-                    {
-                        g.IsPlaying = false;
-                    }
+
+                    if (g.PlayheadIndex >= g.SizeInSamples) { g.IsPlaying = false; }
                     else
                     {
                         for (var chan = 0; chan < channels; chan++)

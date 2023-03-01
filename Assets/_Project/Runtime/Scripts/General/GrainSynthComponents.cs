@@ -87,11 +87,11 @@ public struct ContinuousComponent : IComponentData
     public int PreviousGrainDuration;
     public int SamplesUntilFade;
     public int SamplesUntilDeath;
-    public ModulationComponent Playhead;
-    public ModulationComponent Density;
-    public ModulationComponent Duration;
-    public ModulationComponent Transpose;
-    public ModulationComponent Volume;
+    public ModulationComp Playhead;
+    public ModulationComp Density;
+    public ModulationComp Duration;
+    public ModulationComp Transpose;
+    public ModulationComp Volume;
 }
 
 public struct BurstComponent : IComponentData
@@ -104,15 +104,15 @@ public struct BurstComponent : IComponentData
     public bool IsPlaying;
     public float VolumeAdjust;
     public float DistanceAmplitude;
-    public ModulationComponent Length;
-    public ModulationComponent Density;
-    public ModulationComponent Playhead;
-    public ModulationComponent Duration;
-    public ModulationComponent Transpose;
-    public ModulationComponent Volume;
+    public ModulationComp Length;
+    public ModulationComp Density;
+    public ModulationComp Playhead;
+    public ModulationComp Duration;
+    public ModulationComp Transpose;
+    public ModulationComp Volume;
 }
 
-public struct ModulationComponent : IComponentData
+public struct ModulationComp : IComponentData
 {
     public float StartValue;
     public float EndValue;

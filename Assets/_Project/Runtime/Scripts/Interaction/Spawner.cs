@@ -8,12 +8,14 @@ using NaughtyAttributes;
 using MaxVRAM;
 using MaxVRAM.Ticker;
 
+using PlaneWaver.Emitters;
+
 namespace PlaneWaver.Interaction
 {
     /// <summary>
     /// Manager for spawning child game objects with a variety of existence and controller behaviours.
     /// </summary>
-    public class ObjectSpawner : MonoBehaviour
+    public class Spawner : MonoBehaviour
     {
         #region CLASS DEFINITIONS
 
@@ -93,7 +95,7 @@ namespace PlaneWaver.Interaction
         [Tooltip("Use a timer to destroy spawned objects after a duration.")]
         public bool UseSpawnLifespan = true;
         [Tooltip("Duration in seconds before destroying spawned object.")]
-        [EnableIf("_UseSpawnDuration")]
+        [EnableIf("UseSpawnLifespan")]
         [MinMaxSlider(0f, 60f)] public Vector2 SpawnLifeSpanDuration = new(5, 10);
         private float SpawnLifespan => UseSpawnLifespan ? Rando.Range(SpawnLifeSpanDuration) : -1;
         public bool UsingBoundingRadius => BoundingAreaType is ActorBounds.SpawnPosition or ActorBounds.ControllerTransform;
@@ -122,7 +124,7 @@ namespace PlaneWaver.Interaction
         private void Awake()
         {
             StartCoroutine(ClearCollisions());
-            _spawnTimer = new Trigger(TimeUnit.seconds, SpawnPeriodSeconds);
+            _spawnTimer = new Trigger(TimeUnit.Seconds, SpawnPeriodSeconds);
             _activeObjects = new List<GameObject>();
         }
 
@@ -262,7 +264,7 @@ namespace PlaneWaver.Interaction
 
         private void ApplySpawnVelocity(GameObject newObject)
         {
-            Rigidbody rb = GetComponent<Rigidbody>() ?? gameObject.AddComponent<Rigidbody>();
+            Rigidbody rb = newObject.GetComponent<Rigidbody>() ?? newObject.AddComponent<Rigidbody>();
             Vector3 randomDirection = Random.onUnitSphere;
             Vector3 spawnUnitDirection = Vector3.Slerp(EjectionDirection.normalized, randomDirection, DirectionVariance);
             Vector3 velocity = newObject.transform.localRotation * spawnUnitDirection * EjectionDirection.magnitude *
@@ -276,14 +278,21 @@ namespace PlaneWaver.Interaction
                 spawnedObject.AddComponent<InteractionJointController>()
                              .Initialise(AttachmentJoint, controllerObject.transform);
 
-            Actor actor = GetComponent<Actor>() ?? spawnedObject.AddComponent<Actor>();
+            Actor actor = spawnedObject.GetComponent<Actor>() ?? spawnedObject.AddComponent<Actor>();
+            actor.Spawner = this;
             actor.OtherBody = controllerObject.transform;
             actor.ActorLifeData = new ActorLifeData(
-                SpawnLifespan,
+                UseSpawnLifespan ? SpawnLifespan : -1,
                 BoundingRadius,
                 BoundingAreaType,
                 BoundingCollider,
                 controllerObject.transform);
+            
+            GrainFrame[] frames = spawnedObject.GetComponentsInChildren<GrainFrame>();
+            if (frames.Length <= 0) return;
+
+            foreach (GrainFrame frame in frames)
+                frame.ActorObject = actor;
         }
         
         #endregion

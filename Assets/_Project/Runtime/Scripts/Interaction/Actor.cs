@@ -12,7 +12,7 @@ namespace PlaneWaver.Interaction
         #region CLASS DEFINITIONS
 
         private bool _initialised = false;
-        public ObjectSpawner ObjectSpawner;
+        public Spawner Spawner;
         private bool _hasSpawner;
         public ActorLife ActorLifeController;
         public ActorLifeData ActorLifeData;
@@ -88,14 +88,16 @@ namespace PlaneWaver.Interaction
         
         private void InitialiseActor()
         {
-            _hasSpawner = TryGetComponent(out ObjectSpawner);
+            _hasSpawner = Spawner != null;
             _hasRigidbody = TryGetComponent(out _rigidbody);
             _hasCollider = TryGetComponent(out _collider);
             
-            ActorLifeController = GetComponent<ActorLife>() ?? gameObject.AddComponent<ActorLife>();
+            if (ActorLifeController == null)
+                ActorLifeController = GetComponent<ActorLife>() ?? gameObject.AddComponent<ActorLife>();
             ActorLifeController.InitialiseActorLife(ActorLifeData);
 
-            _surfaceProperties = GetComponent<SurfaceProperties>() ?? gameObject.AddComponent<SurfaceProperties>();
+            if (_surfaceProperties == null)
+                _surfaceProperties = GetComponent<SurfaceProperties>() ?? gameObject.AddComponent<SurfaceProperties>();
             SurfaceRigidity = _surfaceProperties.Rigidity;
 
             _activeCollisions = new ();
@@ -173,7 +175,7 @@ namespace PlaneWaver.Interaction
         /// <returns>Boolean: True if attached emitters should consider this collision's surface properties.</returns>
         private bool ContactAllowed(GameObject other)
         {
-            return !_hasSpawner || ObjectSpawner.ContactAllowed(gameObject, other);
+            return !_hasSpawner || Spawner.ContactAllowed(gameObject, other);
         }
 
         /// <summary>
@@ -183,7 +185,7 @@ namespace PlaneWaver.Interaction
         /// <returns>Boolean: True if attached emitters can trigger based on spawner config.</returns>
         private bool CollisionAllowed(GameObject other)
         {
-            return !_hasSpawner || ObjectSpawner.CollisionAllowed(gameObject, other);
+            return !_hasSpawner || Spawner.CollisionAllowed(gameObject, other);
         }
         
         /// <summary>

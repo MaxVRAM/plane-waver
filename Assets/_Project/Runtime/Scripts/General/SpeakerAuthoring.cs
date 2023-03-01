@@ -38,6 +38,10 @@ namespace PlaneWaver.DSP
         {
             _sampleRate = AudioSettings.outputSampleRate;
             _audioSource = gameObject.GetComponent<AudioSource>();
+            _audioSource.Stop();
+            _audioSource.clip = null;
+            _audioSource.playOnAwake = false;
+            _audioSource.loop = false;
             _audioSource.rolloffMode = AudioRolloffMode.Custom;
             _audioSource.maxDistance = 500;
             InitialiseGrainArray();

@@ -28,9 +28,8 @@ namespace PlaneWaver.Interaction
         
         public void InitialiseActorLife(ActorLifeData actorLifeData)
         {
-            if (actorLifeData.Lifespan < 0)
-                LiveForever = true;
-            Lifespan = actorLifeData.Lifespan;
+            Lifespan = actorLifeData.Lifespan < 0 ? -1 : actorLifeData.Lifespan;
+            LiveForever = Lifespan < 0;
             BoundingRadius = actorLifeData.BoundingRadius;
             _boundingAreaType = actorLifeData.BoundingAreaType;
             _boundingCollider = actorLifeData.BoundingCollider;

@@ -1,0 +1,128 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 631cd795d7508044999ab678f8d8713e, type: 3}
+  m_Name: Emitter.Stable.fire.huge
+  m_EditorClassIdentifier: 
+  Name: 
+  Description: 
+  AudioObject: {fileID: 11400000, guid: 4756d903b528871418965278d6e2bfde, type: 2}
+  Volume:
+    StaticRange: {x: 0, y: 1}
+    SourceSelection:
+      SourceGroup: 0
+      SourceMisc: 0
+      SourceActor: 0
+      SourceRelational: 3
+      SourceCollision: 1
+    ModInputRange: {x: 0, y: 1}
+    ModInputMultiplier: 1
+    Accumulate: 0
+    Smoothing: 0.2
+    ModExponent: 1
+    ModInfluence: 0
+    FixedStart: 0
+    FixedEnd: 1
+    LimiterMode: 0
+    NoiseInfluence: 0
+    NoiseMultiplier: 1
+    NoiseSpeed: 1
+    UsePerlin: 0
+    LockNoise: 0
+  Playhead:
+    StaticRange: {x: 0, y: 1}
+    SourceSelection:
+      SourceGroup: 0
+      SourceMisc: 0
+      SourceActor: 0
+      SourceRelational: 3
+      SourceCollision: 1
+    ModInputRange: {x: 0, y: 1}
+    ModInputMultiplier: 1
+    Accumulate: 0
+    Smoothing: 0.2
+    ModExponent: 1
+    ModInfluence: 0
+    FixedStart: 0
+    FixedEnd: 0
+    LimiterMode: 0
+    NoiseInfluence: 0
+    NoiseMultiplier: 1
+    NoiseSpeed: 1
+    UsePerlin: 0
+    LockNoise: 0
+  Duration:
+    StaticRange: {x: 0, y: 1}
+    SourceSelection:
+      SourceGroup: 0
+      SourceMisc: 0
+      SourceActor: 0
+      SourceRelational: 3
+      SourceCollision: 1
+    ModInputRange: {x: 0, y: 1}
+    ModInputMultiplier: 1
+    Accumulate: 0
+    Smoothing: 0.2
+    ModExponent: 1
+    ModInfluence: 0
+    FixedStart: 0
+    FixedEnd: 0
+    LimiterMode: 0
+    NoiseInfluence: 0
+    NoiseMultiplier: 1
+    NoiseSpeed: 1
+    UsePerlin: 0
+    LockNoise: 0
+  Density:
+    StaticRange: {x: 0, y: 1}
+    SourceSelection:
+      SourceGroup: 0
+      SourceMisc: 0
+      SourceActor: 0
+      SourceRelational: 3
+      SourceCollision: 1
+    ModInputRange: {x: 0, y: 1}
+    ModInputMultiplier: 1
+    Accumulate: 0
+    Smoothing: 0.2
+    ModExponent: 1
+    ModInfluence: 0
+    FixedStart: 0
+    FixedEnd: 0
+    LimiterMode: 0
+    NoiseInfluence: 0
+    NoiseMultiplier: 1
+    NoiseSpeed: 1
+    UsePerlin: 0
+    LockNoise: 0
+  Transpose:
+    StaticRange: {x: 0, y: 1}
+    SourceSelection:
+      SourceGroup: 0
+      SourceMisc: 0
+      SourceActor: 0
+      SourceRelational: 3
+      SourceCollision: 1
+    ModInputRange: {x: 0, y: 1}
+    ModInputMultiplier: 1
+    Accumulate: 0
+    Smoothing: 0.2
+    ModExponent: 1
+    ModInfluence: 0
+    FixedStart: 0
+    FixedEnd: 0
+    LimiterMode: 0
+    NoiseInfluence: 0
+    NoiseMultiplier: 1
+    NoiseSpeed: 1
+    UsePerlin: 0
+    LockNoise: 0
+  AgeFadeOut: 0.95

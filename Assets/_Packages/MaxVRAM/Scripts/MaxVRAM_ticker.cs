@@ -1,56 +1,52 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
 
 namespace MaxVRAM.Ticker
 {
-    public enum TimeUnit { seconds = 0, samples = 1 }
+    public enum TimeUnit { Seconds = 0, Samples = 1 }
 
     public class Trigger
     {
-        private TimeUnit _Unit = TimeUnit.seconds;
+        private TimeUnit _unit = TimeUnit.Seconds;
 
-        private bool _CarryRemainder = true;
-        private int _LastTriggerCount = 0;
-        public int LastTriggerCount { get { return _LastTriggerCount; } }
+        private const bool CarryRemainder = true;
+        private int LastTriggerCount { get; set; }
 
-        private float _TimePeriod = 1;
-        private float _TimeCounter = 0;
-        public float TimeCounter { get { return _TimeCounter; } }
+        private float _timePeriod = 1;
+        private float TimeCounter { get; set; }
 
-        private int _SamplePeriod = AudioSettings.outputSampleRate;
-        private int _SampleCounter = 0;
-        public float SampleCounter { get { return _SampleCounter; } }
+        private int _samplePeriod = AudioSettings.outputSampleRate;
+        private int SampleCounter { get; set; }
 
         public Trigger(TimeUnit unit, float timePeriod)
         {
-            if (unit == TimeUnit.samples)
+            if (unit == TimeUnit.Samples)
             {
-                Debug.Log("ActionTimer: Sample-rate timer period can only be defined using integers. This timer will be disabled.");
+                Debug.Log("ActionTimer: Sample-rate timer period can only be defined using integers.");
                 return;
             }
 
-            _Unit = unit;
-            _TimeCounter = 0;
+            _unit = unit;
+            TimeCounter = 0;
             ChangePeriod(timePeriod);
         }
 
         public Trigger(TimeUnit unit, int samplePeriod)
         {
-            if (unit != TimeUnit.samples)
+            if (unit != TimeUnit.Samples)
                 return;
 
-            _Unit = unit;
-            _SampleCounter = 0;
+            _unit = unit;
+            SampleCounter = 0;
             ChangePeriod(samplePeriod);
         }
 
         public bool DrainTrigger()
         {
-            if (_LastTriggerCount > 0)
+            if (LastTriggerCount > 0)
             {
-                _LastTriggerCount--;
+                LastTriggerCount--;
                 return true;
             }
             else
@@ -59,40 +55,40 @@ namespace MaxVRAM.Ticker
 
         public int UpdateTrigger(float delta, float? period)
         {
-            if (_Unit != TimeUnit.seconds)
+            if (_unit != TimeUnit.Seconds)
                 return 0;
 
             if (period.HasValue)
                 ChangePeriod(period.Value);
 
-            _TimeCounter += delta;
+            TimeCounter += delta;
 
-            if (_TimeCounter < _TimePeriod)
+            if (TimeCounter < _timePeriod)
                 return 0;
 
-            int count = (int)(_TimeCounter / _TimePeriod);
-            _TimeCounter = _CarryRemainder ? _TimeCounter - _TimePeriod * count : 0;
-            _LastTriggerCount = count;
+            int count = (int)(TimeCounter / _timePeriod);
+            TimeCounter = CarryRemainder ? TimeCounter - _timePeriod * count : 0;
+            LastTriggerCount = count;
             return count;
         }
 
         public int UpdateTrigger(int delta, int? period)
         {
-            if (_Unit != TimeUnit.samples)
+            if (_unit != TimeUnit.Samples)
                 return 0;
 
             if (period.HasValue)
                 ChangePeriod(period.Value);
 
-            _SampleCounter += delta;
+            SampleCounter += delta;
 
-            if (_SampleCounter < _SamplePeriod)
+            if (SampleCounter < _samplePeriod)
                 return 0;
             else
             {
-                int count = _SampleCounter / _SamplePeriod;
-                _SampleCounter = _CarryRemainder ? _SampleCounter - _SamplePeriod * count : 0;
-                _LastTriggerCount = count;
+                int count = SampleCounter / _samplePeriod;
+                SampleCounter = CarryRemainder ? SampleCounter - _samplePeriod * count : 0;
+                LastTriggerCount = count;
                 return count;
             }
         }
@@ -100,26 +96,26 @@ namespace MaxVRAM.Ticker
         public void Reset(TimeUnit? unit = null)
         {
             if (unit.HasValue)
-                _Unit = unit.Value;
+                _unit = unit.Value;
 
-            _TimeCounter = 0;
-            _SampleCounter = 0;
+            TimeCounter = 0;
+            SampleCounter = 0;
         }
 
         public void ChangePeriod(float timePeriod)
         {
             timePeriod = Mathf.Max(timePeriod, 0.01f);
-            if (timePeriod == _TimePeriod)
+            if (Mathf.Approximately(timePeriod, _timePeriod))
                 return;
-            _TimePeriod = timePeriod;
+            _timePeriod = timePeriod;
         }
 
         public void ChangePeriod(int samplePeriod)
         {
             samplePeriod = Mathf.Max(samplePeriod, 10);
-            if (samplePeriod == _SamplePeriod)
+            if (samplePeriod.Equals(_samplePeriod))
                 return;
-            _SamplePeriod = samplePeriod;
+            _samplePeriod = samplePeriod;
         }
 
     }

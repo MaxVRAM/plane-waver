@@ -28,7 +28,7 @@ namespace PlaneWaver
         #region FIELDS & PROPERTIES
 
         public static GrainBrain Instance;
-
+        private bool IsInitialised { get; set; }
         private EntityManager _entityManager;
         private EntityQuery _grainQuery;
 
@@ -38,23 +38,20 @@ namespace PlaneWaver
 
         private AudioListener _listener;
         public Transform ListenerTransform => _listener.transform;
-        public Vector3 ListenerPosition => _listener.transform.position;
 
-        private int _frameStartSampleIndex = 0;
-        private int _lastFrameSampleDuration = 0;
-        private float _grainsPerFrame = 0;
-        private float _grainsPerSecond = 0;
-        private float _grainsPerSecondPeak = 0;
-        private int _grainsDiscarded = 0;
-        private float _averageGrainAge = 0;
-        private float _averageGrainAgeMS = 0;
+        private int _frameStartSampleIndex;
+        private int _lastFrameSampleDuration;
+        private float _grainsPerFrame;
+        private float _grainsPerSecond;
+        private float _grainsPerSecondPeak;
+        private int _grainsDiscarded;
+        private float _averageGrainAge;
+        private float _averageGrainAgeMS;
         private int _speakerCount;
         private int _hostCount;
         private int _emitterCount;
         private int _frameCount;
-
-        [Tooltip("Maximum number of speakers possible, defined by 'numRealVoices' in the project settings audio tab.")]
-        [ShowNonSerializedField] private int _maxSpeakers = 0;
+        private int _maxSpeakers;
 
         [Tooltip("Maximum distance from the listener to enable emitters and allocate speakers.")]
         [BoxGroup("Audio Config")][Range(0.1f, 50)]
@@ -65,7 +62,7 @@ namespace PlaneWaver
         [Tooltip("Percentage of previous frame duration to delay grainComponent start times of next frame. Adds a more predictable amount of latency to help avoid timing issues when the framerate slows.")]
         [BoxGroup("Audio Config")][Range(0, 100)]
         public float DelayPercentLastFrame = 10;
-        [Tooltip("Discard unplayed grains with a DSP start index more than this value (ms) in the past. Prevents clustered grainComponent playback when resources are near their limit.")]
+        [Tooltip("Discard un-played grains with a DSP start index more than this value (ms) in the past. Prevents clustered grainComponent playback when resources are near their limit.")]
         [BoxGroup("Audio Config")][Range(0, 60)]
         public float DiscardGrainsOlderThanMS = 10;
         [Tooltip("Delay bursts triggered on the same frame by a random amount. Helps avoid phasing issues caused by identical emitters triggered together.")]
@@ -74,8 +71,8 @@ namespace PlaneWaver
         [Tooltip("Burst emitters ignore subsequent collisions for this duration to avoid fluttering from weird physics.")]
         [BoxGroup("Audio Config")][Range(0, 50)]
         public float BurstDebounceDurationMS = 25;
-        [BoxGroup("Audio Config")][SerializeField]
-        private Windowing GrainEnvelope;
+        [BoxGroup("Audio Config")]
+        public Windowing GrainEnvelope;
 
         public int SampleRate { get; private set; } = 44100;
         public int SamplesPerMS { get; private set; } = 0;
@@ -85,39 +82,30 @@ namespace PlaneWaver
         public int GrainDiscardSampleIndex => _frameStartSampleIndex - (int)(DiscardGrainsOlderThanMS * SamplesPerMS);
         public int NextFrameIndexEstimate => _frameStartSampleIndex + (int)(_lastFrameSampleDuration * (1 + DelayPercentLastFrame / 100));
         
-        [BoxGroup("Speaker Configuration")]
         [Tooltip("Target number of speakers to be spawned and managed by the synth system.")]
-        [Range(0, 255)][SerializeField] private int SpeakersAllocated = 32;
-        [BoxGroup("Speaker Configuration")]
+        [Range(0, 64)] public int SpeakerPoolCount = 16;
         [Tooltip("Period (seconds) to instantiate/destroy speakers. Affects performance only during start time or when altering the 'Speakers Allocated' value during runtime.")]
-        [Range(0.01f, 1)][SerializeField] private float SpeakerAllocationPeriod = 0.2f;
-        private Trigger _speakerAllocationTimer;
-        [BoxGroup("Speaker Configuration")]
+        [Range(0.01f, 1)] public float SpeakerAllocationPeriod = 0.2f;
+        public Trigger SpeakerInstantiationTimer;
         [Tooltip("Speaker prefab to spawn when dynamically allocating speakers.")]
         public SpeakerAuthoring SpeakerPrefab;
-        [BoxGroup("Speaker Configuration")]
         [Tooltip("ActorTransform to contain spawned speakers.")]
-        [SerializeField] private Transform SpeakerParentTransform;
-        [BoxGroup("Speaker Configuration")]
+        public Transform SpeakerParentTransform;
         [Tooltip("World coordinates to store pooled speakers.")]
-        [SerializeField] private Vector3 SpeakerPoolingPosition = Vector3.down * 20;
-        [BoxGroup("Speaker Configuration")]
+        public Vector3 SpeakerPoolingPosition = Vector3.down * 20;
         [Tooltip("Number of grains allocated to each speaker. Every frame the synth manager distributes grains to each grain's target speaker, which holds on to the grain object until all samples have been written to the output buffer.")]
-        [Range(0, 255)][SerializeField] private int SpeakerGrainArraySize = 100;
-        [BoxGroup("Speaker Configuration")]
+        [Range(10, 200)] public int SpeakerGrainArraySize = 100;
         [Tooltip("The ratio of busy(?):(1)empty grains in each speaker before it is considered 'busy' and deprioritised as a target for additional emitters by the attachment system.")]
         [Range(0.1f, 45)] public float SpeakerBusyLoadLimit = 0.5f;
-        [BoxGroup("Speaker Configuration")]
         [Tooltip("Arc length in degrees from the listener position that emitters can be attached to a speaker.")]
         [Range(0.1f, 45)] public float SpeakerAttachArcDegrees = 10;
-        [BoxGroup("Speaker Configuration")]
         [Tooltip("How quickly speakers follow their targets. Increasing this value helps the speaker track its target, but can start invoking inappropriate doppler if tracking high numbers of ephemeral emitters.")]
         [Range(0, 50)] public float SpeakerTrackingSpeed = 20;
-        [BoxGroup("Speaker Configuration")]
         [Tooltip("Length of time in milliseconds before pooling a speaker after its last emitter has disconnected. Allows speakers to be reused without destroying remaining grains from destroyed emitters.")]
         [Range(0, 500)] public float SpeakerLingerTime = 100;
-        public int SpeakersAllocatedLimited => Math.Min(SpeakersAllocated, _maxSpeakers);
-        public bool PopulatingSpeakers => SpeakersAllocated != Speakers.Count;
+        
+        public int SpeakersAllocatedLimited => Math.Min(SpeakerPoolCount, _maxSpeakers);
+        public bool PopulatingSpeakers => SpeakerPoolCount != Speakers.Count;
         public float AttachSmoothing => Mathf.Clamp(Time.deltaTime * SpeakerTrackingSpeed, 0, 1);
 
         [BoxGroup("Visual Feedback")]
@@ -142,27 +130,45 @@ namespace PlaneWaver
         
         #endregion
 
-        #region UPDATE SCHEDULE
+        #region INIT & VALIDATION
 
         private void Awake()
         {
             Instance = this;
-            SampleRate = AudioSettings.outputSampleRate;
-            SamplesPerMS = (int)(SampleRate * .001f);
-            _speakerAllocationTimer = new Trigger(TimeUnit.seconds, SpeakerAllocationPeriod);
-            _maxSpeakers = AudioSettings.GetConfiguration().numRealVoices;
-            CheckSpeakerAllocation();
+            DefineAudioConfiguration();
+            CheckSpeakerCountLimit();
         }
 
         private void Start()
         {
+            ValidateSynthElements();
+            
+            _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            
+            _grainQuery = _entityManager.CreateEntityQuery(typeof(GrainComponent), typeof(SamplesProcessedTag));
+
+            _windowingEntity = UpdateEntity(_windowingEntity, BrainComponentType.Windowing);
+            _audioTimerEntity = UpdateEntity(_audioTimerEntity, BrainComponentType.AudioTimer);
+            _attachmentEntity = UpdateEntity(_attachmentEntity, BrainComponentType.Connection);
+        }
+
+        private void DefineAudioConfiguration()
+        {
+            SampleRate = AudioSettings.outputSampleRate;
+            SamplesPerMS = (int)(SampleRate * .001f);
+            SpeakerInstantiationTimer = new Trigger(TimeUnit.Seconds, SpeakerAllocationPeriod);
+            _maxSpeakers = AudioSettings.GetConfiguration().numRealVoices;
+        }
+
+        private void ValidateSynthElements()
+        {
             _listener = FindObjectOfType<AudioListener>();
             
             if (_listener == null)
-            {
-                Debug.LogError("No AudioListener found in scene.");
-                return;
-            }
+                throw new NullReferenceException("No AudioListener found in scene. Cannot create synth.");
+            
+            if (SpeakerPrefab == null)
+                throw new NullReferenceException("Speaker prefab not set. Cannot start synth.");
             
             if (SpeakerParentTransform == null)
             {
@@ -172,21 +178,23 @@ namespace PlaneWaver
                 go.transform.position = speakerTransform.position;
                 SpeakerParentTransform = go.transform;
             }
-
-            _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            _grainQuery = _entityManager.CreateEntityQuery(typeof(GrainComponent), typeof(SamplesProcessedTag));
-
-            _windowingEntity = UpdateEntity(_windowingEntity, BrainComponentType.Windowing);
-            _audioTimerEntity = UpdateEntity(_audioTimerEntity, BrainComponentType.AudioTimer);
-            _attachmentEntity = UpdateEntity(_attachmentEntity, BrainComponentType.Connection);
+            
+            IsInitialised = true;
         }
+        
+        #endregion
 
+        #region UPDATE SCHEDULE
+        
         private void Update()
         {
+            if (!IsInitialised)
+                return;
+            
             _frameStartSampleIndex = CurrentSampleIndex;
             _lastFrameSampleDuration = (int)(Time.deltaTime * SampleRate);
 
-            CheckSpeakerAllocation();
+            CheckSpeakerCountLimit();
             UpdateEntity(_attachmentEntity, BrainComponentType.Connection);
 
             SpeakerUpkeep();
@@ -364,21 +372,20 @@ namespace PlaneWaver
 
         #region SPEAKER MANAGEMENT
 
-        private void CheckSpeakerAllocation()
+        private void CheckSpeakerCountLimit()
         {
-            if (SpeakersAllocated > _maxSpeakers)
-            {
-                SpeakersAllocated = _maxSpeakers;
-            }
-            _speakerAllocationTimer.UpdateTrigger(Time.deltaTime, SpeakerAllocationPeriod);
+            SpeakerPoolCount = Mathf.Clamp(SpeakerPoolCount, 0, _maxSpeakers);
+            SpeakerInstantiationTimer.UpdateTrigger(Time.deltaTime, SpeakerAllocationPeriod);
         }
 
-        public SpeakerAuthoring CreateSpeaker(int index)
+        private SpeakerAuthoring CreateSpeaker(int index)
         {
-            SpeakerAuthoring newSpeaker = Instantiate(SpeakerPrefab,
-                                                      SpeakerPoolingPosition,
-                                                      Quaternion.identity,
-                                                      SpeakerParentTransform);
+            SpeakerAuthoring newSpeaker = Instantiate(
+                SpeakerPrefab,
+                SpeakerPoolingPosition,
+                Quaternion.identity,
+                SpeakerParentTransform
+            );
             // newSpeaker.SetIndex(index);
             newSpeaker.SetGrainArraySize(SpeakerGrainArraySize);
             return newSpeaker;
@@ -390,16 +397,18 @@ namespace PlaneWaver
 
         private void SpeakerUpkeep()
         {
-            for (var i = 0; i < Speakers.Count; i++)
-            {
-                if (Speakers[i] == null)
-                    Speakers[i] = CreateSpeaker(i);
-            }
-            while (Speakers.Count < SpeakersAllocatedLimited && _speakerAllocationTimer.DrainTrigger())
+            // Disabling this for the moment until I run into a situation where it's needed.
+            // for (var i = 0; i < Speakers.Count; i++)
+            // {
+            //     if (Speakers[i] == null)
+            //         Speakers[i] = CreateSpeaker(i);
+            // }
+            
+            while (Speakers.Count < SpeakersAllocatedLimited && SpeakerInstantiationTimer.DrainTrigger())
             {
                 Speakers.Add(CreateSpeaker(Speakers.Count - 1));
             }
-            while (Speakers.Count > SpeakersAllocatedLimited && _speakerAllocationTimer.DrainTrigger())
+            while (Speakers.Count > SpeakersAllocatedLimited && SpeakerInstantiationTimer.DrainTrigger())
             {
                 Destroy(Speakers[^1].gameObject);
                 Speakers.RemoveAt(Speakers.Count - 1);
@@ -439,9 +448,9 @@ namespace PlaneWaver
         {
             return type switch
             {
-                    SynthElementType.Speaker => GetIndexOfSpeaker((SpeakerAuthoring)synthElement),
-                    SynthElementType.Frame   => RegisterFrame((GrainFrame)synthElement),
-                    _                        => -1
+                SynthElementType.Speaker => GetIndexOfSpeaker((SpeakerAuthoring)synthElement),
+                SynthElementType.Frame   => RegisterFrame((GrainFrame)synthElement),
+                _                        => -1
             };
         }
         

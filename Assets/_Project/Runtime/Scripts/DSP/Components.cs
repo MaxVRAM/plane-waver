@@ -1,20 +1,63 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 
 namespace PlaneWaver.DSP
 {
+    public struct FloatBlobAsset
+    {
+        public BlobArray<float> Array;
+    }
+    
     public struct SamplesProcessedTag : IComponentData { }
 
     public struct ReflectPlayheadTag : IComponentData { }
     
-    public struct WindowingDataComponent : IComponentData
+    public struct WindowingComponent : IComponentData
     {
         public BlobAssetReference<FloatBlobAsset> WindowingArray;
+    }
+    
+    public struct GrainSampleBufferElement : IBufferElementData
+    {
+        public float Value;
+    }
+
+    public struct DSPSampleBufferElement : IBufferElementData
+    {
+        public float Value;
     }
     
     public struct AssetSampleArray :IComponentData
     {
         public int AssetIndex;
         public BlobAssetReference<FloatBlobAsset> SampleBlob;
+    }
+    
+    public enum AudioEffectTypes
+    {
+        Bitcrush, Flange, Delay, Filter, Chopper
+    }
+    
+    [Serializable]
+    public struct AudioEffectParameters : IBufferElementData
+    {
+        public AudioEffectTypes AudioEffectType;
+        public bool DelayBasedEffect;
+        public int SampleRate;
+        public int SampleTail;
+        public int SampleStartTime;
+        public float Mix;
+        public float Value0;
+        public float Value1;
+        public float Value2;
+        public float Value3;
+        public float Value4;
+        public float Value5;
+        public float Value6;
+        public float Value7;
+        public float Value8;
+        public float Value9;
+        public float Value10;
     }
     
     public struct GrainComponent : IComponentData

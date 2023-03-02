@@ -166,7 +166,7 @@ MonoBehaviour:
     TukeyHeight: 0
     GaussianSigma: 0
     LinearInOutFade: 0
-  SpeakerPoolCount: 32
+  SpeakerPoolCount: 10
   SpeakerAllocationPeriod: 0.2
   SpeakerPrefab: {fileID: 2519325204652697373, guid: 6844ced249a80dd4584a457e05fa1c66,
     type: 3}
@@ -424,7 +424,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d167efd7e0ffb4cbcaa90e4e7ac6de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ActorObject: {fileID: 0}
   SpeakerTarget: {fileID: 0}
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0

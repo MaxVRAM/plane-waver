@@ -65,7 +65,7 @@ namespace PlaneWaver.DSP
                 new SpeakerComponent
                 {
                     State = ConnectionState.Pooled,
-                    ConnectionRadius = _connectionRadius,
+                    Radius = _connectionRadius,
                     ConnectedHostCount = 0,
                     GrainLoad = 0
                 }
@@ -96,11 +96,11 @@ namespace PlaneWaver.DSP
 
             bool stateChanged = State != pooling.State;
             State = pooling.State;
-            _connectionRadius = pooling.ConnectionRadius;
+            _connectionRadius = pooling.Radius;
             _connectedHosts = pooling.ConnectedHostCount;
             _inactiveDuration = pooling.InactiveDuration;
 
-            transform.position = pooling.WorldPos;
+            transform.position = pooling.Position;
             transform.localScale = Vector3.one * _connectionRadius;
 
             _targetVolume = State != ConnectionState.Pooled ? 1 : 0;

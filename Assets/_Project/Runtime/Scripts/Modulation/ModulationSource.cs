@@ -4,67 +4,66 @@ using UnityEngine;
 
 namespace PlaneWaver.Modulation
 {
-    [Serializable]
-    public class Source
+    public partial class Modulation
     {
-        public SourceGroups SourceGroup;
-        public SourceMisc SourceMisc;
-        public SourceActor SourceActor;
-        public SourceRelational SourceRelative;
-        public SourceCollision SourceCollision;
-
-        private Vector3 _previousVector;
-        private Actor _actor;
-        public Actor Actor
+        [Serializable]
+        public class SourceSelector
         {
-            get => _actor;
-            set => _actor = value;
-        }
-        private float _value;
-        public float Value
-        {
-            get => _value;
-            set => _value = value;
-        }
-
-        public Source() { ResetSource(); }
-
-        public Source(Actor actor) { _actor = actor; ResetSource(); }
-
-        public void ResetSource()
-        {
-            SourceGroup = SourceGroups.Misc;
-            SourceMisc = SourceMisc.Disabled;
-            SourceActor = SourceActor.Speed;
-            SourceRelative = SourceRelational.Radius;
-            SourceCollision = SourceCollision.CollisionForce;
+            public SourceGroups Group;
+            public SourceMisc Misc;
+            public SourceActor Actor;
+            public SourceRelational Relative;
+            public SourceCollision Collision;
+            
+            public SourceSelector() { ResetSource(); }
+            
+            public void ResetSource()
+            {
+                Group = SourceGroups.Misc;
+                Misc = SourceMisc.Disabled;
+                Actor = SourceActor.Speed;
+                Relative = SourceRelational.Radius;
+                Collision = SourceCollision.CollisionForce;
+            }
         }
         
-        public float GetInputValue()
+        public class InputGetter
         {
-            _value = SourceGroup switch
-            {
-                SourceGroups.Misc      => GetMiscValue(),
-                SourceGroups.Actor     => _actor.GetActorValue(SourceActor, ref _previousVector),
-                SourceGroups.Relative  => _actor.GetRelativeValue(SourceRelative, ref _previousVector),
-                SourceGroups.Collision => _actor.GetCollisionValue(SourceCollision),
-                _                      => throw new ArgumentOutOfRangeException()
-            };
+            private Vector3 _previousVector;
+            private readonly Actor _actor;
+            private float _value;
 
-            return _value;
-        }
-
-        public float GetMiscValue()
-        {
-            return SourceMisc switch
+            public InputGetter(Actor actor)
             {
-                SourceMisc.Disabled       => _value,
-                SourceMisc.TimeSinceStart => Time.time,
-                SourceMisc.DeltaTime      => Time.deltaTime,
-                SourceMisc.SpawnAge       => _actor.Life.NormalisedAge(),
-                SourceMisc.SpawnAgeNorm   => _actor.Life.NormalisedAge(),
-                _                         => throw new ArgumentOutOfRangeException()
-            };
+                _actor = actor;
+            }
+
+            public float GetInputValue(SourceSelector selector)
+            {
+                _value = selector.Group switch
+                {
+                    SourceGroups.Misc      => GetMiscValue(selector.Misc),
+                    SourceGroups.Actor     => _actor.GetActorValue(selector.Actor, ref _previousVector),
+                    SourceGroups.Relative  => _actor.GetRelativeValue(selector.Relative, ref _previousVector),
+                    SourceGroups.Collision => _actor.GetCollisionValue(selector.Collision),
+                    _                      => throw new ArgumentOutOfRangeException()
+                };
+
+                return _value;
+            }
+
+            public float GetMiscValue(SourceMisc misc)
+            {
+                return misc switch
+                {
+                    SourceMisc.Disabled       => _value,
+                    SourceMisc.TimeSinceStart => Time.time,
+                    SourceMisc.DeltaTime      => Time.deltaTime,
+                    SourceMisc.SpawnAge       => _actor.Life.NormalisedAge(),
+                    SourceMisc.SpawnAgeNorm   => _actor.Life.NormalisedAge(),
+                    _                         => throw new ArgumentOutOfRangeException()
+                };
+            }
         }
     }
 

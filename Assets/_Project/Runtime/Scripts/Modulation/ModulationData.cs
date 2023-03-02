@@ -11,6 +11,9 @@ namespace PlaneWaver.Modulation
     {
         #region DEFINITIONS
 
+        public Modulation.SourceSelector InputSource;
+        private Modulation.InputGetter _inputGetter;
+        
         public readonly int ParameterIndex;
         public readonly Vector2 ParameterRange;
         public Vector2 StaticRange;
@@ -34,8 +37,9 @@ namespace PlaneWaver.Modulation
         public float PreviousValue { get; set; }
         public bool VolatileEmitter { get; private set; }
 
-        public float OutputValue;
-        private Source _inputSource;
+        private float _previousSmoothed;
+        public float SourceInputValue => _inputGetter.GetInputValue(InputSource);
+        public float OutputValue => Modulation.Process(in this, SourceInputValue, ref _previousSmoothed);
 
         #endregion
 
@@ -43,6 +47,7 @@ namespace PlaneWaver.Modulation
 
         public Data(Defaults defaultsValues, bool volatileEmitter = false)
         {
+            InputSource = new ();
             ParameterIndex = defaultsValues.Index;
             ParameterRange = defaultsValues.Range;
             StaticRange = new Vector2(0f, 1f);
@@ -65,14 +70,13 @@ namespace PlaneWaver.Modulation
             OutputOffset = 0;
             PreviousValue = 0;
             VolatileEmitter = volatileEmitter;
-
-            OutputValue = 0;
-            _inputSource = null;
+            _previousSmoothed = 0;
+            _inputGetter = null;
         }
 
         public void Initialise(Actor actor, bool volatileEmitter = false)
         {
-            _inputSource = new Source(actor);
+            _inputGetter = new Modulation.InputGetter(actor);
             VolatileEmitter = volatileEmitter;
             if (VolatileEmitter) return;
 
@@ -80,20 +84,14 @@ namespace PlaneWaver.Modulation
             PerlinOffset = Random.Range(0f, 1000f) * (1 + ParameterIndex);
             PerlinSeed = Mathf.PerlinNoise(PerlinOffset + ParameterIndex, PerlinOffset * 0.5f + ParameterIndex);
         }
-
-        public ModulationComponent ProcessModulation()
-        {
-            OutputValue = _inputSource.GetInputValue();
-            return BuildComponent(OutputValue);
-        }
-
-        public ModulationComponent BuildComponent(float outputValue)
+        
+        public ModulationComponent BuildComponent()
         {
             return new ModulationComponent
             {
                 StartValue = VolatileEmitter ? StaticRange.x : OutputOffset,
                 EndValue = VolatileEmitter ? StaticRange.y : 0,
-                ModValue = outputValue,
+                ModValue = OutputValue,
                 ModInfluence = ModInfluence,
                 ModExponent = ModExponent,
                 Min = ParameterRange.x,

@@ -33,8 +33,8 @@ namespace PlaneWaver
         private EntityQuery _grainQuery;
 
         private Entity _windowingEntity;
-        private Entity _audioTimerEntity;
-        private Entity _attachmentEntity;
+        private Entity _timerEntity;
+        private Entity _connectionEntity;
 
         private AudioListener _listener;
         public Transform ListenerTransform => _listener.transform;
@@ -102,7 +102,7 @@ namespace PlaneWaver
         [Tooltip("How quickly speakers follow their targets. Increasing this value helps the speaker track its target, but can start invoking inappropriate doppler if tracking high numbers of ephemeral emitters.")]
         [Range(0, 50)] public float SpeakerTrackingSpeed = 20;
         [Tooltip("Length of time in milliseconds before pooling a speaker after its last emitter has disconnected. Allows speakers to be reused without destroying remaining grains from destroyed emitters.")]
-        [Range(0, 500)] public float SpeakerLingerTime = 100;
+        [Range(0, 500)] public float SpeakerLingerTime = 300;
         
         public int SpeakersAllocatedLimited => Math.Min(SpeakerPoolCount, _maxSpeakers);
         public bool PopulatingSpeakers => SpeakerPoolCount != Speakers.Count;
@@ -144,14 +144,12 @@ namespace PlaneWaver
             ValidateSynthElements();
             
             _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            
             _grainQuery = _entityManager.CreateEntityQuery(typeof(GrainComponent), typeof(SamplesProcessedTag));
-
-            _windowingEntity = UpdateEntity(_windowingEntity, BrainComponentType.Windowing);
-            _audioTimerEntity = UpdateEntity(_audioTimerEntity, BrainComponentType.AudioTimer);
-            _attachmentEntity = UpdateEntity(_attachmentEntity, BrainComponentType.Connection);
+            
+            CreateSharedEntities();
+            PopulateWindowingComponent();
         }
-
+        
         private void DefineAudioConfiguration()
         {
             SampleRate = AudioSettings.outputSampleRate;
@@ -195,14 +193,15 @@ namespace PlaneWaver
             _lastFrameSampleDuration = (int)(Time.deltaTime * SampleRate);
 
             CheckSpeakerCountLimit();
-            UpdateEntity(_attachmentEntity, BrainComponentType.Connection);
+            UpdateConnectionComponent();
 
             SpeakerUpkeep();
             UpdateSpeakers();
             DistributeGrains();
 
             UpdateFrames();
-            UpdateEntity(_audioTimerEntity, BrainComponentType.AudioTimer);
+            UpdateTimerComponent();
+            
 
             UpdateStatsUI();
         }
@@ -211,61 +210,55 @@ namespace PlaneWaver
 
         #region COMPONENT UPDATES
 
+        private void CreateSharedEntities()
+        {
+            _windowingEntity = _entityManager.CreateEntity(typeof(WindowingComponent));
+            _connectionEntity = _entityManager.CreateEntity(typeof(ConnectionComponent));
+            _timerEntity = _entityManager.CreateEntity(typeof(TimerComponent));
+            
+#if UNITY_EDITOR
+            _entityManager.SetName(_windowingEntity, "_Windowing");
+            _entityManager.SetName(_connectionEntity, "_Connection");
+            _entityManager.SetName(_timerEntity, "_Timer");
+#endif
+        }
+        
         private Entity CreateEntity(string entityType)
         {
             Entity entity = _entityManager.CreateEntity();
 
-#if UNITY_EDITOR
-            _entityManager.SetName(entity, entityType);
-#endif
             return entity;
         }
-
-        private Entity UpdateEntity(Entity entity, string entityType)
+        
+        private void UpdateTimerComponent()
         {
-            if (!BrainComponentType.IsValid(entityType))
-                return entity;
-
-            entity = entity != Entity.Null ? entity : CreateEntity(entityType);
-
-            if (entityType == BrainComponentType.Windowing)
-                PopulateWindowingEntity(entity);
-            else if (entityType == BrainComponentType.Connection)
-                PopulateConnectionEntity(entity);
-            else if (entityType == BrainComponentType.AudioTimer)
-                PopulateTimerEntity(entity);
-
-            return entity;
-        }
-
-        private void PopulateTimerEntity(Entity entity)
-        {
-            _entityManager.AddComponentData(entity, new AudioTimerComponent
+            _entityManager.SetComponentData(_timerEntity, new TimerComponent
             {
                 NextFrameIndexEstimate = NextFrameIndexEstimate,
                 GrainQueueSampleDuration = QueueDurationSamples,
                 PreviousFrameSampleDuration = _lastFrameSampleDuration,
                 RandomiseBurstStartIndex = BurstStartOffsetRange,
-                AverageGrainAge = (int)_averageGrainAge
+                AverageGrainAge = (int)_averageGrainAge,
+                SampleRate = SampleRate
             });
         }
 
-        private void PopulateConnectionEntity(Entity entity)
+        private void UpdateConnectionComponent()
         {
-            _entityManager.AddComponentData(entity, new ConnectionConfig
+            _entityManager.SetComponentData(_connectionEntity, new ConnectionComponent
             {
-                DeltaTime = 0,
+                DeltaTime = Time.deltaTime,
                 ListenerPos = _listener.transform.position,
                 ListenerRadius = ListenerRadius,
                 BusyLoadLimit = SpeakerBusyLoadLimit,
                 ArcDegrees = SpeakerAttachArcDegrees,
                 TranslationSmoothing = AttachSmoothing,
                 DisconnectedPosition = SpeakerPoolingPosition,
-                SpeakerLingerTime = SpeakerLingerTime / 1000
+                SpeakerLingerTime = SpeakerLingerTime * 0.001f
             });
         }
 
-        private void PopulateWindowingEntity(Entity entity)
+        private void PopulateWindowingComponent()
         {
             float[] window = GrainEnvelope.BuildWindowArray();
 
@@ -278,7 +271,7 @@ namespace PlaneWaver
                 windowArray[i] = window[i];
 
             BlobAssetReference<FloatBlobAsset> windowingBlobAssetRef = blobTheBuilder.CreateBlobAssetReference<FloatBlobAsset>(Allocator.Persistent);
-            _entityManager.AddComponentData(entity, new WindowingDataComponent { WindowingArray = windowingBlobAssetRef });
+            _entityManager.SetComponentData(_windowingEntity, new WindowingComponent { WindowingArray = windowingBlobAssetRef });
         }
 
         #endregion
@@ -526,24 +519,4 @@ namespace PlaneWaver
 
         #endregion
     }
-    
-    #region BRAIN COMPONENT TYPES
-        
-    public static class BrainComponentType
-    {
-        public const string Connection = "_AttachmentParameters";
-        public const string Windowing = "_WindowingBlob";
-        public const string AudioTimer = "_AudioTimer";
-
-        public static bool IsValid(string entityType)
-        {
-            return typeof(BrainComponentType)
-                  .GetFields()
-                  .Any(field => field
-                               .GetValue(null)
-                               .ToString() == entityType);
-        }
-    }
-
-    #endregion
 }

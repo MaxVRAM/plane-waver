@@ -59,8 +59,7 @@ namespace PlaneWaver.Emitters
         {
             for (var i = 0; i < StableEmitters.Count; i++)
             {
-                if (StableEmitters[i] == null ||
-                    StableEmitters[i].EmitterAsset == null)
+                if (StableEmitters[i] == null || StableEmitters[i].EmitterAsset == null)
                     StableEmitters.RemoveAt(i);
                 else
                     StableEmitters[i].Initialise(i, name, in _actor);
@@ -68,8 +67,7 @@ namespace PlaneWaver.Emitters
 
             for (var i = 0; i < VolatileEmitters.Count; i++)
             {
-                if (VolatileEmitters[i] == null ||
-                    VolatileEmitters[i].EmitterAsset == null)
+                if (VolatileEmitters[i] == null || VolatileEmitters[i].EmitterAsset == null)
                     VolatileEmitters.RemoveAt(i);
                 else
                     VolatileEmitters[i].Initialise(i, name, in _actor);
@@ -85,14 +83,14 @@ namespace PlaneWaver.Emitters
 
         private void InitialiseMaterialModulator()
         {
-            if (MaterialModulator._Renderer == null &&
-                _actor != null)
+            if (MaterialModulator._Renderer == null && _actor != null)
                 MaterialModulator._Renderer = _actor.GetComponentInChildren<Renderer>();
         }
 
         protected override void InitialiseComponents()
         {
-            Manager.SetComponentData(
+            Manager.SetComponentData
+            (
                 ElementEntity,
                 new FrameComponent
                 {
@@ -117,7 +115,8 @@ namespace PlaneWaver.Emitters
 
         private void UpdatePosition()
         {
-            Manager.SetComponentData(
+            Manager.SetComponentData
+            (
                 ElementEntity,
                 new FrameComponent
                 {
@@ -144,9 +143,9 @@ namespace PlaneWaver.Emitters
             if (!InListenerRange)
                 return;
 
-            if (Manager.HasComponent(ElementEntity, typeof(SpeakerIndex)))
+            if (Manager.HasComponent(ElementEntity, typeof(FrameConnection)))
             {
-                int index = Manager.GetComponentData<SpeakerIndex>(ElementEntity).Value;
+                int index = Manager.GetComponentData<FrameConnection>(ElementEntity).SpeakerIndex;
 
                 if (GrainBrain.Instance.IsSpeakerAtIndex(index, out SpeakerAuthoring speaker))
                 {
@@ -161,7 +160,7 @@ namespace PlaneWaver.Emitters
 
         private void RemoveSpeakerComponent()
         {
-            Manager.RemoveComponent<SpeakerIndex>(ElementEntity);
+            Manager.RemoveComponent<FrameConnection>(ElementEntity);
             SpeakerTransform = SpeakerTarget;
             SpeakerIndex = -1;
         }
@@ -191,14 +190,15 @@ namespace PlaneWaver.Emitters
         public int Index;
         public float3 Position;
     }
-
-    public struct InListenerRangeTag : IComponentData
+    
+    public struct FrameConnection : IComponentData
     {
+        public int SpeakerIndex;
     }
 
-    public struct AloneOnSpeakerTag : IComponentData
-    {
-    }
+    public struct InListenerRangeTag : IComponentData { }
+
+    public struct AloneOnSpeakerTag : IComponentData { }
 
     #endregion
 }

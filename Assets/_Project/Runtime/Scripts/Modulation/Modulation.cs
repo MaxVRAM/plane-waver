@@ -1,9 +1,5 @@
 using System;
-
-using UnityEngine;
 using Unity.Entities;
-
-using PlaneWaver.Interaction;
 
 namespace PlaneWaver.Modulation
 {

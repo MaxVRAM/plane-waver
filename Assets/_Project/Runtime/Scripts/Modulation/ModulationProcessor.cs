@@ -14,7 +14,7 @@ namespace PlaneWaver.Modulation
         /// <param name="inputValue">Can be any float value. Generally supplied via a modulation input source.</param>
         /// <param name="previousSmoothed">Referenced runtime-persistent float for smoothing calculations.</param>
         /// <returns></returns>
-        public static float ProcessModulation(in Data data, float inputValue, ref float previousSmoothed)
+        public static float Process(in Data data, float inputValue, ref float previousSmoothed)
         {
             float outputValue = 0;
             float input = inputValue * data.ModInputMultiplier;

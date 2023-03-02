@@ -125,6 +125,7 @@ namespace PlaneWaver.Interaction
             _hasOtherBody = OtherBody != null;
             _hasRigidbody = TryGetComponent(out _rigidbody);
             _hasCollider = TryGetComponent(out _collider);
+            _listenerTransform = GrainBrain.Instance.ListenerTransform;
 
             if (SpeakerTarget == null)
                 SpeakerTarget = transform;

@@ -49,12 +49,12 @@ namespace PlaneWaver.Emitters
         {
             var components = new List<ModulationComponent>
             {
-                Volume.ProcessModulation(),
-                Playhead.ProcessModulation(),
-                Duration.ProcessModulation(),
-                Density.ProcessModulation(),
-                Transpose.ProcessModulation(),
-                Length.ProcessModulation()
+                Volume.BuildComponent(),
+                Playhead.BuildComponent(),
+                Duration.BuildComponent(),
+                Density.BuildComponent(),
+                Transpose.BuildComponent(),
+                Length.BuildComponent()
             };
 
             return components;

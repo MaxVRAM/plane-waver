@@ -15,3 +15,11 @@ dotnet_analyzer_diagnostic.severity = none
 [Assets/_Sandbox/**.cs]
 generated_code = true
 dotnet_analyzer_diagnostic.severity = none
+
+[*]
+
+# ReSharper properties
+resharper_blank_lines_after_control_transfer_statements = 1
+resharper_blank_lines_before_multiline_statements = 0
+resharper_csharp_wrap_before_invocation_lpar = true
+resharper_instance_members_qualify_declared_in = 

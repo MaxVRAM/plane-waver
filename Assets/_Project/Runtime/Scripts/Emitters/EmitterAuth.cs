@@ -84,13 +84,13 @@ namespace PlaneWaver.Emitters
 
             if (IsVolatile)
                 PlaybackCondition = PropagateCondition.Volatile;
-            
+
             if (PlaybackCondition == PropagateCondition.Volatile && !IsVolatile)
                 throw new Exception("PlaybackType is Volatile but EmitterAsset is not Volatile.");
 
             if (PlaybackCondition != PropagateCondition.Volatile && IsVolatile)
                 throw new Exception("PlaybackType is not Volatile but EmitterAsset is Volatile.");
-            
+
             if (actor == null)
                 throw new Exception("Actor is null.");
 
@@ -108,10 +108,8 @@ namespace PlaneWaver.Emitters
             _emitterEntity = _manager.CreateEntity(_elementArchetype);
 
 #if UNITY_EDITOR
-            _manager.SetName(
-                _emitterEntity,
-                _frameName + "." + EntityIndex + "." + Enum.GetName(typeof(PropagateCondition), PlaybackCondition)
-            );
+            _manager.SetName(_emitterEntity, _frameName + "." + EntityIndex + "."
+                + Enum.GetName(typeof(PropagateCondition), PlaybackCondition));
 #endif
             _entityInitialised = true;
         }
@@ -121,7 +119,8 @@ namespace PlaneWaver.Emitters
             if (!_entityInitialised)
                 throw new Exception("EmitterAuth: Entity not initialised.");
 
-            _manager.SetComponentData(
+            _manager.SetComponentData
+            (
                 _emitterEntity,
                 new EmitterComponent
                 {
@@ -133,12 +132,12 @@ namespace PlaneWaver.Emitters
                     LastGrainDuration = -1,
                     EmitterVolume = EmitterVolume,
                     DynamicAmplitude = 0,
-                    ParamVolume = new ModulationComponent(),
-                    ParamPlayhead = new ModulationComponent(),
-                    ParamDuration = new ModulationComponent(),
-                    ParamDensity = new ModulationComponent(),
-                    ParamTranspose = new ModulationComponent(),
-                    ParamLength = new ModulationComponent()
+                    ModVolume = new ModulationComponent(),
+                    ModPlayhead = new ModulationComponent(),
+                    ModDuration = new ModulationComponent(),
+                    ModDensity = new ModulationComponent(),
+                    ModTranspose = new ModulationComponent(),
+                    ModLength = new ModulationComponent()
                 }
             );
 
@@ -153,8 +152,7 @@ namespace PlaneWaver.Emitters
         {
             _collisionData = collisionData;
 
-            if (!IsVolatile ||
-                !Initialised)
+            if (!IsVolatile || !Initialised)
                 return;
 
             IsPlaying = true;
@@ -166,26 +164,23 @@ namespace PlaneWaver.Emitters
                 return;
 
             IsConnected = isConnected;
-            
+
             if (!IsConnected)
                 DynamicAttenuation.Muted = true;
 
             if (!IsVolatile)
                 IsPlaying = _actor.IsColliding || PlaybackCondition != PropagateCondition.Contact;
-            else if (!IsConnected ||
-                     !inListenerRange)
+            else if (!IsConnected || !inListenerRange)
                 IsPlaying = false;
 
-            if (IsPlaying &&
-                IsConnected &&
-                inListenerRange)
+            if (IsPlaying && IsConnected && inListenerRange)
             {
                 var data = _manager.GetComponentData<EmitterComponent>(_emitterEntity);
                 UpdateEmitterComponent(ref data, speakerIndex);
                 _manager.SetComponentData(_emitterEntity, data);
-                _manager.AddComponent<EmitterPlaybackReadyTag>(_emitterEntity);
+                _manager.AddComponent<EmitterReadyTag>(_emitterEntity);
             }
-            else { _manager.RemoveComponent<EmitterPlaybackReadyTag>(_emitterEntity); }
+            else { _manager.RemoveComponent<EmitterReadyTag>(_emitterEntity); }
 
             if (IsVolatile) IsPlaying = false;
         }
@@ -197,7 +192,7 @@ namespace PlaneWaver.Emitters
         public void UpdateEmitterComponent(ref EmitterComponent data, int speakerIndex)
         {
             List<ModulationComponent> modulations = EmitterAsset.GetModulationComponents();
-            
+
             switch (IsVolatile)
             {
                 case true when modulations.Count != 5:
@@ -221,12 +216,12 @@ namespace PlaneWaver.Emitters
                 ReflectPlayhead = ReflectPlayheadAtLimit,
                 EmitterVolume = EmitterVolume,
                 DynamicAmplitude = DynamicAttenuation.CalculateAmplitudeMultiplier(IsConnected, _actor),
-                ParamVolume = modulations[0],
-                ParamPlayhead = modulations[1],
-                ParamDuration = modulations[2],
-                ParamDensity = modulations[3],
-                ParamTranspose = modulations[4],
-                ParamLength = IsVolatile ? modulations[5] : new ModulationComponent()
+                ModVolume = modulations[0],
+                ModPlayhead = modulations[1],
+                ModDuration = modulations[2],
+                ModDensity = modulations[3],
+                ModTranspose = modulations[4],
+                ModLength = IsVolatile ? modulations[5] : new ModulationComponent()
             };
         }
 
@@ -244,19 +239,15 @@ namespace PlaneWaver.Emitters
         public bool ReflectPlayhead;
         public float EmitterVolume;
         public float DynamicAmplitude;
-        public ModulationComponent ParamVolume;
-        public ModulationComponent ParamPlayhead;
-        public ModulationComponent ParamDuration;
-        public ModulationComponent ParamDensity;
-        public ModulationComponent ParamTranspose;
-        public ModulationComponent ParamLength;
+        public ModulationComponent ModVolume;
+        public ModulationComponent ModPlayhead;
+        public ModulationComponent ModDuration;
+        public ModulationComponent ModDensity;
+        public ModulationComponent ModTranspose;
+        public ModulationComponent ModLength;
     }
+    
+    public struct EmitterReadyTag : IComponentData { }
 
-    public struct EmitterPlaybackReadyTag : IComponentData
-    {
-    }
-
-    public struct EmitterVolatileTag : IComponentData
-    {
-    }
+    public struct EmitterVolatileTag : IComponentData { }
 }

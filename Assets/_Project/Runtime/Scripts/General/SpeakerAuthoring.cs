@@ -1,5 +1,8 @@
-﻿using Unity.Entities;
-using UnityEngine;
+﻿using UnityEngine;
+using Unity.Entities;
+
+using NaughtyAttributes;
+
 using MaxVRAM.Extensions;
 
 namespace PlaneWaver.DSP
@@ -13,16 +16,15 @@ namespace PlaneWaver.DSP
         #region FIELDS & PROPERTIES
 
         [SerializeField] private ConnectionState State = ConnectionState.Pooled;
-        public bool IsActive =>
-                State == ConnectionState.Active;
-        private int _grainArraySize = 100;
-        private int _numGrainsFree = 0;
-        private float _grainLoad = 0;
-        private int _connectedHosts = 0;
-        private float _inactiveDuration = 0;
-        private float _connectionRadius = 1;
-        private float _targetVolume = 0;
-        private const float VolumeSmoothing = 0.5f;
+        public bool IsActive => State == ConnectionState.Active;
+        [ShowNonSerializedField] private int _grainArraySize = 100;
+        [ShowNonSerializedField] private int _numGrainsFree;
+        [ShowNonSerializedField] private float _grainLoad;
+        [ShowNonSerializedField] private int _connectedHosts = 0;
+        [ShowNonSerializedField] private float _inactiveDuration = 0;
+        [ShowNonSerializedField] private float _connectionRadius = 1;
+        [ShowNonSerializedField] private float _targetVolume;
+        private const float VolumeSmoothing = 0.7f;
         private int _sampleRate;
         private AudioSource _audioSource;
         private Grain[] _grainArray;
@@ -38,14 +40,10 @@ namespace PlaneWaver.DSP
         {
             _sampleRate = AudioSettings.outputSampleRate;
             _audioSource = gameObject.GetComponent<AudioSource>();
-            _audioSource.Stop();
-            _audioSource.clip = null;
-            _audioSource.playOnAwake = false;
-            _audioSource.loop = false;
             _audioSource.rolloffMode = AudioRolloffMode.Custom;
             _audioSource.maxDistance = 500;
             InitialiseGrainArray();
-
+            
             ElementType = SynthElementType.Speaker;
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
             ElementArchetype = Manager.CreateArchetype(typeof(SpeakerComponent), typeof(SpeakerIndex));
@@ -76,7 +74,7 @@ namespace PlaneWaver.DSP
         {
             UpdateGrainPool();
             ProcessIndex();
-            ProcessPooling();
+            ProcessAllocation();
         }
 
         private void ProcessIndex()
@@ -87,10 +85,10 @@ namespace PlaneWaver.DSP
                 Manager.SetComponentData(ElementEntity, new SpeakerIndex { Value = EntityIndex });
         }
 
-        private void ProcessPooling()
+        private void ProcessAllocation()
         {
             var pooling = Manager.GetComponentData<SpeakerComponent>(ElementEntity);
-            _grainLoad = _grainLoad.Smooth(1 - (float)_numGrainsFree / _grainArraySize, 0.5f);
+            _grainLoad = _grainLoad.Smooth(1 - (float)_numGrainsFree / _grainArraySize, 0.3f);
             pooling.GrainLoad = _grainLoad;
             Manager.SetComponentData(ElementEntity, pooling);
 
@@ -166,7 +164,7 @@ namespace PlaneWaver.DSP
             if (!EntityInitialised)
                 return;
             _numGrainsFree--;
-            OnGrainEmitted?.Invoke(grainData, GrainBrain.Instance.CurrentSampleIndex);
+            // OnGrainEmitted?.Invoke(grainData, GrainBrain.Instance.CurrentSampleIndex);
         }
 
         public Grain GetEmptyGrain(out Grain grain)
@@ -186,6 +184,17 @@ namespace PlaneWaver.DSP
 
         #endregion
 
+        private void OnDrawGizmos()
+        {
+            if (State == ConnectionState.Pooled)
+                return;
+            
+            Color gizmoColour = IsActive ? Color.Lerp(Color.white, Color.red, _grainLoad) : Color.gray;
+            gizmoColour.a = _targetVolume * (1 - GrainBrain.Instance.DistanceToListener(transform));
+            Gizmos.color = gizmoColour;
+            Gizmos.DrawWireSphere(transform.position, _connectionRadius);
+        }
+        
         #region AUDIO OUTPUT BUFFER POPULATION
 
         private void OnAudioFilterRead(float[] data, int channels)

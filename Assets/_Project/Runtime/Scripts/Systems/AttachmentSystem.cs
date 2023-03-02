@@ -26,7 +26,6 @@ public partial class AttachmentSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var dspTimer = GetSingleton<TimerComponent>();
         var connectConfig = GetSingleton<ConnectionComponent>();
         // Acquire an ECB and convert it to a concurrent one to be able to use it from a parallel job.
         EntityCommandBuffer.ParallelWriter ecb = _commandBufferSystem.CreateCommandBuffer().AsParallelWriter();
@@ -86,6 +85,13 @@ public partial class AttachmentSystem : SystemBase
             (
                 int entityInQueryIndex, Entity entity, ref FrameConnection connection, in FrameComponent frame) =>
             {
+                if (connection.SpeakerIndex < 0 || connection.SpeakerIndex >= speakerComponents.Length)
+                {
+                    ecb.RemoveComponent<FrameConnection>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AloneOnSpeakerTag>(entityInQueryIndex, entity);
+                    return;
+                }
+                
                 foreach (SpeakerIndex speakerIndex in speakerIndexes)
                 {
                     if (speakerIndex.Value != connection.SpeakerIndex)
@@ -118,9 +124,6 @@ public partial class AttachmentSystem : SystemBase
         (
             (int entityInQueryIndex, Entity entity, ref FrameConnection connection, in FrameComponent frame) =>
             {
-                if (connection.SpeakerIndex < 0 || connection.SpeakerIndex >= speakerComponents.Length)
-                    return;
-
                 var foundSelf = false;
                 var foundOther = false;
                 int otherSpeakerIndex = -1;
@@ -138,17 +141,18 @@ public partial class AttachmentSystem : SystemBase
                         foundSelf = true;
                         if (foundOther)
                             break;
+
+                        continue;
                     }
-                    else if (speakerComponents[s].ConnectedHostCount > 0 &&
-                             math.distance(frame.Position, speakerComponents[s].Position)
-                             < speakerComponents[s].Radius)
-                    {
-                        otherSpeakerIndex = speakerIndexes[s].Value;
-                        otherInactive = speakerComponents[s].InactiveDuration;
-                        foundOther = true;
-                        if (foundSelf)
-                            break;
-                    }
+                    
+                    if (speakerComponents[s].Radius < math.distance(frame.Position, speakerComponents[s].Position))
+                        continue;
+
+                    otherSpeakerIndex = speakerIndexes[s].Value;
+                    otherInactive = speakerComponents[s].InactiveDuration;
+                    foundOther = true;
+                    if (foundSelf)
+                        break;
                 }
 
                 if (!foundSelf || !foundOther || selfInactive < otherInactive)
@@ -176,7 +180,7 @@ public partial class AttachmentSystem : SystemBase
                     SpeakerComponent speaker = speakerComponents[s];
 
                     if (speaker.State == ConnectionState.Pooled ||
-                        speaker.GrainLoad < connectConfig.BusyLoadLimit ||
+                        speaker.GrainLoad > connectConfig.BusyLoadLimit ||
                         speaker.Radius < math.distance(frame.Position, speaker.Position))
                         continue;
                     
@@ -189,7 +193,10 @@ public partial class AttachmentSystem : SystemBase
                 if (!foundOther)
                     return;
 
-                ecb.AddComponent(entityInQueryIndex, entity, new FrameConnection { SpeakerIndex = otherSpeakerIndex});
+                ecb.AddComponent(entityInQueryIndex, entity, new FrameConnection
+                {
+                    SpeakerIndex = otherSpeakerIndex
+                });
             }
         ).WithDisposeOnCompletion(speakerIndexes).WithDisposeOnCompletion(speakerComponents)
         .ScheduleParallel(groupLoneFramesJob);
@@ -205,7 +212,7 @@ public partial class AttachmentSystem : SystemBase
         (
             (ref SpeakerComponent speaker, in SpeakerIndex index) =>
             {
-                var attachedHosts = 0;
+                var attachedFrames = 0;
                 float3 currentPosition = speaker.Position;
                 float3 targetPosition = new(0, 0, 0);
                 
@@ -216,12 +223,12 @@ public partial class AttachmentSystem : SystemBase
                         continue;
 
                     targetPosition += frameComponents[f].Position;
-                    attachedHosts++;
+                    attachedFrames++;
                 }
 
-                speaker.ConnectedHostCount = attachedHosts;
+                speaker.ConnectedHostCount = attachedFrames;
 
-                if (attachedHosts == 0)
+                if (attachedFrames == 0)
                 {
                     speaker.InactiveDuration += connectConfig.DeltaTime;
                     switch (speaker.State)
@@ -251,7 +258,7 @@ public partial class AttachmentSystem : SystemBase
 
                 speaker.InactiveDuration -= connectConfig.DeltaTime;
 
-                targetPosition = attachedHosts == 1 ? targetPosition : targetPosition / attachedHosts;
+                targetPosition = attachedFrames == 1 ? targetPosition : targetPosition / attachedFrames;
                 float3 lerpPosition = math.lerp(currentPosition, targetPosition, connectConfig.TranslationSmoothing);
                 float lerpRadius = CalculateSpeakerRadius(
                     connectConfig.ListenerPos,lerpPosition, connectConfig.ArcDegrees);
@@ -284,18 +291,21 @@ public partial class AttachmentSystem : SystemBase
         JobHandle speakerActivationJob = Job.WithName("speakerActivation")
             .WithReadOnly(speakerIndexes).WithoutBurst().WithCode(() =>
         {
-            for (var h = 0; h < frameEntities.Length; h++)
+            for (var f = 0; f < frameEntities.Length; f++)
             {
                 for (var s = 0; s < speakerComponents.Length; s++)
                 {
                     if (speakerComponents[s].State != ConnectionState.Pooled)
                         continue;
         
-                    ecb.AddComponent(h, frameEntities, new FrameConnection{ SpeakerIndex = speakerIndexes[s].Value });
-                    ecb.AddComponent(h, frameEntities, new AloneOnSpeakerTag());
+                    ecb.AddComponent(f, frameEntities, new FrameConnection
+                    {
+                        SpeakerIndex = speakerIndexes[s].Value
+                    });
+                    ecb.AddComponent(f, frameEntities, new AloneOnSpeakerTag());
         
                     float radius = CalculateSpeakerRadius(
-                        connectConfig.ListenerPos, frameComponents[h].Position, connectConfig.ArcDegrees);
+                        connectConfig.ListenerPos, frameComponents[f].Position, connectConfig.ArcDegrees);
                     
                     ecb.SetComponent(s, speakerEntities[s], new SpeakerComponent
                     {
@@ -304,7 +314,7 @@ public partial class AttachmentSystem : SystemBase
                         Radius = radius,
                         InactiveDuration = 0,
                         GrainLoad = 0,
-                        Position = frameComponents[h].Position
+                        Position = frameComponents[f].Position
                     });
                     
                     return;

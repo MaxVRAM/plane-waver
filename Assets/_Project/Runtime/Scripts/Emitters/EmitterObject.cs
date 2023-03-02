@@ -16,6 +16,7 @@ namespace PlaneWaver.Emitters
         public AudioObject AudioObject;
 
         protected int ParameterCount;
+        public int GetParameterCount => ParameterCount;
         protected float[] PreviousSmoothed;
         protected bool IsInitialised;
         

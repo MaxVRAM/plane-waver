@@ -25,8 +25,9 @@ namespace PlaneWaver.Emitters
         public List<EmitterAuth> StableEmitters = new();
         public List<EmitterAuth> VolatileEmitters = new();
 
-        private bool IsConnected => SpeakerTransform != SpeakerTarget;
-        private bool InListenerRange { get; set; }
+        public bool IsConnected;
+        public bool CheckConnection => SpeakerTransform != null && SpeakerTransform != SpeakerTarget;
+        public bool InListenerRange;
         public MaterialColourModulator MaterialModulator = new();
 
         private Transform _headTransform;
@@ -42,7 +43,7 @@ namespace PlaneWaver.Emitters
 
             _actor.OnNewValidCollision += TriggerCollisionEmitters;
 
-            InitialiseAttachmentPoint();
+            InitialiseSpeakerTarget();
             InitialiseMaterialModulator();
 
             _headTransform = FindObjectOfType<Camera>().transform;
@@ -51,7 +52,6 @@ namespace PlaneWaver.Emitters
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
             ElementArchetype = Manager.CreateArchetype(typeof(FrameComponent));
             InitialiseEntity();
-
             InitialiseEmitters();
         }
 
@@ -74,10 +74,9 @@ namespace PlaneWaver.Emitters
             }
         }
 
-        private void InitialiseAttachmentPoint()
+        private void InitialiseSpeakerTarget()
         {
-            if (SpeakerTarget == null)
-                SpeakerTarget = new GameObject("SpeakerTarget").SetParentAndZero(_actor.transform).transform;
+            SpeakerTarget = _actor.SpeakerTarget;
             SpeakerTransform = SpeakerTarget;
         }
 
@@ -89,14 +88,8 @@ namespace PlaneWaver.Emitters
 
         protected override void InitialiseComponents()
         {
-            Manager.SetComponentData
-            (
-                ElementEntity,
-                new FrameComponent
-                {
-                    Index = EntityIndex, Position = SpeakerTarget.position,
-                }
-            );
+            Manager.SetComponentData(ElementEntity, new FrameComponent { 
+                        Index = EntityIndex, Position = SpeakerTarget.position });
         }
 
         private void OnDisable() { _actor.OnNewValidCollision -= TriggerCollisionEmitters; }
@@ -115,54 +108,57 @@ namespace PlaneWaver.Emitters
 
         private void UpdatePosition()
         {
-            Manager.SetComponentData
-            (
-                ElementEntity,
-                new FrameComponent
-                {
-                    Index = EntityIndex, Position = SpeakerTarget.position
-                }
-            );
+            Manager.SetComponentData(ElementEntity, new FrameComponent {
+                Index = EntityIndex, Position = SpeakerTarget.position
+            });
         }
 
         private void UpdateInRangeStatus()
         {
-            InListenerRange = _actor.SpeakerTargetFromListenerNorm() < 1f;
+            InListenerRange = _actor.SpeakerTargetToListenerNorm() < 1f;
 
             if (InListenerRange)
                 Manager.AddComponent(ElementEntity, typeof(InListenerRangeTag));
             else
             {
                 Manager.RemoveComponent(ElementEntity, typeof(InListenerRangeTag));
-                RemoveSpeakerComponent();
+                RemoveConnectionComponent();
             }
         }
 
         private void ValidateSpeakerComponent()
         {
             if (!InListenerRange)
-                return;
-
-            if (Manager.HasComponent(ElementEntity, typeof(FrameConnection)))
-            {
-                int index = Manager.GetComponentData<FrameConnection>(ElementEntity).SpeakerIndex;
-
-                if (GrainBrain.Instance.IsSpeakerAtIndex(index, out SpeakerAuthoring speaker))
-                {
-                    SpeakerTransform = speaker.transform;
-                    SpeakerIndex = index;
                     return;
-                }
+            
+            if (!Manager.HasComponent(ElementEntity, typeof(FrameConnection)))
+            {
+                IsConnected = false;
+                return;
             }
 
-            RemoveSpeakerComponent();
+            int index = Manager.GetComponentData<FrameConnection>(ElementEntity).SpeakerIndex;
+            
+            if (GrainBrain.Instance.IsSpeakerAtIndex(index, out SpeakerAuthoring speaker))
+            {
+                SpeakerTransform = speaker.transform;
+                SpeakerIndex = index;
+                IsConnected = true;
+            }
+            else
+            {
+                Debug.Log($"{name} removing invalid connection component with index {index}.");
+                RemoveConnectionComponent();
+            }
         }
 
-        private void RemoveSpeakerComponent()
+        private void RemoveConnectionComponent()
         {
+            Manager.RemoveComponent<AloneOnSpeakerTag>(ElementEntity);
             Manager.RemoveComponent<FrameConnection>(ElementEntity);
             SpeakerTransform = SpeakerTarget;
             SpeakerIndex = -1;
+            IsConnected = false;
         }
 
         private void UpdateEmitters()
@@ -178,6 +174,14 @@ namespace PlaneWaver.Emitters
         {
             foreach (EmitterAuth emitter in VolatileEmitters)
                 emitter.ApplyNewCollision(data);
+        }
+
+        protected override void Deregister()
+        {
+            foreach (EmitterAuth emitter in StableEmitters)
+                emitter.OnDestroy();
+            foreach (EmitterAuth emitter in VolatileEmitters)
+                emitter.OnDestroy();
         }
 
         #endregion

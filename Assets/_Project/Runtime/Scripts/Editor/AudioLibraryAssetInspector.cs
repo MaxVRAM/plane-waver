@@ -17,21 +17,24 @@ namespace PlaneWaver
             // TODO: Change this preview function over to IPlayable window
             GUILayout.BeginHorizontal();
 
+            
+            // BUG - Disabled this while debugging issue with audio system disabling itself.
+            
             if (GUILayout.Button("Preview Clip"))
             {
-                if (library.PreviewAudioObject != null || library.PreviewAudioSource != null)
-                {
-                    AudioObject audioObject = library.PreviewAudioObject;
-                    Debug.Log($"Previewing audio asset clip '{audioObject.Clip.name}' with duration {audioObject.Duration}.");
-                    library.PreviewAudioSource.clip = audioObject.Clip;
-                    library.PreviewAudioSource.Play();
-                }
+                // if (library.PreviewAudioObject != null || library.PreviewAudioSource != null)
+                // {
+                //     AudioObject audioObject = library.PreviewAudioObject;
+                //     Debug.Log($"Previewing audio asset clip '{audioObject.Clip.name}' with duration {audioObject.Duration}.");
+                //     library.PreviewAudioSource.clip = audioObject.Clip;
+                //     library.PreviewAudioSource.Play();
+                // }
             }
             
             if (GUILayout.Button("Stop Preview"))
             {
-                if (library.PreviewAudioSource != null && library.PreviewAudioSource.isPlaying)
-                    library.PreviewAudioSource.Stop();
+                // if (library.PreviewAudioSource != null && library.PreviewAudioSource.isPlaying)
+                //     library.PreviewAudioSource.Stop();
             }
 
             GUILayout.EndHorizontal();
@@ -42,12 +45,12 @@ namespace PlaneWaver
 
             if (GUILayout.Button("Create Stable Emitter"))
             {
-                library.CreateEmitterAsset(library.PreviewAudioObject, false);
+                AudioLibrary.CreateEmitterAsset(library.PreviewAudioObject, false);
             }
 
             if (GUILayout.Button("Create Volatile Emitter"))
             {
-                library.CreateEmitterAsset(library.PreviewAudioObject, true);
+                AudioLibrary.CreateEmitterAsset(library.PreviewAudioObject, true);
             }
 
             GUILayout.EndHorizontal();

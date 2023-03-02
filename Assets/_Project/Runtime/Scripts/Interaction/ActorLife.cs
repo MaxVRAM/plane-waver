@@ -1,6 +1,8 @@
 
 using UnityEngine;
 
+using NaughtyAttributes;
+
 namespace PlaneWaver.Interaction
 {
     public class ActorLife : MonoBehaviour
@@ -10,7 +12,7 @@ namespace PlaneWaver.Interaction
         private int _sampleRate;
         public bool LiveForever = true;
         public float Lifespan = -1;
-        private float _age;
+        [ShowNonSerializedField] private float _age;
         public float BoundingRadius = 30;
         private ActorBounds _boundingAreaType = ActorBounds.SpawnPosition;
         private Collider _boundingCollider;

@@ -71,15 +71,8 @@ namespace PlaneWaver
         private void DestroyEntity()
         {
             Deregister();
-            try
-            {
-                if (World.All.Count != 0 && Manager.Exists(ElementEntity))
-                    Manager.DestroyEntity(ElementEntity);
-            }
-            catch (Exception ex) when (ex is NullReferenceException)
-            {
-                //Debug.Log($"Failed to destroy entity: {ex.Message}");
-            }
+            try { Manager.DestroyEntity(ElementEntity); }
+            catch (Exception ex) when (ex is NullReferenceException or ObjectDisposedException) { }
         }
 
         protected virtual void Deregister() { }

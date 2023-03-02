@@ -18,14 +18,12 @@ namespace PlaneWaver.Library
         private bool _initialised;
         public static AudioLibrary Instance;
         public List<AudioObject> AudioObjects;
-        public AudioSource PreviewAudioSource =>
-                GetComponent<AudioSource>();
+        public AudioSource PreviewAudioSource;
 
         [Dropdown("CreateAudioObjectDropdown")]
         public AudioObject PreviewAudioObject;
 
-        public int LibrarySize =>
-                AudioObjects.Count;
+        public int LibrarySize => AudioObjects.Count;
 
         #endregion
 
@@ -34,6 +32,7 @@ namespace PlaneWaver.Library
         private void Awake()
         {
             Instance = this;
+            PreviewAudioSource = GetComponent<AudioSource>();
             PreviewAudioSource.Stop();
             PreviewAudioSource.clip = null;
             PreviewAudioSource.playOnAwake = false;
@@ -146,7 +145,7 @@ namespace PlaneWaver.Library
             Debug.Log($"Audio Library has been rebuilt with '{AudioObjects.Count}' Audio Assets.");
         }
 
-        public void CreateEmitterAsset(AudioObject audioObject, bool isVolatile)
+        public static void CreateEmitterAsset(AudioObject audioObject, bool isVolatile)
         {
             if (audioObject == null)
                 throw new NullReferenceException("AudioObject cannot be null.");

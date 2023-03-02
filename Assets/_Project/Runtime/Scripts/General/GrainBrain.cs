@@ -38,6 +38,10 @@ namespace PlaneWaver
 
         private AudioListener _listener;
         public Transform ListenerTransform => _listener.transform;
+        public float DistanceToListener (Transform other) => 
+                Vector3.Distance(ListenerTransform.position, other.position);
+        public float DistanceToListenerNorm (Transform other) => 
+                Vector3.Distance(ListenerTransform.position, other.position) / ListenerRadius;
 
         private int _frameStartSampleIndex;
         private int _lastFrameSampleDuration;
@@ -76,7 +80,8 @@ namespace PlaneWaver
 
         public int SampleRate { get; private set; } = 44100;
         public int SamplesPerMS { get; private set; } = 0;
-        public int CurrentSampleIndex { get; private set; } = 0;
+        [field: ShowNonSerializedField]
+        public int CurrentSampleIndex { get; private set; }
         public int QueueDurationSamples => (int)(QueueDurationMS * SamplesPerMS);
         public int BurstStartOffsetRange => (int)(BurstStartOffsetRangeMS * SamplesPerMS);
         public int GrainDiscardSampleIndex => _frameStartSampleIndex - (int)(DiscardGrainsOlderThanMS * SamplesPerMS);

@@ -63,9 +63,10 @@ public partial class GrainSynthSystem : SystemBase
         
         JobHandle emitStableGrainsJob = Entities.WithName("EmitStableGrains")
             .WithNativeDisableParallelForRestriction(randomArray).WithReadOnly(audioClipData)
-            .WithAll<EmitterReadyTag>().ForEach
-        (
-            (int nativeThreadIndex, int entityInQueryIndex, ref EmitterComponent emitter, ref DynamicBuffer<AudioEffectParameters> dspChain) => 
+            .WithAll<EmitterReadyTag>().WithNone<EmitterVolatileTag>().ForEach
+        ((
+                int nativeThreadIndex, int entityInQueryIndex, ref EmitterComponent emitter,
+                ref DynamicBuffer<AudioEffectParameters> dspChain) => 
             {
                 // Max grains to stop it getting stuck in a while loop
                 const int maxGrains = 50;
@@ -94,11 +95,15 @@ public partial class GrainSynthSystem : SystemBase
                 float transpose = ComputeEmitterParameter(emitter.ModTranspose, randomTranspose);
                 float pitch = Mathf.Pow(2, Mathf.Clamp(transpose, -4f, 4f));
 
-                float fadeFactor = FadeFactor(sampleIndexNextGrainStart - timer.NextFrameIndexEstimate, emitter.SamplesUntilFade, emitter.SamplesUntilDeath);
-                float volume = ComputeEmitterParameter(emitter.ModVolume, randomVolume) * emitter.EmitterVolume * emitter.DynamicAmplitude * fadeFactor;
+                float fadeFactor = 1;
+                // float fadeFactor = FadeFactor(sampleIndexNextGrainStart - timer.NextFrameIndexEstimate,
+                //     emitter.SamplesUntilFade, emitter.SamplesUntilDeath);
+                float volume = ComputeEmitterParameter(emitter.ModVolume, randomVolume) * 
+                            emitter.EmitterVolume * emitter.DynamicAmplitude * fadeFactor;
 
                 // Create new grain
-                while (sampleIndexNextGrainStart <= timer.NextFrameIndexEstimate + timer.GrainQueueSampleDuration && grainCount < maxGrains)
+                while (sampleIndexNextGrainStart <= timer.NextFrameIndexEstimate + timer.GrainQueueSampleDuration &&
+                       grainCount < maxGrains)
                 {
                     if (volume > 0.005f)
                     {

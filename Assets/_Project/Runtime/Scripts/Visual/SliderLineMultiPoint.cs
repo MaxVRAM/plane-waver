@@ -104,5 +104,11 @@ namespace PlaneWaver
             _line.enabled = VisualiseLine;
             return _lineInitialised = true;
         }
+
+        private void DrawLine()
+        {
+            if (!_lineInitialised)
+                return;
+        }
     }
 }

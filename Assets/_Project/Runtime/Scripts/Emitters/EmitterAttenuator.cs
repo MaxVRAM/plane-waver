@@ -15,6 +15,11 @@ namespace PlaneWaver.Modulation
         [Range(0, 500)] public int ReconnectionFadeInMS;
         private float _reconnectionTimer;
         public bool Muted { get; set; }
+        
+        // Debug
+        public float MuteVolume;
+        public float DistanceVolume;
+        public float DistanceNorm;
 
         public EmitterAttenuator()
         {
@@ -29,9 +34,9 @@ namespace PlaneWaver.Modulation
 
         public float CalculateAmplitudeMultiplier(bool connected, Actor actor)
         {
-            return CalculateMuting(connected, out float muteFade)
-                    ? muteFade
-                    : muteFade * CalculateDistanceAmplitude(actor) * CalculateAgeAmplitude(actor);
+            return CalculateMuting(connected, out MuteVolume)
+                    ? MuteVolume
+                    : MuteVolume * CalculateDistanceAmplitude(actor) * CalculateAgeAmplitude(actor);
         }
 
         public bool CalculateMuting(bool connected, out float muteFade)
@@ -70,8 +75,9 @@ namespace PlaneWaver.Modulation
         {
             if (actor == null)
                 return 1;
-
-            return DistanceFactor * (1 - actor.SpeakerTargetFromListenerNorm());
+            DistanceNorm = 1 - actor.SpeakerTargetToListenerNorm();
+            DistanceVolume = DistanceFactor * DistanceNorm;
+            return DistanceVolume;
         }
 
         // TODO - Not implemented yet. Move these calculations to the Synthesis system for sample accuracy fades.

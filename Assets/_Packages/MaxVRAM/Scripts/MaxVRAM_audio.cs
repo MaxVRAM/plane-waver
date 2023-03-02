@@ -14,7 +14,11 @@ namespace MaxVRAM.Audio
     public class Windowing
     {
         // Source: https://michaelkrzyzaniak.com/AudioSynthesis/2_Audio_Synthesis/11_Granular_Synthesis/1_Window_Functions/
-        public enum FunctionSelect { Sine = 0, Hann = 1, Hamming = 2, Tukey = 3, Gaussian = 4 }
+        public enum FunctionSelect
+        {
+            Sine = 0, Hann = 1, Hamming = 2, Tukey = 3, Gaussian = 4
+        }
+
         public FunctionSelect WindowFunction;
 
         public int EnvelopeSize;
@@ -24,7 +28,9 @@ namespace MaxVRAM.Audio
 
         public float[] WindowArray { get; private set; }
 
-        public Windowing(FunctionSelect windowFunction, int envelopeSize = 512, float tukeyHeight = 0.5f, float gaussianSigma = 0.5f, float linearInOutFade = 0.01f)
+        public Windowing(
+            FunctionSelect windowFunction, int envelopeSize = 512, float tukeyHeight = 0.5f, float gaussianSigma = 0.5f,
+            float linearInOutFade = 0.01f)
         {
             WindowFunction = windowFunction;
             EnvelopeSize = envelopeSize;
@@ -32,7 +38,16 @@ namespace MaxVRAM.Audio
             GaussianSigma = gaussianSigma;
             LinearInOutFade = linearInOutFade;
         }
-        
+
+        public Windowing()
+        {
+            WindowFunction = FunctionSelect.Tukey;
+            EnvelopeSize = 512;
+            TukeyHeight = 0.5f;
+            GaussianSigma = 0.5f;
+            LinearInOutFade = 0.01f;
+        }
+
         public float[] BuildWindowArray()
         {
             WindowArray = new float[EnvelopeSize];
@@ -50,17 +65,14 @@ namespace MaxVRAM.Audio
 
         private float ApplyFunction(int index)
         {
-            float amplitude = WindowFunction switch
-            {
+            float amplitude = WindowFunction switch {
                 FunctionSelect.Sine    => Mathf.Sin(Mathf.PI * index / EnvelopeSize),
                 FunctionSelect.Hann    => 0.5f * (1 - Mathf.Cos(2 * Mathf.PI * index / EnvelopeSize)),
                 FunctionSelect.Hamming => 0.54f - 0.46f * Mathf.Cos(2 * Mathf.PI * index / EnvelopeSize),
-                FunctionSelect.Tukey =>
-                        1 / (2 * TukeyHeight) * (1 - Mathf.Cos(2 * Mathf.PI * index / EnvelopeSize)),
-                FunctionSelect.Gaussian => Mathf.Pow(
-                    Mathf.Exp(1),
-                    -0.5f * Mathf.Pow((index - (float)EnvelopeSize / 2) / (GaussianSigma * EnvelopeSize / 2), 2)
-                ),
+                FunctionSelect.Tukey   => 1 / (2 * TukeyHeight) * (1 - Mathf.Cos(2 * Mathf.PI * index / EnvelopeSize)),
+                FunctionSelect.Gaussian => Mathf.Pow
+                (Mathf.Exp(1),
+                    -0.5f * Mathf.Pow((index - (float)EnvelopeSize / 2) / (GaussianSigma * EnvelopeSize / 2), 2)),
                 _ => 1
             };
             return Mathf.Clamp01(amplitude);
@@ -89,6 +101,7 @@ namespace MaxVRAM.Audio
             float normalisedDistance = Mathf.Clamp(distance / maxDistance, 0f, 1f);
             return Mathf.Clamp(Mathf.Pow(500, -0.5f * normalisedDistance), 0f, 1f);
         }
+
         public static float ListenerDistanceVolume(float normalisedDistance)
         {
             normalisedDistance = Mathf.Clamp(normalisedDistance, 0f, 1f);

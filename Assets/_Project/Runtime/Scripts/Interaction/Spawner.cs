@@ -278,7 +278,7 @@ namespace PlaneWaver.Interaction
             actor.Spawner = this;
             actor.OtherBody = controllerObject.transform;
 
-            actor.ActorLifeData = new ActorLifeData(
+            actor.LifeData = new ActorLifeData(
                 UseSpawnLifespan ? SpawnLifespan : -1,
                 BoundingRadius,
                 BoundingAreaType,
@@ -286,11 +286,11 @@ namespace PlaneWaver.Interaction
                 controllerObject.transform
             );
 
-            GrainFrame[] frames = spawnedObject.GetComponentsInChildren<GrainFrame>();
+            EmitterFrame[] frames = spawnedObject.GetComponentsInChildren<EmitterFrame>();
             if (frames.Length <= 0) return;
 
-            foreach (GrainFrame frame in frames)
-                frame.ActorObject = actor;
+            foreach (EmitterFrame frame in frames)
+                frame.Actor = actor;
         }
 
         #endregion

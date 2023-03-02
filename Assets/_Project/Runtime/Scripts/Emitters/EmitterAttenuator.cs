@@ -1,76 +1,79 @@
 ﻿using System;
-using UnityEngine;
-
 using PlaneWaver.Interaction;
+using UnityEngine;
 
 namespace PlaneWaver.Modulation
 {
     [Serializable]
     public class EmitterAttenuator
     {
-        [Range(0f,1f)] public float DistanceFactor;
-        [Range(0f,0.5f)] public float AgeFadeIn;
-        [Range(0.5f,1f)] public float AgeFadeOut;
+        [Range(0f, 1f)] public float DistanceFactor;
+        [Range(0f, 0.5f)] public float AgeFadeIn;
+        [Range(0.5f, 1f)] public float AgeFadeOut;
+
         public bool MuteOnDisconnection;
-        private bool _muted;
+        [Range(0, 500)] public int ReconnectionFadeInMS;
         private float _reconnectionTimer;
-        [Range(0,500)] public int ReconnectionFadeInMS;
-        
+        public bool Muted { get; set; }
+
         public EmitterAttenuator()
         {
             DistanceFactor = 1f;
             AgeFadeIn = 0f;
             AgeFadeOut = 1f;
             MuteOnDisconnection = true;
-            _muted = false;
+            Muted = false;
             _reconnectionTimer = 0;
             ReconnectionFadeInMS = 100;
         }
 
         public float CalculateAmplitudeMultiplier(bool connected, Actor actor)
         {
-            float muteFade = CalculateMuting(connected);
-            return _muted ? 0 : muteFade * CalculateDistanceAmplitude(actor) * CalculateAgeAmplitude(actor);
+            return CalculateMuting(connected, out float muteFade)
+                    ? muteFade
+                    : muteFade * CalculateDistanceAmplitude(actor) * CalculateAgeAmplitude(actor);
         }
-        
-        public float CalculateMuting(bool connected)
+
+        public bool CalculateMuting(bool connected, out float muteFade)
         {
             if (!MuteOnDisconnection)
             {
-                _muted = false;
-                return 1;
-            }
-            
-            if (!connected)
-            {
-                _muted = true;
-                return 0;
+                muteFade = 1;
+                return Muted = false;
             }
 
-            if (_muted)
+            if (!connected)
             {
-                _muted = false;
+                muteFade = 0;
+                return Muted = true;
+            }
+
+            if (Muted)
+            {
                 _reconnectionTimer = ReconnectionFadeInMS;
-                return 0;
+                muteFade = 0;
+                return Muted = false;
             }
 
             if (_reconnectionTimer <= 0)
-                return 1;
-            
-            _reconnectionTimer -= Time.deltaTime;
-            float mutingAmplitude = Mathf.Clamp01(1 - _reconnectionTimer / ReconnectionFadeInMS);
+            {
+                muteFade = 1;
+                return Muted = false;
+            }
 
-            return mutingAmplitude;
+            _reconnectionTimer -= Time.deltaTime;
+            muteFade = Mathf.Clamp01(1 - _reconnectionTimer / ReconnectionFadeInMS);
+            return Muted = false;
         }
-        
+
         public float CalculateDistanceAmplitude(Actor actor)
         {
             if (actor == null)
                 return 1;
-            
-            return DistanceFactor * (1 - actor.DistanceFromListener()); 
+
+            return DistanceFactor * (1 - actor.SpeakerTargetFromListenerNorm());
         }
-        
+
         // TODO - Not implemented yet. Move these calculations to the Synthesis system for sample accuracy fades.
         public float CalculateAgeAmplitude(Actor actor)
         {

@@ -18,20 +18,20 @@ using PlaneWaver.Emitters;
 [UpdateAfter(typeof(DOTS_QuadrantSystem))]
 public partial class AttachmentSystem : SystemBase
 {
-    private EndSimulationEntityCommandBufferSystem _CommandBufferSystem;
+    private EndSimulationEntityCommandBufferSystem _commandBufferSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        _CommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        _commandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
         var dspTimer = GetSingleton<AudioTimerComponent>();
-        var attachConfig = GetSingleton<ConnectionConfig>();
+        var connectConfig = GetSingleton<ConnectionConfig>();
         // Acquire an ECB and convert it to a concurrent one to be able to use it from a parallel job.
-        EntityCommandBuffer.ParallelWriter ecb = _CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        EntityCommandBuffer.ParallelWriter ecb = _commandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
 
         EntityQueryDesc hostQueryDesc = new()
@@ -82,7 +82,7 @@ public partial class AttachmentSystem : SystemBase
         (
             (int entityInQueryIndex, Entity entity, ref FrameComponent frame) =>
             {
-                if (math.distance(frame.Position, attachConfig.ListenerPos) > attachConfig.ListenerRadius)
+                if (math.distance(frame.Position, connectConfig.ListenerPos) > connectConfig.ListenerRadius)
                 {
                     ecb.RemoveComponent<SpeakerIndex>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<InListenerRangeTag>(entityInQueryIndex, entity);
@@ -120,7 +120,7 @@ public partial class AttachmentSystem : SystemBase
             }
         ).ScheduleParallel(Dependency);
         updateFrameRangeJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(updateFrameRangeJob);
+        _commandBufferSystem.AddJobHandleForProducer(updateFrameRangeJob);
 
         speakerQuery = GetEntityQuery(speakerQueryDesc);
         JobHandle groupLoneHostsJob = Entities.WithName("GroupLoneHosts")
@@ -168,7 +168,7 @@ public partial class AttachmentSystem : SystemBase
             }
         ).ScheduleParallel(updateFrameRangeJob);
         groupLoneHostsJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(groupLoneHostsJob);
+        _commandBufferSystem.AddJobHandleForProducer(groupLoneHostsJob);
 
         JobHandle connectToActiveSpeakerJob = Entities.WithName("ConnectToActiveSpeaker").
             WithNone<ConnectedTag>().WithAll<InListenerRadiusTag>().WithReadOnly(speakerIndexes)
@@ -183,7 +183,7 @@ public partial class AttachmentSystem : SystemBase
                 {
                     SpeakerComponent speaker = speakerComponents[i];
 
-                    if (speaker.State == ConnectionState.Pooled && speaker.GrainLoad < attachConfig.BusyLoadLimit)
+                    if (speaker.State == ConnectionState.Pooled && speaker.GrainLoad < connectConfig.BusyLoadLimit)
                         continue;
 
                     float dist = math.distance(host.WorldPos, speaker.WorldPos);
@@ -212,7 +212,7 @@ public partial class AttachmentSystem : SystemBase
         ).WithDisposeOnCompletion(speakerIndexes).WithDisposeOnCompletion(speakerComponents)
         .ScheduleParallel(groupLoneHostsJob);
         connectToActiveSpeakerJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(connectToActiveSpeakerJob);
+        _commandBufferSystem.AddJobHandleForProducer(connectToActiveSpeakerJob);
 
         hostQuery = GetEntityQuery(frameConnectedQueryDesc);
         frameComponents = hostQuery.ToComponentDataArray<HostComponent>(Allocator.TempJob);
@@ -242,19 +242,19 @@ public partial class AttachmentSystem : SystemBase
 
                 if (attachedHosts == 0)
                 {
-                    speaker.InactiveDuration += attachConfig.DeltaTime;
-                    if (speaker.State == ConnectionState.Lingering && speaker.InactiveDuration >= attachConfig.SpeakerLingerTime)
+                    speaker.InactiveDuration += connectConfig.DeltaTime;
+                    if (speaker.State == ConnectionState.Lingering && speaker.InactiveDuration >= connectConfig.SpeakerLingerTime)
                     {
                         speaker.State = ConnectionState.Pooled;
                         speaker.ConnectionRadius = 0.001f;
-                        speaker.WorldPos = attachConfig.DisconnectedPosition;
+                        speaker.WorldPos = connectConfig.DisconnectedPosition;
                     }
                     else if (speaker.State == ConnectionState.Active)
                     {
                         speaker.State = ConnectionState.Lingering;
                         speaker.InactiveDuration = 0;
                         speaker.WorldPos = currentPosition;
-                        speaker.ConnectionRadius = CalculateSpeakerRadius(attachConfig.ListenerPos, currentPosition, attachConfig.ArcDegrees);
+                        speaker.ConnectionRadius = CalculateSpeakerRadius(connectConfig.ListenerPos, currentPosition, connectConfig.ArcDegrees);
                     }
                     return;
                 }
@@ -265,11 +265,11 @@ public partial class AttachmentSystem : SystemBase
                     speaker.State = ConnectionState.Active;
                 }
 
-                speaker.InactiveDuration -= attachConfig.DeltaTime;
+                speaker.InactiveDuration -= connectConfig.DeltaTime;
 
                 targetPosition = attachedHosts == 1 ? targetPosition : targetPosition / attachedHosts;
-                float3 lerpedPosition = math.lerp(currentPosition, targetPosition, attachConfig.TranslationSmoothing);
-                float lerpedRadius = CalculateSpeakerRadius(attachConfig.ListenerPos, lerpedPosition, attachConfig.ArcDegrees);
+                float3 lerpedPosition = math.lerp(currentPosition, targetPosition, connectConfig.TranslationSmoothing);
+                float lerpedRadius = CalculateSpeakerRadius(connectConfig.ListenerPos, lerpedPosition, connectConfig.ArcDegrees);
 
                 if (lerpedRadius > math.distance(lerpedPosition, targetPosition))
                 {
@@ -279,13 +279,13 @@ public partial class AttachmentSystem : SystemBase
                 else
                 {
                     speaker.WorldPos = targetPosition;
-                    speaker.ConnectionRadius = CalculateSpeakerRadius(attachConfig.ListenerPos, targetPosition, attachConfig.ArcDegrees);
+                    speaker.ConnectionRadius = CalculateSpeakerRadius(connectConfig.ListenerPos, targetPosition, connectConfig.ArcDegrees);
                 }
             }
         ).WithDisposeOnCompletion(frameComponents)
         .ScheduleParallel(groupLoneHostsJob);
         moveSpeakersJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(moveSpeakersJob);
+        _commandBufferSystem.AddJobHandleForProducer(moveSpeakersJob);
 
         hostQuery = GetEntityQuery(frameDisconnectedQueryDesc);
         frameEntities = hostQuery.ToEntityArray(Allocator.TempJob);
@@ -310,7 +310,7 @@ public partial class AttachmentSystem : SystemBase
 
                     // Set active pooled status and update attachment radius
                     SpeakerComponent speakerComponent = GetComponent<SpeakerComponent>(speakerEntities[s]);
-                    speakerComponent.ConnectionRadius = CalculateSpeakerRadius(attachConfig.ListenerPos, host.WorldPos, attachConfig.ArcDegrees);
+                    speakerComponent.ConnectionRadius = CalculateSpeakerRadius(connectConfig.ListenerPos, host.WorldPos, connectConfig.ArcDegrees);
                     speakerComponent.State = ConnectionState.Active;
                     speakerComponent.ConnectedHostCount = 1;
                     speakerComponent.InactiveDuration = 0;
@@ -323,7 +323,7 @@ public partial class AttachmentSystem : SystemBase
         .WithDisposeOnCompletion(frameEntities)
         .Schedule(moveSpeakersJob);
         speakerActivationJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(speakerActivationJob);
+        _commandBufferSystem.AddJobHandleForProducer(speakerActivationJob);
 
         Dependency = speakerActivationJob;
     }

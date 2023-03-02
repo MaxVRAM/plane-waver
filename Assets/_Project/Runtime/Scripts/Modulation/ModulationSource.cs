@@ -61,8 +61,8 @@ namespace PlaneWaver.Modulation
                 SourceMisc.Disabled       => _value,
                 SourceMisc.TimeSinceStart => Time.time,
                 SourceMisc.DeltaTime      => Time.deltaTime,
-                SourceMisc.SpawnAge       => _actor.ActorLifeController.NormalisedAge(),
-                SourceMisc.SpawnAgeNorm   => _actor.ActorLifeController.NormalisedAge(),
+                SourceMisc.SpawnAge       => _actor.Life.NormalisedAge(),
+                SourceMisc.SpawnAgeNorm   => _actor.Life.NormalisedAge(),
                 _                         => throw new ArgumentOutOfRangeException()
             };
         }

@@ -18,7 +18,7 @@ namespace PlaneWaver
 
         private void Start()
         {
-            IsEmitter = GetComponentInChildren<GrainFrame>();
+            IsEmitter = GetComponentInChildren<EmitterFrame>();
             if (IsSurfaceChild || !ApplyToChildren) return;
 
             foreach (Collider colliderComponent in GetComponentsInChildren<Collider>())

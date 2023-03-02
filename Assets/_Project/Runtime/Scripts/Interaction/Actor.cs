@@ -13,9 +13,12 @@ namespace PlaneWaver.Interaction
         private bool _initialised;
         public Spawner Spawner;
         private bool _hasSpawner;
-        public ActorLife ActorLifeController;
-        public ActorLifeData ActorLifeData;
+        public ActorLife Life;
+        public ActorLifeData LifeData;
+        public Transform SpeakerTarget;
         public Transform OtherBody;
+        private bool _hasOtherBody;
+        private Transform _listenerTransform;
         private List<CollisionData> _activeCollisions;
         private SurfaceProperties _surfaceProperties;
         public float SurfaceRigidity = 0.5f;
@@ -67,7 +70,18 @@ namespace PlaneWaver.Interaction
 
         public float Distance(Transform other) { return Vector3.Distance(Position, other.position); }
 
-        public float DistanceFromListener() { return Distance(GrainBrain.Instance.ListenerTransform); }
+        public float DistanceFromListener() { return Distance(_listenerTransform); }
+
+        public float SpeakerTargetFromListener()
+        {
+            return Vector3.Distance(SpeakerTarget.position, _listenerTransform.position);
+        }
+
+        public float SpeakerTargetFromListenerNorm()
+        {
+            float distance = SpeakerTargetFromListener();
+            return distance / GrainBrain.Instance.ListenerRadius;
+        }
 
         public float RelativeSpeed(Transform other)
         {
@@ -108,12 +122,16 @@ namespace PlaneWaver.Interaction
         private void InitialiseActor()
         {
             _hasSpawner = Spawner != null;
+            _hasOtherBody = OtherBody != null;
             _hasRigidbody = TryGetComponent(out _rigidbody);
             _hasCollider = TryGetComponent(out _collider);
 
-            if (ActorLifeController == null)
-                ActorLifeController = GetComponent<ActorLife>() ?? gameObject.AddComponent<ActorLife>();
-            ActorLifeController.InitialiseActorLife(ActorLifeData);
+            if (SpeakerTarget == null)
+                SpeakerTarget = transform;
+            
+            if (Life == null)
+                Life = GetComponent<ActorLife>() ?? gameObject.AddComponent<ActorLife>();
+            Life.InitialiseActorLife(LifeData);
 
             if (_surfaceProperties == null)
                 _surfaceProperties = GetComponent<SurfaceProperties>() ?? gameObject.AddComponent<SurfaceProperties>();

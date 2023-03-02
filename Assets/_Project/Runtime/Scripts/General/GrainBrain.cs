@@ -122,7 +122,7 @@ namespace PlaneWaver
         public bool OnlyTriggerMostRigidSurface = true;
 
         [BoxGroup("Registered Elements")]
-        public List<GrainFrame> Frames = new ();
+        public List<EmitterFrame> Frames = new ();
         [BoxGroup("Registered Elements")]
         public List<EmitterAuth> Emitters = new();
         [BoxGroup("Registered Elements")]
@@ -364,7 +364,7 @@ namespace PlaneWaver
         {
             TrimFrameList();
 
-            foreach (GrainFrame frame in Frames.Where(frame => frame != null))
+            foreach (EmitterFrame frame in Frames.Where(frame => frame != null))
                 frame.PrimaryUpdate();
         }
         
@@ -449,12 +449,12 @@ namespace PlaneWaver
             return type switch
             {
                 SynthElementType.Speaker => GetIndexOfSpeaker((SpeakerAuthoring)synthElement),
-                SynthElementType.Frame   => RegisterFrame((GrainFrame)synthElement),
+                SynthElementType.Frame   => RegisterFrame((EmitterFrame)synthElement),
                 _                        => -1
             };
         }
         
-        public int RegisterFrame(GrainFrame frame)
+        public int RegisterFrame(EmitterFrame frame)
         {
             for (var i = 0; i < Frames.Count; i++)
                 if (Frames[i] == null)
@@ -476,7 +476,7 @@ namespace PlaneWaver
             }
         }
         
-        public void DeregisterFrame(GrainFrame frame)
+        public void DeregisterFrame(EmitterFrame frame)
         {
         }
 

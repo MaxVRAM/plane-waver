@@ -29,7 +29,7 @@ namespace PlaneWaver.Emitters
         public PropagateCondition PlaybackCondition;
         [Expandable] public EmitterObject EmitterAsset;
         [Range(0f, 2f)] public float EmitterVolume = 1;
-        [AllowNesting] [EnableIf("IsVolatile")] [Range(0f, 1f)]
+        [AllowNesting] [DisableIf("IsVolatile")] [Range(0f, 1f)]
         public float AgeFadeOut = 0.95f;
         public EmitterAttenuator DynamicAttenuation;
         public bool ReflectPlayheadAtLimit;
@@ -160,23 +160,25 @@ namespace PlaneWaver.Emitters
             IsPlaying = true;
         }
 
-        public void UpdateEmitterEntity(bool isConnected, int speakerIndex, bool inRange)
+        public void UpdateEmitterEntity(bool inListenerRange, bool isConnected, int speakerIndex)
         {
             if (!_entityInitialised)
                 return;
 
-            if (!isConnected && IsPlaying)
-                DynamicAttenuation.CalculateMuting(false);
+            IsConnected = isConnected;
+            
+            if (!IsConnected)
+                DynamicAttenuation.Muted = true;
 
             if (!IsVolatile)
                 IsPlaying = _actor.IsColliding || PlaybackCondition != PropagateCondition.Contact;
-            else if (!isConnected ||
-                     !inRange)
+            else if (!IsConnected ||
+                     !inListenerRange)
                 IsPlaying = false;
 
             if (IsPlaying &&
-                isConnected &&
-                inRange)
+                IsConnected &&
+                inListenerRange)
             {
                 var data = _manager.GetComponentData<EmitterComponent>(_emitterEntity);
                 UpdateEmitterComponent(ref data, speakerIndex);
@@ -185,7 +187,6 @@ namespace PlaneWaver.Emitters
             }
             else { _manager.RemoveComponent<EmitterPlaybackReadyTag>(_emitterEntity); }
 
-            IsConnected = isConnected;
             if (IsVolatile) IsPlaying = false;
         }
 
@@ -215,8 +216,8 @@ namespace PlaneWaver.Emitters
                 AudioClipIndex = EmitterAsset.AudioObject.ClipEntityIndex,
                 LastSampleIndex = IsVolatile ? -1 : data.LastSampleIndex,
                 LastGrainDuration = IsVolatile ? -1 : data.LastGrainDuration,
-                SamplesUntilFade = IsVolatile ? -1 : _actor.ActorLifeController.SamplesUntilFade(AgeFadeOut),
-                SamplesUntilDeath = IsVolatile ? -1 : _actor.ActorLifeController.SamplesUntilDeath(),
+                SamplesUntilFade = IsVolatile ? -1 : _actor.Life.SamplesUntilFade(AgeFadeOut),
+                SamplesUntilDeath = IsVolatile ? -1 : _actor.Life.SamplesUntilDeath(),
                 ReflectPlayhead = ReflectPlayheadAtLimit,
                 EmitterVolume = EmitterVolume,
                 DynamicAmplitude = DynamicAttenuation.CalculateAmplitudeMultiplier(IsConnected, _actor),

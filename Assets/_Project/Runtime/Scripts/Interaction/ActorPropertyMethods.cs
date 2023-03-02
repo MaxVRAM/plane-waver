@@ -64,7 +64,7 @@ namespace PlaneWaver.Interaction
         /// <returns>Float: Represents the most current value from the selected interaction parameter.</returns>
         public float GetRelativeValue(SourceRelational selection, ref Vector3 previousVector)
         {
-            if (OtherBody == null)
+            if (!_hasOtherBody)
                 return 0;
 
             return GetRelativeValue(selection, ref previousVector, OtherBody);

@@ -12,116 +12,117 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 631cd795d7508044999ab678f8d8713e, type: 3}
   m_Name: Emitter.Stable.tires.rubble
   m_EditorClassIdentifier: 
-  Name: rocks-large-surface-roll
+  EmitterName: 
   Description: 
   AudioObject: {fileID: 11400000, guid: c178620585647dd40851759478bd497e, type: 2}
-  Volume:
-    InputSource:
-      Group: 0
-      Misc: 0
-      Actor: 0
-      Relative: 3
-      Collision: 1
-    StaticRange: {x: 0, y: 1}
-    ModInputRange: {x: 0, y: 1}
-    ModInputMultiplier: 1
-    Accumulate: 0
-    Smoothing: 0.2
-    ModExponent: 1
-    ModInfluence: 0
-    FixedStart: 0
-    FixedEnd: 1
-    LimiterMode: 0
-    NoiseInfluence: 0
-    NoiseMultiplier: 1
-    NoiseSpeed: 1
-    UsePerlin: 0
-    LockNoise: 0
-  Playhead:
-    InputSource:
-      Group: 0
-      Misc: 0
-      Actor: 0
-      Relative: 3
-      Collision: 1
-    StaticRange: {x: 0, y: 1}
-    ModInputRange: {x: 0, y: 1}
-    ModInputMultiplier: 1
-    Accumulate: 0
-    Smoothing: 0.2
-    ModExponent: 1
-    ModInfluence: 0
-    FixedStart: 0
-    FixedEnd: 0
-    LimiterMode: 0
-    NoiseInfluence: 0
-    NoiseMultiplier: 1
-    NoiseSpeed: 1
-    UsePerlin: 0
-    LockNoise: 0
-  Duration:
-    InputSource:
-      Group: 0
-      Misc: 0
-      Actor: 0
-      Relative: 3
-      Collision: 1
-    StaticRange: {x: 0, y: 1}
-    ModInputRange: {x: 0, y: 1}
-    ModInputMultiplier: 1
-    Accumulate: 0
-    Smoothing: 0.2
-    ModExponent: 1
-    ModInfluence: 0
-    FixedStart: 0
-    FixedEnd: 0
-    LimiterMode: 0
-    NoiseInfluence: 0
-    NoiseMultiplier: 1
-    NoiseSpeed: 1
-    UsePerlin: 0
-    LockNoise: 0
-  Density:
-    InputSource:
-      Group: 0
-      Misc: 0
-      Actor: 0
-      Relative: 3
-      Collision: 1
-    StaticRange: {x: 0, y: 1}
-    ModInputRange: {x: 0, y: 1}
-    ModInputMultiplier: 1
-    Accumulate: 0
-    Smoothing: 0.2
-    ModExponent: 1
-    ModInfluence: 0
-    FixedStart: 0
-    FixedEnd: 0
-    LimiterMode: 0
-    NoiseInfluence: 0
-    NoiseMultiplier: 1
-    NoiseSpeed: 1
-    UsePerlin: 0
-    LockNoise: 0
-  Transpose:
-    InputSource:
-      Group: 0
-      Misc: 0
-      Actor: 0
-      Relative: 3
-      Collision: 1
-    StaticRange: {x: 0, y: 1}
-    ModInputRange: {x: 0, y: 1}
-    ModInputMultiplier: 1
-    Accumulate: 0
-    Smoothing: 0.2
-    ModExponent: 1
-    ModInfluence: 0
-    FixedStart: 0
-    FixedEnd: 0
-    LimiterMode: 0
-    NoiseInfluence: 0
-    NoiseMultiplier: 1
-    NoiseSpeed: 1
-    UsePerlin: 0
-    LockNoise: 0
+  Parameters:
+  - ModulationInput:
+      InputGroup: 0
+      MiscInput: 0
+      ActorInput: 0
+      RelativeInput: 3
+      CollisionInput: 1
+    ModulationData:
+      StaticRange: {x: 0.5, y: 0.5}
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0
+  - ModulationInput:
+      InputGroup: 0
+      MiscInput: 0
+      ActorInput: 0
+      RelativeInput: 3
+      CollisionInput: 1
+    ModulationData:
+      StaticRange: {x: 0, y: 1}
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0
+  - ModulationInput:
+      InputGroup: 0
+      MiscInput: 0
+      ActorInput: 0
+      RelativeInput: 3
+      CollisionInput: 1
+    ModulationData:
+      StaticRange: {x: 60, y: 60}
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0
+  - ModulationInput:
+      InputGroup: 0
+      MiscInput: 0
+      ActorInput: 0
+      RelativeInput: 3
+      CollisionInput: 1
+    ModulationData:
+      StaticRange: {x: 3, y: 3}
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0
+  - ModulationInput:
+      InputGroup: 0
+      MiscInput: 0
+      ActorInput: 0
+      RelativeInput: 3
+      CollisionInput: 1
+    ModulationData:
+      StaticRange: {x: 0, y: 0}
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0

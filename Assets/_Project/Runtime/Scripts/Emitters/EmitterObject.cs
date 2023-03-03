@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 using PlaneWaver.Library;
-using PlaneWaver.Modulation;
+using PlaneWaver.Parameters;
 using PlaneWaver.Interaction;
 
 namespace PlaneWaver.Emitters
@@ -11,26 +13,35 @@ namespace PlaneWaver.Emitters
     {
         #region CLASS DEFINITIONS
 
-        public string Name;
+        public string EmitterName;
         public string Description;
         public AudioObject AudioObject;
+        public List<Parameter> Parameters;
 
-        protected int ParameterCount;
-        public int GetParameterCount => ParameterCount;
-        protected float[] PreviousSmoothed;
+        public int GetParameterCount => Parameters.Count;
         protected bool IsInitialised;
         
         #endregion
 
         #region INITIALISATION METHODS
         
-        public virtual void InitialiseParameters(in Actor actor) { }
-
+        public void InitialiseParameters(in Actor actor)
+        {
+            foreach (Parameter parameter in Parameters) parameter.Initialise(actor);
+            IsInitialised = true;
+        }
+        
         #endregion
 
         #region PARAMETER COMPONENT BUILDERS
-        
-        public virtual List<ModulationComponent> GetModulationComponents() { return null; }
+
+        public List<ModulationComponent> GetModulationComponents()
+        {
+            if (!IsInitialised)
+                throw new Exception("Emitter has not been initialised.");
+            
+            return Parameters.Select(p => p.CreateModulationComponent()).ToList();
+        }
 
         #endregion
     }

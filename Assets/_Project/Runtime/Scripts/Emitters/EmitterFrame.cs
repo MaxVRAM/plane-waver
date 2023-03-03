@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
-using MaxVRAM.Extensions;
+
 using PlaneWaver.DSP;
 using PlaneWaver.Interaction;
 
@@ -131,13 +131,13 @@ namespace PlaneWaver.Emitters
             if (!InListenerRange)
                     return;
             
-            if (!Manager.HasComponent(ElementEntity, typeof(FrameConnection)))
+            if (!Manager.HasComponent(ElementEntity, typeof(SpeakerConnection)))
             {
                 IsConnected = false;
                 return;
             }
 
-            int index = Manager.GetComponentData<FrameConnection>(ElementEntity).SpeakerIndex;
+            int index = Manager.GetComponentData<SpeakerConnection>(ElementEntity).SpeakerIndex;
             
             if (GrainBrain.Instance.IsSpeakerAtIndex(index, out SpeakerAuthoring speaker))
             {
@@ -155,7 +155,7 @@ namespace PlaneWaver.Emitters
         private void RemoveConnectionComponent()
         {
             Manager.RemoveComponent<AloneOnSpeakerTag>(ElementEntity);
-            Manager.RemoveComponent<FrameConnection>(ElementEntity);
+            Manager.RemoveComponent<SpeakerConnection>(ElementEntity);
             SpeakerTransform = SpeakerTarget;
             SpeakerIndex = -1;
             IsConnected = false;
@@ -195,7 +195,7 @@ namespace PlaneWaver.Emitters
         public float3 Position;
     }
     
-    public struct FrameConnection : IComponentData
+    public struct SpeakerConnection : IComponentData
     {
         public int SpeakerIndex;
     }

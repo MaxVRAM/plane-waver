@@ -301,7 +301,7 @@ namespace PlaneWaver
 
             float ageSum = 0;
 
-            for (int i = 0; i < grainCount; i++)
+            for (var i = 0; i < grainCount; i++)
             {
                 var grain = _entityManager.GetComponentData<GrainComponent>(grainEntities[i]);
                 ageSum += _frameStartSampleIndex - grain.StartSampleIndex;
@@ -351,14 +351,13 @@ namespace PlaneWaver
 
         #region SYNTH ELEMENT UPDATES
 
-        public void UpdateSpeakers()
+        private void UpdateSpeakers()
         {
-            foreach (SpeakerAuthoring speaker in Speakers)
-                if (speaker != null)
-                    speaker.PrimaryUpdate();
+            foreach (SpeakerAuthoring speaker in Speakers.Where(speaker => speaker != null))
+                speaker.PrimaryUpdate();
         }
 
-        public void UpdateFrames()
+        private void UpdateFrames()
         {
             TrimFrameList();
 
@@ -451,8 +450,8 @@ namespace PlaneWaver
                 _                        => -1
             };
         }
-        
-        public int RegisterFrame(EmitterFrame frame)
+
+        private int RegisterFrame(EmitterFrame frame)
         {
             for (var i = 0; i < Frames.Count; i++)
                 if (Frames[i] == null)

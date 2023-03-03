@@ -38,26 +38,26 @@ public partial class AttachmentSystem : SystemBase
 
         EntityQueryDesc frameConnectedQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(FrameComponent), typeof(FrameConnection), typeof(InListenerRangeTag) }
+            All = new ComponentType[] { typeof(FrameComponent), typeof(SpeakerConnection), typeof(InListenerRangeTag) }
         };
 
         EntityQueryDesc frameAloneQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(FrameComponent), typeof(FrameConnection),
+            All = new ComponentType[] { typeof(FrameComponent), typeof(SpeakerConnection),
                 typeof(AloneOnSpeakerTag), typeof(InListenerRangeTag) }
         };
 
 
         EntityQueryDesc frameNotAloneQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(FrameComponent), typeof(FrameConnection), typeof(InListenerRangeTag) },
+            All = new ComponentType[] { typeof(FrameComponent), typeof(SpeakerConnection), typeof(InListenerRangeTag) },
             None = new ComponentType[] { typeof(AloneOnSpeakerTag) }
         };
 
         EntityQueryDesc frameDisconnectedQueryDesc = new()
         {
             All = new ComponentType[] { typeof(FrameComponent), typeof(InListenerRangeTag) },
-            None = new ComponentType[] { typeof(FrameConnection)}
+            None = new ComponentType[] { typeof(SpeakerConnection)}
         };
         EntityQueryDesc speakerQueryDesc = new()
         {
@@ -72,7 +72,7 @@ public partial class AttachmentSystem : SystemBase
         EntityQuery frameQuery;
         NativeArray<Entity> frameEntities;
         NativeArray<FrameComponent> frameComponents;
-        NativeArray<FrameConnection> frameConnections;
+        NativeArray<SpeakerConnection> frameConnections;
 
 
         speakerQuery = GetEntityQuery(speakerQueryDesc);
@@ -83,11 +83,11 @@ public partial class AttachmentSystem : SystemBase
             .WithReadOnly(speakerIndexes).WithReadOnly(speakerComponents).ForEach
         (
             (
-                int entityInQueryIndex, Entity entity, ref FrameConnection connection, in FrameComponent frame) =>
+                int entityInQueryIndex, Entity entity, ref SpeakerConnection connection, in FrameComponent frame) =>
             {
                 if (connection.SpeakerIndex < 0 || connection.SpeakerIndex >= speakerComponents.Length)
                 {
-                    ecb.RemoveComponent<FrameConnection>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<SpeakerConnection>(entityInQueryIndex, entity);
                     ecb.RemoveComponent<AloneOnSpeakerTag>(entityInQueryIndex, entity);
                     return;
                 }
@@ -109,7 +109,7 @@ public partial class AttachmentSystem : SystemBase
                     break;
                 }
 
-                ecb.RemoveComponent<FrameConnection>(entityInQueryIndex, entity);
+                ecb.RemoveComponent<SpeakerConnection>(entityInQueryIndex, entity);
                 ecb.RemoveComponent<AloneOnSpeakerTag>(entityInQueryIndex, entity);
             }
         ).ScheduleParallel(Dependency);
@@ -122,7 +122,7 @@ public partial class AttachmentSystem : SystemBase
             .WithAll<InListenerRangeTag, AloneOnSpeakerTag>()
             .WithReadOnly(speakerIndexes).WithReadOnly(speakerComponents).ForEach
         (
-            (int entityInQueryIndex, Entity entity, ref FrameConnection connection, in FrameComponent frame) =>
+            (int entityInQueryIndex, Entity entity, ref SpeakerConnection connection, in FrameComponent frame) =>
             {
                 var foundSelf = false;
                 var foundOther = false;
@@ -167,7 +167,7 @@ public partial class AttachmentSystem : SystemBase
 
         
         JobHandle connectToActiveSpeakerJob = Entities.WithName("ConnectToActiveSpeaker")
-            .WithAll<InListenerRangeTag>().WithNone<FrameConnection>()
+            .WithAll<InListenerRangeTag>().WithNone<SpeakerConnection>()
             .WithReadOnly(speakerIndexes).WithReadOnly(speakerComponents).ForEach
         (
             (int entityInQueryIndex, Entity entity, ref FrameComponent frame) =>
@@ -193,7 +193,7 @@ public partial class AttachmentSystem : SystemBase
                 if (!foundOther)
                     return;
 
-                ecb.AddComponent(entityInQueryIndex, entity, new FrameConnection
+                ecb.AddComponent(entityInQueryIndex, entity, new SpeakerConnection
                 {
                     SpeakerIndex = otherSpeakerIndex
                 });
@@ -206,7 +206,7 @@ public partial class AttachmentSystem : SystemBase
         
         frameQuery = GetEntityQuery(frameConnectedQueryDesc);
         frameComponents = frameQuery.ToComponentDataArray<FrameComponent>(Allocator.TempJob);
-        frameConnections = frameQuery.ToComponentDataArray<FrameConnection>(Allocator.TempJob);
+        frameConnections = frameQuery.ToComponentDataArray<SpeakerConnection>(Allocator.TempJob);
         JobHandle moveSpeakersJob = Entities.WithName("MoveSpeakers")
             .WithReadOnly(frameComponents).WithReadOnly(frameConnections).ForEach
         (
@@ -298,7 +298,7 @@ public partial class AttachmentSystem : SystemBase
                     if (speakerComponents[s].State != ConnectionState.Pooled)
                         continue;
         
-                    ecb.AddComponent(f, frameEntities, new FrameConnection
+                    ecb.AddComponent(f, frameEntities, new SpeakerConnection
                     {
                         SpeakerIndex = speakerIndexes[s].Value
                     });

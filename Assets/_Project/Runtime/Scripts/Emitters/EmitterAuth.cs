@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NaughtyAttributes;
 using PlaneWaver.DSP;
 using PlaneWaver.Interaction;
-using PlaneWaver.Modulation;
+using PlaneWaver.Parameters;
 using Unity.Entities;
 using UnityEngine;
 
@@ -32,7 +32,7 @@ namespace PlaneWaver.Emitters
         
         [Range(0f, 2f)] public float EmitterVolume = 1;
         [AllowNesting] [DisableIf("IsVolatile")] [Range(0f, 1f)]
-        public float AgeFadeOut = 0.95f;
+        public float AgeFadeOut;
         
         public bool ReflectPlayheadAtLimit;
         public EmitterAttenuator DynamicAttenuation;
@@ -52,7 +52,15 @@ namespace PlaneWaver.Emitters
 
         #endregion
 
-        #region RESET METHOD
+        #region CONSTRUCTOR / RESET METHOD
+        
+        public EmitterAuth()
+        {
+            PlaybackCondition = PropagateCondition.Constant;
+            AgeFadeOut = 0.95f;
+            ReflectPlayheadAtLimit = true;
+            DynamicAttenuation = new EmitterAttenuator();
+        }
 
         [Button("Reset")]
         public void Reset()
@@ -64,8 +72,9 @@ namespace PlaneWaver.Emitters
                 PlaybackCondition = PropagateCondition.Volatile;
 
             EmitterVolume = 1;
-            DynamicAttenuation = new EmitterAttenuator();
+            AgeFadeOut = IsVolatile ? 1 : 0.95f;
             ReflectPlayheadAtLimit = !IsVolatile;
+            DynamicAttenuation = new EmitterAttenuator();
         }
 
         #endregion

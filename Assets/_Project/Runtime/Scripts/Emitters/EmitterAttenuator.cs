@@ -2,7 +2,7 @@
 using PlaneWaver.Interaction;
 using UnityEngine;
 
-namespace PlaneWaver.Modulation
+namespace PlaneWaver.Parameters
 {
     [Serializable]
     public class EmitterAttenuator

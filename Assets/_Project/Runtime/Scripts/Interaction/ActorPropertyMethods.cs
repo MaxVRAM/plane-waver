@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-using PlaneWaver.Modulation;
+using PlaneWaver.Parameters;
 
 namespace PlaneWaver.Interaction
 {
@@ -13,22 +13,20 @@ namespace PlaneWaver.Interaction
         /// <param name="previousVector">ref Vector3 to store an arbitrary vector for subsequent calculations.</param>
         /// <returns>Float: Represents the most current value from the selected interaction parameter.</returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public float GetActorValue(SourceActor selection, ref Vector3 previousVector)
+        public float GetActorValue(Parameter.InputActor selection, ref Vector3 previousVector)
         {
-            float returnValue = selection switch
+            return selection switch
             {
-                SourceActor.Speed          => Speed,
-                SourceActor.Scale          => Scale,
-                SourceActor.Mass           => Mass,
-                SourceActor.MassTimesScale => Mass * Scale,
-                SourceActor.SlideMomentum  => SlideMomentum,
-                SourceActor.AngularSpeed   => AngularSpeed,
-                SourceActor.RollMomentum   => RollMomentum,
-                SourceActor.Acceleration   => Acceleration(ref previousVector),
+                Parameter.InputActor.Speed => Speed,
+                Parameter.InputActor.Scale => Scale,
+                Parameter.InputActor.Mass  => Mass,
+                Parameter.InputActor.MassTimesScale  => Mass * Scale,
+                Parameter.InputActor.SlideMomentum   => SlideMomentum,
+                Parameter.InputActor.AngularSpeed    => AngularSpeed,
+                Parameter.InputActor.RollMomentum    => RollMomentum,
+                Parameter.InputActor.Acceleration    => Acceleration(ref previousVector),
                 _                          => throw new ArgumentOutOfRangeException(nameof(selection), selection, null)
             };
-
-            return returnValue;
         }
 
         /// <summary>
@@ -38,22 +36,20 @@ namespace PlaneWaver.Interaction
         /// <param name="previousVector">ref Vector3 to store an arbitrary vector for subsequent calculations.</param>
         /// <param name="otherBody">Another transform to calculate relative interaction properties.</param>
         /// <returns>Float: Represents the most current value from the selected interaction parameter.</returns>
-        public float GetRelativeValue(SourceRelational selection, ref Vector3 previousVector, Transform otherBody)
+        public float GetRelativeValue(Parameter.InputRelational selection, ref Vector3 previousVector, Transform otherBody)
         {
-            float returnValue = selection switch
+            return selection switch
             {
-                SourceRelational.DistanceX => Mathf.Abs(RelativePosition(otherBody).x),
-                SourceRelational.DistanceY => Mathf.Abs(RelativePosition(otherBody).y),
-                SourceRelational.DistanceZ => Mathf.Abs(RelativePosition(otherBody).z),
-                SourceRelational.Radius => SphericalCoords(otherBody).Radius,
-                SourceRelational.Polar => SphericalCoords(otherBody).Polar,
-                SourceRelational.Elevation => SphericalCoords(otherBody).Elevation,
-                SourceRelational.RelativeSpeed => RelativeSpeed(otherBody),
-                SourceRelational.TangentialSpeed => TangentalSpeed(otherBody, ref previousVector),
+                Parameter.InputRelational.DistanceX => Mathf.Abs(RelativePosition(otherBody).x),
+                Parameter.InputRelational.DistanceY => Mathf.Abs(RelativePosition(otherBody).y),
+                Parameter.InputRelational.DistanceZ => Mathf.Abs(RelativePosition(otherBody).z),
+                Parameter.InputRelational.Radius => SphericalCoords(otherBody).Radius,
+                Parameter.InputRelational.Polar => SphericalCoords(otherBody).Polar,
+                Parameter.InputRelational.Elevation => SphericalCoords(otherBody).Elevation,
+                Parameter.InputRelational.RelativeSpeed => RelativeSpeed(otherBody),
+                Parameter.InputRelational.TangentialSpeed => TangentalSpeed(otherBody, ref previousVector),
                 _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, null)
             };
-
-            return returnValue;
         }
 
         /// <summary>
@@ -62,7 +58,7 @@ namespace PlaneWaver.Interaction
         /// <param name="selection">ActorOther Source Value selection enum.</param>
         /// <param name="previousVector">ref Vector3 to store an arbitrary vector for subsequent calculations.</param>
         /// <returns>Float: Represents the most current value from the selected interaction parameter.</returns>
-        public float GetRelativeValue(SourceRelational selection, ref Vector3 previousVector)
+        public float GetRelativeValue(Parameter.InputRelational selection, ref Vector3 previousVector)
         {
             if (!_hasOtherBody)
                 return 0;
@@ -70,16 +66,14 @@ namespace PlaneWaver.Interaction
             return GetRelativeValue(selection, ref previousVector, OtherBody);
         }
 
-        public float GetCollisionValue(SourceCollision selection)
+        public float GetCollisionValue(Parameter.InputCollision selection)
         {
-            float returnValue = selection switch
+            return selection switch
             {
-                SourceCollision.CollisionSpeed => CollisionSpeed,
-                SourceCollision.CollisionForce => CollisionForce,
-                _                              => 0
+                Parameter.InputCollision.CollisionSpeed => CollisionSpeed,
+                Parameter.InputCollision.CollisionForce => CollisionForce,
+                _                                       => 0
             };
-            
-            return returnValue;
         }
     }
 }

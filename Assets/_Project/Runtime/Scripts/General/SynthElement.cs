@@ -2,8 +2,6 @@ using System;
 using Unity.Entities;
 using UnityEngine;
 
-using NaughtyAttributes;
-
 namespace PlaneWaver
 {
     /// <summary>
@@ -13,7 +11,7 @@ namespace PlaneWaver
     {
         #region CLASS DEFINITIONS
 
-        public int EntityIndex { get; private set; }
+        protected int EntityIndex { get; private set; }
         protected EntityManager Manager;
         protected EntityArchetype ElementArchetype;
         protected Entity ElementEntity;
@@ -65,6 +63,7 @@ namespace PlaneWaver
 
         private void OnDestroy()
         {
+            throw new Exception("Destorying SynthElement! This should never happen");
             DestroyEntity();
         }
 

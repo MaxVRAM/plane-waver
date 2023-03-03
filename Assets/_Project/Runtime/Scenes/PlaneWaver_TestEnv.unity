@@ -394,6 +394,162 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 817876741}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1445299538
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1445299539}
+  - component: {fileID: 1445299540}
+  m_Layer: 0
+  m_Name: TestObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1445299539
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445299538}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1445299540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1445299538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d167efd7e0ffb4cbcaa90e4e7ac6de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpeakerTarget: {fileID: 0}
+  SpeakerTransform: {fileID: 0}
+  SpeakerIndex: 0
+  StableEmitters:
+  - PlaybackCondition: 0
+    EmitterAsset: {fileID: 11400000, guid: 137fc1a2442a6ef46bea546b80a2d8ae, type: 2}
+    EmitterVolume: 0
+    AgeFadeOut: 0.676
+    ReflectPlayheadAtLimit: 0
+    DynamicAttenuation:
+      DistanceFactor: 0
+      AgeFadeIn: 0
+      AgeFadeOut: 0
+      MuteOnDisconnection: 0
+      ReconnectionFadeInMS: 0
+      MuteVolume: 0
+      DistanceVolume: 0
+      DistanceNorm: 0
+    DSPChainParams: []
+    FrameInitialised: 0
+    EntityInitialised: 0
+    IsConnected: 0
+    IsPlaying: 0
+  VolatileEmitters:
+  - PlaybackCondition: 0
+    EmitterAsset: {fileID: 0}
+    EmitterVolume: 0
+    AgeFadeOut: 0
+    ReflectPlayheadAtLimit: 0
+    DynamicAttenuation:
+      DistanceFactor: 0
+      AgeFadeIn: 0
+      AgeFadeOut: 0
+      MuteOnDisconnection: 0
+      ReconnectionFadeInMS: 0
+      MuteVolume: 0
+      DistanceVolume: 0
+      DistanceNorm: 0
+    DSPChainParams: []
+    FrameInitialised: 0
+    EntityInitialised: 0
+    IsConnected: 0
+    IsPlaying: 0
+  - PlaybackCondition: 0
+    EmitterAsset: {fileID: 0}
+    EmitterVolume: 0
+    AgeFadeOut: 0
+    ReflectPlayheadAtLimit: 0
+    DynamicAttenuation:
+      DistanceFactor: 0
+      AgeFadeIn: 0
+      AgeFadeOut: 0
+      MuteOnDisconnection: 0
+      ReconnectionFadeInMS: 0
+      MuteVolume: 0
+      DistanceVolume: 0
+      DistanceNorm: 0
+    DSPChainParams: []
+    FrameInitialised: 0
+    EntityInitialised: 0
+    IsConnected: 0
+    IsPlaying: 0
+  - PlaybackCondition: 0
+    EmitterAsset: {fileID: 0}
+    EmitterVolume: 0
+    AgeFadeOut: 0
+    ReflectPlayheadAtLimit: 0
+    DynamicAttenuation:
+      DistanceFactor: 0
+      AgeFadeIn: 0
+      AgeFadeOut: 0
+      MuteOnDisconnection: 0
+      ReconnectionFadeInMS: 0
+      MuteVolume: 0
+      DistanceVolume: 0
+      DistanceNorm: 0
+    DSPChainParams: []
+    FrameInitialised: 0
+    EntityInitialised: 0
+    IsConnected: 0
+    IsPlaying: 0
+  - PlaybackCondition: 0
+    EmitterAsset: {fileID: 0}
+    EmitterVolume: 0
+    AgeFadeOut: 0
+    ReflectPlayheadAtLimit: 0
+    DynamicAttenuation:
+      DistanceFactor: 0
+      AgeFadeIn: 0
+      AgeFadeOut: 0
+      MuteOnDisconnection: 0
+      ReconnectionFadeInMS: 0
+      MuteVolume: 0
+      DistanceVolume: 0
+      DistanceNorm: 0
+    DSPChainParams: []
+    FrameInitialised: 0
+    EntityInitialised: 0
+    IsConnected: 0
+    IsPlaying: 0
+  IsConnected: 0
+  InListenerRange: 0
+  MaterialModulator:
+    _Enabled: 1
+    _Renderer: {fileID: 0}
+    _Colour: {r: 0, g: 0, b: 0, a: 0}
+    _ColourParam: _EmissiveColor
+    _UseExistingColour: 1
+    _ActiveState: 0
+    _ActiveIntensity: 10
+    _InactiveIntensity: 0
+    _Smoothing: 0.5
 --- !u!1 &1507485545
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,7 +566,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1507485546
 Transform:
   m_ObjectHideFlags: 0
@@ -442,7 +598,7 @@ MonoBehaviour:
   ControllerObject: {fileID: 0}
   ControllerAnchor: {fileID: 0}
   SpawnableHost: {fileID: 0}
-  PrefabToSpawn: {fileID: 0}
+  PrefabToSpawn: {fileID: 1445299538}
   SpawnablePrefabs: []
   RandomiseSpawnPrefab: 0
   AttachmentJoint: {fileID: 0}
@@ -1021,7 +1177,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b50a036e64e62884cb9bffde5e8caa8e, type: 2}
   - {fileID: 11400000, guid: 08dadce22ee386c4a9510c99c5a8e397, type: 2}
   PreviewAudioSource: {fileID: 1981806605}
-  PreviewAudioObject: {fileID: 11400000, guid: 53764955ec84c9e40b2b30466df032ca, type: 2}
+  PreviewAudioObject: {fileID: 11400000, guid: c178620585647dd40851759478bd497e, type: 2}
 --- !u!82 &1981806605
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1032,7 +1188,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: c85addc7e73875c419d646d68ebbea7d, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 7860900fc37a01c4a8ef5de9c467adf1, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1

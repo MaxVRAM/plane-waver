@@ -29,8 +29,8 @@ namespace PlaneWaver.DSP
         private AudioSource _audioSource;
         private Grain[] _grainArray;
 
-        public delegate void GrainEmitted(Grain data, int currentDSPSample);
-        public event GrainEmitted OnGrainEmitted;
+        // public delegate void GrainEmitted(Grain data, int currentDSPSample);
+        // public event GrainEmitted OnGrainEmitted;
 
         #endregion
 

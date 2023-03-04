@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace MaxVRAM.GUI
 {
@@ -11,7 +12,6 @@ namespace MaxVRAM.GUI
             RangeSliderAttribute rangeAttribute = (RangeSliderAttribute)attribute;
             SerializedPropertyType propertyType = property.propertyType;
 
-            label.tooltip = rangeAttribute.Min.ToString("F2") + " to " + rangeAttribute.Max.ToString("F2");
             Rect controlRect = EditorGUI.PrefixLabel(position, label);
             Rect[] splittedRect = SplitRect(controlRect, 3);
 

@@ -21,7 +21,15 @@ namespace MaxVRAM.Extensions
         {
             return vector.x > vector.y ? new Vector2(vector.y, vector.x) : vector;
         }
-
+        
+        public static Vector2 RoundDecimal(this Vector2 value, int decimalPlaces)
+        {
+            float multiplier = Mathf.Pow(10, decimalPlaces);
+            return new Vector2(
+                Mathf.Round(value.x * multiplier) / multiplier, 
+                Mathf.Round(value.y * multiplier) / multiplier);
+        }
+        
         public static Vector3 RotatePointAroundPivot(this Vector3 point, Vector3 pivot, Vector3 angles)
         {
             // ref: https://answers.unity.com/questions/532297/rotate-a-vector-around-a-certain-point.html

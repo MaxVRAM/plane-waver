@@ -9,9 +9,9 @@ namespace PlaneWaver.Parameters
     [Serializable]
     public partial class Parameter
     {
-        protected ParameterDefault Defaults;
-        public InputSource ModulationInput;
-        public DataObject Data;
+        public PropertiesObject ParameterProperties;
+        public ModulationInputObject ModulationInput;
+        public ModulationDataObject ModulationData;
 
         private Actor _actor;
         protected bool VolatileEmitter;
@@ -23,20 +23,20 @@ namespace PlaneWaver.Parameters
         public Parameter(bool volatileEmitter = false)
         {
             VolatileEmitter = volatileEmitter;
-            ModulationInput = new InputSource();
+            ModulationInput = new ModulationInputObject();
         }
 
         public void Reset()
         {
-            ModulationInput = new InputSource();
-            Data = new DataObject(Defaults);
-            Data.Initialise();
+            ModulationInput = new ModulationInputObject();
+            ModulationData = new ModulationDataObject(ParameterProperties);
+            ModulationData.Initialise();
         }
 
         public void Initialise(in Actor actor)
         {
             _actor = actor;
-            Data.Initialise();
+            ModulationData.Initialise();
             _isInitialised = true;
         }
         
@@ -46,7 +46,7 @@ namespace PlaneWaver.Parameters
                 throw new Exception("Parameter has not been initialised.");
 
             ModulationOutputValue = GetModulationValue();
-            return Data.BuildComponent(ModulationOutputValue);
+            return ModulationData.BuildComponent(ModulationOutputValue);
         }
 
         public float GetModulationValue()
@@ -68,29 +68,29 @@ namespace PlaneWaver.Parameters
         public float Process(float sourceInputValue)
         {
             float outputValue = 0;
-            float input = sourceInputValue * Data.ModInputMultiplier;
+            float input = sourceInputValue * ModulationData.ModInputMultiplier;
             float inputNormalised = Mathf.InverseLerp
-                    (Data.ModInputRange.x, Data.ModInputRange.y, input);
-            float preSmoothing = Data.Accumulate ? _previousSmoothedValue + inputNormalised : inputNormalised;
-            float smoothedValue = _previousSmoothedValue.Smooth(preSmoothing, Data.Smoothing);
+                    (ModulationData.ModInputRange.x, ModulationData.ModInputRange.y, input);
+            float preSmoothing = ModulationData.Accumulate ? _previousSmoothedValue + inputNormalised : inputNormalised;
+            float smoothedValue = _previousSmoothedValue.Smooth(preSmoothing, ModulationData.Smoothing);
             _previousSmoothedValue = smoothedValue;
 
-            if (Data.VolatileEmitter)
-                outputValue = Data.LimiterMode switch {
+            if (ModulationData.VolatileEmitter)
+                outputValue = ModulationData.LimiterMode switch {
                     ModulationLimiter.Clip     => Mathf.Clamp(smoothedValue, 0, 1),
                     ModulationLimiter.Repeat   => smoothedValue.RepeatNorm(),
                     ModulationLimiter.PingPong => smoothedValue.PingPongNorm(),
                     _                          => smoothedValue
                 };
             else
-                outputValue = Data.LimiterMode switch {
-                    ModulationLimiter.Clip => Data.InitialValue +
-                                              Mathf.Pow(Mathf.Clamp01(smoothedValue),Data.ModExponent) *
-                                              Data.ModInfluence,
+                outputValue = ModulationData.LimiterMode switch {
+                    ModulationLimiter.Clip => ModulationData.InitialValue +
+                                              Mathf.Pow(Mathf.Clamp01(smoothedValue),ModulationData.ModExponent) *
+                                              ModulationData.ModInfluence,
                     ModulationLimiter.Repeat => smoothedValue.RepeatNorm
-                            (Data.ModInfluence, Data.InitialValue),
+                            (ModulationData.ModInfluence, ModulationData.InitialValue),
                     ModulationLimiter.PingPong => smoothedValue.PingPongNorm
-                            (Data.ModInfluence, Data.InitialValue),
+                            (ModulationData.ModInfluence, ModulationData.InitialValue),
                     _ => smoothedValue
                 };
 

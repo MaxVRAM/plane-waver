@@ -8,7 +8,7 @@ namespace PlaneWaver.Parameters
     public partial class Parameter
     {
         [Serializable]
-        public class DataObject
+        public class ModulationDataObject
         {
             #region DEFINITIONS
 
@@ -38,11 +38,11 @@ namespace PlaneWaver.Parameters
 
             #region CONSTRUCTOR AND INITIALISATION
 
-            public DataObject(ParameterDefault defaults, bool isVolatileEmitter = false)
+            public ModulationDataObject(PropertiesObject propertiesObject, bool isVolatileEmitter = false)
             {
-                _parameterIndex = defaults.Index;
-                _parameterMaxRange = defaults.ParameterMaxRange;
-                InitialRange = defaults.InitialRange;
+                _parameterIndex = propertiesObject.Index;
+                _parameterMaxRange = propertiesObject.ParameterMaxRange;
+                InitialRange = propertiesObject.InitialRange;
                 InitialValue = 0;
                 ModInputRange = new Vector2(0f, 1f);
                 ModInputMultiplier = 1;
@@ -50,8 +50,8 @@ namespace PlaneWaver.Parameters
                 Smoothing = 0.2f;
                 ModExponent = 1;
                 ModInfluence = 0;
-                FixedStart = defaults.FixedStart;
-                FixedEnd = defaults.FixedEnd;
+                FixedStart = propertiesObject.FixedStart;
+                FixedEnd = propertiesObject.FixedEnd;
                 LimiterMode = ModulationLimiter.Clip;
                 NoiseInfluence = 0;
                 NoiseMultiplier = 1;

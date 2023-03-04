@@ -1,18 +1,20 @@
+using System;
 using UnityEngine;
 
 namespace MaxVRAM.GUI
 {
     public class RangeSliderAttribute : PropertyAttribute
     {
-        public float Min { get; private set; }
-        public float Max { get; private set; }
-        public float MinDisplay { get; private set; }
-        public float MaxDisplay { get; private set; }
+        public float Min;
+        public float Max;
+        public float MinDisplay;
+        public float MaxDisplay;
+        
 
-        public RangeSliderAttribute(float minValue, float maxValue, float minDisplay, float maxDisplay)
+        public RangeSliderAttribute(float min, float max, float minDisplay, float maxDisplay)
         {
-            Min = minValue;
-            Max = maxValue;
+            Min = min;
+            Max = max;
             MinDisplay = minDisplay;
             MaxDisplay = maxDisplay;
         }

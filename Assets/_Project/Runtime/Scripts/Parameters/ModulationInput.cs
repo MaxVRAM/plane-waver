@@ -7,7 +7,7 @@ namespace PlaneWaver.Parameters
     public partial class Parameter
     {
         [Serializable]
-        public class InputSource
+        public class ModulationInputObject
         {
             public InputGroups InputGroup;
             public InputMisc MiscInput;
@@ -17,7 +17,7 @@ namespace PlaneWaver.Parameters
             private Vector3 _previousVector;
             private float _previousValue;
 
-            public InputSource()
+            public ModulationInputObject()
             {
                 InputGroup = InputGroups.Misc;
                 MiscInput = InputMisc.Disabled;

@@ -6,7 +6,7 @@ namespace PlaneWaver.Parameters
     public partial class Parameter
     {
         [Serializable]
-        public struct ParameterDefault
+        public struct PropertiesObject
         {
             public int Index;
             public string Name;
@@ -15,7 +15,7 @@ namespace PlaneWaver.Parameters
             public bool FixedStart;
             public bool FixedEnd;
 
-            public ParameterDefault(int index, string name, Vector2 paramRange, Vector2 initialRange, bool fixedStart, bool fixedEnd)
+            public PropertiesObject(int index, string name, Vector2 paramRange, Vector2 initialRange, bool fixedStart, bool fixedEnd)
             {
                 Index = index;
                 Name = name;
@@ -31,7 +31,7 @@ namespace PlaneWaver.Parameters
     {
         public Volume(bool volatileEmitter = false) : base(volatileEmitter)
         {
-            Defaults = new ParameterDefault(
+            ParameterProperties = new PropertiesObject(
                 0,
                 "Volume",
                 new Vector2(0f, 2f),
@@ -39,7 +39,7 @@ namespace PlaneWaver.Parameters
                 false,
                 VolatileEmitter
             );
-            Data = new DataObject(Defaults);
+            ModulationData = new ModulationDataObject(ParameterProperties);
         }
     }
 
@@ -47,15 +47,15 @@ namespace PlaneWaver.Parameters
     {
         public Playhead(bool volatileEmitter = false) : base(volatileEmitter)
         {
-            Defaults = new ParameterDefault(
+            ParameterProperties = new PropertiesObject(
                 1,
                 "Playhead",
-                new Vector2(0f, 2f),
+                new Vector2(0f, 1f),
                 VolatileEmitter ? new Vector2(0.3f,0) : new Vector2(0, 1),
                 false,
                 VolatileEmitter
             );
-            Data = new DataObject(Defaults);
+            ModulationData = new ModulationDataObject(ParameterProperties);
         }
     }
 
@@ -63,7 +63,7 @@ namespace PlaneWaver.Parameters
     {
         public Duration(bool volatileEmitter = false) : base(volatileEmitter)
         {
-            Defaults = new ParameterDefault(
+            ParameterProperties = new PropertiesObject(
                 2,
                 "Duration",
                 new Vector2(10f, 250f),
@@ -71,7 +71,7 @@ namespace PlaneWaver.Parameters
                 VolatileEmitter,
                 false
             );
-            Data = new DataObject(Defaults);
+            ModulationData = new ModulationDataObject(ParameterProperties);
         }
     }
 
@@ -79,7 +79,7 @@ namespace PlaneWaver.Parameters
     {
         public Density(bool volatileEmitter = false) : base(volatileEmitter)
         {
-            Defaults = new ParameterDefault(
+            ParameterProperties = new PropertiesObject(
                 3,
                 "Density",
                 new Vector2(0.1f, 10),
@@ -87,7 +87,7 @@ namespace PlaneWaver.Parameters
                 false,
                 false
             );
-            Data = new DataObject(Defaults);
+            ModulationData = new ModulationDataObject(ParameterProperties);
         }
     }
 
@@ -95,7 +95,7 @@ namespace PlaneWaver.Parameters
     {
         public Transpose(bool volatileEmitter = false) : base(volatileEmitter)
         {
-            Defaults = new ParameterDefault(
+            ParameterProperties = new PropertiesObject(
                 4,
                 "Transpose",
                 new Vector2(-3, 3),
@@ -103,7 +103,7 @@ namespace PlaneWaver.Parameters
                 VolatileEmitter,
                 false
             );
-            Data = new DataObject(Defaults);
+            ModulationData = new ModulationDataObject(ParameterProperties);
         }
     }
 
@@ -112,7 +112,7 @@ namespace PlaneWaver.Parameters
         public Length(bool volatileEmitter = true) : base(volatileEmitter)
         {
             if (!VolatileEmitter) throw new Exception("Length parameter is only valid for volatile emitters");
-            Defaults = new ParameterDefault(
+            ParameterProperties = new PropertiesObject(
                 5,
                 "Length",
                 new Vector2(10, 1000),
@@ -120,7 +120,7 @@ namespace PlaneWaver.Parameters
                 true,
                 false
             );
-            Data = new DataObject(Defaults);
+            ModulationData = new ModulationDataObject(ParameterProperties);
         }
     }
 }

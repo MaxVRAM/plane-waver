@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MaxVRAM.GUI;
 using UnityEngine;
 
 using PlaneWaver.Library;
@@ -13,6 +14,8 @@ namespace PlaneWaver.Emitters
     {
         #region CLASS DEFINITIONS
 
+        [RangeSlider(0, 1, -10, 10)]
+        public Vector2 TestVector;
         public string EmitterName;
         public string Description;
         public AudioObject AudioObject;
@@ -28,7 +31,7 @@ namespace PlaneWaver.Emitters
         public void InitialiseParameters(in Actor actor)
         {
             foreach (Parameter parameter in Parameters) parameter.Initialise(actor);
-            _isInitialised = true;
+            _isInitialised = true;   
         }
         
         #endregion

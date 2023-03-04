@@ -41,7 +41,45 @@ namespace MaxVRAM
         {
             return Mathf.InverseLerp(range.x, range.y, value);
         }
-
+        
+        /// <summary>
+        /// Linearly interpolate two components of a normalised Vector2 between min and max range scalars.
+        /// </summary>
+        /// <param name="min">The start values.</param>
+        /// <param name="max">The end values.</param>
+        /// <param name="normalisedVector">The interpolation position for the corresponding component of vector a and b.</param>
+        /// <returns>A ranged Vector2.</returns>
+        public static Vector2 NormToRanged(float min, float max, Vector2 normalisedVector)
+        {
+            return new Vector2(
+                Mathf.Lerp(min, max, normalisedVector.x), 
+                Mathf.Lerp(min, max, normalisedVector.y));
+        }
+        
+        public static Vector2 NormToRanged(Vector2 minMaxVector, Vector2 normalisedVector)
+        {
+            return NormToRanged(minMaxVector.x, minMaxVector.y, normalisedVector);
+        }
+        
+        /// <summary>
+        /// Normalise each ranged component of a Vector2 that sit within min and max range scalars.
+        /// </summary>
+        /// <param name="min">The start of the range.</param>
+        /// <param name="max">The end of the range.</param>
+        /// <param name="rangedVector">The points within the two ranges that will be independently normalised.</param>
+        /// <returns>A normalised Vector2.</returns>
+        public static Vector2 RangedToNorm(float min, float max, Vector2 rangedVector)
+        {
+            return new Vector2(
+                Mathf.InverseLerp(min, max, rangedVector.x), 
+                Mathf.InverseLerp(min, max, rangedVector.y));
+        }
+        
+        public static Vector2 RangedToNorm(Vector2 minMaxVector, Vector2 rangedVector)
+        {
+            return RangedToNorm(minMaxVector.x, minMaxVector.y, rangedVector);
+        }
+        
         public static float ScaleToNormNoClamp(float value, Vector2 range)
         {
             return range.x == range.y ? 0 : (value - range.x) / (range.y - range.x);

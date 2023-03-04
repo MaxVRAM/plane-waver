@@ -34,7 +34,13 @@ namespace MaxVRAM.Extensions
             float diff = value - mid;
             return diff > 0 ? mid - diff: mid + mid;
         }
-
+        
+        public static float RoundDecimal(this float value, int decimalPlaces)
+        {
+            float multiplier = Mathf.Pow(10, decimalPlaces);
+            return Mathf.Round(value * multiplier) / multiplier;
+        }
+        
         /// <summary>
         /// Provides standard Mathf.Lerp() functionality that snaps values closer than epsilon from the target.
         /// </summary>

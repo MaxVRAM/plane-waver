@@ -11,7 +11,7 @@ namespace PlaneWaver.Parameters
     {
         protected ParameterDefault Defaults;
         public InputSource ModulationInput;
-        public ModulationDataObject ModulationData;
+        public DataObject Data;
 
         private Actor _actor;
         protected bool VolatileEmitter;
@@ -29,14 +29,14 @@ namespace PlaneWaver.Parameters
         public void Reset()
         {
             ModulationInput = new InputSource();
-            ModulationData = new ModulationDataObject(Defaults);
-            ModulationData.Initialise();
+            Data = new DataObject(Defaults);
+            Data.Initialise();
         }
 
         public void Initialise(in Actor actor)
         {
             _actor = actor;
-            ModulationData.Initialise();
+            Data.Initialise();
             _isInitialised = true;
         }
         
@@ -46,7 +46,7 @@ namespace PlaneWaver.Parameters
                 throw new Exception("Parameter has not been initialised.");
 
             ModulationOutputValue = GetModulationValue();
-            return ModulationData.BuildComponent(ModulationOutputValue);
+            return Data.BuildComponent(ModulationOutputValue);
         }
 
         public float GetModulationValue()
@@ -68,29 +68,29 @@ namespace PlaneWaver.Parameters
         public float Process(float sourceInputValue)
         {
             float outputValue = 0;
-            float input = sourceInputValue * ModulationData.ModInputMultiplier;
+            float input = sourceInputValue * Data.ModInputMultiplier;
             float inputNormalised = Mathf.InverseLerp
-                    (ModulationData.ModInputRange.x, ModulationData.ModInputRange.y, input);
-            float preSmoothing = ModulationData.Accumulate ? _previousSmoothedValue + inputNormalised : inputNormalised;
-            float smoothedValue = _previousSmoothedValue.Smooth(preSmoothing, ModulationData.Smoothing);
+                    (Data.ModInputRange.x, Data.ModInputRange.y, input);
+            float preSmoothing = Data.Accumulate ? _previousSmoothedValue + inputNormalised : inputNormalised;
+            float smoothedValue = _previousSmoothedValue.Smooth(preSmoothing, Data.Smoothing);
             _previousSmoothedValue = smoothedValue;
 
-            if (ModulationData.VolatileEmitter)
-                outputValue = ModulationData.LimiterMode switch {
+            if (Data.VolatileEmitter)
+                outputValue = Data.LimiterMode switch {
                     ModulationLimiter.Clip     => Mathf.Clamp(smoothedValue, 0, 1),
                     ModulationLimiter.Repeat   => smoothedValue.RepeatNorm(),
                     ModulationLimiter.PingPong => smoothedValue.PingPongNorm(),
                     _                          => smoothedValue
                 };
             else
-                outputValue = ModulationData.LimiterMode switch {
-                    ModulationLimiter.Clip => ModulationData.OutputOffset +
-                                              Mathf.Pow(Mathf.Clamp01(smoothedValue),ModulationData.ModExponent) *
-                                              ModulationData.ModInfluence,
+                outputValue = Data.LimiterMode switch {
+                    ModulationLimiter.Clip => Data.InitialValue +
+                                              Mathf.Pow(Mathf.Clamp01(smoothedValue),Data.ModExponent) *
+                                              Data.ModInfluence,
                     ModulationLimiter.Repeat => smoothedValue.RepeatNorm
-                            (ModulationData.ModInfluence, ModulationData.OutputOffset),
+                            (Data.ModInfluence, Data.InitialValue),
                     ModulationLimiter.PingPong => smoothedValue.PingPongNorm
-                            (ModulationData.ModInfluence, ModulationData.OutputOffset),
+                            (Data.ModInfluence, Data.InitialValue),
                     _ => smoothedValue
                 };
 

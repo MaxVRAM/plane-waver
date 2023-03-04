@@ -19,7 +19,7 @@ namespace PlaneWaver.Emitters
         public List<Parameter> Parameters;
 
         public int GetParameterCount => Parameters.Count;
-        protected bool IsInitialised;
+        private bool _isInitialised;
         
         #endregion
 
@@ -28,7 +28,7 @@ namespace PlaneWaver.Emitters
         public void InitialiseParameters(in Actor actor)
         {
             foreach (Parameter parameter in Parameters) parameter.Initialise(actor);
-            IsInitialised = true;
+            _isInitialised = true;
         }
         
         #endregion
@@ -37,7 +37,7 @@ namespace PlaneWaver.Emitters
 
         public List<ModulationComponent> GetModulationComponents()
         {
-            if (!IsInitialised)
+            if (!_isInitialised)
                 throw new Exception("Emitter has not been initialised.");
             
             return Parameters.Select(p => p.CreateModulationComponent()).ToList();

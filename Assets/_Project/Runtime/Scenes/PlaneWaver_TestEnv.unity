@@ -463,64 +463,7 @@ MonoBehaviour:
     IsPlaying: 0
   VolatileEmitters:
   - PlaybackCondition: 0
-    EmitterAsset: {fileID: 0}
-    EmitterVolume: 0
-    AgeFadeOut: 0
-    ReflectPlayheadAtLimit: 0
-    DynamicAttenuation:
-      DistanceFactor: 0
-      AgeFadeIn: 0
-      AgeFadeOut: 0
-      MuteOnDisconnection: 0
-      ReconnectionFadeInMS: 0
-      MuteVolume: 0
-      DistanceVolume: 0
-      DistanceNorm: 0
-    DSPChainParams: []
-    FrameInitialised: 0
-    EntityInitialised: 0
-    IsConnected: 0
-    IsPlaying: 0
-  - PlaybackCondition: 0
-    EmitterAsset: {fileID: 0}
-    EmitterVolume: 0
-    AgeFadeOut: 0
-    ReflectPlayheadAtLimit: 0
-    DynamicAttenuation:
-      DistanceFactor: 0
-      AgeFadeIn: 0
-      AgeFadeOut: 0
-      MuteOnDisconnection: 0
-      ReconnectionFadeInMS: 0
-      MuteVolume: 0
-      DistanceVolume: 0
-      DistanceNorm: 0
-    DSPChainParams: []
-    FrameInitialised: 0
-    EntityInitialised: 0
-    IsConnected: 0
-    IsPlaying: 0
-  - PlaybackCondition: 0
-    EmitterAsset: {fileID: 0}
-    EmitterVolume: 0
-    AgeFadeOut: 0
-    ReflectPlayheadAtLimit: 0
-    DynamicAttenuation:
-      DistanceFactor: 0
-      AgeFadeIn: 0
-      AgeFadeOut: 0
-      MuteOnDisconnection: 0
-      ReconnectionFadeInMS: 0
-      MuteVolume: 0
-      DistanceVolume: 0
-      DistanceNorm: 0
-    DSPChainParams: []
-    FrameInitialised: 0
-    EntityInitialised: 0
-    IsConnected: 0
-    IsPlaying: 0
-  - PlaybackCondition: 0
-    EmitterAsset: {fileID: 0}
+    EmitterAsset: {fileID: 11400000, guid: 137fc1a2442a6ef46bea546b80a2d8ae, type: 2}
     EmitterVolume: 0
     AgeFadeOut: 0
     ReflectPlayheadAtLimit: 0

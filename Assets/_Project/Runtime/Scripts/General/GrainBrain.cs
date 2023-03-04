@@ -491,7 +491,7 @@ namespace PlaneWaver
 
         #region STATS UI UPDATE
 
-        public void UpdateStatsUI()
+        private void UpdateStatsUI()
         {
             _speakerCount = Mathf.CeilToInt(Mathf.Lerp(_speakerCount, Speakers.Count, Time.deltaTime * 10));
             _hostCount = Mathf.CeilToInt(Mathf.Lerp(_hostCount, Frames.Count, Time.deltaTime * 10));

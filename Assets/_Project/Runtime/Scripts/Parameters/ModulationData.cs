@@ -8,13 +8,13 @@ namespace PlaneWaver.Parameters
     public partial class Parameter
     {
         [Serializable]
-        public class ModulationDataObject
+        public class DataObject
         {
             #region DEFINITIONS
 
             private int _parameterIndex;
-            private Vector2 _parameterRange;
-            public Vector2 StaticRange;
+            private Vector2 _parameterMaxRange;
+            public Vector2 InitialRange;
             public Vector2 ModInputRange;
             public float ModInputMultiplier;
             public bool Accumulate;
@@ -31,18 +31,19 @@ namespace PlaneWaver.Parameters
             public bool LockNoise;
             public float PerlinOffset { get; private set; }
             public float PerlinSeed { get; private set; }
-            public float OutputOffset { get; private set; }
+            public float InitialValue { get; private set; }
             public bool VolatileEmitter { get; private set; }
 
             #endregion
 
             #region CONSTRUCTOR AND INITIALISATION
 
-            public ModulationDataObject(ParameterDefault defaults, bool isVolatileEmitter = false)
+            public DataObject(ParameterDefault defaults, bool isVolatileEmitter = false)
             {
                 _parameterIndex = defaults.Index;
-                _parameterRange = defaults.ParameterRange;
-                StaticRange = defaults.DefaultRange;
+                _parameterMaxRange = defaults.ParameterMaxRange;
+                InitialRange = defaults.InitialRange;
+                InitialValue = 0;
                 ModInputRange = new Vector2(0f, 1f);
                 ModInputMultiplier = 1;
                 Accumulate = false;
@@ -59,7 +60,6 @@ namespace PlaneWaver.Parameters
                 LockNoise = false;
                 PerlinOffset = 0;
                 PerlinSeed = 0;
-                OutputOffset = 0;
                 VolatileEmitter = isVolatileEmitter;
             }
 
@@ -67,7 +67,7 @@ namespace PlaneWaver.Parameters
             {
                 if (VolatileEmitter) return;
 
-                OutputOffset = Random.Range(StaticRange.x, StaticRange.y);
+                InitialValue = Random.Range(InitialRange.x, InitialRange.y);
                 PerlinOffset = Random.Range(0f, 1000f) * (1 + _parameterIndex);
                 PerlinSeed = Mathf.PerlinNoise(PerlinOffset + _parameterIndex, PerlinOffset * 0.5f + _parameterIndex);
             }
@@ -75,13 +75,13 @@ namespace PlaneWaver.Parameters
             public ModulationComponent BuildComponent(float modulationValue)
             {
                 return new ModulationComponent {
-                    StartValue = VolatileEmitter ? StaticRange.x : OutputOffset,
-                    EndValue = VolatileEmitter ? StaticRange.y : 0,
+                    StartValue = VolatileEmitter ? InitialRange.x : InitialValue,
+                    EndValue = VolatileEmitter ? InitialRange.y : 0,
                     ModValue = modulationValue,
                     ModInfluence = ModInfluence,
                     ModExponent = ModExponent,
-                    Min = _parameterRange.x,
-                    Max = _parameterRange.y,
+                    Min = _parameterMaxRange.x,
+                    Max = _parameterMaxRange.y,
                     Noise = NoiseInfluence * NoiseMultiplier,
                     PerlinValue = !VolatileEmitter && UsePerlin ? GetPerlinValue() : 0,
                     UsePerlin = !VolatileEmitter && UsePerlin,

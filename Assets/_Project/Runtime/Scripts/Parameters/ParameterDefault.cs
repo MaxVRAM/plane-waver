@@ -10,17 +10,17 @@ namespace PlaneWaver.Parameters
         {
             public int Index;
             public string Name;
-            public Vector2 ParameterRange;
-            public Vector2 DefaultRange;
+            public Vector2 ParameterMaxRange;
+            public Vector2 InitialRange;
             public bool FixedStart;
             public bool FixedEnd;
 
-            public ParameterDefault(int index, string name, Vector2 paramRange, Vector2 defaultRange, bool fixedStart, bool fixedEnd)
+            public ParameterDefault(int index, string name, Vector2 paramRange, Vector2 initialRange, bool fixedStart, bool fixedEnd)
             {
                 Index = index;
                 Name = name;
-                ParameterRange = paramRange;
-                DefaultRange = defaultRange;
+                ParameterMaxRange = paramRange;
+                InitialRange = initialRange;
                 FixedStart = fixedStart;
                 FixedEnd = fixedEnd;
             }
@@ -39,7 +39,7 @@ namespace PlaneWaver.Parameters
                 false,
                 VolatileEmitter
             );
-            ModulationData = new ModulationDataObject(Defaults);
+            Data = new DataObject(Defaults);
         }
     }
 
@@ -55,7 +55,7 @@ namespace PlaneWaver.Parameters
                 false,
                 VolatileEmitter
             );
-            ModulationData = new ModulationDataObject(Defaults);
+            Data = new DataObject(Defaults);
         }
     }
 
@@ -71,7 +71,7 @@ namespace PlaneWaver.Parameters
                 VolatileEmitter,
                 false
             );
-            ModulationData = new ModulationDataObject(Defaults);
+            Data = new DataObject(Defaults);
         }
     }
 
@@ -87,7 +87,7 @@ namespace PlaneWaver.Parameters
                 false,
                 false
             );
-            ModulationData = new ModulationDataObject(Defaults);
+            Data = new DataObject(Defaults);
         }
     }
 
@@ -103,7 +103,7 @@ namespace PlaneWaver.Parameters
                 VolatileEmitter,
                 false
             );
-            ModulationData = new ModulationDataObject(Defaults);
+            Data = new DataObject(Defaults);
         }
     }
 
@@ -120,7 +120,7 @@ namespace PlaneWaver.Parameters
                 true,
                 false
             );
-            ModulationData = new ModulationDataObject(Defaults);
+            Data = new DataObject(Defaults);
         }
     }
 }

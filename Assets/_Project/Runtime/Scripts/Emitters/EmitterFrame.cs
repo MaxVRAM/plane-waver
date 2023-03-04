@@ -76,7 +76,7 @@ namespace PlaneWaver.Emitters
 
         private void InitialiseSpeakerTarget()
         {
-            SpeakerTarget = _actor.SpeakerTarget;
+            SpeakerTarget = _actor != null && _actor.SpeakerTarget != null ? _actor.SpeakerTarget : transform;
             SpeakerTransform = SpeakerTarget;
         }
 

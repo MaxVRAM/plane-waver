@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using PlaneWaver.Interaction;
 using PlaneWaver.Parameters;
 using UnityEngine;
 
@@ -13,7 +12,7 @@ namespace PlaneWaver.Emitters
     {
         public VolatileEmitterObject()
         {
-            Parameters = new List<Parameter>() {
+            Parameters = new List<Parameter> {
                 new Volume(true),
                 new Playhead(true),
                 new Duration(true),

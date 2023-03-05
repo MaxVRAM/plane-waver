@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using PlaneWaver.Parameters;
+using PlaneWaver.Modulation;
 using UnityEngine;
 
 namespace PlaneWaver.Emitters
@@ -8,7 +8,7 @@ namespace PlaneWaver.Emitters
     ///     Scriptable Object for storing deployable Volatile Emitter configurations, which are then assigned to Frames.
     /// </summary>
     [CreateAssetMenu(fileName = "Emitter.Volatile.", menuName = "PlaneWaver/Emitters/Volatile", order = 1)]
-    public class VolatileEmitterObject : EmitterObject
+    public class VolatileEmitterObject : BaseEmitterObject
     {
         public VolatileEmitterObject()
         {

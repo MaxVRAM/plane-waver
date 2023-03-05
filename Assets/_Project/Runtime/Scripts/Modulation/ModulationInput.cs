@@ -2,7 +2,7 @@ using System;
 using PlaneWaver.Interaction;
 using UnityEngine;
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     [Serializable]
     public class ModulationInputObject
@@ -24,7 +24,7 @@ namespace PlaneWaver.Parameters
             CollisionValue = InputCollision.CollisionForce;
         }
 
-        public float GetInputValue(Actor actor)
+        public float GetInputValue(ActorObject actor)
         {
             _previousValue = InputGroup switch {
                 InputGroups.MiscValue      => GetMiscValue(MiscValue, actor),
@@ -37,14 +37,14 @@ namespace PlaneWaver.Parameters
             return _previousValue;
         }
 
-        public float GetMiscValue(InputMisc misc, Actor actor)
+        public float GetMiscValue(InputMisc misc, ActorObject actor)
         {
             return misc switch {
                 InputMisc.NoInput    => _previousValue,
                 InputMisc.TimeSinceStart => Time.time,
                 InputMisc.DeltaTime      => Time.deltaTime,
-                InputMisc.SpawnAge       => actor.Life.NormalisedAge(),
-                InputMisc.SpawnAgeNorm   => actor.Life.NormalisedAge(),
+                InputMisc.SpawnAge       => actor.Controller.NormalisedAge(),
+                InputMisc.SpawnAgeNorm   => actor.Controller.NormalisedAge(),
                 _                        => throw new ArgumentOutOfRangeException()
             };
         }

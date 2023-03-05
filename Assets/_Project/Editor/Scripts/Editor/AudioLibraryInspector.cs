@@ -4,7 +4,7 @@ using UnityEngine;
 using MaxVRAM.GUI;
 using PlaneWaver.Library;
 
-namespace PlaneWaver
+namespace PlaneWaver.Library
 {
     [CustomEditor(typeof(AudioLibrary))]
     public class AudioLibraryInspector : Editor
@@ -43,12 +43,12 @@ namespace PlaneWaver
 
             if (GUILayout.Button("Create Stable Emitter"))
             {
-                AudioLibrary.CreateEmitterAsset(library.PreviewAudioObject, false);
+                LibraryUtilities.CreateEmitterAsset(library.PreviewAudioObject, false);
             }
 
             if (GUILayout.Button("Create Volatile Emitter"))
             {
-                AudioLibrary.CreateEmitterAsset(library.PreviewAudioObject, true);
+                LibraryUtilities.CreateEmitterAsset(library.PreviewAudioObject, true);
             }
 
             GUILayout.EndHorizontal();
@@ -59,12 +59,12 @@ namespace PlaneWaver
 
             if (GUILayout.Button("Reload Audio Objects"))
             {
-                library.LoadAssets();
+                library.AudioObjects = LibraryUtilities.LoadAssets();
             }
 
             if (GUILayout.Button("Rebuild Audio Library"))
             {
-                library.BuildAudioObjects();
+                library.AudioObjects = LibraryUtilities.BuildAudioObjects();
             }
 
             GUILayout.EndHorizontal();

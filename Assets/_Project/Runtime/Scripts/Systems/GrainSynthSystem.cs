@@ -8,7 +8,7 @@ using Unity.Jobs.LowLevel.Unsafe;
 using MaxVRAM;
 using PlaneWaver.DSP;
 using PlaneWaver.Emitters;
-using PlaneWaver.Parameters;
+using PlaneWaver.Modulation;
 using Random = Unity.Mathematics.Random;
 
 namespace PlaneWaver

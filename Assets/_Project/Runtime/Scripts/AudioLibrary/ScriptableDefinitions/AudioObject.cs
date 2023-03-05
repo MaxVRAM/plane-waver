@@ -10,7 +10,7 @@ namespace PlaneWaver.Library
     /// Will be used for expanding audio library paradigm to make it easier to manage and
     /// assign audio assets to interactive synthesis elements.
     /// </summary>
-    [CreateAssetMenu(fileName = "AudioObject.", menuName = "PlaneWaver/Audio/AudioObject", order = 1)]
+    [CreateAssetMenu(fileName = "AudioObject.", menuName = "PlaneWaver/Audio Library/Audio Object", order = 1)]
     public class AudioObject : ScriptableObject
     {
         #region FIELDS & PROPERTIES

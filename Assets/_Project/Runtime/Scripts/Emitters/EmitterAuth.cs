@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using PlaneWaver.DSP;
 using PlaneWaver.Interaction;
-using PlaneWaver.Parameters;
+using PlaneWaver.Modulation;
 using Unity.Entities;
 using UnityEngine;
 
@@ -26,7 +26,7 @@ namespace PlaneWaver.Emitters
 
         public PropagateCondition PlaybackCondition;
 
-        public EmitterObject EmitterAsset;
+        public BaseEmitterObject EmitterAsset;
 
         [Range(0f, 2f)] public float EmitterVolume = 1;
         [Range(0f, 1f)] public float AgeFadeOut;
@@ -42,7 +42,7 @@ namespace PlaneWaver.Emitters
         [SerializeField] private bool IsPlaying;
 
         private string _frameName;
-        private Actor _actor;
+        private ActorObject _actor;
         private CollisionData _collisionData;
 
         public bool IsVolatile => EmitterAsset is VolatileEmitterObject;
@@ -77,7 +77,7 @@ namespace PlaneWaver.Emitters
 
         #region INITIALISATION METHODS
 
-        public void Initialise(int index, string frameName, in Actor actor)
+        public void Initialise(int index, string frameName, in ActorObject actor)
         {
             EntityIndex = index;
             _frameName = frameName;

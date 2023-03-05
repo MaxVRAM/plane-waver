@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     public class ParameterDrawer : PropertyDrawer
     {

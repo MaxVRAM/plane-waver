@@ -6,15 +6,15 @@ using static MaxVRAM.MaxMath;
 
 namespace PlaneWaver.Interaction
 {
-    public partial class Actor : MonoBehaviour
+    public partial class ActorObject : MonoBehaviour
     {
         #region CLASS DEFINITIONS
 
         //private bool _initialised;
-        public Spawner Spawner;
+        public ActorSpawner ActorSpawner;
         private bool _hasSpawner;
-        public ActorLife Life;
-        public ActorLifeData LifeData;
+        public ActorController Controller;
+        public ActorControllerData ControllerData;
         public Transform SpeakerTarget;
         public Transform OtherBody;
         private bool _hasOtherBody;
@@ -50,9 +50,15 @@ namespace PlaneWaver.Interaction
 
         #region PHYSICS PROPERTY METHODS
 
-        public float Acceleration(float previousSpeed) { return Speed - previousSpeed; }
+        public float Acceleration(float previousSpeed)
+        {
+            return Speed - previousSpeed;
+        }
 
-        public float Acceleration(Vector3 previousVelocity) { return (Velocity - previousVelocity).magnitude; }
+        public float Acceleration(Vector3 previousVelocity)
+        {
+            return (Velocity - previousVelocity).magnitude;
+        }
 
         public float Acceleration(ref Vector3 previousVelocity)
         {
@@ -61,15 +67,30 @@ namespace PlaneWaver.Interaction
             return returnValue;
         }
 
-        public Vector3 RelativePosition(Transform other) { return other.position - Position; }
+        public Vector3 RelativePosition(Transform other)
+        {
+            return other.position - Position;
+        }
 
-        public Vector3 DirectionTowardsOther(Transform other) { return (other.position - Position).normalized; }
+        public Vector3 DirectionTowardsOther(Transform other)
+        {
+            return (other.position - Position).normalized;
+        }
 
-        public Vector3 DirectionFromOther(Transform other) { return (Position - other.position).normalized; }
+        public Vector3 DirectionFromOther(Transform other)
+        {
+            return (Position - other.position).normalized;
+        }
 
-        public float Distance(Transform other) { return Vector3.Distance(Position, other.position); }
+        public float Distance(Transform other)
+        {
+            return Vector3.Distance(Position, other.position);
+        }
 
-        public float DistanceToListener() { return GrainBrain.Instance.DistanceToListener(transform); }
+        public float DistanceToListener()
+        {
+            return GrainBrain.Instance.DistanceToListener(transform);
+        }
 
         public float SpeakerTargetToListener()
         {
@@ -99,7 +120,10 @@ namespace PlaneWaver.Interaction
             return Quaternion.FromToRotation(previousDirection, DirectionFromOther(other));
         }
 
-        public float TangentalSpeed(Quaternion rotation) { return TangentalSpeedFromQuaternion(rotation); }
+        public float TangentalSpeed(Quaternion rotation)
+        {
+            return TangentalSpeedFromQuaternion(rotation);
+        }
 
         public float TangentalSpeed(Transform other, Vector3 previousDirection)
         {
@@ -122,9 +146,9 @@ namespace PlaneWaver.Interaction
             _hasRigidbody = TryGetComponent(out _rigidbody);
             _hasCollider = TryGetComponent(out _collider);
 
-            if (Life == null)
-                Life = GetComponent<ActorLife>() ?? gameObject.AddComponent<ActorLife>();
-            Life.InitialiseActorLife(LifeData);
+            if (Controller == null)
+                Controller = GetComponent<ActorController>() ?? gameObject.AddComponent<ActorController>();
+            Controller.InitialiseActorLife(ControllerData);
 
             if (_surfaceProperties == null)
                 _surfaceProperties = GetComponent<SurfaceProperties>() ?? gameObject.AddComponent<SurfaceProperties>();
@@ -133,7 +157,7 @@ namespace PlaneWaver.Interaction
 
         private void Awake()
         {
-            _hasSpawner = Spawner != null;
+            _hasSpawner = ActorSpawner != null;
             _hasOtherBody = OtherBody != null;
             _activeCollisions = new List<CollisionData>();
             _hasCollided = false;
@@ -143,13 +167,19 @@ namespace PlaneWaver.Interaction
                 SpeakerTarget = transform;
         }
 
-        private void Start() { InitialiseActor(); }
+        private void Start()
+        {
+            InitialiseActor();
+        }
 
         #endregion
 
         #region UPDATE METHODS
 
-        private void Update() { UpdateContactRigidity(); }
+        private void Update()
+        {
+            UpdateContactRigidity();
+        }
 
         private void UpdateContactRigidity()
         {
@@ -210,7 +240,7 @@ namespace PlaneWaver.Interaction
         /// <returns>Boolean: True if attached emitters should consider this collision's surface properties.</returns>
         private bool ContactAllowed(GameObject other)
         {
-            return !_hasSpawner || Spawner.ContactAllowed(gameObject, other);
+            return !_hasSpawner || ActorSpawner.ContactAllowed(gameObject, other);
         }
 
         /// <summary>
@@ -220,7 +250,7 @@ namespace PlaneWaver.Interaction
         /// <returns>Boolean: True if attached emitters can trigger based on spawner config.</returns>
         private bool CollisionAllowed(GameObject other)
         {
-            return !_hasSpawner || Spawner.CollisionAllowed(gameObject, other);
+            return !_hasSpawner || ActorSpawner.CollisionAllowed(gameObject, other);
         }
 
         /// <summary>

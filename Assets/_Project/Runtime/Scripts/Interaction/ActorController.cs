@@ -1,11 +1,10 @@
-
 using UnityEngine;
 
 using NaughtyAttributes;
 
 namespace PlaneWaver.Interaction
 {
-    public class ActorLife : MonoBehaviour
+    public class ActorController : MonoBehaviour
     {
         #region FIELDS & PROPERTIES
         
@@ -28,14 +27,14 @@ namespace PlaneWaver.Interaction
         
         #region INITIALISATION
         
-        public void InitialiseActorLife(ActorLifeData actorLifeData)
+        public void InitialiseActorLife(ActorControllerData controllerData)
         {
-            Lifespan = actorLifeData.Lifespan < 0 ? -1 : actorLifeData.Lifespan;
+            Lifespan = controllerData.Lifespan < 0 ? -1 : controllerData.Lifespan;
             LiveForever = Lifespan < 0;
-            BoundingRadius = actorLifeData.BoundingRadius;
-            _boundingAreaType = actorLifeData.BoundingAreaType;
-            _boundingCollider = actorLifeData.BoundingCollider;
-            _boundingTransform = actorLifeData.BoundingTransform;
+            BoundingRadius = controllerData.BoundingRadius;
+            _boundingAreaType = controllerData.BoundingAreaType;
+            _boundingCollider = controllerData.BoundingCollider;
+            _boundingTransform = controllerData.BoundingTransform;
             _age = 0;
         }
         

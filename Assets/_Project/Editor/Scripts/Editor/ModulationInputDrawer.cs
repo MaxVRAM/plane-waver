@@ -2,7 +2,7 @@
 using UnityEngine;
 
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     [CustomPropertyDrawer(typeof(ModulationInputObject))]
     public class ModulationInputDrawer : PropertyDrawer

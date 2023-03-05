@@ -3,7 +3,7 @@ using UnityEngine;
 using MaxVRAM.Extensions;
 using PlaneWaver.Interaction;
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     [Serializable]
     public partial class Parameter
@@ -12,7 +12,7 @@ namespace PlaneWaver.Parameters
         public ModulationInputObject ModulationInput;
         public ModulationDataObject ModulationData;
 
-        private Actor _actor;
+        private ActorObject _actor;
         protected bool VolatileEmitter;
         protected float SourceInputValue;
         protected float ModulationOutputValue;
@@ -32,7 +32,7 @@ namespace PlaneWaver.Parameters
             ModulationData.Initialise();
         }
 
-        public void Initialise(in Actor actor)
+        public void Initialise(in ActorObject actor)
         {
             _actor = actor;
             ModulationData.Initialise();

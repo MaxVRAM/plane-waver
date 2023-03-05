@@ -203,6 +203,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71a200e41e1c3894daaaa6c184452e30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <IsInitialised>k__BackingField: 0
+  _listener: {fileID: 0}
+  _frameStartSampleIndex: 0
+  _lastFrameSampleDuration: 0
+  _grainsPerFrame: 0
+  _grainsPerSecond: 0
+  _grainsPerSecondPeak: 0
+  _grainsDiscarded: 0
+  _averageGrainAge: 0
+  _averageGrainAgeMS: 0
+  _speakerCount: 0
+  _hostCount: 0
+  _emitterCount: 0
+  _frameCount: 0
+  _maxSpeakers: 0
   ListenerRadius: 30
   QueueDurationMS: 22
   DelayPercentLastFrame: 10
@@ -215,6 +230,10 @@ MonoBehaviour:
     TukeyHeight: 0.5
     GaussianSigma: 0.5
     LinearInOutFade: 0.01
+    <WindowArray>k__BackingField: []
+  <SampleRate>k__BackingField: 44100
+  <SamplesPerMS>k__BackingField: 0
+  <CurrentSampleIndex>k__BackingField: 0
   SpeakerPoolCount: 1
   SpeakerAllocationPeriod: 0.2
   SpeakerPrefab: {fileID: 2519325204652697373, guid: 6844ced249a80dd4584a457e05fa1c66,
@@ -473,6 +492,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d167efd7e0ffb4cbcaa90e4e7ac6de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Actor: {fileID: 0}
   SpeakerTarget: {fileID: 0}
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0
@@ -568,6 +588,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53d167efd7e0ffb4cbcaa90e4e7ac6de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Actor: {fileID: 0}
   SpeakerTarget: {fileID: 0}
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0
@@ -668,9 +689,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abaa7077d43660243b3aa238516d9d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ControllerObject: {fileID: 0}
+  ControllerTransform: {fileID: 0}
   ControllerAnchor: {fileID: 0}
-  SpawnableHost: {fileID: 0}
+  SpawnParentTransform: {fileID: 0}
   PrefabToSpawn: {fileID: 1445299538}
   SpawnablePrefabs: []
   RandomiseSpawnPrefab: 0
@@ -1178,6 +1199,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d7caeb692ac5324b83ad11017aec456, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _initialised: 0
   AudioObjects:
   - {fileID: 11400000, guid: c693a8ab41282574085220b569ddc0de, type: 2}
   - {fileID: 11400000, guid: 2048d7402aefcfa42836d6fa8988acec, type: 2}

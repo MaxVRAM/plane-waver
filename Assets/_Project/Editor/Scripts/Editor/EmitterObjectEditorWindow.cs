@@ -4,7 +4,7 @@ using PlaneWaver.Emitters;
 using PlaneWaver.GUI;
 using UnityEngine;
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     public class EmitterObjectEditorWindow : ExtendedEditorWindow
     {
@@ -14,7 +14,7 @@ namespace PlaneWaver.Parameters
         //     GetWindow<ModulationEditorWindow>("Modulation Data Editor");
         // }
         
-        public static void Open(EmitterObject emitter)
+        public static void Open(BaseEmitterObject emitter)
         {
             var window = GetWindow<EmitterObjectEditorWindow>("Emitter Object Editor");
             var serializedObject = new SerializedObject(emitter);

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     public partial class Parameter
     {

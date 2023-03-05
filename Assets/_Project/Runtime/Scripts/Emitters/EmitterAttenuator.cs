@@ -2,7 +2,7 @@
 using PlaneWaver.Interaction;
 using UnityEngine;
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     [Serializable]
     public class EmitterAttenuator
@@ -32,7 +32,7 @@ namespace PlaneWaver.Parameters
             ReconnectionFadeInMS = 100;
         }
 
-        public float CalculateAmplitudeMultiplier(bool connected, Actor actor)
+        public float CalculateAmplitudeMultiplier(bool connected, ActorObject actor)
         {
             return CalculateMuting(connected, out MuteVolume)
                     ? MuteVolume
@@ -71,7 +71,7 @@ namespace PlaneWaver.Parameters
             return Muted = false;
         }
 
-        public float CalculateDistanceAmplitude(Actor actor)
+        public float CalculateDistanceAmplitude(ActorObject actor)
         {
             if (actor == null)
                 return 1;
@@ -81,7 +81,7 @@ namespace PlaneWaver.Parameters
         }
 
         // TODO - Not implemented yet. Move these calculations to the Synthesis system for sample accuracy fades.
-        public float CalculateAgeAmplitude(Actor actor)
+        public float CalculateAgeAmplitude(ActorObject actor)
         {
             // if (actor == null || actor.ActorLifeController.LiveForever)
             //     return 1;

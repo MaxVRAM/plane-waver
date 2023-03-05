@@ -10,7 +10,7 @@ namespace PlaneWaver.Interaction
         Unrestricted, SpawnPosition, ControllerTransform, ColliderBounds
     }
     
-    public struct ActorLifeData
+    public struct ActorControllerData
     {
         public readonly float Lifespan;
         public readonly float BoundingRadius;
@@ -18,7 +18,7 @@ namespace PlaneWaver.Interaction
         public readonly Collider BoundingCollider;
         public readonly Transform BoundingTransform;
         
-        public ActorLifeData(
+        public ActorControllerData(
             float lifespan, 
             float boundingRadius,
             ActorBounds boundingAreaType, 

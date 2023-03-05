@@ -1,7 +1,7 @@
-﻿using PlaneWaver.Parameters;
+﻿using PlaneWaver.Modulation;
 using UnityEngine;
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     public class InputEnumTester : MonoBehaviour
     {

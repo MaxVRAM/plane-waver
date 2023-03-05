@@ -1,6 +1,6 @@
 ﻿using UnityEditor;
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     public class ParameterEditorWindow : EditorWindow
     {

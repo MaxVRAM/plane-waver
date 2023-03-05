@@ -1,10 +1,10 @@
 ﻿using System;
 using UnityEngine;
-using PlaneWaver.Parameters;
+using PlaneWaver.Modulation;
 
 namespace PlaneWaver.Interaction
 {
-    public partial class Actor
+    public partial class ActorObject
     {
         /// <summary>
         /// Returns the selected interaction property's latest value from this local Actor.

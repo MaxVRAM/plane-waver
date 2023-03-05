@@ -4,7 +4,7 @@ using UnityEditor.AnimatedValues;
 
 using MaxVRAM;
 using MaxVRAM.Extensions;
-using PlaneWaver.Parameters;
+using PlaneWaver.Modulation;
 using UnityEngine.UIElements;
 
 public class TestWindow : EditorWindow

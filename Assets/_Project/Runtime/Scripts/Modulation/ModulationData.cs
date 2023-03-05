@@ -3,7 +3,7 @@ using UnityEngine;
 using Unity.Entities;
 using Random = UnityEngine.Random;
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     public partial class Parameter
     {

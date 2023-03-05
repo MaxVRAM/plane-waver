@@ -6,12 +6,12 @@ using UnityEngine;
 using MaxVRAM.GUI;
 
 using PlaneWaver.Library;
-using PlaneWaver.Parameters;
+using PlaneWaver.Modulation;
 using PlaneWaver.Interaction;
 
 namespace PlaneWaver.Emitters
 {
-    public class EmitterObject : ScriptableObject
+    public class BaseEmitterObject : ScriptableObject
     {
         #region CLASS DEFINITIONS
 
@@ -27,7 +27,7 @@ namespace PlaneWaver.Emitters
 
         #region INITIALISATION METHODS
         
-        public void InitialiseParameters(in Actor actor)
+        public void InitialiseParameters(in ActorObject actor)
         {
             foreach (Parameter parameter in Parameters) parameter.Initialise(actor);
             _isInitialised = true;   

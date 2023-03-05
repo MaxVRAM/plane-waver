@@ -12,8 +12,7 @@ namespace PlaneWaver.Emitters
     {
         #region CLASS DEFINITIONS
 
-        private Actor _actor;
-        public Actor Actor { get => _actor; set => _actor = value; }
+        public ActorObject Actor;
 
         [Header("Speaker Attachment")]
         [Tooltip("Parent transform for speakers to target. Defaults to this frame's Actor's transform.")]
@@ -38,10 +37,10 @@ namespace PlaneWaver.Emitters
 
         private void Start()
         {
-            if (_actor == null)
-                _actor = GetComponent<Actor>() ?? gameObject.AddComponent<Actor>();
+            if (Actor == null)
+                Actor = GetComponent<ActorObject>() ?? gameObject.AddComponent<ActorObject>();
 
-            _actor.OnNewValidCollision += TriggerCollisionEmitters;
+            Actor.OnNewValidCollision += TriggerCollisionEmitters;
 
             InitialiseSpeakerTarget();
             InitialiseMaterialModulator();
@@ -62,7 +61,7 @@ namespace PlaneWaver.Emitters
                 if (StableEmitters[i] == null || StableEmitters[i].EmitterAsset == null)
                     StableEmitters.RemoveAt(i);
                 else
-                    StableEmitters[i].Initialise(i, name, in _actor);
+                    StableEmitters[i].Initialise(i, name, in Actor);
             }
 
             for (var i = 0; i < VolatileEmitters.Count; i++)
@@ -70,20 +69,20 @@ namespace PlaneWaver.Emitters
                 if (VolatileEmitters[i] == null || VolatileEmitters[i].EmitterAsset == null)
                     VolatileEmitters.RemoveAt(i);
                 else
-                    VolatileEmitters[i].Initialise(i, name, in _actor);
+                    VolatileEmitters[i].Initialise(i, name, in Actor);
             }
         }
 
         private void InitialiseSpeakerTarget()
         {
-            SpeakerTarget = _actor != null && _actor.SpeakerTarget != null ? _actor.SpeakerTarget : transform;
+            SpeakerTarget = Actor != null && Actor.SpeakerTarget != null ? Actor.SpeakerTarget : transform;
             SpeakerTransform = SpeakerTarget;
         }
 
         private void InitialiseMaterialModulator()
         {
-            if (MaterialModulator._Renderer == null && _actor != null)
-                MaterialModulator._Renderer = _actor.GetComponentInChildren<Renderer>();
+            if (MaterialModulator._Renderer == null && Actor != null)
+                MaterialModulator._Renderer = Actor.GetComponentInChildren<Renderer>();
         }
 
         protected override void InitialiseComponents()
@@ -92,7 +91,7 @@ namespace PlaneWaver.Emitters
                         Index = EntityIndex, Position = SpeakerTarget.position });
         }
 
-        private void OnDisable() { _actor.OnNewValidCollision -= TriggerCollisionEmitters; }
+        private void OnDisable() { Actor.OnNewValidCollision -= TriggerCollisionEmitters; }
 
         #endregion
 
@@ -115,7 +114,7 @@ namespace PlaneWaver.Emitters
 
         private void UpdateInRangeStatus()
         {
-            InListenerRange = _actor.SpeakerTargetToListenerNorm() < 1f;
+            InListenerRange = Actor.SpeakerTargetToListenerNorm() < 1f;
 
             if (InListenerRange)
                 Manager.AddComponent(ElementEntity, typeof(InListenerRangeTag));

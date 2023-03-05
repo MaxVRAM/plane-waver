@@ -5,7 +5,7 @@ using UnityEditor.Callbacks;
 using PlaneWaver.Emitters;
 using UnityEditor.AnimatedValues;
 
-namespace PlaneWaver.Parameters
+namespace PlaneWaver.Modulation
 {
     public class AssetHandler
     {
@@ -26,7 +26,7 @@ namespace PlaneWaver.Parameters
         }
     }
 
-    [CustomEditor(typeof(EmitterObject))]
+    [CustomEditor(typeof(BaseEmitterObject))]
     public class EmitterObjectCustomEditor : Editor
     {
         private bool _isVolatile;
@@ -51,7 +51,7 @@ namespace PlaneWaver.Parameters
             _parameterArray = serializedObject.FindProperty("Parameters.Array");
             _parameterNames = GetParameterNameArray(_parameterArray);
             
-            _isVolatile = (EmitterObject)target is VolatileEmitterObject;
+            _isVolatile = (BaseEmitterObject)target is VolatileEmitterObject;
 
             _selectedParameterIndex = -1;
             _parameterToggles = new AnimBool[_parameterArray.arraySize];

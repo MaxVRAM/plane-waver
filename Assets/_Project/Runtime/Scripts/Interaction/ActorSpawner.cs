@@ -1,18 +1,21 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
+
+using NaughtyAttributes;
+
 using MaxVRAM;
 using MaxVRAM.Ticker;
-using NaughtyAttributes;
+using MaxVRAM.Extensions;
 using PlaneWaver.Emitters;
-using UnityEngine;
 
 namespace PlaneWaver.Interaction
 {
     /// <summary>
-    /// Manager for spawning child game objects with a variety of existence and controller behaviours.
+    /// Manager for spawning Actor-based game objects with dynamically assigned emitter and interactive configurations.
     /// </summary>
-    public class Spawner : MonoBehaviour
+    public class ActorSpawner : MonoBehaviour
     {
         #region MEMBERS & PROPERTIES
 
@@ -20,10 +23,10 @@ namespace PlaneWaver.Interaction
         private HashSet<GameObject> _collidedThisUpdate;
 
         [Header("Object Configuration")] [Tooltip("Object providing the spawn location and controller behaviour.")]
-        public GameObject ControllerObject;
+        public Transform ControllerTransform;
         public Transform ControllerAnchor;
-        [Tooltip("Parent GameObject to attach spawned prefabs.")]
-        public GameObject SpawnableHost;
+        [Tooltip("Parent transform to attach spawned prefabs.")]
+        public Transform SpawnParentTransform;
         [Tooltip("Prefab to spawn.")] public GameObject PrefabToSpawn;
         [Tooltip(
             "A list of prefabs to spawn can also be supplied, allowing runtime selection of object spawn selection."
@@ -126,31 +129,29 @@ namespace PlaneWaver.Interaction
         {
             _collidedThisUpdate = new HashSet<GameObject>();
 
-            if (ControllerObject == null)
-                ControllerObject = gameObject;
+            if (ControllerTransform == null)
+                ControllerTransform = transform;
 
-            if (SpawnableHost == null)
-                SpawnableHost = gameObject;
+            if (ControllerAnchor != null &&
+                    ControllerTransform.TryGetComponent(out Rigidbody controllerRb) &&
+                    ControllerAnchor.TryGetComponent(out SpringJoint anchorJoint))
+                anchorJoint.connectedBody = controllerRb;
+
+            if (SpawnParentTransform == null)
+                SpawnParentTransform = transform;
 
             if (SpawnablePrefabs.Count == 0 &&
                 PrefabToSpawn != null)
                 SpawnablePrefabs.Add(PrefabToSpawn);
 
-            if (SpawnablePrefabs.Count >= 1 &&
-                PrefabToSpawn == null)
+            if (SpawnablePrefabs.Count >= 1 && PrefabToSpawn == null)
                 PrefabToSpawn = SpawnablePrefabs[0];
 
             if (SpawnablePrefabs.Count == 0)
             {
-                Debug.LogWarning($"{name} not assigned any prefabs!");
-                _initialised = false;
-                return false;
+                Debug.LogWarning($"ActorSpawner cannot spawn without prefab defined. Assign a SpawnablePrefab to {name}.");
+                return _initialised = false;
             }
-
-            if (ControllerAnchor != null &&
-                ControllerObject.TryGetComponent(out Rigidbody rb) &&
-                ControllerAnchor.TryGetComponent(out SpringJoint joint))
-                joint.connectedBody = rb;
 
             _initialised = true;
             _startTime = Time.time + SpawnDelaySeconds;
@@ -163,24 +164,30 @@ namespace PlaneWaver.Interaction
 
         private void Update()
         {
-            _activeObjects.RemoveAll(item => item == null);
+            RemoveLingeringObjects();
+
             _spawnTimer.UpdateTrigger(Time.deltaTime, SpawnPeriodSeconds);
-
-            if (!ReadyToSpawn())
-                return;
-
-            if (AutoSpawn)
-                CreateSpawnable();
-            else if (AutoRemove)
-                RemoveSpawnable(0);
+            
+            if (!ReadyToSpawn()) return;
+            if (AutoSpawn) CreateSpawnable();
+            if (AutoRemove) RemoveSpawnable(0);
         }
 
         #endregion
 
         #region SPAWNING MANAGEMENT
 
-        private bool ReadyToSpawn() { return _initialised && SpawningAllowed(); }
-
+        private void RemoveLingeringObjects()
+        {
+            if (_activeObjects.Count == 0) return;
+            _activeObjects.RemoveAll(item => item == null);
+        }
+        
+        private bool ReadyToSpawn()
+        {
+            return _initialised && SpawningAllowed();
+        }
+        
         private bool SpawningAllowed()
         {
             return SpawnWhen switch
@@ -202,7 +209,7 @@ namespace PlaneWaver.Interaction
                 return;
 
             InstantiatePrefab(out GameObject newObject);
-            ConfigureSpawnedObject(newObject, ControllerObject);
+            ConfigureSpawnedObject(newObject, ControllerTransform);
             newObject.SetActive(true);
             _activeObjects.Add(newObject);
 
@@ -232,64 +239,60 @@ namespace PlaneWaver.Interaction
                     : 0;
             GameObject objectToSpawn = SpawnablePrefabs[index];
 
-            GenerateSpawnTranslation(out Vector3 spawnPosition, out Quaternion spawnRotation);
-            newObject = Instantiate(objectToSpawn, spawnPosition, spawnRotation, SpawnableHost.transform);
+            ComputeSpawnTranslation(out Vector3 spawnPosition, out Quaternion spawnRotation);
+            newObject = Instantiate(objectToSpawn, spawnPosition, spawnRotation, SpawnParentTransform);
             newObject.transform.localScale *= Rando.Range(SpawnObjectScale);
-            ApplySpawnVelocity(newObject);
+            ComputeSpawnVelocity(newObject);
         }
 
-        private void GenerateSpawnTranslation(out Vector3 spawnPosition, out Quaternion spawnRotation)
+        private void ComputeSpawnTranslation(out Vector3 spawnPosition, out Quaternion spawnRotation)
         {
             float spawnDistance = Rando.Range(EjectionRadius);
             Vector3 randomPosition = Random.onUnitSphere;
             Vector3 unitPosition = Vector3.Slerp(EjectionPosition.normalized, randomPosition, PositionVariance);
             Vector3 positionLocal = unitPosition * spawnDistance;
-            spawnPosition = ControllerObject.transform.position + positionLocal;
+            spawnPosition = ControllerTransform.position + positionLocal;
             spawnRotation = Quaternion.LookRotation(unitPosition);
         }
 
-        private void ApplySpawnVelocity(GameObject newObject)
+        private void ComputeSpawnVelocity(GameObject newObject)
         {
             Rigidbody rb = newObject.GetComponent<Rigidbody>() ?? newObject.AddComponent<Rigidbody>();
             Vector3 randomDirection = Random.onUnitSphere;
 
-            Vector3 spawnUnitDirection = Vector3.Slerp(
+            Vector3 spawnDirectionUnitVector = Vector3.Slerp(
                 EjectionDirection.normalized,
                 randomDirection,
                 DirectionVariance
             );
 
             Vector3 velocity = newObject.transform.localRotation *
-                               spawnUnitDirection *
+                               spawnDirectionUnitVector *
                                EjectionDirection.magnitude *
                                Rando.Range(EjectionSpeed);
             rb.velocity = velocity;
         }
 
-        private void ConfigureSpawnedObject(GameObject spawnedObject, GameObject controllerObject)
+        private void ConfigureSpawnedObject(GameObject spawnedObject, Transform controllerTransform)
         {
             if (AttachmentJoint != null)
-                spawnedObject.AddComponent<InteractionJointController>().Initialise(
-                    AttachmentJoint,
-                    controllerObject.transform
-                );
+                spawnedObject.AddComponent<InteractionJointController>().Initialise(AttachmentJoint, controllerTransform);
 
-            Actor actor = spawnedObject.GetComponent<Actor>() ?? spawnedObject.AddComponent<Actor>();
-            actor.Spawner = this;
-            actor.OtherBody = controllerObject.transform;
-
-            actor.LifeData = new ActorLifeData(
+            ActorObject actor = spawnedObject.GetComponent<ActorObject>() ?? spawnedObject.AddComponent<ActorObject>();
+            actor.ActorSpawner = this;
+            actor.OtherBody = controllerTransform;
+            actor.ControllerData = new ActorControllerData(
                 UseSpawnLifespan ? SpawnLifespan : -1,
                 BoundingRadius,
                 BoundingAreaType,
                 BoundingCollider,
-                controllerObject.transform
+                controllerTransform
             );
 
-            EmitterFrame[] frames = spawnedObject.GetComponentsInChildren<EmitterFrame>();
-            if (frames.Length <= 0) return;
+            EmitterFrame[] spawnedObjectEmitterFrames = spawnedObject.GetComponentsInChildren<EmitterFrame>();
+            if (spawnedObjectEmitterFrames.Length <= 0) return;
 
-            foreach (EmitterFrame frame in frames)
+            foreach (EmitterFrame frame in spawnedObjectEmitterFrames)
                 frame.Actor = actor;
         }
 

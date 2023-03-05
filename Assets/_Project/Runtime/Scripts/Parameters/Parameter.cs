@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using MaxVRAM.Extensions;
 using PlaneWaver.Interaction;
@@ -9,7 +8,7 @@ namespace PlaneWaver.Parameters
     [Serializable]
     public partial class Parameter
     {
-        public PropertiesObject ParameterProperties;
+        public PropertiesObject ParameterProperties { get; protected set; }
         public ModulationInputObject ModulationInput;
         public ModulationDataObject ModulationData;
 
@@ -45,21 +44,21 @@ namespace PlaneWaver.Parameters
             if (!_isInitialised)
                 throw new Exception("Parameter has not been initialised.");
 
-            ModulationOutputValue = GetModulationValue();
-            return ModulationData.BuildComponent(ModulationOutputValue);
+            float processedModulationValue = UpdateModulationValue();
+            return ModulationData.BuildComponent(processedModulationValue);
         }
 
-        public float GetModulationValue()
+        public float UpdateModulationValue()
         {
             if (!_isInitialised)
                 throw new Exception("Parameter has not been initialised.");
             
-            _previousSmoothedValue = ModulationOutputValue;
             SourceInputValue = ModulationInput.GetInputValue(_actor);
+            ModulationOutputValue = Process(SourceInputValue);
             
-            return Process(SourceInputValue);
+            return Process(ModulationOutputValue);
         }
-
+        
         /// <summary>
         ///     Generates an emitter modulation value based on the source input value and the ModulationParameter.
         /// </summary>

@@ -4,15 +4,19 @@ using UnityEditor.AnimatedValues;
 
 using MaxVRAM;
 using MaxVRAM.Extensions;
+using PlaneWaver.Parameters;
 using UnityEngine.UIElements;
 
 public class TestWindow : EditorWindow
 {
     private AnimBool _showExtraFields;
     
+    private ModulationInputObject _modulationInput = new ModulationInputObject();
+    
     private Vector2 _paramMaxRange = new Vector2(-3,3);
     private Vector2 _paramVisible = Vector2.zero;
     private Vector2 _paramData = Vector2.zero;
+    
     
     private const float _minFieldWidth = 45f;
     private const float _maxFieldWidth = 80f;
@@ -64,12 +68,13 @@ public class TestWindow : EditorWindow
                 _paramVisible = MaxMath.NormToRanged(_paramMaxRange, _paramData).RoundDecimal(4);
             
             EditorGUILayout.EndHorizontal();
-            EditorGUILayout.Space();
-
             EditorGUI.indentLevel--;
         }
 
         EditorGUILayout.EndFadeGroup();
+        EditorGUILayout.Space();
+        
+        
     }
     
     // https://docs.unity3d.com/2021.3/Documentation/ScriptReference/UIElements.MinMaxSlider.html

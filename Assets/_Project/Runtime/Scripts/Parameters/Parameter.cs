@@ -8,7 +8,7 @@ namespace PlaneWaver.Parameters
     [Serializable]
     public partial class Parameter
     {
-        public PropertiesObject ParameterProperties { get; protected set; }
+        public PropertiesObject ParameterProperties;
         public ModulationInputObject ModulationInput;
         public ModulationDataObject ModulationData;
 

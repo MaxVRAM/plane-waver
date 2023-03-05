@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using NaughtyAttributes;
 using PlaneWaver.DSP;
 using PlaneWaver.Interaction;
 using PlaneWaver.Parameters;
@@ -25,21 +24,19 @@ namespace PlaneWaver.Emitters
         private EntityManager _manager;
         private Entity _emitterEntity;
 
-        [AllowNesting] [DisableIf("IsVolatile")]
         public PropagateCondition PlaybackCondition;
-        
-        [Expandable] public EmitterObject EmitterAsset;
-        
+
+        public EmitterObject EmitterAsset;
+
         [Range(0f, 2f)] public float EmitterVolume = 1;
-        [AllowNesting] [DisableIf("IsVolatile")] [Range(0f, 1f)]
-        public float AgeFadeOut;
-        
+        [Range(0f, 1f)] public float AgeFadeOut;
+
         public bool ReflectPlayheadAtLimit;
         public EmitterAttenuator DynamicAttenuation;
         public DSPClass[] DSPChainParams;
 
-        [Header("Runtime Debug")]
-        [SerializeField] private bool FrameInitialised;
+        [Header("Runtime Debug")] [SerializeField]
+        private bool FrameInitialised;
         [SerializeField] private bool EntityInitialised;
         [SerializeField] private bool IsConnected;
         [SerializeField] private bool IsPlaying;
@@ -53,7 +50,7 @@ namespace PlaneWaver.Emitters
         #endregion
 
         #region CONSTRUCTOR / RESET METHOD
-        
+
         public EmitterAuth()
         {
             PlaybackCondition = PropagateCondition.Constant;
@@ -62,7 +59,6 @@ namespace PlaneWaver.Emitters
             DynamicAttenuation = new EmitterAttenuator();
         }
 
-        [Button("Reset")]
         public void Reset()
         {
             if (EmitterAsset == null)
@@ -123,8 +119,9 @@ namespace PlaneWaver.Emitters
             _emitterEntity = _manager.CreateEntity(_elementArchetype);
 
 #if UNITY_EDITOR
-            _manager.SetName(_emitterEntity, _frameName + "." + EntityIndex + "."
-                + Enum.GetName(typeof(PropagateCondition), PlaybackCondition));
+            _manager.SetName
+            (_emitterEntity,
+                _frameName + "." + EntityIndex + "." + Enum.GetName(typeof(PropagateCondition), PlaybackCondition));
 #endif
             EntityInitialised = true;
             InitialiseComponents();
@@ -136,33 +133,29 @@ namespace PlaneWaver.Emitters
                 throw new Exception("EmitterAuth: Entity not initialised.");
 
             _manager.SetComponentData
-            (
-                _emitterEntity,
-                new EmitterComponent
-                {
-                    ReflectPlayhead = ReflectPlayheadAtLimit,
-                    AudioClipIndex = EmitterAsset.AudioObject.ClipEntityIndex,
-                    LastSampleIndex = -1,
-                    SamplesUntilFade = -1,
-                    SamplesUntilDeath = -1,
-                    LastGrainDuration = -1,
-                    EmitterVolume = EmitterVolume,
-                    DynamicAmplitude = 0,
-                    ModVolume = new ModulationComponent(),
-                    ModPlayhead = new ModulationComponent(),
-                    ModDuration = new ModulationComponent(),
-                    ModDensity = new ModulationComponent(),
-                    ModTranspose = new ModulationComponent(),
-                    ModLength = new ModulationComponent()
-                }
-            );
-            
+            (_emitterEntity, new EmitterComponent {
+                ReflectPlayhead = ReflectPlayheadAtLimit,
+                AudioClipIndex = EmitterAsset.AudioObject.ClipEntityIndex,
+                LastSampleIndex = -1,
+                SamplesUntilFade = -1,
+                SamplesUntilDeath = -1,
+                LastGrainDuration = -1,
+                EmitterVolume = EmitterVolume,
+                DynamicAmplitude = 0,
+                ModVolume = new ModulationComponent(),
+                ModPlayhead = new ModulationComponent(),
+                ModDuration = new ModulationComponent(),
+                ModDensity = new ModulationComponent(),
+                ModTranspose = new ModulationComponent(),
+                ModLength = new ModulationComponent()
+            });
+
             _manager.AddBuffer<AudioEffectParameters>(_emitterEntity);
             DynamicBuffer<AudioEffectParameters> dspParams = _manager.GetBuffer<AudioEffectParameters>(_emitterEntity);
-            
+
             for (var i = 0; i < DSPChainParams.Length; i++)
                 dspParams.Add(DSPChainParams[i].GetDSPBufferElement());
-            
+
             if (IsVolatile) _manager.AddComponentData(_emitterEntity, new EmitterVolatileTag());
         }
 
@@ -199,11 +192,8 @@ namespace PlaneWaver.Emitters
                 _manager.SetComponentData(_emitterEntity, data);
                 _manager.AddComponent<EmitterReadyTag>(_emitterEntity);
             }
-            else
-            {
-                _manager.RemoveComponent<EmitterReadyTag>(_emitterEntity);
-            }
-            
+            else { _manager.RemoveComponent<EmitterReadyTag>(_emitterEntity); }
+
             if (IsVolatile)
                 IsPlaying = false;
         }
@@ -221,9 +211,8 @@ namespace PlaneWaver.Emitters
 
             // data.LastSampleIndex = data.SpeakerIndex == speakerIndex ? data.LastSampleIndex : -1;
             // data.LastGrainDuration = data.SpeakerIndex == speakerIndex ? data.LastGrainDuration : -1;
-            
-            data = new EmitterComponent
-            {
+
+            data = new EmitterComponent {
                 SpeakerIndex = speakerIndex,
                 AudioClipIndex = EmitterAsset.AudioObject.ClipEntityIndex,
                 LastSampleIndex = IsVolatile ? -1 : data.LastSampleIndex,
@@ -240,10 +229,10 @@ namespace PlaneWaver.Emitters
                 ModTranspose = modulations[4],
                 ModLength = IsVolatile ? modulations[5] : new ModulationComponent()
             };
-            
+
             UpdateDSPEffectsBuffer();
         }
-        
+
         protected void UpdateDSPEffectsBuffer(bool clear = true)
         {
             //--- TODO not sure if clearing and adding again is the best way to do this.
@@ -254,11 +243,8 @@ namespace PlaneWaver.Emitters
         }
 
         #endregion
-        
-        public void OnDestroy()
-        {
-            DestroyEntity();
-        }
+
+        public void OnDestroy() { DestroyEntity(); }
 
         private void DestroyEntity()
         {
@@ -285,7 +271,7 @@ namespace PlaneWaver.Emitters
         public ModulationComponent ModTranspose;
         public ModulationComponent ModLength;
     }
-    
+
     public struct EmitterReadyTag : IComponentData { }
 
     public struct EmitterVolatileTag : IComponentData { }

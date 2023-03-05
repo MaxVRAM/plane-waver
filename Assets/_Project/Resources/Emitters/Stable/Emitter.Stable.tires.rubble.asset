@@ -12,18 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 631cd795d7508044999ab678f8d8713e, type: 3}
   m_Name: Emitter.Stable.tires.rubble
   m_EditorClassIdentifier: 
+  TestVector: {x: 0, y: 0}
   EmitterName: 
   Description: 
   AudioObject: {fileID: 11400000, guid: c178620585647dd40851759478bd497e, type: 2}
   Parameters:
   - ModulationInput:
       InputGroup: 0
-      MiscInput: 0
-      ActorInput: 0
-      RelativeInput: 3
-      CollisionInput: 1
+      MiscValue: 4
+      ActorValue: 0
+      RelativeValue: 3
+      CollisionValue: 1
     ModulationData:
-      StaticRange: {x: 0.5, y: 0.5}
+      InitialRange: {x: 0.5, y: 0.5}
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -40,12 +41,34 @@ MonoBehaviour:
       LockNoise: 0
   - ModulationInput:
       InputGroup: 0
-      MiscInput: 0
-      ActorInput: 0
-      RelativeInput: 3
-      CollisionInput: 1
+      MiscValue: 0
+      ActorValue: 0
+      RelativeValue: 3
+      CollisionValue: 1
     ModulationData:
-      StaticRange: {x: 0, y: 1}
+      InitialRange: {x: 0, y: 1}
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0
+  - ModulationInput:
+      InputGroup: 1
+      MiscValue: 0
+      ActorValue: 2
+      RelativeValue: 3
+      CollisionValue: 1
+    ModulationData:
+      InitialRange: {x: 60, y: 60}
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -62,12 +85,12 @@ MonoBehaviour:
       LockNoise: 0
   - ModulationInput:
       InputGroup: 0
-      MiscInput: 0
-      ActorInput: 0
-      RelativeInput: 3
-      CollisionInput: 1
+      MiscValue: 0
+      ActorValue: 0
+      RelativeValue: 3
+      CollisionValue: 1
     ModulationData:
-      StaticRange: {x: 60, y: 60}
+      InitialRange: {x: 3, y: 3}
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -84,34 +107,12 @@ MonoBehaviour:
       LockNoise: 0
   - ModulationInput:
       InputGroup: 0
-      MiscInput: 0
-      ActorInput: 0
-      RelativeInput: 3
-      CollisionInput: 1
+      MiscValue: 0
+      ActorValue: 0
+      RelativeValue: 3
+      CollisionValue: 1
     ModulationData:
-      StaticRange: {x: 3, y: 3}
-      ModInputRange: {x: 0, y: 1}
-      ModInputMultiplier: 1
-      Accumulate: 0
-      Smoothing: 0.2
-      ModExponent: 1
-      ModInfluence: 0
-      FixedStart: 0
-      FixedEnd: 0
-      LimiterMode: 0
-      NoiseInfluence: 0
-      NoiseMultiplier: 1
-      NoiseSpeed: 1
-      UsePerlin: 0
-      LockNoise: 0
-  - ModulationInput:
-      InputGroup: 0
-      MiscInput: 0
-      ActorInput: 0
-      RelativeInput: 3
-      CollisionInput: 1
-    ModulationData:
-      StaticRange: {x: 0, y: 0}
+      InitialRange: {x: 0, y: 0}
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0

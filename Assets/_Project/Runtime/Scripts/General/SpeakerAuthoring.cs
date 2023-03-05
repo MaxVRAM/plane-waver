@@ -98,8 +98,10 @@ namespace PlaneWaver.DSP
             _connectedHosts = pooling.ConnectedHostCount;
             _inactiveDuration = pooling.InactiveDuration;
 
-            transform.position = pooling.Position;
-            transform.localScale = Vector3.one * _connectionRadius;
+
+            Transform selfTransform = transform;
+            selfTransform.position = pooling.Position;
+            selfTransform.localScale = Vector3.one * _connectionRadius;
 
             _targetVolume = State != ConnectionState.Pooled ? 1 : 0;
             _audioSource.volume = _audioSource.volume.Smooth(_targetVolume, VolumeSmoothing);
@@ -184,6 +186,8 @@ namespace PlaneWaver.DSP
 
         #endregion
 
+        #region GIZMOS
+        
         private void OnDrawGizmos()
         {
             if (State == ConnectionState.Pooled)
@@ -194,7 +198,9 @@ namespace PlaneWaver.DSP
             Gizmos.color = gizmoColour;
             Gizmos.DrawWireSphere(transform.position, _connectionRadius);
         }
-        
+
+        #endregion
+
         #region AUDIO OUTPUT BUFFER POPULATION
 
         private void OnAudioFilterRead(float[] data, int channels)

@@ -14,7 +14,7 @@ namespace PlaneWaver.Parameters
             int indent = EditorGUI.indentLevel;
             _inputGroup = property.FindPropertyRelative("InputGroup");
             SerializedProperty selectedGroup = GetGroup(_inputGroup, property);
-                    
+            
             EditorGUI.BeginProperty(position, label, property);
             EditorGUI.indentLevel = 0;
             

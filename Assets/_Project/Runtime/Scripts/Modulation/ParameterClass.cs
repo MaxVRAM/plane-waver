@@ -13,15 +13,15 @@ namespace PlaneWaver.Modulation
         public ModulationDataObject ModulationData;
 
         private ActorObject _actor;
-        protected bool VolatileEmitter;
+        protected bool IsVolatileEmitter;
         protected float SourceInputValue;
         protected float ModulationOutputValue;
         private float _previousSmoothedValue;
         private bool _isInitialised;
         
-        public Parameter(bool volatileEmitter = false)
+        public Parameter(bool isVolatileEmitter = false)
         {
-            VolatileEmitter = volatileEmitter;
+            IsVolatileEmitter = isVolatileEmitter;
             ModulationInput = new ModulationInputObject();
         }
 
@@ -44,21 +44,21 @@ namespace PlaneWaver.Modulation
             if (!_isInitialised)
                 throw new Exception("Parameter has not been initialised.");
 
-            float processedModulationValue = UpdateModulationValue();
-            return ModulationData.BuildComponent(processedModulationValue);
+            float modulationValue = ModulationData.ModulationEnabled ? UpdateModulationValue() : 0;
+            return ModulationData.BuildComponent(modulationValue);
         }
 
-        public float UpdateModulationValue()
+        public float UpdateModulationValue(ActorObject actor = null)
         {
             if (!_isInitialised)
                 throw new Exception("Parameter has not been initialised.");
             
-            SourceInputValue = ModulationInput.GetInputValue(_actor);
+            SourceInputValue = ModulationInput.GetInputValue(actor ? actor : _actor);
             ModulationOutputValue = Process(SourceInputValue);
             
             return Process(ModulationOutputValue);
         }
-        
+
         /// <summary>
         ///     Generates an emitter modulation value based on the source input value and the ModulationParameter.
         /// </summary>

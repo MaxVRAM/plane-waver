@@ -8,29 +8,29 @@ namespace PlaneWaver.Modulation
     public class ModulationInputObject
     {
         public InputGroups InputGroup;
-        public InputMisc MiscValue;
-        public InputActor ActorValue;
-        public InputRelative RelativeValue;
-        public InputCollision CollisionValue;
+        public InputMisc Misc;
+        public InputActor Actor;
+        public InputRelative Relative;
+        public InputCollision Collision;
         private Vector3 _previousVector;
         private float _previousValue;
 
         public ModulationInputObject()
         {
-            InputGroup = InputGroups.MiscValue;
-            MiscValue = InputMisc.NoInput;
-            ActorValue = InputActor.Speed;
-            RelativeValue = InputRelative.Radius;
-            CollisionValue = InputCollision.CollisionForce;
+            InputGroup = InputGroups.Misc;
+            Misc = InputMisc.NoInput;
+            Actor = InputActor.Speed;
+            Relative = InputRelative.Radius;
+            Collision = InputCollision.CollisionForce;
         }
 
         public float GetInputValue(ActorObject actor)
         {
             _previousValue = InputGroup switch {
-                InputGroups.MiscValue      => GetMiscValue(MiscValue, actor),
-                InputGroups.ActorValue     => actor.GetActorValue(ActorValue, ref _previousVector),
-                InputGroups.RelativeValue  => actor.GetRelativeValue(RelativeValue, ref _previousVector),
-                InputGroups.CollisionValue => actor.GetCollisionValue(CollisionValue),
+                InputGroups.Misc      => GetMiscValue(Misc, actor),
+                InputGroups.Actor     => actor.GetActorValue(Actor, ref _previousVector),
+                InputGroups.Relative  => actor.GetRelativeValue(Relative, ref _previousVector),
+                InputGroups.Collision => actor.GetCollisionValue(Collision),
                 _                     => throw new ArgumentOutOfRangeException()
             };
 
@@ -52,7 +52,7 @@ namespace PlaneWaver.Modulation
 
     public enum InputGroups
     {
-        MiscValue = 0, ActorValue = 1, RelativeValue = 2, CollisionValue = 3
+        Misc = 0, Actor = 1, Relative = 2, Collision = 3
     }
 
     public enum InputMisc

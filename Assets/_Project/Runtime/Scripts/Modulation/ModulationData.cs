@@ -3,6 +3,8 @@ using UnityEngine;
 using Unity.Entities;
 using Random = UnityEngine.Random;
 
+using MaxVRAM.GUI;
+
 namespace PlaneWaver.Modulation
 {
     public partial class Parameter
@@ -13,8 +15,10 @@ namespace PlaneWaver.Modulation
             #region DEFINITIONS
 
             private int _parameterIndex;
-            private Vector2 _parameterMaxRange;
+            public Vector2 ParameterRange;
             public Vector2 InitialRange;
+            public bool InvertVolatileRange;
+            public bool ModulationEnabled;
             public Vector2 ModInputRange;
             public float ModInputMultiplier;
             public bool Accumulate;
@@ -41,9 +45,11 @@ namespace PlaneWaver.Modulation
             public ModulationDataObject(PropertiesObject propertiesObject, bool isVolatileEmitter = false)
             {
                 _parameterIndex = propertiesObject.Index;
-                _parameterMaxRange = propertiesObject.ParameterMaxRange;
+                ParameterRange = propertiesObject.ParameterRange;
                 InitialRange = propertiesObject.InitialRange;
                 InitialValue = 0;
+                InvertVolatileRange = propertiesObject.InvertVolatileRange;
+                ModulationEnabled = false;
                 ModInputRange = new Vector2(0f, 1f);
                 ModInputMultiplier = 1;
                 Accumulate = false;
@@ -75,13 +81,13 @@ namespace PlaneWaver.Modulation
             public ModulationComponent BuildComponent(float modulationValue)
             {
                 return new ModulationComponent {
-                    StartValue = VolatileEmitter ? InitialRange.x : InitialValue,
-                    EndValue = VolatileEmitter ? InitialRange.y : 0,
+                    StartValue = VolatileEmitter ? InvertVolatileRange ? InitialRange.y : InitialRange.x : InitialValue,
+                    EndValue = VolatileEmitter ? InvertVolatileRange ? InitialRange.x : InitialRange.y  : 0,
                     ModValue = modulationValue,
                     ModInfluence = ModInfluence,
                     ModExponent = ModExponent,
-                    Min = _parameterMaxRange.x,
-                    Max = _parameterMaxRange.y,
+                    Min = ParameterRange.x,
+                    Max = ParameterRange.y,
                     Noise = NoiseInfluence * NoiseMultiplier,
                     PerlinValue = !VolatileEmitter && UsePerlin ? GetPerlinValue() : 0,
                     UsePerlin = !VolatileEmitter && UsePerlin,

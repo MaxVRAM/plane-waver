@@ -1,4 +1,6 @@
 
+using System;
+using System.Globalization;
 using UnityEngine;
 
 namespace MaxVRAM.Extensions
@@ -37,10 +39,19 @@ namespace MaxVRAM.Extensions
         
         public static float RoundDecimal(this float value, int decimalPlaces)
         {
+            if (decimalPlaces <= 0)
+                return Mathf.Round(value);
             float multiplier = Mathf.Pow(10, decimalPlaces);
             return Mathf.Round(value * multiplier) / multiplier;
         }
         
+        public static float RoundDigits(this float value, int targetDigits)
+        {
+            int digits = Math.Truncate(Math.Abs(value)).ToString("####").Length;
+            int decimalPlaces = value < 0 ? targetDigits - digits - 1 : targetDigits - digits;
+            return value.RoundDecimal(Mathf.Clamp(decimalPlaces, 0, 10));
+        }
+
         /// <summary>
         /// Provides standard Mathf.Lerp() functionality that snaps values closer than epsilon from the target.
         /// </summary>

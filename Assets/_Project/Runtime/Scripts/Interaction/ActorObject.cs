@@ -89,17 +89,17 @@ namespace PlaneWaver.Interaction
 
         public float DistanceToListener()
         {
-            return GrainBrain.Instance.DistanceToListener(transform);
+            return SynthManager.Instance.DistanceToListener(transform);
         }
 
         public float SpeakerTargetToListener()
         {
-            return GrainBrain.Instance.DistanceToListener(SpeakerTarget);
+            return SynthManager.Instance.DistanceToListener(SpeakerTarget);
         }
 
         public float SpeakerTargetToListenerNorm()
         {
-            return GrainBrain.Instance.DistanceToListenerNorm(SpeakerTarget);
+            return SynthManager.Instance.DistanceToListenerNorm(SpeakerTarget);
         }
 
         public float RelativeSpeed(Transform other)
@@ -256,7 +256,7 @@ namespace PlaneWaver.Interaction
         /// <summary>
         ///     A shortcut reference to the OnlyTriggerMostRigid setting in the GrainBrain.
         /// </summary>
-        private bool OnlyTriggerMostRigid => GrainBrain.Instance.OnlyTriggerMostRigidSurface;
+        private bool OnlyTriggerMostRigid => SynthManager.Instance.OnlyTriggerMostRigidSurface;
 
         /// <summary>
         ///     Checks if attached collision emitters are allowed to trigger based on collider rigidities.

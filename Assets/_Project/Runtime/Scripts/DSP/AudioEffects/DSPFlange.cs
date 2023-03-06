@@ -9,38 +9,35 @@ namespace PlaneWaver.DSP
     /// </summary>
     public class DSPFlange : DSPClass
     {
-        [Range(0f, 1f)] [SerializeField] public float _Mix = 1;
+        [Range(0f, 1f)] public float Mix = 1;
+        [Range(0f, 1f)] public float Original = 1;
+        [Range(0.1f, 50f)] public float Delay = 15f;
+        [Range(0.01f, 1f)] public float Depth = 0.1f;
+        [Range(0.01f, 50f)] public float Frequency = 5f;
+        [Range(0f, 0.99f)] public float Feedback = 0.3f;
+        [Range(0f, 1f)] public float PhaseSync = 1f;
+        private int _sampleRate;
 
-        [Range(0f, 1f)] [SerializeField] public float _Original = 1;
-
-        [Range(0.1f, 50f)] [SerializeField] float _Delay = 15f;
-
-        [Range(0.01f, 1f)] [SerializeField] float _Depth = 0.1f;
-
-        [Range(0.01f, 50f)] [SerializeField] float _Frequency = 5f;
-
-        [Range(0f, 0.99f)] [SerializeField] float _Feedback = 0.3f;
-
-        [Range(0f, 1f)] [SerializeField] float _PhaseSync = 1f;
-
-        int _SampleRate;
-
-        public void Start() { _SampleRate = AudioSettings.outputSampleRate; }
+        public void Start()
+        {
+            _sampleRate = AudioSettings.outputSampleRate;
+        }
 
         public override AudioEffectParameters GetDSPBufferElement()
         {
-            AudioEffectParameters audioEffectParams = new AudioEffectParameters();
-            audioEffectParams.AudioEffectType = AudioEffectTypes.Flange;
-            audioEffectParams.DelayBasedEffect = true;
-            audioEffectParams.SampleRate = _SampleRate;
-            audioEffectParams.SampleTail = (int)(_Delay * _Depth * _SampleRate / 1000) * 2;
-            audioEffectParams.Mix = _Mix;
-            audioEffectParams.Value0 = _Delay * _SampleRate / 1000;
-            audioEffectParams.Value1 = _Depth;
-            audioEffectParams.Value2 = _Frequency;
-            audioEffectParams.Value3 = _Feedback;
-            audioEffectParams.Value4 = _Original;
-            audioEffectParams.Value5 = _PhaseSync;
+            var audioEffectParams = new AudioEffectParameters {
+                AudioEffectType = AudioEffectTypes.Flange,
+                DelayBasedEffect = true,
+                SampleRate = _sampleRate,
+                SampleTail = (int)(Delay * Depth * _sampleRate / 1000) * 2,
+                Mix = Mix,
+                Value0 = Delay * _sampleRate / 1000,
+                Value1 = Depth,
+                Value2 = Frequency,
+                Value3 = Feedback,
+                Value4 = Original,
+                Value5 = PhaseSync
+            };
 
             return audioEffectParams;
         }
@@ -49,10 +46,6 @@ namespace PlaneWaver.DSP
             AudioEffectParameters audioEffectParams, DynamicBuffer<GrainSampleBufferElement> sampleBuffer,
             DynamicBuffer<DSPSampleBufferElement> dspBuffer)
         {
-            int writeIndex = 0;
-            float delaySample = 0;
-            float modIndex = 0;
-
             //-- Set initial phase based on DSP time to sync effect between grains
             float phase = audioEffectParams.SampleStartTime *
                           (audioEffectParams.Value2 * 2 * Mathf.PI / audioEffectParams.SampleRate) *
@@ -61,22 +54,22 @@ namespace PlaneWaver.DSP
                 phase -= Mathf.PI * 2;
 
 
-            for (int i = 0; i < sampleBuffer.Length; i++)
+            for (var i = 0; i < sampleBuffer.Length; i++)
             {
                 // Modulation (delay offset) is a -1 to 1 sine wave, multiplied by the depth (0 to 1), scaled to the current sample delay offset parameter
-                modIndex = (DSPUtilsDOTS.SineOcillator
-                                    (ref phase, audioEffectParams.Value2, audioEffectParams.SampleRate) *
-                            audioEffectParams.Value1 *
-                            audioEffectParams.Value0);
+                float modIndex = (DSPUtilsDOTS.SineOcillator
+                                          (ref phase, audioEffectParams.Value2, audioEffectParams.SampleRate) *
+                                  audioEffectParams.Value1 *
+                                  audioEffectParams.Value0);
 
                 // Set delay index to current index, offset by the centre delay parameter and modulation value
-                writeIndex = (int)Mathf.Clamp(i + audioEffectParams.Value0 + modIndex, 0, sampleBuffer.Length - 1);
+                var writeIndex = (int)Mathf.Clamp(i + audioEffectParams.Value0 + modIndex, 0, sampleBuffer.Length - 1);
                 //Debug.Log("Current Sample: " + i + "     Flange Mod: " + modIndex + "     Write Index: " + writeIndex);
 
                 // Combine sample in delayed buffer with current pos original sample and current pos delay sample multipled by "feedback" value
-                delaySample = dspBuffer[writeIndex].Value +
-                              sampleBuffer[i].Value +
-                              dspBuffer[i].Value * audioEffectParams.Value3;
+                float delaySample = dspBuffer[writeIndex].Value +
+                                    sampleBuffer[i].Value +
+                                    dspBuffer[i].Value * audioEffectParams.Value3;
 
                 // Write the delayed sample
                 dspBuffer[writeIndex] = new DSPSampleBufferElement

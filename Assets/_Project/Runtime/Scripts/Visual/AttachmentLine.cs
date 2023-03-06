@@ -14,7 +14,7 @@ namespace PlaneWaver
         private bool _PointsReady = false;
         private float _JointLineWidth = float.MaxValue;
         public float JointLineWidth {
-            get => _JointLineWidth != float.MaxValue ? _JointLineWidth : GrainBrain.Instance.AttachmentLineWidth;
+            get => _JointLineWidth != float.MaxValue ? _JointLineWidth : SynthManager.Instance.AttachmentLineWidth;
             set => _JointLineWidth = value;
         }
 
@@ -26,12 +26,12 @@ namespace PlaneWaver
             if (!TryGetComponent(out _Line))
                 _Line = gameObject.AddComponent<LineRenderer>();
 
-            _Line.material = _CustomMaterial != null ? _CustomMaterial : GrainBrain.Instance.AttachmentLineMat;
+            _Line.material = _CustomMaterial != null ? _CustomMaterial : SynthManager.Instance.AttachmentLineMat;
 
             if (_CustomMaterial != null)
                 _Line.material = _CustomMaterial;
-            else if (GrainBrain.Instance != null)
-                _Line.material = GrainBrain.Instance.AttachmentLineMat;
+            else if (SynthManager.Instance != null)
+                _Line.material = SynthManager.Instance.AttachmentLineMat;
 
             _Line.widthMultiplier = JointLineWidth;
             _Line.positionCount = 2;

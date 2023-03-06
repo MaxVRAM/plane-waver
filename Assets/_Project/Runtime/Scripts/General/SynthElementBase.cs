@@ -31,7 +31,7 @@ namespace PlaneWaver
         
         protected void InitialiseEntity()
         {
-            EntityIndex = GrainBrain.Instance.RegisterEntity(this, ElementType);
+            EntityIndex = SynthManager.Instance.RegisterEntity(this, ElementType);
             ElementEntity = Manager.CreateEntity(ElementArchetype);
             name = $"{Enum.GetName(typeof(SynthElementType), ElementType)}.{EntityIndex}";
 #if UNITY_EDITOR

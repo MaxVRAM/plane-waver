@@ -8,19 +8,23 @@ namespace PlaneWaver.DSP
     /// </summary>
     public class DSPBitcrush : DSPClass
     {
-        [Range(0f, 1f)] [SerializeField] public float _Mix = 1;
-        [Range(0f, 50f)] [SerializeField] public float _CrushRatio;
+        [Range(0f, 1f)] public float Mix = 1;
+        [Range(0f, 50f)] public float CrushRatio;
 
-        int _SampleRate;
+        private int _sampleRate;
 
-        public void Start() { _SampleRate = AudioSettings.outputSampleRate; }
+        public void Start()
+        {
+            _sampleRate = AudioSettings.outputSampleRate;
+        }
 
         public override AudioEffectParameters GetDSPBufferElement()
         {
-            AudioEffectParameters audioEffectParams = new AudioEffectParameters();
-            audioEffectParams.AudioEffectType = AudioEffectTypes.Bitcrush;
-            audioEffectParams.Mix = _Mix;
-            audioEffectParams.Value0 = _CrushRatio;
+            var audioEffectParams = new AudioEffectParameters {
+                AudioEffectType = AudioEffectTypes.Bitcrush,
+                Mix = Mix,
+                Value0 = CrushRatio
+            };
 
             return audioEffectParams;
         }
@@ -29,12 +33,13 @@ namespace PlaneWaver.DSP
             AudioEffectParameters audioEffectParams, DynamicBuffer<GrainSampleBufferElement> sampleBuffer,
             DynamicBuffer<DSPSampleBufferElement> dspBuffer)
         {
-            int count = 0;
+            var count = 0;
             float previousSample = 0;
-            float outputSample = 0;
 
-            for (int i = 0; i < sampleBuffer.Length; i++)
+            for (var i = 0; i < sampleBuffer.Length; i++)
             {
+                float outputSample;
+
                 if (count >= audioEffectParams.Value0)
                 {
                     outputSample = sampleBuffer[i].Value;

@@ -107,7 +107,7 @@ namespace PlaneWaver.DSP
             _audioSource.volume = _audioSource.volume.Smooth(_targetVolume, VolumeSmoothing);
         }
 
-        protected override void Deregister() { GrainBrain.Instance.DeregisterSpeaker(this); }
+        protected override void Deregister() { SynthManager.Instance.DeregisterSpeaker(this); }
 
         #endregion
 
@@ -194,7 +194,7 @@ namespace PlaneWaver.DSP
                 return;
             
             Color gizmoColour = IsActive ? Color.Lerp(Color.white, Color.red, _grainLoad) : Color.gray;
-            gizmoColour.a = _targetVolume * (1 - GrainBrain.Instance.DistanceToListener(transform));
+            gizmoColour.a = _targetVolume * (1 - SynthManager.Instance.DistanceToListener(transform));
             Gizmos.color = gizmoColour;
             Gizmos.DrawWireSphere(transform.position, _connectionRadius);
         }
@@ -208,7 +208,7 @@ namespace PlaneWaver.DSP
             if (!EntityInitialised || _grainArray == null || _numGrainsFree == _grainArraySize)
                 return;
 
-            int currentDSPSample = GrainBrain.Instance.CurrentSampleIndex;
+            int currentDSPSample = SynthManager.Instance.CurrentSampleIndex;
 
             for (var dataIndex = 0; dataIndex < data.Length; dataIndex += channels)
                 foreach (Grain g in _grainArray)

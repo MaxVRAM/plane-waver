@@ -194,8 +194,8 @@ namespace PlaneWaver.Interaction
             {
                 SpawnCondition.Never => false,
                 SpawnCondition.Always => true,
-                SpawnCondition.AfterSpeakersPopulated => !GrainBrain.Instance.PopulatingSpeakers,
-                SpawnCondition.SpeakerAvailable => GrainBrain.Instance.Speakers.FirstOrDefault(s => !s.IsActive),
+                SpawnCondition.AfterSpeakersPopulated => !SynthManager.Instance.PopulatingSpeakers,
+                SpawnCondition.SpeakerAvailable => SynthManager.Instance.Speakers.FirstOrDefault(s => !s.IsActive),
                 SpawnCondition.AfterDelayPeriod => _startTimeReached || (_startTimeReached = Time.time > _startTime),
                 _ => false
             };

@@ -23,11 +23,11 @@ namespace PlaneWaver
     /// Single-instanced manager component that governs the synthesiser's entities and grain delivery.
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
-    public class GrainBrain : MonoBehaviour
+    public class SynthManager : MonoBehaviour
     {
         #region FIELDS & PROPERTIES
 
-        public static GrainBrain Instance;
+        public static SynthManager Instance;
         private bool IsInitialised { get; set; }
         private EntityManager _entityManager;
         private EntityQuery _grainQuery;

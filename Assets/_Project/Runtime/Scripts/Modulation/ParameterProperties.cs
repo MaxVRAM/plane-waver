@@ -15,8 +15,11 @@ namespace PlaneWaver.Modulation
             public bool InvertVolatileRange;
             public bool FixedStart;
             public bool FixedEnd;
+            public string Icon;
 
-            public PropertiesObject(int index, string name, Vector2 parameterRange, Vector2 initialRange, bool invertVolatileRange, bool fixedStart, bool fixedEnd)
+            public PropertiesObject(
+                int index, string name, Vector2 parameterRange, Vector2 initialRange, bool invertVolatileRange,
+                bool fixedStart, bool fixedEnd, string icon = "icon.timeline-question.png")
             {
                 Index = index;
                 Name = name;
@@ -25,6 +28,7 @@ namespace PlaneWaver.Modulation
                 InvertVolatileRange = invertVolatileRange;
                 FixedStart = fixedStart;
                 FixedEnd = fixedEnd;
+                Icon = icon;
             }
         }
     }
@@ -40,7 +44,8 @@ namespace PlaneWaver.Modulation
                 IsVolatileEmitter ? new Vector2(0,1) : new Vector2(0.5f, 0.5f),
                 IsVolatileEmitter ? true : false,
                 false,
-                IsVolatileEmitter
+                IsVolatileEmitter,
+                "icon.volume-source.png"
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
         }
@@ -57,7 +62,8 @@ namespace PlaneWaver.Modulation
                 IsVolatileEmitter ? new Vector2(0.3f,0) : new Vector2(0, 1),
                 false,
                 false,
-                IsVolatileEmitter
+                IsVolatileEmitter,
+                "icon.vector-point-select.png"
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
         }
@@ -74,7 +80,8 @@ namespace PlaneWaver.Modulation
                 IsVolatileEmitter ? new Vector2(40,80) : new Vector2(60,60),
                 false,
                 IsVolatileEmitter,
-                false
+                false,
+                "icon.chart-timeline.png"
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
         }
@@ -91,7 +98,8 @@ namespace PlaneWaver.Modulation
                 IsVolatileEmitter ? new Vector2(3,2) : new Vector2(3, 3),
                 false,
                 false,
-                false
+                false,
+                "icon.format-list-group.png"
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
         }
@@ -108,7 +116,8 @@ namespace PlaneWaver.Modulation
                 Vector2.zero,
                 false,
                 IsVolatileEmitter,
-                false
+                false,
+                "icon.altimeter.png"
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
         }
@@ -126,7 +135,8 @@ namespace PlaneWaver.Modulation
                 new Vector2(200,200),
                 false,
                 true,
-                false
+                false,
+                "icon.clock-end.png"
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
         }

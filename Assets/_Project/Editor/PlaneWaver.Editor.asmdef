@@ -1,6 +1,6 @@
 {
     "name": "PlaneWaver.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "PlaneWaver.Editor",
     "references": [
         "GUID:78baa30a3a20b7d4d8bbddb5fc7b56d8",
         "GUID:ed5bb09d0712b76498c85ce9a16fde09"

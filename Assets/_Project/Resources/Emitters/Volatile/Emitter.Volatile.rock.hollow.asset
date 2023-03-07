@@ -24,6 +24,7 @@ MonoBehaviour:
       InvertVolatileRange: 1
       FixedStart: 0
       FixedEnd: 1
+      Icon: icon.volume-source.png
     ModulationInput:
       InputGroup: 0
       Misc: 0
@@ -33,7 +34,7 @@ MonoBehaviour:
     ModulationData:
       ParameterRange: {x: 0, y: 2}
       InitialRange: {x: 0.5, y: 1}
-      InvertVolatileRange: 1
+      InvertVolatileRange: 0
       ModulationEnabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
@@ -57,6 +58,7 @@ MonoBehaviour:
       InvertVolatileRange: 0
       FixedStart: 0
       FixedEnd: 1
+      Icon: icon.vector-point-select.png
     ModulationInput:
       InputGroup: 1
       Misc: 0
@@ -90,6 +92,7 @@ MonoBehaviour:
       InvertVolatileRange: 0
       FixedStart: 1
       FixedEnd: 0
+      Icon: icon.chart-timeline.png
     ModulationInput:
       InputGroup: 1
       Misc: 0
@@ -99,7 +102,7 @@ MonoBehaviour:
     ModulationData:
       ParameterRange: {x: 10, y: 250}
       InitialRange: {x: 40, y: 120}
-      InvertVolatileRange: 0
+      InvertVolatileRange: 1
       ModulationEnabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
@@ -123,6 +126,7 @@ MonoBehaviour:
       InvertVolatileRange: 0
       FixedStart: 0
       FixedEnd: 0
+      Icon: icon.format-list-group.png
     ModulationInput:
       InputGroup: 2
       Misc: 0
@@ -156,6 +160,7 @@ MonoBehaviour:
       InvertVolatileRange: 0
       FixedStart: 1
       FixedEnd: 0
+      Icon: icon.altimeter.png
     ModulationInput:
       InputGroup: 2
       Misc: 0
@@ -189,6 +194,7 @@ MonoBehaviour:
       InvertVolatileRange: 0
       FixedStart: 1
       FixedEnd: 0
+      Icon: icon.clock-end.png
     ModulationInput:
       InputGroup: 3
       Misc: 0

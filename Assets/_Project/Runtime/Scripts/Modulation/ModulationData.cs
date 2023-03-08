@@ -48,7 +48,7 @@ namespace PlaneWaver.Modulation
                 ParameterRange = propertiesObject.ParameterRange;
                 InitialRange = propertiesObject.InitialRange;
                 InitialValue = 0;
-                InvertVolatileRange = propertiesObject.InvertVolatileRange;
+                InvertVolatileRange = propertiesObject.ReversePath;
                 ModulationEnabled = false;
                 ModInputRange = new Vector2(0f, 1f);
                 ModInputMultiplier = 1;

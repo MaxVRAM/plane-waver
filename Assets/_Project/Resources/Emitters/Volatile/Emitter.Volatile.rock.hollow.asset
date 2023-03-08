@@ -102,7 +102,7 @@ MonoBehaviour:
     ModulationData:
       ParameterRange: {x: 10, y: 250}
       InitialRange: {x: 40, y: 120}
-      InvertVolatileRange: 1
+      InvertVolatileRange: 0
       ModulationEnabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1

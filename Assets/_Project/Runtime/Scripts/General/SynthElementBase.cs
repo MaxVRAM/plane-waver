@@ -63,8 +63,8 @@ namespace PlaneWaver
 
         private void OnDestroy()
         {
-            throw new Exception("Destorying SynthElement! This should never happen");
-            DestroyEntity();
+            throw new Exception("Destroying SynthElement! This should never happen");
+            //DestroyEntity();
         }
 
         private void DestroyEntity()

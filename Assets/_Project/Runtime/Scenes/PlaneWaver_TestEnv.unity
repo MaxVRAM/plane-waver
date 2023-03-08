@@ -169,10 +169,109 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ModulationInput:
     InputGroup: 0
-    MiscValue: 4
-    ActorValue: 3
-    RelativeValue: 3
-    CollisionValue: 1
+    Misc: 0
+    Actor: 0
+    Relative: 3
+    Collision: 1
+--- !u!1 &335865992
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 335865993}
+  - component: {fileID: 335865994}
+  m_Layer: 0
+  m_Name: IconManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &335865993
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335865992}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 374032800}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &335865994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 335865992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd34c1b102b754348b2bad1a6b2d00b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  DefaultIcon:
+    m_Text: 
+    m_Image: {fileID: 2800000, guid: dae326ff6ee14a34099f06124328fdb6, type: 3}
+    m_Tooltip: Undefined type
+  EmitterIcons:
+    VolatileIcon:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: f9c09dae33bb371428d0d68834ef7997, type: 3}
+      m_Tooltip: 
+    StableIcon:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: 43eacf60d0d0b4c459817b7d47404684, type: 3}
+      m_Tooltip: 
+  ParameterIcons:
+    VolumeIcon:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: e7c79ddadb1bf234c8e64ea805d0de21, type: 3}
+      m_Tooltip: Emitter volume modulation
+    PlayheadIcon:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: 5a1cd0f6a5163f3489f2fe82361381de, type: 3}
+      m_Tooltip: Emitter playhead modulation
+    DurationIcon:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: 3d6e88139277ae240906680f19a591a5, type: 3}
+      m_Tooltip: Emitter duration modulation
+    DensityIcon:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: ad7b99e43c837b84da6b530ad390f706, type: 3}
+      m_Tooltip: Emitter density modulation
+    TransposeIcon:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: 6c38f91e77da6154b88750fe2d3734f9, type: 3}
+      m_Tooltip: Emitter transpose modulation
+    LengthIcon:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: e9c23a2c5cd123846aa2d3949f97a7ac, type: 3}
+      m_Tooltip: Emitter length modulation
+  ModulationIcons:
+    On:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: baa293df70da35c4bb9125de503c4a7f, type: 3}
+      m_Tooltip: Parameter modulation active
+    Off:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: 855bcfd28bec1384c88e0a44e54f5bf9, type: 3}
+      m_Tooltip: Parameter modulation disabled
+    Forward:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: b9035124ca686af408af7825fb398914, type: 3}
+      m_Tooltip: Parameter forward path
+    Reverse:
+      m_Text: 
+      m_Image: {fileID: 2800000, guid: 96b7dc178a2b48646a51b469c9c28cee, type: 3}
+      m_Tooltip: Parameter reverse path
 --- !u!1 &374032797
 GameObject:
   m_ObjectHideFlags: 0
@@ -203,21 +302,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71a200e41e1c3894daaaa6c184452e30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <IsInitialised>k__BackingField: 0
-  _listener: {fileID: 0}
-  _frameStartSampleIndex: 0
-  _lastFrameSampleDuration: 0
-  _grainsPerFrame: 0
-  _grainsPerSecond: 0
-  _grainsPerSecondPeak: 0
-  _grainsDiscarded: 0
-  _averageGrainAge: 0
-  _averageGrainAgeMS: 0
-  _speakerCount: 0
-  _hostCount: 0
-  _emitterCount: 0
-  _frameCount: 0
-  _maxSpeakers: 0
   ListenerRadius: 30
   QueueDurationMS: 22
   DelayPercentLastFrame: 10
@@ -230,10 +314,6 @@ MonoBehaviour:
     TukeyHeight: 0.5
     GaussianSigma: 0.5
     LinearInOutFade: 0.01
-    <WindowArray>k__BackingField: []
-  <SampleRate>k__BackingField: 44100
-  <SamplesPerMS>k__BackingField: 0
-  <CurrentSampleIndex>k__BackingField: 0
   SpeakerPoolCount: 1
   SpeakerAllocationPeriod: 0.2
   SpeakerPrefab: {fileID: 2519325204652697373, guid: 6844ced249a80dd4584a457e05fa1c66,
@@ -362,6 +442,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1981806603}
+  - {fileID: 335865993}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

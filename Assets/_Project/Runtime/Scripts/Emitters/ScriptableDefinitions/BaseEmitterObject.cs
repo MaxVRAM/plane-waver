@@ -11,7 +11,7 @@ using PlaneWaver.Interaction;
 
 namespace PlaneWaver.Emitters
 {
-    public class BaseEmitterObject : ScriptableObject, IHasIcon
+    public class BaseEmitterObject : ScriptableObject
     {
         #region CLASS DEFINITIONS
 
@@ -46,10 +46,5 @@ namespace PlaneWaver.Emitters
         }
 
         #endregion
-        
-        public GUIContent GetIcon()
-        {
-            return IconManager.Instance.GetIcon(this);
-        }
     }
 }

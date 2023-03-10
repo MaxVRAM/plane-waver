@@ -89,12 +89,12 @@ namespace PlaneWaver.Library
 
             if (isVolatile)
             {
-                newEmitter = (VolatileEmitterObject)ScriptableObject.CreateInstance(typeof(VolatileEmitterObject));
+                newEmitter = (VolatileEmitter)ScriptableObject.CreateInstance(typeof(VolatileEmitter));
                 newEmitter.AudioObject = audioObject;
             }
             else
             {
-                newEmitter = (StableEmitterObject)ScriptableObject.CreateInstance(typeof(StableEmitterObject));
+                newEmitter = (StableEmitter)ScriptableObject.CreateInstance(typeof(StableEmitter));
                 newEmitter.AudioObject = audioObject;
             }
 

@@ -45,7 +45,7 @@ namespace PlaneWaver.Emitters
         private ActorObject _actor;
         private CollisionData _collisionData;
 
-        public bool IsVolatile => EmitterAsset is VolatileEmitterObject;
+        public bool IsVolatile => EmitterAsset is VolatileEmitter;
 
         #endregion
 

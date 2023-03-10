@@ -6,7 +6,7 @@ using UnityEngine;
 using NaughtyAttributes;
 
 using MaxVRAM;
-using MaxVRAM.Ticker;
+using MaxVRAM.Counters;
 using MaxVRAM.Extensions;
 using PlaneWaver.Emitters;
 
@@ -49,7 +49,7 @@ namespace PlaneWaver.Interaction
 
         private float _startTime = int.MaxValue;
         private bool _startTimeReached;
-        private Trigger _spawnTimer;
+        private CountTrigger _spawnTimer;
 
         [Header("Object Properties")] [SerializeField] [MinMaxSlider(0.01f, 2)]
         public Vector2 SpawnObjectScale = new(1, 1);
@@ -111,7 +111,7 @@ namespace PlaneWaver.Interaction
         private void Awake()
         {
             StartCoroutine(ClearCollisions());
-            _spawnTimer = new Trigger(TimeUnit.Seconds, SpawnPeriodSeconds);
+            _spawnTimer = new CountTrigger(TimeUnit.Seconds, SpawnPeriodSeconds);
             _activeObjects = new List<GameObject>();
         }
 

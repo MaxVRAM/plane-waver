@@ -21,10 +21,9 @@ MonoBehaviour:
       Name: Volume
       ParameterRange: {x: 0, y: 2}
       InitialRange: {x: 1, y: 0}
-      InvertVolatileRange: 1
+      ReversePath: 1
       FixedStart: 0
       FixedEnd: 1
-      Icon: icon.volume-source.png
     ModulationInput:
       InputGroup: 0
       Misc: 0
@@ -34,8 +33,8 @@ MonoBehaviour:
     ModulationData:
       ParameterRange: {x: 0, y: 2}
       InitialRange: {x: 0.5, y: 1}
-      InvertVolatileRange: 0
-      ModulationEnabled: 0
+      ReversePath: 1
+      ModulationEnabled: 1
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -55,10 +54,9 @@ MonoBehaviour:
       Name: Playhead
       ParameterRange: {x: 0, y: 1}
       InitialRange: {x: 0.3, y: 0}
-      InvertVolatileRange: 0
+      ReversePath: 0
       FixedStart: 0
       FixedEnd: 1
-      Icon: icon.vector-point-select.png
     ModulationInput:
       InputGroup: 1
       Misc: 0
@@ -68,8 +66,8 @@ MonoBehaviour:
     ModulationData:
       ParameterRange: {x: 0, y: 1}
       InitialRange: {x: 0.25, y: 0.75}
-      InvertVolatileRange: 0
-      ModulationEnabled: 0
+      ReversePath: 0
+      ModulationEnabled: 1
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -89,10 +87,9 @@ MonoBehaviour:
       Name: Duration
       ParameterRange: {x: 10, y: 250}
       InitialRange: {x: 40, y: 80}
-      InvertVolatileRange: 0
+      ReversePath: 0
       FixedStart: 1
       FixedEnd: 0
-      Icon: icon.chart-timeline.png
     ModulationInput:
       InputGroup: 1
       Misc: 0
@@ -102,8 +99,8 @@ MonoBehaviour:
     ModulationData:
       ParameterRange: {x: 10, y: 250}
       InitialRange: {x: 40, y: 120}
-      InvertVolatileRange: 0
-      ModulationEnabled: 0
+      ReversePath: 0
+      ModulationEnabled: 1
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -123,10 +120,9 @@ MonoBehaviour:
       Name: Density
       ParameterRange: {x: 0.1, y: 10}
       InitialRange: {x: 3, y: 2}
-      InvertVolatileRange: 0
+      ReversePath: 0
       FixedStart: 0
       FixedEnd: 0
-      Icon: icon.format-list-group.png
     ModulationInput:
       InputGroup: 2
       Misc: 0
@@ -136,8 +132,8 @@ MonoBehaviour:
     ModulationData:
       ParameterRange: {x: 0.1, y: 10}
       InitialRange: {x: 2, y: 3}
-      InvertVolatileRange: 0
-      ModulationEnabled: 0
+      ReversePath: 0
+      ModulationEnabled: 1
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -157,10 +153,9 @@ MonoBehaviour:
       Name: Transpose
       ParameterRange: {x: -3, y: 3}
       InitialRange: {x: 0, y: 0}
-      InvertVolatileRange: 0
+      ReversePath: 0
       FixedStart: 1
       FixedEnd: 0
-      Icon: icon.altimeter.png
     ModulationInput:
       InputGroup: 2
       Misc: 0
@@ -170,8 +165,8 @@ MonoBehaviour:
     ModulationData:
       ParameterRange: {x: -3, y: 3}
       InitialRange: {x: 0, y: 0}
-      InvertVolatileRange: 0
-      ModulationEnabled: 0
+      ReversePath: 0
+      ModulationEnabled: 1
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -191,10 +186,9 @@ MonoBehaviour:
       Name: Length
       ParameterRange: {x: 10, y: 1000}
       InitialRange: {x: 200, y: 200}
-      InvertVolatileRange: 0
+      ReversePath: 0
       FixedStart: 1
       FixedEnd: 0
-      Icon: icon.clock-end.png
     ModulationInput:
       InputGroup: 3
       Misc: 0
@@ -204,8 +198,8 @@ MonoBehaviour:
     ModulationData:
       ParameterRange: {x: 10, y: 1000}
       InitialRange: {x: 170.3, y: 812.1}
-      InvertVolatileRange: 0
-      ModulationEnabled: 0
+      ReversePath: 0
+      ModulationEnabled: 1
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0

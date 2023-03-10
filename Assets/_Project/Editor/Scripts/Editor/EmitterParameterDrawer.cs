@@ -12,7 +12,7 @@ namespace PlaneWaver.Modulation
         {
             int indent = EditorGUI.indentLevel;
             
-            bool isVolatile = (BaseEmitterObject)property.serializedObject.targetObject is VolatileEmitterObject;
+            bool isVolatile = (BaseEmitterObject)property.serializedObject.targetObject is VolatileEmitter;
             SerializedProperty parameterProperties = property.FindPropertyRelative("ParameterProperties");
             SerializedProperty modulationInput = property.FindPropertyRelative("ModulationInput");
             SerializedProperty modulationData = property.FindPropertyRelative("ModulationData");

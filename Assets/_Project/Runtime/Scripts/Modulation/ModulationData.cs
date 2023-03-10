@@ -17,7 +17,7 @@ namespace PlaneWaver.Modulation
             private int _parameterIndex;
             public Vector2 ParameterRange;
             public Vector2 InitialRange;
-            public bool InvertVolatileRange;
+            public bool ReversePath;
             public bool ModulationEnabled;
             public Vector2 ModInputRange;
             public float ModInputMultiplier;
@@ -48,7 +48,7 @@ namespace PlaneWaver.Modulation
                 ParameterRange = propertiesObject.ParameterRange;
                 InitialRange = propertiesObject.InitialRange;
                 InitialValue = 0;
-                InvertVolatileRange = propertiesObject.ReversePath;
+                ReversePath = propertiesObject.ReversePath;
                 ModulationEnabled = false;
                 ModInputRange = new Vector2(0f, 1f);
                 ModInputMultiplier = 1;
@@ -81,8 +81,8 @@ namespace PlaneWaver.Modulation
             public ModulationComponent BuildComponent(float modulationValue)
             {
                 return new ModulationComponent {
-                    StartValue = VolatileEmitter ? InvertVolatileRange ? InitialRange.y : InitialRange.x : InitialValue,
-                    EndValue = VolatileEmitter ? InvertVolatileRange ? InitialRange.x : InitialRange.y  : 0,
+                    StartValue = VolatileEmitter ? ReversePath ? InitialRange.y : InitialRange.x : InitialValue,
+                    EndValue = VolatileEmitter ? ReversePath ? InitialRange.x : InitialRange.y  : 0,
                     ModValue = modulationValue,
                     ModInfluence = ModInfluence,
                     ModExponent = ModExponent,

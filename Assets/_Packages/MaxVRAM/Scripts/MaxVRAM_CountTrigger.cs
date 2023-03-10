@@ -2,11 +2,11 @@
 using UnityEngine;
 
 
-namespace MaxVRAM.Ticker
+namespace MaxVRAM.Counters
 {
     public enum TimeUnit { Seconds = 0, Samples = 1 }
 
-    public class Trigger
+    public class CountTrigger
     {
         private TimeUnit _unit = TimeUnit.Seconds;
 
@@ -19,7 +19,7 @@ namespace MaxVRAM.Ticker
         private int _samplePeriod = AudioSettings.outputSampleRate;
         private int SampleCounter { get; set; }
 
-        public Trigger(TimeUnit unit, float timePeriod)
+        public CountTrigger(TimeUnit unit, float timePeriod)
         {
             if (unit == TimeUnit.Samples)
             {
@@ -32,7 +32,7 @@ namespace MaxVRAM.Ticker
             ChangePeriod(timePeriod);
         }
 
-        public Trigger(TimeUnit unit, int samplePeriod)
+        public CountTrigger(TimeUnit unit, int samplePeriod)
         {
             if (unit != TimeUnit.Samples)
                 return;

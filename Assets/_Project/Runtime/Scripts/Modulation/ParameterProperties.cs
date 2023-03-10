@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PlaneWaver.Modulation
 {
-    public partial class Parameter : IHasIcon
+    public partial class Parameter : IHasGUIContent
     {
         [Serializable]
         public struct PropertiesObject
@@ -30,9 +30,11 @@ namespace PlaneWaver.Modulation
             }
         }
 
-        public GUIContent GetIcon()
+        public virtual GUIContent GetGUIContent()
         {
-            return IconManager.Instance.GetIcon(this);
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "This is an undefined parameter.");
         }
     }
 
@@ -45,11 +47,18 @@ namespace PlaneWaver.Modulation
                 "Volume",
                 new Vector2(0f, 2f),
                 IsVolatileEmitter ? new Vector2(0,1) : new Vector2(0.5f, 0.5f),
-                IsVolatileEmitter ? true : false,
+                IsVolatileEmitter,
                 false,
                 IsVolatileEmitter
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
+        }
+        
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "Volume of the emitted grains.");
         }
     }
 
@@ -68,6 +77,13 @@ namespace PlaneWaver.Modulation
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
         }
+        
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "Normalised audio sample playback position a grain starts at when spawned.");
+        }
     }
 
     public class Duration : Parameter
@@ -84,6 +100,13 @@ namespace PlaneWaver.Modulation
                 false
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
+        }
+        
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "Playback duration (ms) for each emitted grain.");
         }
     }
 
@@ -102,6 +125,15 @@ namespace PlaneWaver.Modulation
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
         }
+        
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent
+            (IconManager.GetIcon(this),
+                "Amount of overlap for consecutive grains. < 1 produces a silent period between each grain. = 1 " +
+                "creates grains one after another. 1-2 creates uneven overlap due to amplitude windowing. While values " +
+                "above 2 will produce a dense and constant sound.");
+        }
     }
 
     public class Transpose : Parameter
@@ -118,6 +150,13 @@ namespace PlaneWaver.Modulation
                 false
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
+        }
+        
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "Pitch shift applied to each emitted grain. 0 = no shift. -1 = one octave down. 1 = one octave up.");
         }
     }
 
@@ -136,6 +175,13 @@ namespace PlaneWaver.Modulation
                 false
             );
             ModulationData = new ModulationDataObject(ParameterProperties);
+        }
+        
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "Length (ms) of the triggered grain burst. This parameter is only valid for volatile emitters.");
         }
     }
 }

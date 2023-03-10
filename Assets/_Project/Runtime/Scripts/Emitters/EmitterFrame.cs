@@ -138,7 +138,7 @@ namespace PlaneWaver.Emitters
 
             int index = Manager.GetComponentData<SpeakerConnection>(ElementEntity).SpeakerIndex;
             
-            if (SynthManager.Instance.IsSpeakerAtIndex(index, out SpeakerAuthoring speaker))
+            if (SynthManager.Instance.ValidSpeakerAtIndex(index, out SpeakerAuthoring speaker))
             {
                 SpeakerTransform = speaker.transform;
                 SpeakerIndex = index;

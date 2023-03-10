@@ -11,7 +11,7 @@ using TMPro;
 
 using NaughtyAttributes;
 
-using MaxVRAM.Ticker;
+using MaxVRAM.Counters;
 using MaxVRAM.Audio;
 
 using PlaneWaver.DSP;
@@ -28,6 +28,7 @@ namespace PlaneWaver
         #region FIELDS & PROPERTIES
 
         public static SynthManager Instance;
+        public bool EnableDebugCounters = true;
         private bool IsInitialised { get; set; }
         private EntityManager _entityManager;
         private EntityQuery _grainQuery;
@@ -91,7 +92,7 @@ namespace PlaneWaver
         [Range(0, 64)] public int SpeakerPoolCount = 16;
         [Tooltip("Period (seconds) to instantiate/destroy speakers. Affects performance only during start time or when altering the 'Speakers Allocated' value during runtime.")]
         [Range(0.01f, 1)] public float SpeakerAllocationPeriod = 0.2f;
-        public Trigger SpeakerInstantiationTimer;
+        public CountTrigger SpeakerInstantiationTimer;
         [Tooltip("Speaker prefab to spawn when dynamically allocating speakers.")]
         public SpeakerAuthoring SpeakerPrefab;
         [Tooltip("ActorTransform to contain spawned speakers.")]
@@ -159,7 +160,7 @@ namespace PlaneWaver
         {
             SampleRate = AudioSettings.outputSampleRate;
             SamplesPerMS = (int)(SampleRate * .001f);
-            SpeakerInstantiationTimer = new Trigger(TimeUnit.Seconds, SpeakerAllocationPeriod);
+            SpeakerInstantiationTimer = new CountTrigger(TimeUnit.Seconds, SpeakerAllocationPeriod);
             _maxSpeakers = AudioSettings.GetConfiguration().numRealVoices;
         }
 
@@ -207,7 +208,6 @@ namespace PlaneWaver
             UpdateFrames();
             UpdateTimerComponent();
             
-
             UpdateStatsUI();
         }
 
@@ -287,19 +287,22 @@ namespace PlaneWaver
         {
             NativeArray<Entity> grainEntities = _grainQuery.ToEntityArray(Allocator.TempJob);
             int grainCount = grainEntities.Length;
+            
+            // Debug stats
             _grainsPerFrame = Mathf.Lerp(_grainsPerFrame, grainCount, Time.deltaTime * 5);
             _grainsPerSecond = Mathf.Lerp(_grainsPerSecond, grainCount / Time.deltaTime, Time.deltaTime * 2);
             _grainsPerSecondPeak = Math.Max(_grainsPerSecondPeak, grainCount / Time.deltaTime);
-
+            // End debug stats
+            
             if (Speakers.Count == 0 && grainCount > 0)
             {
-                Debug.Log($"No speakers registered. Destroying {grainCount} grains.");
                 _grainsDiscarded += grainCount;
                 grainEntities.Dispose();
                 return;
             }
 
             float ageSum = 0;
+            var grainsProcessed = 0;
 
             for (var i = 0; i < grainCount; i++)
             {
@@ -326,6 +329,7 @@ namespace PlaneWaver
                     grainOutput.DSPStartTime = grain.StartSampleIndex;
                     grainOutput.PlayheadNormalised = grain.PlayheadNorm;
                     speaker.GrainAdded(grainOutput);
+                    grainsProcessed++;
                 }
                 catch (Exception ex) when (ex is ArgumentException || ex is NullReferenceException)
                 {
@@ -333,7 +337,9 @@ namespace PlaneWaver
                 }
                 _entityManager.DestroyEntity(grainEntities[i]);
             }
+            
             grainEntities.Dispose();
+            _grainsDiscarded += grainCount - grainsProcessed;
 
             if (grainCount <= 0) return;
             
@@ -383,7 +389,6 @@ namespace PlaneWaver
                 Quaternion.identity,
                 SpeakerParentTransform
             );
-            // newSpeaker.SetIndex(index);
             newSpeaker.SetGrainArraySize(SpeakerGrainArraySize);
             return newSpeaker;
         }
@@ -412,7 +417,7 @@ namespace PlaneWaver
             }
         }
 
-        public bool IsSpeakerAtIndex(int index, [NotNull] out SpeakerAuthoring speaker)
+        public bool ValidSpeakerAtIndex(int index, [NotNull] out SpeakerAuthoring speaker)
         {
             bool foundSpeaker = index >= 0 && index < Speakers.Count;
             speaker = Speakers[index];
@@ -421,12 +426,7 @@ namespace PlaneWaver
 
         private SpeakerAuthoring GetSpeakerForGrain(GrainComponent grain)
         {
-            if (!IsSpeakerAtIndex(grain.SpeakerIndex, out SpeakerAuthoring speaker) ||
-                grain.SpeakerIndex == int.MaxValue)
-            {
-                return null;
-            }
-            return speaker;
+            return ValidSpeakerAtIndex(grain.SpeakerIndex, out SpeakerAuthoring speaker) ? speaker : null;
         }
 
         public int GetIndexOfSpeaker(SpeakerAuthoring speaker)

@@ -34,8 +34,7 @@ namespace PlaneWaver.Interaction
     }
     
     #endregion
-    
-    
+
     public enum SpawnCondition
     {
         Never, AfterSpeakersPopulated, SpeakerAvailable, AfterDelayPeriod, Always

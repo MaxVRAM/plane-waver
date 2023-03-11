@@ -6,27 +6,29 @@ using PlaneWaver.Modulation;
 using Unity.Entities;
 using UnityEngine;
 
+// Trying to call the constructor on the hosted class, but it's not working.
+// Attempted calling it from a custom Inspector, but the data wouldn't serialise when referencing
+// the Serializable class. So I'm trying to call it from the constructor of the hosting class.
+// More information is here:
+// https://forum.unity.com/threads/how-to-inherit-from-list-t-make-a-list-t-propertydrawer.543154/
+// https://docs.unity3d.com/ScriptReference/ISerializationCallbackReceiver.html
+// ISerializationCallbackReceiver
+
+
 namespace PlaneWaver.Emitters
 {
     [Serializable]
-    public class EmitterAuth
+    public class EmitterAuth : ISerializationCallbackReceiver
     {
         #region FIELDS & PROPERTIES
 
-        public enum PropagateCondition
-        {
-            Constant, Contact, Airborne, Collision
-        }
-
         public int EntityIndex { get; private set; }
-        //private SynthElementType _elementType = SynthElementType.Emitter;
         private EntityArchetype _elementArchetype;
         private EntityManager _manager;
         private Entity _emitterEntity;
 
         public PropagateCondition PlaybackCondition;
-
-        public BaseEmitterObject EmitterAsset;
+        [SerializeReference] public BaseEmitterObject EmitterAsset;
 
         [Range(0f, 2f)] public float EmitterVolume = 1;
         [Range(0f, 1f)] public float AgeFadeOut;
@@ -35,12 +37,15 @@ namespace PlaneWaver.Emitters
         public EmitterAttenuator DynamicAttenuation;
         public DSPClass[] DSPChainParams;
 
-        [Header("Runtime Debug")] [SerializeField]
-        private bool FrameInitialised;
+        
+        [Header("Runtime Debug")] 
+        [SerializeField] private bool ObjectConstructed;
+        [SerializeField] private bool FrameInitialised;
         [SerializeField] private bool EntityInitialised;
         [SerializeField] private bool IsConnected;
         [SerializeField] private bool IsPlaying;
 
+        
         private string _frameName;
         private ActorObject _actor;
         private CollisionData _collisionData;
@@ -51,26 +56,28 @@ namespace PlaneWaver.Emitters
 
         #region CONSTRUCTOR / RESET METHOD
 
-        public EmitterAuth()
+        public EmitterAuth() { }
+
+        public void OnBeforeSerialize() { }
+
+        public void OnAfterDeserialize()
         {
-            PlaybackCondition = PropagateCondition.Constant;
-            AgeFadeOut = 0.95f;
-            ReflectPlayheadAtLimit = true;
-            DynamicAttenuation = new EmitterAttenuator();
+            if (!ObjectConstructed) { Reset(); }
         }
 
         public void Reset()
         {
-            if (EmitterAsset == null)
+            if (ObjectConstructed)
+            {
+                Debug.LogWarning("EmitterAuth: Reset called on initialised EmitterAuth.");
                 return;
-
-            if (IsVolatile)
-                PlaybackCondition = PropagateCondition.Collision;
-
+            }
+            PlaybackCondition = IsVolatile ? PropagateCondition.Collision : PropagateCondition.Constant;
             EmitterVolume = 1;
             AgeFadeOut = IsVolatile ? 1 : 0.95f;
             ReflectPlayheadAtLimit = !IsVolatile;
             DynamicAttenuation = new EmitterAttenuator();
+            ObjectConstructed = true;
         }
 
         #endregion
@@ -153,8 +160,8 @@ namespace PlaneWaver.Emitters
             _manager.AddBuffer<AudioEffectParameters>(_emitterEntity);
             DynamicBuffer<AudioEffectParameters> dspParams = _manager.GetBuffer<AudioEffectParameters>(_emitterEntity);
 
-            for (var i = 0; i < DSPChainParams.Length; i++)
-                dspParams.Add(DSPChainParams[i].GetDSPBufferElement());
+            foreach (DSPClass t in DSPChainParams)
+                dspParams.Add(t.GetDSPBufferElement());
 
             if (IsVolatile) _manager.AddComponentData(_emitterEntity, new EmitterVolatileTag());
         }
@@ -238,8 +245,8 @@ namespace PlaneWaver.Emitters
             //--- TODO not sure if clearing and adding again is the best way to do this.
             DynamicBuffer<AudioEffectParameters> dspBuffer = _manager.GetBuffer<AudioEffectParameters>(_emitterEntity);
             if (clear) dspBuffer.Clear();
-            for (var i = 0; i < DSPChainParams.Length; i++)
-                dspBuffer.Add(DSPChainParams[i].GetDSPBufferElement());
+            foreach (DSPClass t in DSPChainParams)
+                dspBuffer.Add(t.GetDSPBufferElement());
         }
 
         #endregion
@@ -252,27 +259,4 @@ namespace PlaneWaver.Emitters
             catch (Exception ex) when (ex is NullReferenceException or ObjectDisposedException) { }
         }
     }
-
-    public struct EmitterComponent : IComponentData
-    {
-        public int SpeakerIndex;
-        public int AudioClipIndex;
-        public int LastSampleIndex;
-        public int LastGrainDuration;
-        public int SamplesUntilFade;
-        public int SamplesUntilDeath;
-        public bool ReflectPlayhead;
-        public float EmitterVolume;
-        public float DynamicAmplitude;
-        public ModulationComponent ModVolume;
-        public ModulationComponent ModPlayhead;
-        public ModulationComponent ModDuration;
-        public ModulationComponent ModDensity;
-        public ModulationComponent ModTranspose;
-        public ModulationComponent ModLength;
-    }
-
-    public struct EmitterReadyTag : IComponentData { }
-
-    public struct EmitterVolatileTag : IComponentData { }
 }

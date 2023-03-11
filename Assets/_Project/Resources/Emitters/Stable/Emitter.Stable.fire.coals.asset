@@ -1,0 +1,183 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 631cd795d7508044999ab678f8d8713e, type: 3}
+  m_Name: Emitter.Stable.fire.coals
+  m_EditorClassIdentifier: 
+  EmitterName: 
+  Description: 
+  AudioObject: {fileID: 11400000, guid: fe2bb3116778abc4ab2efab96403e0e1, type: 2}
+  Parameters:
+  - ParameterProperties:
+      Index: 0
+      Name: Volume
+      ParameterRange: {x: 0, y: 1}
+      InitialRange: {x: 0.5, y: 0.5}
+      ReversePath: 0
+      FixedStart: 0
+      FixedEnd: 0
+    ModulationInput:
+      InputGroup: 0
+      Misc: 0
+      Actor: 0
+      Relative: 3
+      Collision: 1
+    ModulationData:
+      ParameterRange: {x: 0, y: 1}
+      InitialRange: {x: 0.5, y: 0.5}
+      ReversePath: 0
+      ModulationEnabled: 0
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0
+  - ParameterProperties:
+      Index: 1
+      Name: Playhead
+      ParameterRange: {x: 0, y: 1}
+      InitialRange: {x: 0, y: 1}
+      ReversePath: 0
+      FixedStart: 0
+      FixedEnd: 0
+    ModulationInput:
+      InputGroup: 0
+      Misc: 0
+      Actor: 0
+      Relative: 3
+      Collision: 1
+    ModulationData:
+      ParameterRange: {x: 0, y: 1}
+      InitialRange: {x: 0, y: 1}
+      ReversePath: 0
+      ModulationEnabled: 0
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0
+  - ParameterProperties:
+      Index: 2
+      Name: Grain Duration
+      ParameterRange: {x: 10, y: 250}
+      InitialRange: {x: 60, y: 60}
+      ReversePath: 0
+      FixedStart: 0
+      FixedEnd: 0
+    ModulationInput:
+      InputGroup: 0
+      Misc: 0
+      Actor: 0
+      Relative: 3
+      Collision: 1
+    ModulationData:
+      ParameterRange: {x: 10, y: 250}
+      InitialRange: {x: 60, y: 60}
+      ReversePath: 0
+      ModulationEnabled: 0
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0
+  - ParameterProperties:
+      Index: 3
+      Name: Density
+      ParameterRange: {x: 0.1, y: 10}
+      InitialRange: {x: 3, y: 3}
+      ReversePath: 0
+      FixedStart: 0
+      FixedEnd: 0
+    ModulationInput:
+      InputGroup: 0
+      Misc: 0
+      Actor: 0
+      Relative: 3
+      Collision: 1
+    ModulationData:
+      ParameterRange: {x: 0.1, y: 10}
+      InitialRange: {x: 3, y: 3}
+      ReversePath: 0
+      ModulationEnabled: 0
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0
+  - ParameterProperties:
+      Index: 4
+      Name: Transpose
+      ParameterRange: {x: -3, y: 3}
+      InitialRange: {x: 0, y: 0}
+      ReversePath: 0
+      FixedStart: 0
+      FixedEnd: 0
+    ModulationInput:
+      InputGroup: 0
+      Misc: 0
+      Actor: 0
+      Relative: 3
+      Collision: 1
+    ModulationData:
+      ParameterRange: {x: -3, y: 3}
+      InitialRange: {x: 0, y: 0}
+      ReversePath: 0
+      ModulationEnabled: 0
+      ModInputRange: {x: 0, y: 1}
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      ModExponent: 1
+      ModInfluence: 0
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 1
+      NoiseSpeed: 1
+      UsePerlin: 0
+      LockNoise: 0

@@ -10,25 +10,6 @@ using PropertiesObject = PlaneWaver.Modulation.Parameter.PropertiesObject;
 
 namespace PlaneWaver.Modulation
 {
-    // public class AssetHandler
-    // {
-    //     [OnOpenAsset]
-    //     public static bool OpenEditor(int instanceId, int line)
-    //     {
-    //         switch (EditorUtility.InstanceIDToObject(instanceId))
-    //         {
-    //             case StableEmitter emitter:
-    //                 EmitterObjectEditorWindow.Open(emitter);
-    //                 return true;
-    //             case VolatileEmitter emitter:
-    //                 EmitterObjectEditorWindow.Open(emitter);
-    //                 return true;
-    //             default:
-    //                 return false;
-    //         }
-    //     }
-    // }
-
     [CustomEditor(typeof(BaseEmitterObject))]
     public class EmitterObjectCustomEditor : Editor
     {

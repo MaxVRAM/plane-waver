@@ -23,7 +23,7 @@ namespace PlaneWaver.Emitters
 
         public List<EmitterAuth> StableEmitters = new();
         public List<EmitterAuth> VolatileEmitters = new();
-
+        
         public bool IsConnected;
         public bool CheckConnection => SpeakerTransform != null && SpeakerTransform != SpeakerTarget;
         public bool InListenerRange;

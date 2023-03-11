@@ -1,24 +1,19 @@
-using System;
-using System.IO;
-using System.Linq;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using Unity.Entities;
 using NaughtyAttributes;
-using PlaneWaver.Emitters;
 
 namespace PlaneWaver.Library
 {
     [RequireComponent(typeof(AudioSource))]
-    public class AudioLibrary : MonoBehaviour
+    public class LibraryManager : MonoBehaviour
     {
         #region FIELDS & PROPERTIES
 
         private bool _initialised;
-        public static AudioLibrary Instance;
+        public static LibraryManager Instance;
         public List<AudioObject> AudioObjects;
-        public AudioSource PreviewAudioSource;
+        public AudioSource AudioSource;
 
         [Dropdown("CreateAudioObjectDropdown")]
         public AudioObject PreviewAudioObject;
@@ -32,10 +27,11 @@ namespace PlaneWaver.Library
         private void Awake()
         {
             Instance = this;
-            PreviewAudioSource = GetComponent<AudioSource>();
-            PreviewAudioSource.Stop();
-            PreviewAudioSource.clip = null;
-            PreviewAudioSource.playOnAwake = false;
+            if (!TryGetComponent(out AudioSource))
+                AudioSource = gameObject.AddComponent<AudioSource>();
+            AudioSource.Stop();
+            AudioSource.clip = null;
+            AudioSource.playOnAwake = false;
         }
 
         private void Start()
@@ -83,8 +79,14 @@ namespace PlaneWaver.Library
 
         public DropdownList<AudioObject> CreateAudioObjectDropdown()
         {
+            if (AudioObjects == null || AudioObjects.Count == 0)
+                return new DropdownList<AudioObject>{{"No AudioObjects found", null}};
+            
+            AudioObjects.RemoveAll(item => item == null);
+
             DropdownList<AudioObject> list = new();
-            foreach (AudioObject asset in AudioObjects) list.Add(asset.name, asset);
+            foreach (AudioObject asset in AudioObjects)
+                list.Add(asset.name, asset);
             return list;
         }
         

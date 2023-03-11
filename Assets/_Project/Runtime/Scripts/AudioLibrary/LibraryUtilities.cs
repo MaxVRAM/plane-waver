@@ -51,12 +51,16 @@ namespace PlaneWaver.Library
             {
                 string filePath = AssetDatabase.GUIDToAssetPath(t);
 
-                string clipName = AssetParsing.ParseAssetPath
-                        (filePath, out PlaybackType clipType, out string clipTypeFolder);
-                var newAudioAsset = (AudioObject)ScriptableObject.CreateInstance(typeof(AudioObject));
-                var clip = (AudioClip)AssetDatabase.LoadAssetAtPath(filePath, typeof(AudioClip));
-                string[] tags = AssetParsing.ParseAssetTags(clipName);
-                newAudioAsset.AssignAudioClip(clipName, tags, clip, clipType, audioObjects.Count);
+                string clipName = AssetParsing
+                       .ParseAssetPath(filePath, out PlaybackType clipType, out string clipTypeFolder);
+                var newAudioAsset = (AudioObject)ScriptableObject
+                       .CreateInstance(typeof(AudioObject));
+                var clip = (AudioClip)AssetDatabase
+                       .LoadAssetAtPath(filePath, typeof(AudioClip));
+                string[] tags = AssetParsing
+                       .ParseAssetTags(clipName);
+                newAudioAsset
+                       .AssignAudioClip(clipName, tags, clip, clipType, audioObjects.Count);
 
                 audioObjects.Add(newAudioAsset);
 
@@ -120,7 +124,7 @@ namespace PlaneWaver.Library
                 if (!Enum.TryParse(clipTypeString, true, out PlaybackType playbackType))
                     playbackType = PlaybackType.Default;
 
-                clipTypeFolder += playbackType;
+                clipTypeFolder += "/" + playbackType;
 
                 if (!AssetDatabase.IsValidFolder(clipTypeFolder))
                     Directory.CreateDirectory(clipTypeFolder);
@@ -135,8 +139,8 @@ namespace PlaneWaver.Library
                 string clipTypeString = fileName[..fileName.IndexOf("_", StringComparison.Ordinal)];
                 clipTypeString = Regex.Replace(clipTypeString, @"[^\w]*", string.Empty);
                 string clipName = fileName[(fileName.IndexOf("_", StringComparison.Ordinal) + 1)..];
-                clipName = clipName.Remove
-                        (clipName.IndexOf(LibraryConfig.SourceExtensionFilter, StringComparison.Ordinal)).ToLower();
+                clipName = clipName.Remove(
+                    clipName.IndexOf(LibraryConfig.SourceExtensionFilter, StringComparison.Ordinal)).ToLower();
                 clipTypeFolder = LibraryConfig.AudioObjectPath;
                 clipType = ParseTypeAndPrepareDirectory(clipTypeString, ref clipTypeFolder);
                 return clipName;

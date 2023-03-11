@@ -15,7 +15,7 @@ namespace PlaneWaver.Emitters
 
         public enum PropagateCondition
         {
-            Constant, Contact, Airborne, Volatile
+            Constant, Contact, Airborne, Collision
         }
 
         public int EntityIndex { get; private set; }
@@ -65,7 +65,7 @@ namespace PlaneWaver.Emitters
                 return;
 
             if (IsVolatile)
-                PlaybackCondition = PropagateCondition.Volatile;
+                PlaybackCondition = PropagateCondition.Collision;
 
             EmitterVolume = 1;
             AgeFadeOut = IsVolatile ? 1 : 0.95f;
@@ -93,13 +93,13 @@ namespace PlaneWaver.Emitters
                 throw new Exception("EmitterAsset.AudioAsset is null.");
 
             if (IsVolatile)
-                PlaybackCondition = PropagateCondition.Volatile;
+                PlaybackCondition = PropagateCondition.Collision;
 
-            if (PlaybackCondition == PropagateCondition.Volatile && !IsVolatile)
-                throw new Exception("PlaybackType is Volatile but EmitterAsset is not Volatile.");
+            if (PlaybackCondition == PropagateCondition.Collision && !IsVolatile)
+                throw new Exception("Only Volatile Emitters can be assigned with 'Collision' playback condition.");
 
-            if (PlaybackCondition != PropagateCondition.Volatile && IsVolatile)
-                throw new Exception("PlaybackType is not Volatile but EmitterAsset is Volatile.");
+            if (PlaybackCondition != PropagateCondition.Collision && IsVolatile)
+                throw new Exception("Volatile Emitters can only be assigned with 'Collision' playback condition.");
 
             if (actor == null)
                 throw new Exception("Actor is null.");

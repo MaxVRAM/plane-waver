@@ -45,7 +45,7 @@ namespace PlaneWaver.Modulation
             ParameterProperties = new PropertiesObject(
                 0,
                 "Volume",
-                new Vector2(0f, 2f),
+                new Vector2(0f, 1f),
                 IsVolatileEmitter ? new Vector2(0,1) : new Vector2(0.5f, 0.5f),
                 IsVolatileEmitter,
                 false,
@@ -70,8 +70,8 @@ namespace PlaneWaver.Modulation
                 1,
                 "Playhead",
                 new Vector2(0f, 1f),
-                IsVolatileEmitter ? new Vector2(0.3f,0) : new Vector2(0, 1),
-                false,
+                IsVolatileEmitter ? new Vector2(0f,0.3f) : new Vector2(0, 1),
+                IsVolatileEmitter,
                 false,
                 IsVolatileEmitter
             );
@@ -92,7 +92,7 @@ namespace PlaneWaver.Modulation
         {
             ParameterProperties = new PropertiesObject(
                 2,
-                "Duration",
+                "Grain Duration",
                 new Vector2(10f, 250f),
                 IsVolatileEmitter ? new Vector2(40,80) : new Vector2(60,60),
                 false,
@@ -118,8 +118,8 @@ namespace PlaneWaver.Modulation
                 3,
                 "Density",
                 new Vector2(0.1f, 10),
-                IsVolatileEmitter ? new Vector2(3,2) : new Vector2(3, 3),
-                false,
+                IsVolatileEmitter ? new Vector2(2,3) : new Vector2(3, 3),
+                IsVolatileEmitter,
                 false,
                 false
             );
@@ -167,9 +167,9 @@ namespace PlaneWaver.Modulation
             if (!IsVolatileEmitter) throw new Exception("Length parameter is only valid for volatile emitters");
             ParameterProperties = new PropertiesObject(
                 5,
-                "Length",
+                "Burst Length",
                 new Vector2(10, 1000),
-                new Vector2(200,200),
+                new Vector2(800,800),
                 false,
                 true,
                 false

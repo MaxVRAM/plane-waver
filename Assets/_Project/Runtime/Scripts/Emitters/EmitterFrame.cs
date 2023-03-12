@@ -172,7 +172,6 @@ namespace PlaneWaver.Emitters
 
         protected override void Deregister()
         {
-            Debug.Log($"Deregistering {name}.");
             foreach (StableEmitterAuth emitter in StableEmitters)
                 emitter.OnDestroy();
             foreach (VolatileEmitterAuth emitter in VolatileEmitters)

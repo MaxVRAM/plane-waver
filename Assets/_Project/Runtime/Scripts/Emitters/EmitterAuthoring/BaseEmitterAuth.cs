@@ -67,6 +67,7 @@ namespace PlaneWaver.Emitters
         public virtual void Reset()
         {
             Debug.Log( "BaseEmitterAuth: Reset");
+            DSPChainParams = Array.Empty<DSPClass>();
             RuntimeState ??= new EmitterAuthRuntimeStates();
             RuntimeState.ObjectConstructed = true;
             DynamicAttenuation = new EmitterAttenuator();

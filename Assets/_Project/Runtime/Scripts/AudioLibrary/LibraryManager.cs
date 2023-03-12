@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
-using NaughtyAttributes;
 
 namespace PlaneWaver.Library
 {
@@ -14,8 +13,6 @@ namespace PlaneWaver.Library
         public static LibraryManager Instance;
         public List<AudioObject> AudioObjects;
         public AudioSource AudioSource;
-
-        [Dropdown("CreateAudioObjectDropdown")]
         public AudioObject PreviewAudioObject;
 
         public int LibrarySize => AudioObjects.Count;
@@ -77,18 +74,18 @@ namespace PlaneWaver.Library
                 LibraryUtilities.AudioBlob.BuildBlob(manager, asset);
         }
 
-        public DropdownList<AudioObject> CreateAudioObjectDropdown()
-        {
-            if (AudioObjects == null || AudioObjects.Count == 0)
-                return new DropdownList<AudioObject>{{"No AudioObjects found", null}};
-            
-            AudioObjects.RemoveAll(item => item == null);
-
-            DropdownList<AudioObject> list = new();
-            foreach (AudioObject asset in AudioObjects)
-                list.Add(asset.name, asset);
-            return list;
-        }
+        // public DropdownList<AudioObject> CreateAudioObjectDropdown()
+        // {
+        //     if (AudioObjects == null || AudioObjects.Count == 0)
+        //         return new DropdownList<AudioObject>{{"No AudioObjects found", null}};
+        //     
+        //     AudioObjects.RemoveAll(item => item == null);
+        //
+        //     DropdownList<AudioObject> list = new();
+        //     foreach (AudioObject asset in AudioObjects)
+        //         list.Add(asset.name, asset);
+        //     return list;
+        // }
         
         #endregion
     }

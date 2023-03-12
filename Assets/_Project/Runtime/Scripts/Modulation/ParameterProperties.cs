@@ -70,8 +70,8 @@ namespace PlaneWaver.Modulation
                 1,
                 "Playhead",
                 new Vector2(0f, 1f),
-                IsVolatileEmitter ? new Vector2(0f,0.3f) : new Vector2(0, 1),
-                IsVolatileEmitter,
+                IsVolatileEmitter ? new Vector2(0f,0.75f) : new Vector2(0, 1),
+                false,
                 false,
                 IsVolatileEmitter
             );

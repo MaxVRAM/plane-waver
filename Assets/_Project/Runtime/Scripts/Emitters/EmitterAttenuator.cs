@@ -16,7 +16,6 @@ namespace PlaneWaver.Modulation
         private float _reconnectionTimer;
         private bool _muted;
         
-        // Debug
         public float ReconnectionVolume;
         public float DistanceVolume;
         public float DistanceNorm;
@@ -66,7 +65,7 @@ namespace PlaneWaver.Modulation
 
         public float CalculateReconnectionAmplitude()
         {
-            _reconnectionTimer += Time.deltaTime;
+            _reconnectionTimer += Time.deltaTime * 1000;
             
             if (_reconnectionTimer > ReconnectionFadeInMS)
                 return 1;

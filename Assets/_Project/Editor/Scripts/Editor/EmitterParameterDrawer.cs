@@ -23,6 +23,7 @@ namespace PlaneWaver.Modulation
             
             EditorGUI.LabelField(position, label, EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(modulationInput);
+            EditorGUILayout.PropertyField(modulationData);
             
             EditorGUI.indentLevel = indent;
             EditorGUI.EndProperty();

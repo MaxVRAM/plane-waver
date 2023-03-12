@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using Unity.Entities;
 
-using NaughtyAttributes;
-
 using MaxVRAM.Extensions;
 
 namespace PlaneWaver.DSP
@@ -15,15 +13,15 @@ namespace PlaneWaver.DSP
     {
         #region FIELDS & PROPERTIES
 
-        [SerializeField] private ConnectionState State = ConnectionState.Pooled;
+        public ConnectionState State = ConnectionState.Pooled;
         public bool IsActive => State == ConnectionState.Active;
-        [ShowNonSerializedField] private int _grainArraySize = 100;
-        [ShowNonSerializedField] private int _numGrainsFree;
-        [ShowNonSerializedField] private float _grainLoad;
-        [ShowNonSerializedField] private int _connectedHosts = 0;
-        [ShowNonSerializedField] private float _inactiveDuration = 0;
-        [ShowNonSerializedField] private float _connectionRadius = 1;
-        [ShowNonSerializedField] private float _targetVolume;
+        private int _grainArraySize = 100;
+        private int _numGrainsFree;
+        private float _grainLoad;
+        private int _connectedHosts = 0;
+        private float _inactiveDuration = 0;
+        private float _connectionRadius = 1;
+        private float _targetVolume;
         private const float VolumeSmoothing = 0.7f;
         private int _sampleRate;
         private AudioSource _audioSource;
@@ -208,6 +206,7 @@ namespace PlaneWaver.DSP
             if (!EntityInitialised || _grainArray == null || _numGrainsFree == _grainArraySize)
                 return;
 
+            //var currentDSPSample = (int)(AudioSettings.dspTime * _sampleRate);
             int currentDSPSample = SynthManager.Instance.CurrentSampleIndex;
 
             for (var dataIndex = 0; dataIndex < data.Length; dataIndex += channels)

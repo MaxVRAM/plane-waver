@@ -4,8 +4,8 @@ using UnityEditor;
 using UnityEditor.AnimatedValues;
 
 using MaxVRAM.Extensions;
-using PlaneWaver.Emitters;
 using PlaneWaver.Library;
+using PlaneWaver.Emitters;
 using PropertiesObject = PlaneWaver.Modulation.Parameter.PropertiesObject;
 
 namespace PlaneWaver.Modulation
@@ -120,13 +120,13 @@ namespace PlaneWaver.Modulation
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("Emitter Editor", _titleStyle);
             EditorGUILayout.Space(2);
-
+            
             using (new EditorGUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField("Emitter Name", _prefixOptions);
                 EditorGUILayout.PropertyField(_emitterName, GUIContent.none);
             }
-
+            
             using (new EditorGUILayout.HorizontalScope())
             {
                 EditorGUILayout.LabelField("Description", _prefixOptions);
@@ -145,14 +145,14 @@ namespace PlaneWaver.Modulation
             
             var bgColor = new GUIStyle {normal = {background = Texture2D.grayTexture}};
             var audioObject = (AudioObject)_audioObject.objectReferenceValue;
-
+            
             if (audioObject != null)
             {
                 Editor audioAssetEditor = CreateEditor(audioObject.Clip);
                 audioAssetEditor.OnInteractivePreviewGUI(
                     GUILayoutUtility.GetRect(EditorWidth, AudioObjectWidth), bgColor);
             }
-
+            
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("Parameters", _titleStyle);
             EditorGUILayout.Space(2);
@@ -165,7 +165,7 @@ namespace PlaneWaver.Modulation
                     SerializedProperty currentParam = _parameterArray.GetArrayElementAtIndex(i);
                     SerializedProperty modulationData = currentParam.FindPropertyRelative("ModulationData");
                     SerializedProperty initialRange = modulationData.FindPropertyRelative("InitialRange");
-
+            
                     using (new EditorGUILayout.HorizontalScope())
                     {
                         EditorGUILayout.LabelField(_parameterIcons[i], _toggleOptions);
@@ -175,7 +175,7 @@ namespace PlaneWaver.Modulation
                         GUIContent modIcon = modulationEnabled.boolValue
                                 ? _toggleIcons["ModulationOn"]
                                 : _toggleIcons["ModulationOff"];
-
+            
                         
                         if (GUILayout.Button(modIcon, _toggleStyle, _toggleOptions))
                             modulationEnabled.boolValue = !modulationEnabled.boolValue;
@@ -184,7 +184,7 @@ namespace PlaneWaver.Modulation
                         initRange.x = initRange.x.RoundDigits(4);
                         initRange.y = initRange.y.RoundDigits(4);
                         initRange.x = EditorGUILayout.DelayedFloatField(initRange.x, _floatFieldOptions);
-
+            
                         if (_emitterObject.Parameters[i] is Length)
                         {
                             initRange.x = GUILayout.HorizontalSlider( initRange.x,
@@ -196,18 +196,18 @@ namespace PlaneWaver.Modulation
                                 ref initRange.x, ref initRange.y,
                                 _parameterProperties[i].ParameterRange.x,
                                 _parameterProperties[i].ParameterRange.y);
-
+            
                         if (_emitterObject.Parameters[i] is not Length)
                         {
                             initRange.y = EditorGUILayout.DelayedFloatField(initRange.y, _floatFieldOptions);
-
+            
                             if (_isVolatile)
                             {
                                 SerializedProperty reversePath = modulationData.FindPropertyRelative("ReversePath");
                                 GUIContent revIcon = reversePath.boolValue
                                         ? _toggleIcons["PathReverse"]
                                         : _toggleIcons["PathForward"];
-
+            
                                 if (GUILayout.Button(revIcon, _toggleStyle, _toggleOptions))
                                     reversePath.boolValue = !reversePath.boolValue;
                             }
@@ -217,11 +217,11 @@ namespace PlaneWaver.Modulation
                     }
                 }
             }
-
+            
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("Modulation Editor", _titleStyle);
             EditorGUILayout.Space(2);
-
+            
             // Toolbar for selecting parameter modulation
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -246,7 +246,7 @@ namespace PlaneWaver.Modulation
                     EditorGUILayout.PropertyField(_parameterArray.GetArrayElementAtIndex(i));
                 EditorGUILayout.EndFadeGroup();
             }
-
+            
             EditorGUI.indentLevel--;
             EditorGUILayout.Space();
             serializedObject.ApplyModifiedProperties();

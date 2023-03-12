@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using PlaneWaver.Emitters;
 using UnityEngine;
-using PlaneWaver.Modulation;
 using UnityEditor;
 
 namespace PlaneWaver

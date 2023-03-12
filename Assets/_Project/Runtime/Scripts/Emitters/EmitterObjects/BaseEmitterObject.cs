@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-using MaxVRAM.GUI;
-
 using PlaneWaver.Library;
 using PlaneWaver.Modulation;
 using PlaneWaver.Interaction;

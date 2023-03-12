@@ -3,8 +3,6 @@ using UnityEngine;
 using Unity.Entities;
 using Random = UnityEngine.Random;
 
-using MaxVRAM.GUI;
-
 namespace PlaneWaver.Modulation
 {
     public partial class Parameter

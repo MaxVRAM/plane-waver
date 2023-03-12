@@ -3,13 +3,13 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using PlaneWaver.DSP;
 using UnityEditor;
 using UnityEngine;
-
-using PlaneWaver.Emitters;
 using Unity.Collections;
 using Unity.Entities;
+
+using PlaneWaver.Emitters;
+using PlaneWaver.DSP;
 
 namespace PlaneWaver.Library
 {

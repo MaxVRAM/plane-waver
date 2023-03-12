@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.dbrizov.naughtyattributes": "https://github.com/dbrizov/NaughtyAttributes.git#upm",
     "com.guciodevs.simple-min-max-slider": "https://github.com/GucioDevs/SimpleMinMaxSlider.git#upm",
     "com.unity.burst": "1.6.6",
     "com.unity.entities": "0.51.1-preview.21",

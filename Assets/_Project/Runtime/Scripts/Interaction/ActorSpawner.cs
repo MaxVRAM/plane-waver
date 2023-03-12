@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using NaughtyAttributes;
+using GD.MinMaxSlider;
 
 using MaxVRAM;
 using MaxVRAM.Counters;
-using MaxVRAM.Extensions;
+using MaxVRAM.GUI;
 using PlaneWaver.Emitters;
 
 namespace PlaneWaver.Interaction
@@ -41,7 +41,7 @@ namespace PlaneWaver.Interaction
         public float SpawnPeriodSeconds = 0.2f;
         public SpawnCondition SpawnWhen = SpawnCondition.AfterSpeakersPopulated;
         public bool SpawnAfterPeriodSet => SpawnWhen == SpawnCondition.AfterDelayPeriod;
-        [EnableIf("SpawnAfterPeriodSet")]
+        //[EnableIf("SpawnAfterPeriodSet")]
         [Tooltip("Number of seconds after this ObjectSpawner is created before it starts spawning loop.")]
         public float SpawnDelaySeconds = 2;
         public bool AutoSpawn = true;
@@ -51,40 +51,36 @@ namespace PlaneWaver.Interaction
         private bool _startTimeReached;
         private CountTrigger _spawnTimer;
 
-        [Header("Object Properties")] [SerializeField] [MinMaxSlider(0.01f, 2)]
-        public Vector2 SpawnObjectScale = new(1, 1);
+        [Header("Object Properties")] [SerializeField] //[MinMaxSlider(0.01f, 2)]
+        [MinMaxSlider(0.01f, 2f)] public Vector2 SpawnObjectScale = new(1, 1);
 
         [Header("Spawn Position")]
         [Tooltip("Spawn position relative to the controller object. Converts to unit vector.")]
-        [MinValue(-1)]
-        [MaxValue(1)]
         public Vector3 EjectionPosition = new(1, 0, 0);
         [Tooltip("Apply randomisation to the spawn position unit vector.")] [Range(0f, 1f)]
         public float PositionVariance;
-        [Tooltip("Distance from the controller to spawn objects.")] [MinMaxSlider(0f, 10f)]
-        public Vector2 EjectionRadius = new(1, 2);
+        [Tooltip("Distance from the controller to spawn objects.")] //[MinMaxSlider(0f, 10f)]
+        [MinMaxSlider(0,10)]public Vector2 EjectionRadius = new(1, 2);
 
-        [Header("Spawn Velocity")] [MinValue(-1)] [MaxValue(1)]
+        [Header("Spawn Velocity")] //[MinValue(-1)] [MaxValue(1)]
         public Vector3 EjectionDirection = new(0, 0, 1);
         [Tooltip("Apply randomisation to the spawn direction.")] [Range(0f, 1f)]
         public float DirectionVariance;
-        [Tooltip("Speed that spawned objects leave the controller.")] [MinMaxSlider(0f, 20)]
-        public Vector2 EjectionSpeed = new(0, 2);
+        [Tooltip("Speed that spawned objects leave the controller.")] //[MinMaxSlider(0f, 20)]
+        [MinMaxSlider(0,20)] public Vector2 EjectionSpeed = new(0, 2);
 
         [Header("Object Removal")]
         [Tooltip(
             "Coordinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Collider Bounds, defined instead by the supplied collider bounding area, deaulting to the controller's collider if it has one."
         )]
         public ActorBounds BoundingAreaType = ActorBounds.ControllerTransform;
-        [EnableIf("UsingColliderBounds")] public Collider BoundingCollider;
-        [Tooltip("Radius of the bounding volume.")] [EnableIf("UsingBoundingRadius")]
+        public Collider BoundingCollider;
+        [Tooltip("Radius of the bounding volume.")]
         public float BoundingRadius = 30f;
         [Tooltip("Use a timer to destroy spawned objects after a duration.")]
         public bool UseSpawnLifespan = true;
         [Tooltip("Duration in seconds before destroying spawned object.")]
-        [EnableIf("UseSpawnLifespan")]
-        [MinMaxSlider(0f, 60f)]
-        public Vector2 SpawnLifeSpanDuration = new(5, 10);
+        [MinMaxSlider(0,60)] public Vector2 SpawnLifeSpanDuration = new(5, 10);
         private float SpawnLifespan => UseSpawnLifespan ? Rando.Range(SpawnLifeSpanDuration) : -1;
         public bool UsingBoundingRadius =>
                 BoundingAreaType is ActorBounds.SpawnPosition or ActorBounds.ControllerTransform;

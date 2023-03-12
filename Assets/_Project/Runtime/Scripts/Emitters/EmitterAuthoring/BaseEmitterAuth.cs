@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using PlaneWaver.DSP;
 using PlaneWaver.Interaction;
 using PlaneWaver.Modulation;
@@ -158,13 +157,14 @@ namespace PlaneWaver.Emitters
                 ModLength = new ModulationComponent()
             });
 
+            if (IsVolatile) Manager.AddComponentData(EmitterEntity, new EmitterVolatileTag());
+            
             Manager.AddBuffer<AudioEffectParameters>(EmitterEntity);
             DynamicBuffer<AudioEffectParameters> dspParams = Manager.GetBuffer<AudioEffectParameters>(EmitterEntity);
 
+            if (DSPChainParams == null) return;
             foreach (DSPClass t in DSPChainParams)
                 dspParams.Add(t.GetDSPBufferElement());
-
-            if (IsVolatile) Manager.AddComponentData(EmitterEntity, new EmitterVolatileTag());
         }
 
         #endregion
@@ -186,14 +186,15 @@ namespace PlaneWaver.Emitters
                 Manager.RemoveComponent<EmitterReadyTag>(EmitterEntity);
                 return;
             }
+            
+            DynamicAttenuation.UpdateConnectionState(true);
 
-            if (RequestPlayback())
-            {
-                var data = Manager.GetComponentData<EmitterComponent>(EmitterEntity);
-                data = UpdateEmitterComponent(data, speakerIndex);
-                Manager.SetComponentData(EmitterEntity, data);
-                Manager.AddComponent<EmitterReadyTag>(EmitterEntity);
-            }
+            if (!RequestPlayback()) return;
+
+            var data = Manager.GetComponentData<EmitterComponent>(EmitterEntity);
+            data = UpdateEmitterComponent(data, speakerIndex);
+            Manager.SetComponentData(EmitterEntity, data);
+            Manager.AddComponent<EmitterReadyTag>(EmitterEntity);
         }
         
         public virtual bool RequestPlayback()
@@ -215,6 +216,7 @@ namespace PlaneWaver.Emitters
             //--- TODO not sure if clearing and adding again is the best way to do this.
             DynamicBuffer<AudioEffectParameters> dspBuffer = Manager.GetBuffer<AudioEffectParameters>(EmitterEntity);
             if (clear) dspBuffer.Clear();
+            if (DSPChainParams == null) return;
             foreach (DSPClass t in DSPChainParams)
                 dspBuffer.Add(t.GetDSPBufferElement());
         }

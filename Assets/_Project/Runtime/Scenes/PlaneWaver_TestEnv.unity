@@ -155,9 +155,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EnableDebugCounters: 1
   ListenerRadius: 30
-  QueueDurationMS: 22
+  QueueDurationMS: 30
   DelayPercentLastFrame: 10
-  DiscardGrainsOlderThanMS: 10
+  DiscardGrainsOlderThanMS: 20
   BurstStartOffsetRangeMS: 8
   BurstDebounceDurationMS: 25
   GrainEnvelope:
@@ -182,9 +182,10 @@ MonoBehaviour:
   AttachmentLineMat: {fileID: 0}
   AttachmentLineWidth: 0.005
   OnlyTriggerMostRigidSurface: 1
-  Frames: []
-  Emitters: []
-  Speakers: []
+  Frames:
+  - {fileID: 1348788758}
+  Speakers:
+  - {fileID: 0}
 --- !u!82 &374032799
 AudioSource:
   m_ObjectHideFlags: 0
@@ -405,13 +406,17 @@ GameObject:
   m_Component:
   - component: {fileID: 1348788757}
   - component: {fileID: 1348788758}
+  - component: {fileID: 1348788762}
+  - component: {fileID: 1348788761}
+  - component: {fileID: 1348788760}
+  - component: {fileID: 1348788759}
   m_Layer: 0
   m_Name: frame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1348788757
 Transform:
   m_ObjectHideFlags: 0
@@ -421,7 +426,7 @@ Transform:
   m_GameObject: {fileID: 1348788755}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -443,8 +448,48 @@ MonoBehaviour:
   SpeakerTarget: {fileID: 0}
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0
-  StableEmitters: []
-  VolatileEmitters: []
+  StableEmitters:
+  - RuntimeState:
+      ObjectConstructed: 1
+      BaseInitialised: 0
+      EntityInitialised: 0
+    EmitterAsset: {fileID: 0}
+    Condition: 0
+    VolumeAdjustment: 1
+    AgeFadeOut: 0.95
+    ReflectPlayheadAtLimit: 1
+    DynamicAttenuation:
+      DistanceMultiplier: 1
+      AgeFadeIn: 0
+      AgeFadeOut: 1
+      MuteOnDisconnection: 1
+      ReconnectionFadeInMS: 100
+      ReconnectionVolume: 0
+      DistanceVolume: 0
+      DistanceNorm: 0
+    StableEmitterAsset: {fileID: 11400000, guid: da074ae0c6e140e44a64620f0fbc8c18,
+      type: 2}
+  VolatileEmitters:
+  - RuntimeState:
+      ObjectConstructed: 1
+      BaseInitialised: 0
+      EntityInitialised: 0
+    EmitterAsset: {fileID: 0}
+    Condition: 3
+    VolumeAdjustment: 1
+    AgeFadeOut: 1
+    ReflectPlayheadAtLimit: 0
+    DynamicAttenuation:
+      DistanceMultiplier: 1
+      AgeFadeIn: 0
+      AgeFadeOut: 1
+      MuteOnDisconnection: 1
+      ReconnectionFadeInMS: 100
+      ReconnectionVolume: 0
+      DistanceVolume: 0
+      DistanceNorm: 0
+    VolatileEmitterAsset: {fileID: 11400000, guid: 836ddc243135d9440b2b935c6b3fa7bf,
+      type: 2}
   IsConnected: 0
   InListenerRange: 0
   MaterialModulator:
@@ -457,6 +502,85 @@ MonoBehaviour:
     _ActiveIntensity: 10
     _InactiveIntensity: 0
     _Smoothing: 0.5
+--- !u!23 &1348788759
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348788755}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 257
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a83ceee67eb65304da272086b4d3913a, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1348788760
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348788755}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!135 &1348788761
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348788755}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &1348788762
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1348788755}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1507485545
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,7 +597,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1507485546
 Transform:
   m_ObjectHideFlags: 0
@@ -505,28 +629,28 @@ MonoBehaviour:
   ControllerTransform: {fileID: 0}
   ControllerAnchor: {fileID: 0}
   SpawnParentTransform: {fileID: 0}
-  PrefabToSpawn: {fileID: 0}
+  PrefabToSpawn: {fileID: 1348788755}
   SpawnablePrefabs: []
   RandomiseSpawnPrefab: 0
   AttachmentJoint: {fileID: 0}
-  MaxSpawnedObjects: 1
-  SpawnPeriodSeconds: 0.2
+  MaxSpawnedObjects: 40
+  SpawnPeriodSeconds: 0.1
   SpawnWhen: 1
   SpawnDelaySeconds: 2
   AutoSpawn: 1
   AutoRemove: 1
   SpawnObjectScale: {x: 1, y: 1}
-  EjectionPosition: {x: 1, y: 0, z: 0}
-  PositionVariance: 0
+  EjectionPosition: {x: 0, y: 1, z: 0}
+  PositionVariance: 0.5
   EjectionRadius: {x: 1, y: 2}
-  EjectionDirection: {x: 0, y: 0, z: 1}
-  DirectionVariance: 0
-  EjectionSpeed: {x: 0, y: 2}
+  EjectionDirection: {x: 0, y: 1, z: 0}
+  DirectionVariance: 0.25
+  EjectionSpeed: {x: 2, y: 6}
   BoundingAreaType: 2
   BoundingCollider: {fileID: 0}
   BoundingRadius: 30
   UseSpawnLifespan: 1
-  SpawnLifeSpanDuration: {x: 5, y: 10}
+  SpawnLifeSpanDuration: {x: 2, y: 4}
   AllowSiblingSurfaceContact: 1
   AllowSiblingCollisionTrigger: 1
   EmissiveFlashTrigger: 1

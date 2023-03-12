@@ -1,13 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
-
-using UnityEditor;
-using Unity.Entities;
-using Unity.Collections;
-
-using PlaneWaver.DSP;
 
 namespace PlaneWaver.Library
 {

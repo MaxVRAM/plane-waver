@@ -9,13 +9,16 @@ using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using TMPro;
 
-using NaughtyAttributes;
-
 using MaxVRAM.Counters;
 using MaxVRAM.Audio;
 
 using PlaneWaver.DSP;
 using PlaneWaver.Emitters;
+
+// There's a good topic for me to answer on here at StackOverflow from someone trying to stream audio
+// from one buffer to another in real-time. Don't have time to answer now, but could provide good
+// info from this project.
+// https://stackoverflow.com/questions/51742256/unity-2018-onaudiofilterread-realtime-playback-from-buffer
 
 namespace PlaneWaver
 {
@@ -58,29 +61,28 @@ namespace PlaneWaver
         private int _maxSpeakers;
 
         [Tooltip("Maximum distance from the listener to enable emitters and allocate speakers.")]
-        [BoxGroup("Audio Config")][Range(0.1f, 50)]
+        [Range(0.1f, 50)]
         public float ListenerRadius = 30;
         [Tooltip("Additional ms to calculate and queue grains each frame. Set to 0, the grainComponent queue equals the previous frame's duration. Adds latency, but help to avoid underrun. Recommended values > 20ms.")]
-        [BoxGroup("Audio Config")][Range(0, 100)]
+        [Range(0, 100)]
         public float QueueDurationMS = 22;
         [Tooltip("Percentage of previous frame duration to delay grainComponent start times of next frame. Adds a more predictable amount of latency to help avoid timing issues when the framerate slows.")]
-        [BoxGroup("Audio Config")][Range(0, 100)]
+        [Range(0, 100)]
         public float DelayPercentLastFrame = 10;
         [Tooltip("Discard un-played grains with a DSP start index more than this value (ms) in the past. Prevents clustered grainComponent playback when resources are near their limit.")]
-        [BoxGroup("Audio Config")][Range(0, 60)]
+        [Range(0, 60)]
         public float DiscardGrainsOlderThanMS = 10;
         [Tooltip("Delay bursts triggered on the same frame by a random amount. Helps avoid phasing issues caused by identical emitters triggered together.")]
-        [BoxGroup("Audio Config")][Range(0, 40)]
+        [Range(0, 40)]
         public float BurstStartOffsetRangeMS = 8;
         [Tooltip("Burst emitters ignore subsequent collisions for this duration to avoid fluttering from weird physics.")]
-        [BoxGroup("Audio Config")][Range(0, 50)]
+        [Range(0, 50)]
         public float BurstDebounceDurationMS = 25;
-        [BoxGroup("Audio Config")]
+        
         public Windowing GrainEnvelope;
 
         public int SampleRate { get; private set; } = 44100;
         public int SamplesPerMS { get; private set; } = 0;
-        [field: ShowNonSerializedField]
         public int CurrentSampleIndex { get; private set; }
         public int QueueDurationSamples => (int)(QueueDurationMS * SamplesPerMS);
         public int BurstStartOffsetRange => (int)(BurstStartOffsetRangeMS * SamplesPerMS);
@@ -112,25 +114,16 @@ namespace PlaneWaver
         public int SpeakersAllocatedLimited => Math.Min(SpeakerPoolCount, _maxSpeakers);
         public bool PopulatingSpeakers => SpeakerPoolCount != Speakers.Count;
         public float AttachSmoothing => Mathf.Clamp(Time.deltaTime * SpeakerTrackingSpeed, 0, 1);
-
-        [BoxGroup("Visual Feedback")]
+        
         public TextMeshProUGUI StatsValuesText;
-        [BoxGroup("Visual Feedback")]
         public TextMeshProUGUI StatsValuesPeakText;
-        [BoxGroup("Visual Feedback")]
         public Material AttachmentLineMat;
-        [BoxGroup("Visual Feedback")]
         [Range(0, 0.02f)] public float AttachmentLineWidth = 0.005f;
-
-        [BoxGroup("Interaction Behaviour")]
+        
         [Tooltip("During collision/contact between two emitter hosts, only trigger the emitter with the greatest surface rigidity, using an average of the two values.")]
         public bool OnlyTriggerMostRigidSurface = true;
-
-        [BoxGroup("Registered Elements")]
         public List<EmitterFrame> Frames = new ();
-        [BoxGroup("Registered Elements")]
         public List<BaseEmitterAuth> Emitters = new();
-        [BoxGroup("Registered Elements")]
         public List<SynthSpeaker> Speakers = new ();
         
         #endregion
@@ -140,6 +133,7 @@ namespace PlaneWaver
         private void Awake()
         {
             Instance = this;
+            SpeakerInstantiationTimer = new CountTrigger(TimeUnit.Seconds, SpeakerAllocationPeriod);
             DefineAudioConfiguration();
             CheckSpeakerCountLimit();
         }
@@ -159,7 +153,6 @@ namespace PlaneWaver
         {
             SampleRate = AudioSettings.outputSampleRate;
             SamplesPerMS = (int)(SampleRate * .001f);
-            SpeakerInstantiationTimer = new CountTrigger(TimeUnit.Seconds, SpeakerAllocationPeriod);
             _maxSpeakers = AudioSettings.GetConfiguration().numRealVoices;
         }
 
@@ -194,6 +187,9 @@ namespace PlaneWaver
             if (!IsInitialised)
                 return;
             
+            // var newSampleIndex = (int)(AudioSettings.dspTime * SampleRate);
+            // _lastFrameSampleDuration = _frameStartSampleIndex - newSampleIndex;
+            // _frameStartSampleIndex = newSampleIndex;
             _frameStartSampleIndex = CurrentSampleIndex;
             _lastFrameSampleDuration = (int)(Time.deltaTime * SampleRate);
 
@@ -369,15 +365,9 @@ namespace PlaneWaver
 
         private void UpdateFrames()
         {
-            //TrimFrameList();
+            TrimFrameList();
 
-            foreach (EmitterFrame frame in Frames)
-            {
-                if (frame == null)
-                    Debug.LogWarning("Null frame in frame list");
-                else
-                    frame.PrimaryUpdate();
-            }
+            foreach (EmitterFrame frame in Frames.Where(frame => frame != null)) { frame.PrimaryUpdate(); }
         }
         
         #endregion
@@ -408,12 +398,12 @@ namespace PlaneWaver
 
         private void SpeakerUpkeep()
         {
-            // Disabling this for the moment until I run into a situation where it's needed.
-            // for (var i = 0; i < Speakers.Count; i++)
-            // {
-            //     if (Speakers[i] == null)
-            //         Speakers[i] = CreateSpeaker(i);
-            // }
+            // Disabling this for the moment until I run into a situation where it's needed - found one
+            for (var i = 0; i < Speakers.Count; i++)
+            {
+                if (Speakers[i] == null)
+                    Speakers[i] = CreateSpeaker(i);
+            }
             
             while (Speakers.Count < SpeakersAllocatedLimited && SpeakerInstantiationTimer.DrainTrigger())
             {
@@ -478,7 +468,6 @@ namespace PlaneWaver
             {
                 if (Frames[i] == null)
                 {
-                    Debug.LogWarning($"Frame at index {i} was null. Removing from list.");
                     Frames.RemoveAt(i);
                 }
                 else return;

@@ -7,68 +7,71 @@ namespace PlaneWaver.Modulation
     [Serializable]
     public class EmitterAttenuator
     {
-        [Range(0f, 1f)] public float DistanceFactor;
+        [Range(0f, 1f)] public float DistanceMultiplier;
         [Range(0f, 0.5f)] public float AgeFadeIn;
         [Range(0.5f, 1f)] public float AgeFadeOut;
 
         public bool MuteOnDisconnection;
         [Range(0, 500)] public int ReconnectionFadeInMS;
         private float _reconnectionTimer;
-        public bool Muted { get; set; }
+        private bool _muted;
         
         // Debug
-        public float MuteVolume;
+        public float ReconnectionVolume;
         public float DistanceVolume;
         public float DistanceNorm;
 
         public EmitterAttenuator()
         {
-            DistanceFactor = 1f;
+            DistanceMultiplier = 1f;
             AgeFadeIn = 0f;
             AgeFadeOut = 1f;
             MuteOnDisconnection = true;
-            Muted = false;
-            _reconnectionTimer = 0;
             ReconnectionFadeInMS = 100;
+            _reconnectionTimer = ReconnectionFadeInMS;
+            _muted = false;
         }
-
-        public float CalculateAmplitudeMultiplier(bool connected, ActorObject actor)
-        {
-            return CalculateMuting(connected, out MuteVolume)
-                    ? MuteVolume
-                    : MuteVolume * CalculateDistanceAmplitude(actor) * CalculateAgeAmplitude(actor);
-        }
-
-        public bool CalculateMuting(bool connected, out float muteFade)
+        
+        public void UpdateConnectionState(bool isConnected)
         {
             if (!MuteOnDisconnection)
             {
-                muteFade = 1;
-                return Muted = false;
+                _muted = false;
+                _reconnectionTimer = 0;
+                ReconnectionVolume = 1;
+                return;
             }
 
-            if (!connected)
+            if (!isConnected)
             {
-                muteFade = 0;
-                return Muted = true;
+                _muted = true;
+                ReconnectionVolume = 0;
+                return;
             }
 
-            if (Muted)
-            {
-                _reconnectionTimer = ReconnectionFadeInMS;
-                muteFade = 0;
-                return Muted = false;
-            }
+            if (!_muted) return;
 
-            if (_reconnectionTimer <= 0)
-            {
-                muteFade = 1;
-                return Muted = false;
-            }
+            _reconnectionTimer = 0;
+            _muted = false;
+        }
 
-            _reconnectionTimer -= Time.deltaTime;
-            muteFade = Mathf.Clamp01(1 - _reconnectionTimer / ReconnectionFadeInMS);
-            return Muted = false;
+        public float CalculateAmplitude(ActorObject actor)
+        {
+            if (!MuteOnDisconnection || _muted)
+                return ReconnectionVolume;
+
+            ReconnectionVolume = CalculateReconnectionAmplitude();
+            return ReconnectionVolume * CalculateDistanceAmplitude(actor) * CalculateAgeAmplitude(actor);
+        }
+
+        public float CalculateReconnectionAmplitude()
+        {
+            _reconnectionTimer += Time.deltaTime;
+            
+            if (_reconnectionTimer > ReconnectionFadeInMS)
+                return 1;
+            
+            return Mathf.InverseLerp(0, ReconnectionFadeInMS, _reconnectionTimer);
         }
 
         public float CalculateDistanceAmplitude(ActorObject actor)
@@ -76,7 +79,7 @@ namespace PlaneWaver.Modulation
             if (actor == null)
                 return 1;
             DistanceNorm = 1 - actor.SpeakerTargetToListenerNorm();
-            DistanceVolume = DistanceFactor * DistanceNorm;
+            DistanceVolume = DistanceMultiplier * DistanceNorm;
             return DistanceVolume;
         }
 

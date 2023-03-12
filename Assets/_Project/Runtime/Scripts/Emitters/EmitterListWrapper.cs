@@ -11,6 +11,6 @@ namespace PlaneWaver.Emitters
     }
     public class EmitterList : MonoBehaviour
     {
-        [SerializeReference] public EmitterListWrapper<EmitterAuth> EmitterAuths;
+        [SerializeReference] public EmitterListWrapper<BaseEmitterAuth> EmitterAuths;
     }
 }

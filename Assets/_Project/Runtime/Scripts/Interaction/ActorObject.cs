@@ -146,6 +146,9 @@ namespace PlaneWaver.Interaction
             _hasRigidbody = TryGetComponent(out _rigidbody);
             _hasCollider = TryGetComponent(out _collider);
 
+            if (!ControllerData.IsInitialised)
+                ControllerData = ActorControllerData.Default;
+            
             if (Controller == null)
                 Controller = GetComponent<ActorController>() ?? gameObject.AddComponent<ActorController>();
             Controller.InitialiseActorLife(ControllerData);

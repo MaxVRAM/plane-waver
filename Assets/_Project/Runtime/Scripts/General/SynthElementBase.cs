@@ -34,7 +34,6 @@ namespace PlaneWaver
             EntityIndex = SynthManager.Instance.RegisterEntity(this, ElementType);
             ElementEntity = Manager.CreateEntity(ElementArchetype);
             name = $"{Enum.GetName(typeof(SynthElementType), ElementType)}.{EntityIndex}";
-            Debug.Log($"Initialising {name} with index {EntityIndex}");
 #if UNITY_EDITOR
             Manager.SetName(ElementEntity, name);
 #endif
@@ -64,8 +63,7 @@ namespace PlaneWaver
 
         private void OnDestroy()
         {
-            throw new Exception("Destroying SynthElement! This should never happen");
-            //DestroyEntity();
+            DestroyEntity();
         }
 
         private void DestroyEntity()

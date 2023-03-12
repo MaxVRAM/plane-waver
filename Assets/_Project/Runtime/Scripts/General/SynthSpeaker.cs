@@ -11,7 +11,7 @@ namespace PlaneWaver.DSP
     /// Speakers are passed Grains entities by the GrainBrain, which they write directly to the attached AudioSource output buffer.
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
-    public class SpeakerAuthoring : SynthElement
+    public class SynthSpeaker : SynthElement
     {
         #region FIELDS & PROPERTIES
 

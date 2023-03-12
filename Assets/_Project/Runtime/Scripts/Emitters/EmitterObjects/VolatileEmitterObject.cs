@@ -8,7 +8,7 @@ namespace PlaneWaver.Emitters
     ///     Scriptable Object for storing deployable Volatile Emitter configurations, which are then assigned to Frames.
     /// </summary>
     [CreateAssetMenu(fileName = "Emitter.Volatile.", menuName = "PlaneWaver/Emitters/Volatile", order = 1)]
-    public class VolatileEmitter : BaseEmitterObject, IHasGUIContent
+    public class VolatileEmitterObject : BaseEmitterObject, IHasGUIContent
     {
         public GUIContent GetGUIContent()
         {
@@ -17,7 +17,7 @@ namespace PlaneWaver.Emitters
                 "Grain Emitter that spawns grains for a short, predetermined duration after being triggered.");
         }
         
-        public VolatileEmitter()
+        public VolatileEmitterObject()
         {
             Parameters = new List<Parameter> {
                 new Volume(true),

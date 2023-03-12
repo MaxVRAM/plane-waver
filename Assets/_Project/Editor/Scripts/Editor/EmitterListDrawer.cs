@@ -14,7 +14,7 @@ namespace PlaneWaver.Emitters
             foreach (SerializedProperty list in listProperty)
             {
                 list.objectReferenceValue = EditorGUI.ObjectField(position,
-                    list.objectReferenceValue, typeof(EmitterAuth), true);
+                    list.objectReferenceValue, typeof(BaseEmitterAuth), true);
             }
             
             //Do your own thing here. If you need to get the list type, you can do:

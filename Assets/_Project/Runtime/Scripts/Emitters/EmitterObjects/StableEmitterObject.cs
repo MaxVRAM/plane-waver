@@ -8,7 +8,7 @@ namespace PlaneWaver.Emitters
     ///     Scriptable Object for storing deployable Stable Emitter configurations, which are then assigned to Frames.
     /// </summary>
     [CreateAssetMenu(fileName = "Emitter.Stable.", menuName = "PlaneWaver/Emitters/Stable", order = 1)]
-    public class StableEmitter : BaseEmitterObject, IHasGUIContent
+    public class StableEmitterObject : BaseEmitterObject, IHasGUIContent
     {
         public GUIContent GetGUIContent()
         {
@@ -17,7 +17,7 @@ namespace PlaneWaver.Emitters
                 "Grain Emitter that continues producing grains while its condition evaluates as true.");
         }
         
-        public StableEmitter()
+        public StableEmitterObject()
         {
             Parameters = new List<Parameter> {
                 new Volume(),

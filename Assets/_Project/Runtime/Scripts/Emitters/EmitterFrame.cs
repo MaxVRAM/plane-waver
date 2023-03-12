@@ -21,8 +21,8 @@ namespace PlaneWaver.Emitters
         public Transform SpeakerTransform;
         public int SpeakerIndex;
 
-        public List<EmitterAuth> StableEmitters = new();
-        public List<EmitterAuth> VolatileEmitters = new();
+        public List<StableEmitterAuth> StableEmitters = new();
+        public List<VolatileEmitterAuth> VolatileEmitters = new();
         
         public bool IsConnected;
         public bool CheckConnection => SpeakerTransform != null && SpeakerTransform != SpeakerTarget;
@@ -57,20 +57,15 @@ namespace PlaneWaver.Emitters
         private void InitialiseEmitters()
         {
             for (var i = 0; i < StableEmitters.Count; i++)
-            {
-                if (StableEmitters[i] == null || StableEmitters[i].EmitterAsset == null)
-                    StableEmitters.RemoveAt(i);
-                else
+                if (StableEmitters[i] != null)
                     StableEmitters[i].Initialise(i, name, in Actor);
-            }
-
+            
             for (var i = 0; i < VolatileEmitters.Count; i++)
-            {
-                if (VolatileEmitters[i] == null || VolatileEmitters[i].EmitterAsset == null)
-                    VolatileEmitters.RemoveAt(i);
-                else
+                if (VolatileEmitters[i] != null)
                     VolatileEmitters[i].Initialise(i, name, in Actor);
-            }
+            
+            // StableEmitters.RemoveAll(e => e == null);
+            // VolatileEmitters.RemoveAll(e => e == null);
         }
 
         private void InitialiseSpeakerTarget()
@@ -101,7 +96,7 @@ namespace PlaneWaver.Emitters
         {
             UpdatePosition();
             UpdateInRangeStatus();
-            ValidateSpeakerComponent();
+            CheckSpeakerAttachment();
             UpdateEmitters();
         }
 
@@ -125,7 +120,7 @@ namespace PlaneWaver.Emitters
             }
         }
 
-        private void ValidateSpeakerComponent()
+        private void CheckSpeakerAttachment()
         {
             if (!InListenerRange)
                     return;
@@ -138,7 +133,7 @@ namespace PlaneWaver.Emitters
 
             int index = Manager.GetComponentData<SpeakerConnection>(ElementEntity).SpeakerIndex;
             
-            if (SynthManager.Instance.ValidSpeakerAtIndex(index, out SpeakerAuthoring speaker))
+            if (SynthManager.Instance.ValidSpeakerAtIndex(index, out SynthSpeaker speaker))
             {
                 SpeakerTransform = speaker.transform;
                 SpeakerIndex = index;
@@ -146,7 +141,7 @@ namespace PlaneWaver.Emitters
             }
             else
             {
-                Debug.Log($"{name} removing invalid connection component with index {index}.");
+                Debug.Log($"{name} removing speaker connection component with index {index}.");
                 RemoveConnectionComponent();
             }
         }
@@ -162,24 +157,25 @@ namespace PlaneWaver.Emitters
 
         private void UpdateEmitters()
         {
-            foreach (EmitterAuth emitter in StableEmitters)
+            foreach (StableEmitterAuth emitter in StableEmitters)
                 emitter.UpdateEmitterEntity(InListenerRange, IsConnected, SpeakerIndex);
 
-            foreach (EmitterAuth emitter in VolatileEmitters)
+            foreach (VolatileEmitterAuth emitter in VolatileEmitters)
                 emitter.UpdateEmitterEntity(InListenerRange, IsConnected, SpeakerIndex);
         }
 
         private void TriggerCollisionEmitters(CollisionData data)
         {
-            foreach (EmitterAuth emitter in VolatileEmitters)
+            foreach (VolatileEmitterAuth emitter in VolatileEmitters)
                 emitter.ApplyNewCollision(data);
         }
 
         protected override void Deregister()
         {
-            foreach (EmitterAuth emitter in StableEmitters)
+            Debug.Log($"Deregistering {name}.");
+            foreach (StableEmitterAuth emitter in StableEmitters)
                 emitter.OnDestroy();
-            foreach (EmitterAuth emitter in VolatileEmitters)
+            foreach (VolatileEmitterAuth emitter in VolatileEmitters)
                 emitter.OnDestroy();
         }
 

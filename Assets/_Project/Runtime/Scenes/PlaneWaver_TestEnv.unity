@@ -168,7 +168,7 @@ MonoBehaviour:
     LinearInOutFade: 0.01
   SpeakerPoolCount: 1
   SpeakerAllocationPeriod: 0.2
-  SpeakerPrefab: {fileID: 2519325204652697373, guid: 6844ced249a80dd4584a457e05fa1c66,
+  SynthSpeakerPrefab: {fileID: 2519325204652697373, guid: 6844ced249a80dd4584a457e05fa1c66,
     type: 3}
   SpeakerParentTransform: {fileID: 0}
   SpeakerPoolingPosition: {x: 0, y: -20, z: 0}
@@ -443,48 +443,8 @@ MonoBehaviour:
   SpeakerTarget: {fileID: 0}
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0
-  StableEmitters:
-  - PlaybackCondition: 0
-    EmitterAsset: {fileID: 11400000, guid: da074ae0c6e140e44a64620f0fbc8c18, type: 2}
-    EmitterVolume: 1
-    AgeFadeOut: 0.95
-    ReflectPlayheadAtLimit: 1
-    DynamicAttenuation:
-      DistanceFactor: 1
-      AgeFadeIn: 0
-      AgeFadeOut: 1
-      MuteOnDisconnection: 1
-      ReconnectionFadeInMS: 100
-      MuteVolume: 0
-      DistanceVolume: 0
-      DistanceNorm: 0
-    DSPChainParams: []
-    ObjectConstructed: 1
-    FrameInitialised: 0
-    EntityInitialised: 0
-    IsConnected: 0
-    IsPlaying: 0
-  VolatileEmitters:
-  - PlaybackCondition: 3
-    EmitterAsset: {fileID: 11400000, guid: 836ddc243135d9440b2b935c6b3fa7bf, type: 2}
-    EmitterVolume: 1
-    AgeFadeOut: 0.95
-    ReflectPlayheadAtLimit: 1
-    DynamicAttenuation:
-      DistanceFactor: 1
-      AgeFadeIn: 0
-      AgeFadeOut: 1
-      MuteOnDisconnection: 1
-      ReconnectionFadeInMS: 100
-      MuteVolume: 0
-      DistanceVolume: 0
-      DistanceNorm: 0
-    DSPChainParams: []
-    ObjectConstructed: 1
-    FrameInitialised: 0
-    EntityInitialised: 0
-    IsConnected: 0
-    IsPlaying: 0
+  StableEmitters: []
+  VolatileEmitters: []
   IsConnected: 0
   InListenerRange: 0
   MaterialModulator:

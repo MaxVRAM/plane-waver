@@ -53,7 +53,6 @@ namespace PlaneWaver
         private float _averageGrainAge;
         private float _averageGrainAgeMS;
         private int _speakerCount;
-        private int _hostCount;
         private int _emitterCount;
         private int _frameCount;
         private int _maxSpeakers;
@@ -94,7 +93,7 @@ namespace PlaneWaver
         [Range(0.01f, 1)] public float SpeakerAllocationPeriod = 0.2f;
         public CountTrigger SpeakerInstantiationTimer;
         [Tooltip("Speaker prefab to spawn when dynamically allocating speakers.")]
-        public SpeakerAuthoring SpeakerPrefab;
+        public SynthSpeaker SynthSpeakerPrefab;
         [Tooltip("ActorTransform to contain spawned speakers.")]
         public Transform SpeakerParentTransform;
         [Tooltip("World coordinates to store pooled speakers.")]
@@ -130,9 +129,9 @@ namespace PlaneWaver
         [BoxGroup("Registered Elements")]
         public List<EmitterFrame> Frames = new ();
         [BoxGroup("Registered Elements")]
-        public List<EmitterAuth> Emitters = new();
+        public List<BaseEmitterAuth> Emitters = new();
         [BoxGroup("Registered Elements")]
-        public List<SpeakerAuthoring> Speakers = new ();
+        public List<SynthSpeaker> Speakers = new ();
         
         #endregion
 
@@ -171,7 +170,7 @@ namespace PlaneWaver
             if (_listener == null)
                 throw new NullReferenceException("No AudioListener found in scene. Cannot create synth.");
             
-            if (SpeakerPrefab == null)
+            if (SynthSpeakerPrefab == null)
                 throw new NullReferenceException("Speaker prefab not set. Cannot start synth.");
             
             if (SpeakerParentTransform == null)
@@ -309,10 +308,10 @@ namespace PlaneWaver
                 var grain = _entityManager.GetComponentData<GrainComponent>(grainEntities[i]);
                 ageSum += _frameStartSampleIndex - grain.StartSampleIndex;
 
-                SpeakerAuthoring speaker = GetSpeakerForGrain(grain);
+                SynthSpeaker synthSpeaker = GetSpeakerForGrain(grain);
 
-                if (speaker == null || grain.StartSampleIndex < GrainDiscardSampleIndex || 
-                    speaker.GetEmptyGrain(out Grain grainOutput) == null)
+                if (synthSpeaker == null || grain.StartSampleIndex < GrainDiscardSampleIndex || 
+                    synthSpeaker.GetEmptyGrain(out Grain grainOutput) == null)
                 {
                     _entityManager.DestroyEntity(grainEntities[i]);
                     _grainsDiscarded++;
@@ -328,7 +327,7 @@ namespace PlaneWaver
                     grainOutput.SizeInSamples = grainSamples.Length;
                     grainOutput.DSPStartTime = grain.StartSampleIndex;
                     grainOutput.PlayheadNormalised = grain.PlayheadNorm;
-                    speaker.GrainAdded(grainOutput);
+                    synthSpeaker.GrainAdded(grainOutput);
                     grainsProcessed++;
                 }
                 catch (Exception ex) when (ex is ArgumentException || ex is NullReferenceException)
@@ -359,16 +358,26 @@ namespace PlaneWaver
 
         private void UpdateSpeakers()
         {
-            foreach (SpeakerAuthoring speaker in Speakers.Where(speaker => speaker != null))
-                speaker.PrimaryUpdate();
+            foreach (SynthSpeaker speaker in Speakers)
+            {
+                if (speaker == null)
+                    Debug.LogWarning("Null speaker in speaker list");
+                else
+                    speaker.PrimaryUpdate();
+            }
         }
 
         private void UpdateFrames()
         {
-            TrimFrameList();
+            //TrimFrameList();
 
-            foreach (EmitterFrame frame in Frames.Where(frame => frame != null))
-                frame.PrimaryUpdate();
+            foreach (EmitterFrame frame in Frames)
+            {
+                if (frame == null)
+                    Debug.LogWarning("Null frame in frame list");
+                else
+                    frame.PrimaryUpdate();
+            }
         }
         
         #endregion
@@ -381,19 +390,19 @@ namespace PlaneWaver
             SpeakerInstantiationTimer.UpdateTrigger(Time.deltaTime, SpeakerAllocationPeriod);
         }
 
-        private SpeakerAuthoring CreateSpeaker(int index)
+        private SynthSpeaker CreateSpeaker(int index)
         {
-            SpeakerAuthoring newSpeaker = Instantiate(
-                SpeakerPrefab,
+            SynthSpeaker newSynthSpeaker = Instantiate(
+                SynthSpeakerPrefab,
                 SpeakerPoolingPosition,
                 Quaternion.identity,
                 SpeakerParentTransform
             );
-            newSpeaker.SetGrainArraySize(SpeakerGrainArraySize);
-            return newSpeaker;
+            newSynthSpeaker.SetGrainArraySize(SpeakerGrainArraySize);
+            return newSynthSpeaker;
         }
         
-        public void DeregisterSpeaker(SpeakerAuthoring speaker)
+        public void DeregisterSpeaker(SynthSpeaker synthSpeaker)
         {
         }
 
@@ -417,24 +426,24 @@ namespace PlaneWaver
             }
         }
 
-        public bool ValidSpeakerAtIndex(int index, [NotNull] out SpeakerAuthoring speaker)
+        public bool ValidSpeakerAtIndex(int index, [NotNull] out SynthSpeaker synthSpeaker)
         {
             bool foundSpeaker = index >= 0 && index < Speakers.Count;
-            speaker = Speakers[index];
+            synthSpeaker = Speakers[index];
             return foundSpeaker;
         }
 
-        private SpeakerAuthoring GetSpeakerForGrain(GrainComponent grain)
+        private SynthSpeaker GetSpeakerForGrain(GrainComponent grain)
         {
-            return ValidSpeakerAtIndex(grain.SpeakerIndex, out SpeakerAuthoring speaker) ? speaker : null;
+            return ValidSpeakerAtIndex(grain.SpeakerIndex, out SynthSpeaker speaker) ? speaker : null;
         }
 
-        public int GetIndexOfSpeaker(SpeakerAuthoring speaker)
+        public int GetIndexOfSpeaker(SynthSpeaker synthSpeaker)
         {
-            int index = Speakers.IndexOf(speaker);
+            int index = Speakers.IndexOf(synthSpeaker);
             if (index == -1 || index >= Speakers.Count)
                 return -1;
-            return Speakers.IndexOf(speaker);
+            return Speakers.IndexOf(synthSpeaker);
         }
 
         #endregion
@@ -445,7 +454,7 @@ namespace PlaneWaver
         {
             return type switch
             {
-                SynthElementType.Speaker => GetIndexOfSpeaker((SpeakerAuthoring)synthElement),
+                SynthElementType.Speaker => GetIndexOfSpeaker((SynthSpeaker)synthElement),
                 SynthElementType.Frame   => RegisterFrame((EmitterFrame)synthElement),
                 _                        => -1
             };
@@ -468,7 +477,10 @@ namespace PlaneWaver
             for (int i = Frames.Count - 1; i >= 0; i--)
             {
                 if (Frames[i] == null)
+                {
+                    Debug.LogWarning($"Frame at index {i} was null. Removing from list.");
                     Frames.RemoveAt(i);
+                }
                 else return;
             }
         }
@@ -494,13 +506,13 @@ namespace PlaneWaver
         private void UpdateStatsUI()
         {
             _speakerCount = Mathf.CeilToInt(Mathf.Lerp(_speakerCount, Speakers.Count, Time.deltaTime * 10));
-            _hostCount = Mathf.CeilToInt(Mathf.Lerp(_hostCount, Frames.Count, Time.deltaTime * 10));
+            _frameCount = Mathf.CeilToInt(Mathf.Lerp(_frameCount, Frames.Count, Time.deltaTime * 10));
             _emitterCount = Mathf.CeilToInt(Mathf.Lerp(_emitterCount, Emitters.Count, Time.deltaTime * 10));
 
             if (StatsValuesText != null)
             {
                 StatsValuesText.text = $"{(int)_grainsPerSecond}\n{_grainsDiscarded}\n{_averageGrainAgeMS.ToString("F2")}";
-                StatsValuesText.text += $"\n{_speakerCount}\n{_hostCount}\n{_emitterCount}";
+                StatsValuesText.text += $"\n{_speakerCount}\n{_frameCount}\n{_emitterCount}";
             }
             if (StatsValuesText != null)
             {

@@ -1,4 +1,5 @@
 ﻿
+using System;
 using UnityEngine;
 
 namespace PlaneWaver.Interaction
@@ -17,6 +18,7 @@ namespace PlaneWaver.Interaction
         public readonly ActorBounds BoundingAreaType;
         public readonly Collider BoundingCollider;
         public readonly Transform BoundingTransform;
+        public bool IsInitialised { get; private set; }
         
         public ActorControllerData(
             float lifespan, 
@@ -30,7 +32,15 @@ namespace PlaneWaver.Interaction
             BoundingAreaType = boundingAreaType;
             BoundingCollider = boundingCollider;
             BoundingTransform = boundingTransform;
+            IsInitialised = true;
         }
+        
+        public static ActorControllerData Default => new ActorControllerData(
+            -1, 
+            30, 
+            ActorBounds.SpawnPosition, 
+            null, 
+            null);
     }
     
     #endregion

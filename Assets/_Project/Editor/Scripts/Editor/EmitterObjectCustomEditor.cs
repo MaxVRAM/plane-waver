@@ -50,7 +50,7 @@ namespace PlaneWaver.Modulation
         public void OnEnable()
         {
             _emitterObject = (BaseEmitterObject)target;
-            _isVolatile = _emitterObject is VolatileEmitter;
+            _isVolatile = _emitterObject is VolatileEmitterObject;
             _emitterName = serializedObject.FindProperty("EmitterName");
             _description = serializedObject.FindProperty("Description");
             _audioObject = serializedObject.FindProperty("AudioObject");
@@ -267,7 +267,7 @@ namespace PlaneWaver.Modulation
         }
     }
 
-    [CustomEditor(typeof(StableEmitter))]
+    [CustomEditor(typeof(StableEmitterObject))]
     public class StableEmitterObjectCustomEditor : EmitterObjectCustomEditor
     {
         public override void OnInspectorGUI()
@@ -281,7 +281,7 @@ namespace PlaneWaver.Modulation
         }
     }
 
-    [CustomEditor(typeof(VolatileEmitter))]
+    [CustomEditor(typeof(VolatileEmitterObject))]
     public class VolatileEmitterObjectCustomEditor : EmitterObjectCustomEditor
     {
         public override void OnInspectorGUI()

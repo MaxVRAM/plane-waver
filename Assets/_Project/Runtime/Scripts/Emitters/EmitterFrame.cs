@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
-
 using PlaneWaver.DSP;
 using PlaneWaver.Interaction;
 
@@ -23,7 +23,7 @@ namespace PlaneWaver.Emitters
 
         public List<StableEmitterAuth> StableEmitters = new();
         public List<VolatileEmitterAuth> VolatileEmitters = new();
-        
+
         public bool IsConnected;
         public bool CheckConnection => SpeakerTransform != null && SpeakerTransform != SpeakerTarget;
         public bool InListenerRange;
@@ -40,8 +40,6 @@ namespace PlaneWaver.Emitters
             if (Actor == null)
                 Actor = GetComponent<ActorObject>() ?? gameObject.AddComponent<ActorObject>();
 
-            Actor.OnNewValidCollision += TriggerCollisionEmitters;
-
             InitialiseSpeakerTarget();
             InitialiseMaterialModulator();
 
@@ -54,16 +52,29 @@ namespace PlaneWaver.Emitters
             InitialiseEmitters();
         }
 
+        private void OnEnable()
+        {
+            if (Actor != null)
+                Actor.OnNewValidCollision += TriggerCollisionEmitters;
+        }
+
+        private void OnDisable()
+        {
+            if (Actor != null)
+                Actor.OnNewValidCollision -= TriggerCollisionEmitters;
+        }
+
+
         private void InitialiseEmitters()
         {
             for (var i = 0; i < StableEmitters.Count; i++)
                 if (StableEmitters[i] != null)
                     StableEmitters[i].Initialise(i, name, in Actor);
-            
+
             for (var i = 0; i < VolatileEmitters.Count; i++)
                 if (VolatileEmitters[i] != null)
                     VolatileEmitters[i].Initialise(i, name, in Actor);
-            
+
             // StableEmitters.RemoveAll(e => e == null);
             // VolatileEmitters.RemoveAll(e => e == null);
         }
@@ -82,11 +93,11 @@ namespace PlaneWaver.Emitters
 
         protected override void InitialiseComponents()
         {
-            Manager.SetComponentData(ElementEntity, new FrameComponent { 
-                        Index = EntityIndex, Position = SpeakerTarget.position });
+            Manager.SetComponentData
+            (ElementEntity, new FrameComponent {
+                Index = EntityIndex, Position = SpeakerTarget.position
+            });
         }
-
-        private void OnDisable() { Actor.OnNewValidCollision -= TriggerCollisionEmitters; }
 
         #endregion
 
@@ -103,8 +114,7 @@ namespace PlaneWaver.Emitters
         private void UpdatePosition()
         {
             Manager.SetComponentData(ElementEntity, new FrameComponent {
-                Index = EntityIndex, Position = SpeakerTarget.position
-            });
+                Index = EntityIndex, Position = SpeakerTarget.position });
         }
 
         private void UpdateInRangeStatus()
@@ -123,8 +133,8 @@ namespace PlaneWaver.Emitters
         private void CheckSpeakerAttachment()
         {
             if (!InListenerRange)
-                    return;
-            
+                return;
+
             if (!Manager.HasComponent(ElementEntity, typeof(SpeakerConnection)))
             {
                 IsConnected = false;
@@ -132,7 +142,7 @@ namespace PlaneWaver.Emitters
             }
 
             int index = Manager.GetComponentData<SpeakerConnection>(ElementEntity).SpeakerIndex;
-            
+
             if (SynthManager.Instance.ValidSpeakerAtIndex(index, out SynthSpeaker speaker))
             {
                 SpeakerTransform = speaker.transform;
@@ -141,7 +151,8 @@ namespace PlaneWaver.Emitters
             }
             else
             {
-                Debug.Log($"{name} removing speaker connection component with index {index}.");
+                Debug.Log(string.Format("{0} removing speaker connection component with index {1}.",
+                    name, index.ToString()));
                 RemoveConnectionComponent();
             }
         }
@@ -170,7 +181,7 @@ namespace PlaneWaver.Emitters
                 emitter.ApplyNewCollision(data);
         }
 
-        protected override void Deregister()
+        protected override void BeforeEntityDestroy()
         {
             foreach (StableEmitterAuth emitter in StableEmitters)
                 emitter.OnDestroy();
@@ -188,7 +199,7 @@ namespace PlaneWaver.Emitters
         public int Index;
         public float3 Position;
     }
-    
+
     public struct SpeakerConnection : IComponentData
     {
         public int SpeakerIndex;

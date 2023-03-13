@@ -13,10 +13,12 @@ namespace PlaneWaver.Modulation
             #region DEFINITIONS
 
             private int _parameterIndex;
+            [SerializeField] private bool VolatileEmitter;
+            public bool IsVolatileEmitter => VolatileEmitter;
             public Vector2 ParameterRange;
             public Vector2 InitialRange;
             public bool ReversePath;
-            public bool ModulationEnabled;
+            public bool Enabled;
             public Vector2 ModInputRange;
             public float ModInputMultiplier;
             public bool Accumulate;
@@ -34,7 +36,6 @@ namespace PlaneWaver.Modulation
             public float PerlinOffset { get; private set; }
             public float PerlinSeed { get; private set; }
             public float InitialValue { get; private set; }
-            public bool VolatileEmitter { get; private set; }
 
             #endregion
 
@@ -43,11 +44,12 @@ namespace PlaneWaver.Modulation
             public ModulationDataObject(PropertiesObject propertiesObject, bool isVolatileEmitter = false)
             {
                 _parameterIndex = propertiesObject.Index;
+                VolatileEmitter = isVolatileEmitter;
                 ParameterRange = propertiesObject.ParameterRange;
                 InitialRange = propertiesObject.InitialRange;
                 InitialValue = 0;
                 ReversePath = propertiesObject.ReversePath;
-                ModulationEnabled = false;
+                Enabled = false;
                 ModInputRange = new Vector2(0f, 1f);
                 ModInputMultiplier = 1;
                 Accumulate = false;
@@ -64,12 +66,11 @@ namespace PlaneWaver.Modulation
                 LockNoise = false;
                 PerlinOffset = 0;
                 PerlinSeed = 0;
-                VolatileEmitter = isVolatileEmitter;
             }
 
             public void Initialise()
             {
-                if (VolatileEmitter) return;
+                if (IsVolatileEmitter) return;
 
                 InitialValue = Random.Range(InitialRange.x, InitialRange.y);
                 PerlinOffset = Random.Range(0f, 1000f) * (1 + _parameterIndex);
@@ -78,26 +79,52 @@ namespace PlaneWaver.Modulation
             
             public ModulationComponent BuildComponent(float modulationValue)
             {
+                return IsVolatileEmitter
+                        ? BuildVolatileComponent(modulationValue)
+                        : BuildStableComponent(modulationValue);
+            }
+            
+            public ModulationComponent BuildVolatileComponent(float modulationValue)
+            {
                 return new ModulationComponent {
-                    StartValue = VolatileEmitter ? ReversePath ? InitialRange.y : InitialRange.x : InitialValue,
-                    EndValue = VolatileEmitter ? ReversePath ? InitialRange.x : InitialRange.y  : 0,
+                    StartValue = ReversePath ? InitialRange.y : InitialRange.x,
+                    EndValue = ReversePath ? InitialRange.x : InitialRange.y,
                     ModValue = modulationValue,
                     ModInfluence = ModInfluence,
                     ModExponent = ModExponent,
                     Min = ParameterRange.x,
                     Max = ParameterRange.y,
                     Noise = NoiseInfluence * NoiseMultiplier,
-                    PerlinValue = !VolatileEmitter && UsePerlin ? GetPerlinValue() : 0,
-                    UsePerlin = !VolatileEmitter && UsePerlin,
+                    PerlinValue = -1,
+                    UsePerlin = false,
                     LockNoise = LockNoise,
-                    FixedStart = VolatileEmitter && FixedStart,
-                    FixedEnd = VolatileEmitter && FixedEnd
+                    FixedStart = FixedStart,
+                    FixedEnd = FixedEnd
+                };
+            }
+            
+            public ModulationComponent BuildStableComponent(float modulationValue)
+            {
+                return new ModulationComponent {
+                    StartValue = modulationValue,
+                    EndValue = -1,
+                    ModValue = -1,
+                    ModInfluence = -1,
+                    ModExponent = -1,
+                    Min = ParameterRange.x,
+                    Max = ParameterRange.y,
+                    Noise = NoiseInfluence * NoiseMultiplier,
+                    PerlinValue = GetPerlinValue(),
+                    UsePerlin = UsePerlin,
+                    LockNoise = false,
+                    FixedStart = false,
+                    FixedEnd = false
                 };
             }
 
             public float GetPerlinValue()
             {
-                if (VolatileEmitter || !UsePerlin || Mathf.Approximately(NoiseInfluence, 0f))
+                if (IsVolatileEmitter || !UsePerlin || Mathf.Approximately(NoiseInfluence, 0f))
                     return 0;
 
                 PerlinOffset += NoiseSpeed * Time.deltaTime;

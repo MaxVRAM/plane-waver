@@ -96,7 +96,6 @@ namespace PlaneWaver.DSP
             _connectedHosts = pooling.ConnectedHostCount;
             _inactiveDuration = pooling.InactiveDuration;
 
-
             Transform selfTransform = transform;
             selfTransform.position = pooling.Position;
             selfTransform.localScale = Vector3.one * _connectionRadius;
@@ -105,7 +104,7 @@ namespace PlaneWaver.DSP
             _audioSource.volume = _audioSource.volume.Smooth(_targetVolume, VolumeSmoothing);
         }
 
-        protected override void Deregister() { SynthManager.Instance.DeregisterSpeaker(this); }
+        protected override void BeforeEntityDestroy() { SynthManager.Instance.DeregisterSpeaker(this); }
 
         #endregion
 
@@ -164,7 +163,6 @@ namespace PlaneWaver.DSP
             if (!EntityInitialised)
                 return;
             _numGrainsFree--;
-            // OnGrainEmitted?.Invoke(grainData, GrainBrain.Instance.CurrentSampleIndex);
         }
 
         public Grain GetEmptyGrain(out Grain grain)

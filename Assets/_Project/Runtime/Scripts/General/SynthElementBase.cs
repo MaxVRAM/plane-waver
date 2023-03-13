@@ -32,8 +32,9 @@ namespace PlaneWaver
         protected void InitialiseEntity()
         {
             EntityIndex = SynthManager.Instance.RegisterEntity(this, ElementType);
+            
             ElementEntity = Manager.CreateEntity(ElementArchetype);
-            name = $"{Enum.GetName(typeof(SynthElementType), ElementType)}.{EntityIndex}";
+            name = string.Format("{0}.{1}", ElementType.ToStringCached(), EntityIndex.ToString());
 #if UNITY_EDITOR
             Manager.SetName(ElementEntity, name);
 #endif
@@ -49,7 +50,7 @@ namespace PlaneWaver
 
         public void PrimaryUpdate()
         {
-            if (!EntityInitialised)
+            if (!EntityInitialised || !isActiveAndEnabled)
                 return;
 
             ProcessComponents();
@@ -68,19 +69,13 @@ namespace PlaneWaver
 
         private void DestroyEntity()
         {
-            Deregister();
+            BeforeEntityDestroy();
             try { Manager.DestroyEntity(ElementEntity); }
             catch (Exception ex) when (ex is NullReferenceException or ObjectDisposedException) { }
         }
 
-        protected virtual void Deregister() { }
+        protected virtual void BeforeEntityDestroy() { }
 
         #endregion
     }
-
-    #region TYPE DEFINITIONS
-
-    public enum SynthElementType { Blank, Speaker, Host, Emitter, Frame };
-
-    #endregion
 }

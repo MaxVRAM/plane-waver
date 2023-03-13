@@ -91,21 +91,19 @@ namespace MaxVRAM.Audio
 
         public static float ListenerDistanceVolume(Vector3 source, Vector3 target, float maxDistance)
         {
-            // Inverse square attenuation for audio sources based on distance from the listener
-            float sourceDistance = Mathf.Clamp(Mathf.Abs((source - target).magnitude) / maxDistance, 0f, 1f);
-            return Mathf.Clamp(Mathf.Pow(500, -0.5f * sourceDistance), 0f, 1f);
+            float distance = Mathf.Abs((source - target).magnitude) / maxDistance;
+            return ListenerDistanceVolume(distance);
         }
 
         public static float ListenerDistanceVolume(float distance, float maxDistance)
         {
-            float normalisedDistance = Mathf.Clamp(distance / maxDistance, 0f, 1f);
-            return Mathf.Clamp(Mathf.Pow(500, -0.5f * normalisedDistance), 0f, 1f);
+            return ListenerDistanceVolume(distance / maxDistance);
         }
 
         public static float ListenerDistanceVolume(float normalisedDistance)
         {
-            normalisedDistance = Mathf.Clamp(normalisedDistance, 0f, 1f);
-            return Mathf.Clamp(Mathf.Pow(500, -0.5f * normalisedDistance), 0f, 1f);
+            // Inverse square attenuation for audio sources based on distance from the listener
+            return Mathf.Clamp01(Mathf.Pow(500, -0.5f * Mathf.Clamp01(normalisedDistance)));
         }
     }
 

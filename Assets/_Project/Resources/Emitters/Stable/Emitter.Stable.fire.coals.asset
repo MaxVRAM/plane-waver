@@ -31,8 +31,9 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: 0, y: 1}
-      InitialRange: {x: 0.1122, y: 0.6122}
+      InitialRange: {x: 1, y: 1}
       ReversePath: 0
       ModulationEnabled: 0
       ModInputRange: {x: 0, y: 1}
@@ -64,8 +65,9 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: 0, y: 1}
-      InitialRange: {x: 0.4093, y: 0.8509}
+      InitialRange: {x: 0.5, y: 0.5}
       ReversePath: 0
       ModulationEnabled: 0
       ModInputRange: {x: 0, y: 1}
@@ -97,8 +99,9 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: 10, y: 250}
-      InitialRange: {x: 40, y: 120}
+      InitialRange: {x: 40, y: 40}
       ReversePath: 0
       ModulationEnabled: 0
       ModInputRange: {x: 0, y: 1}
@@ -130,6 +133,7 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: 0.1, y: 10}
       InitialRange: {x: 3, y: 3}
       ReversePath: 0
@@ -163,8 +167,9 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: -3, y: 3}
-      InitialRange: {x: -0.149, y: 0.5342}
+      InitialRange: {x: 0, y: 0}
       ReversePath: 0
       ModulationEnabled: 0
       ModInputRange: {x: 0, y: 1}

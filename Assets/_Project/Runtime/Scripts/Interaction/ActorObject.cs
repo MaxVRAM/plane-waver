@@ -11,7 +11,7 @@ namespace PlaneWaver.Interaction
         #region CLASS DEFINITIONS
 
         //private bool _initialised;
-        public ActorSpawner ActorSpawner;
+        public ObjectSpawner Spawner;
         private bool _hasSpawner;
         public ActorController Controller;
         public ActorControllerData ControllerData;
@@ -140,7 +140,19 @@ namespace PlaneWaver.Interaction
         #endregion
 
         #region INITIALISATION METHODS
+        
+        private void Awake()
+        {
+            _hasSpawner = Spawner != null;
+            _hasOtherBody = OtherBody != null;
+            _activeCollisions = new List<CollisionData>();
+            _hasCollided = false;
+            IsColliding = false;
 
+            if (SpeakerTarget == null)
+                SpeakerTarget = transform;
+        }
+        
         private void InitialiseActor()
         {
             _hasRigidbody = TryGetComponent(out _rigidbody);
@@ -158,21 +170,15 @@ namespace PlaneWaver.Interaction
             SurfaceRigidity = _surfaceProperties.Rigidity;
         }
 
-        private void Awake()
-        {
-            _hasSpawner = ActorSpawner != null;
-            _hasOtherBody = OtherBody != null;
-            _activeCollisions = new List<CollisionData>();
-            _hasCollided = false;
-            IsColliding = false;
-
-            if (SpeakerTarget == null)
-                SpeakerTarget = transform;
-        }
-
-        private void Start()
+        private void OnEnable()
         {
             InitialiseActor();
+        }
+
+        private void OnDisable()
+        {
+            if (_hasSpawner)
+                Spawner.ObjectPooled();
         }
 
         #endregion
@@ -243,7 +249,7 @@ namespace PlaneWaver.Interaction
         /// <returns>Boolean: True if attached emitters should consider this collision's surface properties.</returns>
         private bool ContactAllowed(GameObject other)
         {
-            return !_hasSpawner || ActorSpawner.ContactAllowed(gameObject, other);
+            return !_hasSpawner || Spawner.ContactAllowed(gameObject, other);
         }
 
         /// <summary>
@@ -253,7 +259,7 @@ namespace PlaneWaver.Interaction
         /// <returns>Boolean: True if attached emitters can trigger based on spawner config.</returns>
         private bool CollisionAllowed(GameObject other)
         {
-            return !_hasSpawner || ActorSpawner.CollisionAllowed(gameObject, other);
+            return !_hasSpawner || Spawner.CollisionAllowed(gameObject, other);
         }
 
         /// <summary>

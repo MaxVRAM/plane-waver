@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 
@@ -10,7 +11,7 @@ namespace PlaneWaver.Interaction
         private int _sampleRate;
         public bool LiveForever = true;
         public float Lifespan = -1;
-        private float _age;
+        public float Age { get; private set; }
         public float BoundingRadius = 30;
         private ActorBounds _boundingAreaType = ActorBounds.SpawnPosition;
         private Collider _boundingCollider;
@@ -34,12 +35,19 @@ namespace PlaneWaver.Interaction
             _boundingAreaType = controllerData.BoundingAreaType;
             _boundingCollider = controllerData.BoundingCollider;
             _boundingTransform = controllerData.BoundingTransform;
-            _age = 0;
+            Age = 0;
         }
-        
-        public void Start()
+
+        public void Awake()
         {
             _sampleRate = AudioSettings.outputSampleRate;
+        }
+
+        public void OnEnable()
+        {
+            Age = 0;
+            _outsideFor = 0;
+            _spawnPosition = transform.position;
             InitialiseBounds();
         }
         
@@ -49,10 +57,10 @@ namespace PlaneWaver.Interaction
 
         public void Update()
         {
-            _age += Time.deltaTime;
+            Age += Time.deltaTime;
 
-            if ((!LiveForever && _age >= Lifespan) || OutsideBoundsCheck())
-                Destroy(gameObject);
+            if ((!LiveForever && Age >= Lifespan) || OutsideBoundsCheck())
+                gameObject.SetActive(false);
         }
         
         private bool OutsideBoundsCheck()
@@ -98,17 +106,17 @@ namespace PlaneWaver.Interaction
         
         public float NormalisedAge()
         {
-            return LiveForever || Lifespan == 0 ? 0 : _age / Lifespan;
+            return LiveForever || Lifespan == 0 ? 0 : Age / Lifespan;
         }
         
         public int SamplesUntilFade(float normFadeStart)
         {
-            return LiveForever ? int.MaxValue : (int)((Lifespan * normFadeStart - _age) * _sampleRate);
+            return LiveForever ? int.MaxValue : (int)((Lifespan * normFadeStart - Age) * _sampleRate);
         }
 
         public int SamplesUntilDeath()
         {
-            return LiveForever ? int.MaxValue : (int)(Lifespan - _age) * _sampleRate;
+            return LiveForever ? int.MaxValue : (int)(Lifespan - Age) * _sampleRate;
         }
 
         #endregion

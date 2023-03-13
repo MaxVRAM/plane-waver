@@ -18,13 +18,13 @@ namespace PlaneWaver.Modulation
         public ModulationInputObject()
         {
             InputGroup = InputGroups.Misc;
-            Misc = InputMisc.NoInput;
+            Misc = InputMisc.Blank;
             Actor = InputActor.Speed;
             Relative = InputRelative.Radius;
             Collision = InputCollision.CollisionForce;
         }
 
-        public float GetInputValue(ActorObject actor)
+        public float GetValue(ActorObject actor)
         {
             _previousValue = InputGroup switch {
                 InputGroups.Misc      => GetMiscValue(Misc, actor),
@@ -40,11 +40,11 @@ namespace PlaneWaver.Modulation
         public float GetMiscValue(InputMisc misc, ActorObject actor)
         {
             return misc switch {
-                InputMisc.NoInput    => _previousValue,
+                InputMisc.Blank          => _previousValue,
                 InputMisc.TimeSinceStart => Time.time,
                 InputMisc.DeltaTime      => Time.deltaTime,
-                InputMisc.SpawnAge       => actor.Controller.NormalisedAge(),
-                InputMisc.SpawnAgeNorm   => actor.Controller.NormalisedAge(),
+                InputMisc.ActorAge       => actor.Controller.Age,
+                InputMisc.ActorAgeNorm   => actor.Controller.NormalisedAge(),
                 _                        => throw new ArgumentOutOfRangeException()
             };
         }
@@ -57,7 +57,7 @@ namespace PlaneWaver.Modulation
 
     public enum InputMisc
     {
-        NoInput = 0, TimeSinceStart = 1, DeltaTime = 2, SpawnAge = 3, SpawnAgeNorm = 4
+        Blank = 0, TimeSinceStart = 1, DeltaTime = 2, ActorAge = 3, ActorAgeNorm = 4
     }
 
     public enum InputActor

@@ -171,7 +171,7 @@ namespace PlaneWaver.Modulation
                         EditorGUILayout.LabelField(_parameterIcons[i], _toggleOptions);
                         EditorGUILayout.LabelField(_parameterProperties[i].Name, _paramPrefixOptions);
                         
-                        SerializedProperty modulationEnabled = modulationData.FindPropertyRelative("ModulationEnabled");
+                        SerializedProperty modulationEnabled = modulationData.FindPropertyRelative("Enabled");
                         GUIContent modIcon = modulationEnabled.boolValue
                                 ? _toggleIcons["ModulationOn"]
                                 : _toggleIcons["ModulationOff"];

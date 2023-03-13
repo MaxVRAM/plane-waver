@@ -1,13 +1,15 @@
 ﻿using System;
-using PlaneWaver.Interaction;
 using UnityEngine;
+
+using MaxVRAM.Audio;
+using PlaneWaver.Interaction;
 
 namespace PlaneWaver.Modulation
 {
     [Serializable]
     public class EmitterAttenuator
     {
-        [Range(0f, 1f)] public float DistanceMultiplier;
+        [Range(0f, 1f)] public float RadiusMultiplier;
         [Range(0f, 0.5f)] public float AgeFadeIn;
         [Range(0.5f, 1f)] public float AgeFadeOut;
 
@@ -18,11 +20,11 @@ namespace PlaneWaver.Modulation
         
         public float ReconnectionVolume;
         public float DistanceVolume;
-        public float DistanceNorm;
+        public float ListenerDistance;
 
         public EmitterAttenuator()
         {
-            DistanceMultiplier = 1f;
+            RadiusMultiplier = 1f;
             AgeFadeIn = 0f;
             AgeFadeOut = 1f;
             MuteOnDisconnection = true;
@@ -77,8 +79,9 @@ namespace PlaneWaver.Modulation
         {
             if (actor == null)
                 return 1;
-            DistanceNorm = 1 - actor.SpeakerTargetToListenerNorm();
-            DistanceVolume = DistanceMultiplier * DistanceNorm;
+
+            ListenerDistance = actor.SpeakerTargetToListener();
+            DistanceVolume = ScaleAmplitude.ListenerDistanceVolume(ListenerDistance, SynthManager.Instance.ListenerRadius * RadiusMultiplier);
             return DistanceVolume;
         }
 

@@ -187,11 +187,8 @@ namespace PlaneWaver
             if (!IsInitialised)
                 return;
             
-            // var newSampleIndex = (int)(AudioSettings.dspTime * SampleRate);
-            // _lastFrameSampleDuration = _frameStartSampleIndex - newSampleIndex;
-            // _frameStartSampleIndex = newSampleIndex;
+            _lastFrameSampleDuration = CurrentSampleIndex - _frameStartSampleIndex;
             _frameStartSampleIndex = CurrentSampleIndex;
-            _lastFrameSampleDuration = (int)(Time.deltaTime * SampleRate);
 
             CheckSpeakerCountLimit();
             UpdateConnectionComponent();
@@ -203,7 +200,7 @@ namespace PlaneWaver
             UpdateFrames();
             UpdateTimerComponent();
             
-            UpdateStatsUI();
+            //UpdateStatsUI();
         }
 
         #endregion
@@ -262,12 +259,12 @@ namespace PlaneWaver
         {
             float[] window = GrainEnvelope.BuildWindowArray();
 
-            using BlobBuilder blobTheBuilder = new BlobBuilder(Allocator.Temp);
+            using var blobTheBuilder = new BlobBuilder(Allocator.Temp);
             ref FloatBlobAsset windowingBlobAsset = ref blobTheBuilder.ConstructRoot<FloatBlobAsset>();
 
             BlobBuilderArray<float> windowArray = blobTheBuilder.Allocate(ref windowingBlobAsset.Array, GrainEnvelope.EnvelopeSize);
 
-            for (int i = 0; i < windowArray.Length; i++)
+            for (var i = 0; i < windowArray.Length; i++)
                 windowArray[i] = window[i];
 
             BlobAssetReference<FloatBlobAsset> windowingBlobAssetRef = blobTheBuilder.CreateBlobAssetReference<FloatBlobAsset>(Allocator.Persistent);
@@ -326,9 +323,11 @@ namespace PlaneWaver
                     synthSpeaker.GrainAdded(grainOutput);
                     grainsProcessed++;
                 }
-                catch (Exception ex) when (ex is ArgumentException || ex is NullReferenceException)
+                catch (Exception ex) when (ex is ArgumentException or NullReferenceException)
                 {
-                    Debug.LogWarning($"Error while copying grain to managed array for speaker ({grain.SpeakerIndex}). Destroying grain entity {i}.\n{ex}");
+                    Debug.LogWarning(string.Format
+                    ("Error while copying grain to managed array for speaker ({0}). Destroying grain entity {1}.\n{2}",
+                        grain.SpeakerIndex.ToString(), i.ToString(), ex));
                 }
                 _entityManager.DestroyEntity(grainEntities[i]);
             }
@@ -356,10 +355,8 @@ namespace PlaneWaver
         {
             foreach (SynthSpeaker speaker in Speakers)
             {
-                if (speaker == null)
-                    Debug.LogWarning("Null speaker in speaker list");
-                else
-                    speaker.PrimaryUpdate();
+                if (speaker == null || !speaker.isActiveAndEnabled) continue;
+                speaker.PrimaryUpdate();
             }
         }
 
@@ -367,7 +364,11 @@ namespace PlaneWaver
         {
             TrimFrameList();
 
-            foreach (EmitterFrame frame in Frames.Where(frame => frame != null)) { frame.PrimaryUpdate(); }
+            foreach (EmitterFrame frame in Frames)
+            {
+                if (frame == null || !frame.isActiveAndEnabled) continue;
+                frame.PrimaryUpdate();
+            }
         }
         
         #endregion
@@ -453,7 +454,7 @@ namespace PlaneWaver
         private int RegisterFrame(EmitterFrame frame)
         {
             for (var i = 0; i < Frames.Count; i++)
-                if (Frames[i] == null)
+                if (Frames[i] != null)
                 {
                     Frames[i] = frame;
                     return i;
@@ -467,10 +468,9 @@ namespace PlaneWaver
             for (int i = Frames.Count - 1; i >= 0; i--)
             {
                 if (Frames[i] == null)
-                {
                     Frames.RemoveAt(i);
-                }
-                else return;
+                else
+                    return;
             }
         }
         
@@ -507,7 +507,6 @@ namespace PlaneWaver
             {
                 StatsValuesPeakText.text = $"{(int)_grainsPerSecondPeak}";
             }
-
         }
 
         #endregion

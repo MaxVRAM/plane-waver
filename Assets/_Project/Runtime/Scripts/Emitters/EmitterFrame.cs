@@ -56,6 +56,7 @@ namespace PlaneWaver.Emitters
         {
             if (Actor != null)
                 Actor.OnNewValidCollision += TriggerCollisionEmitters;
+            RecreateEmitterEntities();
             SynthManager.Instance.RegisterFrame(this);
         }
 
@@ -63,10 +64,10 @@ namespace PlaneWaver.Emitters
         {
             if (Actor != null)
                 Actor.OnNewValidCollision -= TriggerCollisionEmitters;
+            BeforeDestroyingEntity();
             SynthManager.Instance.DeregisterFrame(this);
         }
-
-
+        
         private void InitialiseEmitters()
         {
             for (var i = 0; i < StableEmitters.Count; i++)
@@ -79,6 +80,17 @@ namespace PlaneWaver.Emitters
 
             // StableEmitters.RemoveAll(e => e == null);
             // VolatileEmitters.RemoveAll(e => e == null);
+        }
+        
+        private void RecreateEmitterEntities()
+        {
+            foreach (StableEmitterAuth emitter in StableEmitters)
+                if (emitter != null)
+                    emitter.InitialiseEntity(true);
+
+            foreach (VolatileEmitterAuth emitter in VolatileEmitters)
+                if (emitter != null)
+                    emitter.InitialiseEntity(true);
         }
 
         private void InitialiseSpeakerTarget()
@@ -183,12 +195,13 @@ namespace PlaneWaver.Emitters
                 emitter.ApplyNewCollision(data);
         }
 
-        protected override void BeforeEntityDestroy()
+        protected override void BeforeDestroyingEntity()
         {
+            RemoveConnectionComponent();
             foreach (StableEmitterAuth emitter in StableEmitters)
-                emitter.OnDestroy();
+                emitter.DestroyEntity();
             foreach (VolatileEmitterAuth emitter in VolatileEmitters)
-                emitter.OnDestroy();
+                emitter.DestroyEntity();
         }
 
         #endregion

@@ -91,6 +91,6 @@ namespace PlaneWaver.Modulation
 
     public enum ModulationLimiter
     {
-        Clip = 0, Repeat = 1, PingPong = 2
+        Clip = 0, Wrap = 1, PingPong = 2
     }
 }

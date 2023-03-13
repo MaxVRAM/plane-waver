@@ -30,7 +30,7 @@ namespace PlaneWaver.Modulation
             public ModulationLimiter LimiterMode;
             public float NoiseInfluence;
             public float NoiseMultiplier;
-            public float NoiseSpeed;
+            public float PerlinSpeed;
             public bool UsePerlin;
             public bool LockNoise;
             public float PerlinOffset { get; private set; }
@@ -61,8 +61,8 @@ namespace PlaneWaver.Modulation
                 LimiterMode = ModulationLimiter.Clip;
                 NoiseInfluence = 0;
                 NoiseMultiplier = 1;
-                NoiseSpeed = 1;
-                UsePerlin = isVolatileEmitter;
+                UsePerlin = !isVolatileEmitter;
+                PerlinSpeed = 1;
                 LockNoise = false;
                 PerlinOffset = 0;
                 PerlinSeed = 0;
@@ -127,7 +127,7 @@ namespace PlaneWaver.Modulation
                 if (IsVolatileEmitter || !UsePerlin || Mathf.Approximately(NoiseInfluence, 0f))
                     return 0;
 
-                PerlinOffset += NoiseSpeed * Time.deltaTime;
+                PerlinOffset += PerlinSpeed * Time.deltaTime;
                 return Mathf.PerlinNoise(PerlinSeed + PerlinOffset, (PerlinSeed + PerlinOffset) * 0.5f);
             }
 

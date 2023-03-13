@@ -115,19 +115,25 @@ namespace PlaneWaver.Emitters
 
         public virtual bool InitialiseSubType() { return false; }
 
-        public void InitialiseEntity()
+        public void InitialiseEntity(bool ignoreBase = false)
         {
-            if (!RuntimeState.BaseInitialised)
+            if (!ignoreBase && !RuntimeState.BaseInitialised)
+            {
                 Debug.LogWarning("EmitterAuth: Not initialised. Cannot create entity.");
+                return;                
+            }
 
+            if (RuntimeState.EntityInitialised)
+            {
+                return;
+            }
+            
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
             ElementArchetype = Manager.CreateArchetype(typeof(EmitterComponent));
             EmitterEntity = Manager.CreateEntity(ElementArchetype);
 
 #if UNITY_EDITOR
-            Manager.SetName
-            (EmitterEntity,
-                FrameName + "." + EntityIndex + "." + (IsVolatile ? "Volatile" : "Stable"));
+            Manager.SetName(EmitterEntity, FrameName + "." + (IsVolatile ? "Volatile" : "Stable"));
 #endif
             
             RuntimeState.EntityInitialised = true;
@@ -223,10 +229,14 @@ namespace PlaneWaver.Emitters
 
         #endregion
 
-        public void OnDestroy() { DestroyEntity(); }
-
-        private void DestroyEntity()
+        public void OnDestroy()
         {
+            DestroyEntity();
+        }
+
+        public void DestroyEntity()
+        {
+            RuntimeState.EntityInitialised = false;
             try { Manager.DestroyEntity(EmitterEntity); }
             catch (Exception ex) when (ex is NullReferenceException or ObjectDisposedException) { }
         }

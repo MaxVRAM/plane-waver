@@ -61,7 +61,7 @@ public class LimitTest : MonoBehaviour
     public float RepeatNorm(float value, float amount, float offset)
     {
         float reeh = amount > 0 ? offset + value : offset - value;
-        float pete = reeh.RepeatNorm();
+        float pete = reeh.WrapNorm();
         return offset + (pete - offset) * amount.Abs();
     }
 }

@@ -128,7 +128,7 @@ namespace MaxVRAM.Extensions
         /// <summary>
         /// Replicates the functionality of Mathf.Repeat() more efficiently. Limited to normalised output range.
         /// </summary>
-        public static float RepeatNorm(this float value)
+        public static float WrapNorm(this float value)
         {
             return value - Mathf.FloorToInt(value);
         }
@@ -140,10 +140,10 @@ namespace MaxVRAM.Extensions
         /// <param name="amount">Float between -1 and 1. Negative values reverse the direction of the repeat loop.</param>
         /// <param name="offset">Float between 0 and 1 to offset the output value. Resultant value will always equal the offset when amount parameter is 0.</param>
         /// <returns>A normalised float between 0 and 1.</returns>
-        public static float RepeatNorm(this float value, float amount, float offset)
+        public static float WrapNorm(this float value, float amount, float offset)
         {
             float normalised = amount > 0 ? offset + value : offset - value;
-            float repeated = normalised.RepeatNorm();
+            float repeated = normalised.WrapNorm();
             return offset + (repeated - offset) * amount.Abs();
         }
 

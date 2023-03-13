@@ -25,7 +25,7 @@ MonoBehaviour:
       FixedStart: 0
       FixedEnd: 0
     ModulationInput:
-      InputGroup: 0
+      InputGroup: 1
       Misc: 0
       Actor: 0
       Relative: 3
@@ -33,21 +33,21 @@ MonoBehaviour:
     ModulationData:
       VolatileEmitter: 0
       ParameterRange: {x: 0, y: 1}
-      InitialRange: {x: 1, y: 1}
+      InitialRange: {x: 0, y: 0}
       ReversePath: 0
-      ModulationEnabled: 0
-      ModInputRange: {x: 0, y: 1}
+      Enabled: 1
+      ModInputRange: {x: 0, y: 20}
       ModInputMultiplier: 1
       Accumulate: 0
       Smoothing: 0.2
       ModExponent: 1
-      ModInfluence: 0
+      ModInfluence: 0.658
       FixedStart: 0
       FixedEnd: 0
       LimiterMode: 0
       NoiseInfluence: 0
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
   - ParameterProperties:
@@ -69,7 +69,7 @@ MonoBehaviour:
       ParameterRange: {x: 0, y: 1}
       InitialRange: {x: 0.5, y: 0.5}
       ReversePath: 0
-      ModulationEnabled: 0
+      Enabled: 1
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -79,9 +79,9 @@ MonoBehaviour:
       FixedStart: 0
       FixedEnd: 0
       LimiterMode: 0
-      NoiseInfluence: 0.05
+      NoiseInfluence: 0.3
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 1
       LockNoise: 0
   - ParameterProperties:
@@ -103,7 +103,7 @@ MonoBehaviour:
       ParameterRange: {x: 10, y: 250}
       InitialRange: {x: 40, y: 40}
       ReversePath: 0
-      ModulationEnabled: 0
+      Enabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -115,7 +115,7 @@ MonoBehaviour:
       LimiterMode: 0
       NoiseInfluence: 0
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
   - ParameterProperties:
@@ -137,7 +137,7 @@ MonoBehaviour:
       ParameterRange: {x: 0.1, y: 10}
       InitialRange: {x: 3, y: 3}
       ReversePath: 0
-      ModulationEnabled: 0
+      Enabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -149,7 +149,7 @@ MonoBehaviour:
       LimiterMode: 0
       NoiseInfluence: 0
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
   - ParameterProperties:
@@ -171,7 +171,7 @@ MonoBehaviour:
       ParameterRange: {x: -3, y: 3}
       InitialRange: {x: 0, y: 0}
       ReversePath: 0
-      ModulationEnabled: 0
+      Enabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -183,6 +183,6 @@ MonoBehaviour:
       LimiterMode: 0
       NoiseInfluence: 0
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0

@@ -105,7 +105,7 @@ namespace PlaneWaver.DSP
             _audioSource.volume = _audioSource.volume.Smooth(_targetVolume, VolumeSmoothing);
         }
 
-        protected override void BeforeEntityDestroy() { SynthManager.Instance.DeregisterSpeaker(this); }
+        protected override void BeforeDestroyingEntity() { SynthManager.Instance.DeregisterSpeaker(this); }
 
         #endregion
 

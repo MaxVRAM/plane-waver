@@ -88,7 +88,7 @@ namespace PlaneWaver.Modulation
             if (ModulationData.IsVolatileEmitter)
                 outputValue = ModulationData.LimiterMode switch {
                     ModulationLimiter.Clip     => Mathf.Clamp(smoothedValue, 0, 1),
-                    ModulationLimiter.Repeat   => smoothedValue.RepeatNorm(),
+                    ModulationLimiter.Wrap   => smoothedValue.WrapNorm(),
                     ModulationLimiter.PingPong => smoothedValue.PingPongNorm(),
                     _                          => smoothedValue
                 };
@@ -97,7 +97,7 @@ namespace PlaneWaver.Modulation
                     ModulationLimiter.Clip => ModulationData.InitialValue +
                                               Mathf.Pow(Mathf.Clamp01(smoothedValue),ModulationData.ModExponent) *
                                               ModulationData.ModInfluence,
-                    ModulationLimiter.Repeat => smoothedValue.RepeatNorm
+                    ModulationLimiter.Wrap => smoothedValue.WrapNorm
                             (ModulationData.ModInfluence, ModulationData.InitialValue),
                     ModulationLimiter.PingPong => smoothedValue.PingPongNorm
                             (ModulationData.ModInfluence, ModulationData.InitialValue),

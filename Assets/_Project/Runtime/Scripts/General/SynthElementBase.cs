@@ -66,12 +66,12 @@ namespace PlaneWaver
 
         private void DestroyEntity()
         {
-            BeforeEntityDestroy();
+            BeforeDestroyingEntity();
             try { Manager.DestroyEntity(ElementEntity); }
             catch (Exception ex) when (ex is NullReferenceException or ObjectDisposedException) { }
         }
 
-        protected virtual void BeforeEntityDestroy() { }
+        protected virtual void BeforeDestroyingEntity() { }
 
         #endregion
     }

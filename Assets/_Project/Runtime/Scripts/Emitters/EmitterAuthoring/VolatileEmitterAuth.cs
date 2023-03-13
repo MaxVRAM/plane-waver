@@ -42,7 +42,7 @@ namespace PlaneWaver.Emitters
         public override EmitterComponent UpdateEmitterComponent(EmitterComponent previousData, int speakerIndex)
         {
             UpdateDSPEffectsBuffer();
-            List<ModulationComponent> modulations = EmitterAsset.GetModulationComponents();
+            ModulationComponent[] modulations = EmitterAsset.GetModulationComponents();
             
             return new EmitterComponent {
                 SpeakerIndex = speakerIndex,

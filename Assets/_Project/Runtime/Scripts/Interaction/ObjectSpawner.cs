@@ -111,31 +111,16 @@ namespace PlaneWaver.Interaction
 
         private void Awake()
         {
-            // StartCoroutine(ClearCollisions());
-            // _spawnTimer = new CountTrigger(TimeUnit.Seconds, SpawnPeriodSeconds);
-            // _activeObjects = new List<GameObject>();
-        }
-        
-        private void OnEnable()
-        {
             StartCoroutine(ClearCollisions());
             _spawnTimer = new CountTrigger(TimeUnit.Seconds, SpawnPeriodSeconds);
-            _startTime = Time.time;
-            
             _spawnedObjectPool = new List<GameObject>();
-
-            for (var i = 0; i < MaxObjects; i++)
-            {
-                GameObject tempObject = Instantiate(PrefabToSpawn, SpawnParentTransform);
-                tempObject.SetActive(false);
-                _spawnedObjectPool.Add(tempObject);
-                PooledObjectCount++;
-            }
         }
-
+        
         private void OnDisable()
         {
-            _spawnedObjectPool?.ForEach(Destroy);
+            _spawnedObjectPool?.ForEach(o => o.SetActive(false));
+            if (_spawnedObjectPool != null)
+                PooledObjectCount = _spawnedObjectPool.Count;
         }
 
         private IEnumerator ClearCollisions()
@@ -174,6 +159,17 @@ namespace PlaneWaver.Interaction
             {
                 Debug.LogWarning($"ActorSpawner cannot spawn without prefab defined. Assign a SpawnablePrefab to {name}.");
                 return _initialised = false;
+            }
+            
+            _spawnedObjectPool = new List<GameObject>();
+            
+            for (var i = 0; i < MaxObjects; i++)
+            {
+                GameObject tempObject = Instantiate(PrefabToSpawn, SpawnParentTransform);
+                tempObject.SetActive(false);
+                tempObject.name = string.Format("{0}.{1}", name, i.ToString());
+                _spawnedObjectPool.Add(tempObject);
+                PooledObjectCount++;
             }
 
             _initialised = true;

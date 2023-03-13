@@ -17,6 +17,7 @@ namespace PlaneWaver.Emitters
         public string Description;
         public AudioObject AudioObject;
         public List<Parameter> Parameters;
+        public ModulationComponent[] ModulationComponents;
 
         public int GetParameterCount => Parameters.Count;
         private bool _isInitialised;
@@ -27,7 +28,9 @@ namespace PlaneWaver.Emitters
         
         public void InitialiseParameters(in ActorObject actor)
         {
-            foreach (Parameter parameter in Parameters) parameter.Initialise(actor);
+            foreach (Parameter parameter in Parameters) 
+                parameter.Initialise(actor);
+            ModulationComponents = new ModulationComponent[Parameters.Count];
             _isInitialised = true;   
         }
         
@@ -35,12 +38,15 @@ namespace PlaneWaver.Emitters
 
         #region PARAMETER COMPONENT BUILDERS
 
-        public List<ModulationComponent> GetModulationComponents()
+        public ModulationComponent[] GetModulationComponents()
         {
             if (!_isInitialised)
                 throw new Exception("Emitter has not been initialised.");
             
-            return Parameters.Select(p => p.CreateModulationComponent()).ToList();
+            for (var i = 0; i < Parameters.Count; i++)
+                ModulationComponents[i] = Parameters[i].CreateModulationComponent();
+
+            return ModulationComponents;
         }
 
         #endregion

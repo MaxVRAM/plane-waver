@@ -48,7 +48,7 @@ namespace PlaneWaver.Emitters
             ElementType = SynthElementType.Frame;
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
             ElementArchetype = Manager.CreateArchetype(typeof(FrameComponent));
-            InitialiseEntity();
+            CreateEntity(EntityIndex);
             InitialiseEmitters();
         }
 
@@ -56,12 +56,14 @@ namespace PlaneWaver.Emitters
         {
             if (Actor != null)
                 Actor.OnNewValidCollision += TriggerCollisionEmitters;
+            SynthManager.Instance.RegisterFrame(this);
         }
 
         private void OnDisable()
         {
             if (Actor != null)
                 Actor.OnNewValidCollision -= TriggerCollisionEmitters;
+            SynthManager.Instance.DeregisterFrame(this);
         }
 
 
@@ -143,7 +145,7 @@ namespace PlaneWaver.Emitters
 
             int index = Manager.GetComponentData<SpeakerConnection>(ElementEntity).SpeakerIndex;
 
-            if (SynthManager.Instance.ValidSpeakerAtIndex(index, out SynthSpeaker speaker))
+            if (SynthManager.Instance.GetSpeakerAtIndex(index, out SynthSpeaker speaker) != null)
             {
                 SpeakerTransform = speaker.transform;
                 SpeakerIndex = index;

@@ -11,7 +11,7 @@ namespace PlaneWaver
     {
         #region CLASS DEFINITIONS
 
-        protected int EntityIndex { get; private set; }
+        public int EntityIndex { get; set; }
         protected EntityManager Manager;
         protected EntityArchetype ElementArchetype;
         protected Entity ElementEntity;
@@ -25,16 +25,13 @@ namespace PlaneWaver
         public void Awake()
         {
             ElementType = SynthElementType.Blank;
-            EntityIndex = int.MaxValue;
             EntityInitialised = false;
         }
         
-        protected void InitialiseEntity()
+        protected void CreateEntity(int index)
         {
-            EntityIndex = SynthManager.Instance.RegisterEntity(this, ElementType);
-            
             ElementEntity = Manager.CreateEntity(ElementArchetype);
-            name = string.Format("{0}.{1}", ElementType.ToStringCached(), EntityIndex.ToString());
+            name = string.Format("{0}.{1}", name, index.ToString());
 #if UNITY_EDITOR
             Manager.SetName(ElementEntity, name);
 #endif

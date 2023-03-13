@@ -167,8 +167,8 @@ MonoBehaviour:
     TukeyHeight: 0.5
     GaussianSigma: 0.5
     LinearInOutFade: 0.01
-  SpeakerPoolCount: 4
-  SpeakerAllocationPeriod: 0.2
+  SpeakerPoolCount: 20
+  SpeakerAllocationPeriod: 0.1
   SynthSpeakerPrefab: {fileID: 2519325204652697373, guid: 6844ced249a80dd4584a457e05fa1c66,
     type: 3}
   SpeakerParentTransform: {fileID: 0}
@@ -397,6 +397,37 @@ Transform:
   m_Father: {fileID: 2017981031}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 270, y: 0, z: 0}
+--- !u!1 &800963904
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 800963905}
+  m_Layer: 0
+  m_Name: SpawnedObjects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &800963905
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 800963904}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1507485546}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &817876741
 GameObject:
   m_ObjectHideFlags: 0
@@ -410,12 +441,12 @@ GameObject:
   - component: {fileID: 817876744}
   - component: {fileID: 817876743}
   m_Layer: 0
-  m_Name: Cylinder
+  m_Name: SpawnController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &817876742
 Transform:
   m_ObjectHideFlags: 0
@@ -510,7 +541,7 @@ GameObject:
   - component: {fileID: 1348788760}
   - component: {fileID: 1348788759}
   m_Layer: 0
-  m_Name: frame
+  m_Name: DemoFrame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -710,6 +741,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 817876742}
+  - {fileID: 800963905}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -725,15 +757,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abaa7077d43660243b3aa238516d9d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ControllerTransform: {fileID: 0}
+  ControllerTransform: {fileID: 817876742}
   ControllerAnchor: {fileID: 0}
-  SpawnParentTransform: {fileID: 0}
+  SpawnParentTransform: {fileID: 800963905}
   PrefabToSpawn: {fileID: 1348788755}
   SpawnablePrefabs: []
   RandomiseSpawnPrefab: 0
   AttachmentJoint: {fileID: 0}
-  MaxSpawnedObjects: 4
-  SpawnPeriodSeconds: 0.1
+  TargetNumObjects: 10
+  SpawnPeriodSeconds: 0.25
   SpawnWhen: 1
   SpawnDelaySeconds: 2
   AutoSpawn: 1
@@ -742,16 +774,16 @@ MonoBehaviour:
   EjectionPosition: {x: 0, y: 1, z: 0}
   PositionVariance: 0.5
   EjectionRadius: {x: 1, y: 2}
-  EjectionDirection: {x: 0, y: 1, z: 0}
+  EjectionDirection: {x: 0, y: 0, z: -1}
   DirectionVariance: 0.25
-  EjectionSpeed: {x: 2, y: 6}
+  EjectionSpeed: {x: 5, y: 10}
   BoundingAreaType: 2
   BoundingCollider: {fileID: 0}
   BoundingRadius: 30
   UseSpawnLifespan: 1
-  SpawnLifeSpanDuration: {x: 2, y: 4}
-  AllowSiblingSurfaceContact: 1
-  AllowSiblingCollisionTrigger: 1
+  SpawnLifeSpanDuration: {x: 4, y: 4}
+  AllowSiblingSurfaceContact: 0
+  AllowSiblingCollisionTrigger: 2
   EmissiveFlashTrigger: 1
   MaterialModulator:
     _Enabled: 1
@@ -763,6 +795,8 @@ MonoBehaviour:
     _ActiveIntensity: 10
     _InactiveIntensity: 0
     _Smoothing: 0.5
+  _spawnedObjectPool: []
+  PooledObjectCount: 0
 --- !u!1 &1565470865
 GameObject:
   m_ObjectHideFlags: 0

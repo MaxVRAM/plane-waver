@@ -45,7 +45,8 @@ namespace PlaneWaver.DSP
             ElementType = SynthElementType.Speaker;
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
             ElementArchetype = Manager.CreateArchetype(typeof(SpeakerComponent), typeof(SpeakerIndex));
-            InitialiseEntity();
+            EntityIndex = SynthManager.Instance.RegisterSpeaker(this);
+            CreateEntity(EntityIndex);
         }
 
         #endregion

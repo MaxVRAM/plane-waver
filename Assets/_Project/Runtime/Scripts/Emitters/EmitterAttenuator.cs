@@ -58,8 +58,8 @@ namespace PlaneWaver.Modulation
 
         public float CalculateAmplitude(ActorObject actor)
         {
-            if (!MuteOnDisconnection || _muted)
-                return ReconnectionVolume;
+            if (MuteOnDisconnection && _muted)
+                return 0;
 
             ReconnectionVolume = CalculateReconnectionAmplitude();
             return ReconnectionVolume * CalculateDistanceAmplitude(actor) * CalculateAgeAmplitude(actor);
@@ -67,6 +67,9 @@ namespace PlaneWaver.Modulation
 
         public float CalculateReconnectionAmplitude()
         {
+            if (!MuteOnDisconnection)
+                return 1;
+
             _reconnectionTimer += Time.deltaTime * 1000;
             
             if (_reconnectionTimer > ReconnectionFadeInMS)

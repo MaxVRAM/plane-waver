@@ -300,11 +300,10 @@ namespace PlaneWaver
             {
                 var grain = _entityManager.GetComponentData<GrainComponent>(grainEntities[i]);
                 ageSum += _frameStartSampleIndex - grain.StartSampleIndex;
-
-                SynthSpeaker synthSpeaker = GetSpeakerForGrain(grain);
-
-                if (synthSpeaker == null || grain.StartSampleIndex < GrainDiscardSampleIndex || 
-                    synthSpeaker.GetEmptyGrain(out Grain grainOutput) == null)
+                
+                if (GetSpeakerAtIndex(grain.SpeakerIndex, out SynthSpeaker speaker) == null
+                    || grain.StartSampleIndex < GrainDiscardSampleIndex
+                    || speaker.GetEmptyGrain(out Grain grainOutput) == null)
                 {
                     _entityManager.DestroyEntity(grainEntities[i]);
                     _grainsDiscarded++;
@@ -320,7 +319,7 @@ namespace PlaneWaver
                     grainOutput.SizeInSamples = grainSamples.Length;
                     grainOutput.DSPStartTime = grain.StartSampleIndex;
                     grainOutput.PlayheadNormalised = grain.PlayheadNorm;
-                    synthSpeaker.GrainAdded(grainOutput);
+                    speaker.GrainAdded(grainOutput);
                     grainsProcessed++;
                 }
                 catch (Exception ex) when (ex is ArgumentException or NullReferenceException)
@@ -373,7 +372,7 @@ namespace PlaneWaver
         
         #endregion
 
-        #region SPEAKER MANAGEMENT
+        #region SYNTH ELEMENT MANAGEMENT
 
         private void CheckSpeakerCountLimit()
         {
@@ -393,10 +392,6 @@ namespace PlaneWaver
             return newSynthSpeaker;
         }
         
-        public void DeregisterSpeaker(SynthSpeaker synthSpeaker)
-        {
-        }
-
         private void SpeakerUpkeep()
         {
             // Disabling this for the moment until I run into a situation where it's needed - found one
@@ -416,51 +411,35 @@ namespace PlaneWaver
                 Speakers.RemoveAt(Speakers.Count - 1);
             }
         }
-
-        public bool ValidSpeakerAtIndex(int index, [NotNull] out SynthSpeaker synthSpeaker)
+        
+        public void DeregisterSpeaker(SynthSpeaker synthSpeaker)
         {
-            bool foundSpeaker = index >= 0 && index < Speakers.Count;
-            synthSpeaker = Speakers[index];
-            return foundSpeaker;
         }
 
-        private SynthSpeaker GetSpeakerForGrain(GrainComponent grain)
+        public SynthSpeaker GetSpeakerAtIndex(int index, out SynthSpeaker speaker)
         {
-            return ValidSpeakerAtIndex(grain.SpeakerIndex, out SynthSpeaker speaker) ? speaker : null;
+            if (index < 0 || index >= Speakers.Count)
+                return speaker = null;
+            return speaker = Speakers[index];
         }
 
-        public int GetIndexOfSpeaker(SynthSpeaker synthSpeaker)
+        public int RegisterSpeaker(SynthSpeaker synthSpeaker)
         {
-            int index = Speakers.IndexOf(synthSpeaker);
-            if (index == -1 || index >= Speakers.Count)
-                return -1;
-            return Speakers.IndexOf(synthSpeaker);
+            if (Speakers.Contains(synthSpeaker))
+                return Speakers.IndexOf(synthSpeaker);
+
+            return -1;
         }
-
-        #endregion
-
-        #region SYNTH ENTITY REGISTRATION
-
-        public int RegisterEntity(SynthElement synthElement, SynthElementType type)
+        
+        public void RegisterFrame(EmitterFrame frame)
         {
-            return type switch
-            {
-                SynthElementType.Speaker => GetIndexOfSpeaker((SynthSpeaker)synthElement),
-                SynthElementType.Frame   => RegisterFrame((EmitterFrame)synthElement),
-                _                        => -1
-            };
+            if (!Frames.Contains(frame))
+                Frames.Add(frame);
         }
-
-        private int RegisterFrame(EmitterFrame frame)
+        
+        public void DeregisterFrame(EmitterFrame frame)
         {
-            for (var i = 0; i < Frames.Count; i++)
-                if (Frames[i] != null)
-                {
-                    Frames[i] = frame;
-                    return i;
-                }
-            Frames.Add(frame);
-            return Frames.Count - 1;
+            Frames.Remove(frame);
         }
         
         private void TrimFrameList()
@@ -472,10 +451,6 @@ namespace PlaneWaver
                 else
                     return;
             }
-        }
-        
-        public void DeregisterFrame(EmitterFrame frame)
-        {
         }
 
         #endregion

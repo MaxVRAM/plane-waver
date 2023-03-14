@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 using UnityEditor;
 
-namespace MaxVRAM.GUI
+namespace MaxVRAM.CustomGUI
 {
     [CustomPropertyDrawer(typeof(FlexMinMaxSliderAttribute))]
     internal class FlexMinMaxSliderDrawer : PropertyDrawer

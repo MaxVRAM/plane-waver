@@ -31,10 +31,11 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: 0, y: 1}
       InitialRange: {x: 0, y: 1}
       ReversePath: 1
-      ModulationEnabled: 0
+      Enabled: 1
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -46,7 +47,7 @@ MonoBehaviour:
       LimiterMode: 0
       NoiseInfluence: 0
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
   - ParameterProperties:
@@ -64,10 +65,11 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: 0, y: 1}
       InitialRange: {x: 0, y: 0.6}
       ReversePath: 0
-      ModulationEnabled: 0
+      Enabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -79,7 +81,7 @@ MonoBehaviour:
       LimiterMode: 0
       NoiseInfluence: 0
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
   - ParameterProperties:
@@ -97,10 +99,11 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: 10, y: 250}
       InitialRange: {x: 40, y: 80}
       ReversePath: 0
-      ModulationEnabled: 0
+      Enabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -112,7 +115,7 @@ MonoBehaviour:
       LimiterMode: 0
       NoiseInfluence: 0
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
   - ParameterProperties:
@@ -130,10 +133,11 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: 0.1, y: 10}
       InitialRange: {x: 2, y: 3}
       ReversePath: 1
-      ModulationEnabled: 0
+      Enabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -145,7 +149,7 @@ MonoBehaviour:
       LimiterMode: 0
       NoiseInfluence: 0
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
   - ParameterProperties:
@@ -163,10 +167,11 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: -3, y: 3}
       InitialRange: {x: 0, y: 0}
       ReversePath: 0
-      ModulationEnabled: 0
+      Enabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -178,7 +183,7 @@ MonoBehaviour:
       LimiterMode: 0
       NoiseInfluence: 0
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
   - ParameterProperties:
@@ -196,10 +201,11 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
+      VolatileEmitter: 0
       ParameterRange: {x: 10, y: 1000}
       InitialRange: {x: 800, y: 800}
       ReversePath: 0
-      ModulationEnabled: 0
+      Enabled: 0
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
@@ -211,6 +217,6 @@ MonoBehaviour:
       LimiterMode: 0
       NoiseInfluence: 0
       NoiseMultiplier: 1
-      NoiseSpeed: 1
+      PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0

@@ -4,7 +4,6 @@ using Unity.Entities;
 
 namespace PlaneWaver.Emitters
 {
-    
     [Serializable]
     public class EmitterAuthRuntimeStates
     {

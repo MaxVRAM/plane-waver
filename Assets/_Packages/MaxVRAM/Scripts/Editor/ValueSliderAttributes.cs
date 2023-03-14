@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace MaxVRAM.GUI
+namespace MaxVRAM.CustomGUI
 {
     public class ValueSliderAttribute : PropertyAttribute
     {

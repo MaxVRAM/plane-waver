@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-using MaxVRAM.GUI;
+using MaxVRAM.CustomGUI;
 
 namespace PlaneWaver.Library
 {

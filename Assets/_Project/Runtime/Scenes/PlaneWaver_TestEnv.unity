@@ -124,6 +124,56 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &229178862
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 229178864}
+  - component: {fileID: 229178863}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &229178863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229178862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea95905a06454500b771ad9ee2744e22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ModulationInput:
+    InputGroup: 0
+    Misc: 0
+    Actor: 0
+    Relative: 3
+    Collision: 1
+--- !u!4 &229178864
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229178862}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &374032797
 GameObject:
   m_ObjectHideFlags: 0
@@ -579,15 +629,10 @@ MonoBehaviour:
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0
   StableEmitters:
-  - RuntimeState:
-      ObjectConstructed: 1
-      BaseInitialised: 0
-      EntityInitialised: 0
-    EmitterAsset: {fileID: 0}
-    Condition: 0
+  - Condition: 0
+    ReflectPlayheadAtLimit: 1
     VolumeAdjustment: 1
     AgeFadeOut: 0.95
-    ReflectPlayheadAtLimit: 1
     DynamicAttenuation:
       RadiusMultiplier: 1
       AgeFadeIn: 0
@@ -597,18 +642,18 @@ MonoBehaviour:
       ReconnectionVolume: 0
       DistanceVolume: 0
       ListenerDistance: 0
+    DSPChainParams: []
+    RuntimeState:
+      ObjectConstructed: 1
+      BaseInitialised: 0
+      EntityInitialised: 0
     StableEmitterAsset: {fileID: 11400000, guid: da074ae0c6e140e44a64620f0fbc8c18,
       type: 2}
   VolatileEmitters:
-  - RuntimeState:
-      ObjectConstructed: 1
-      BaseInitialised: 0
-      EntityInitialised: 0
-    EmitterAsset: {fileID: 0}
-    Condition: 3
+  - Condition: 3
+    ReflectPlayheadAtLimit: 0
     VolumeAdjustment: 1
     AgeFadeOut: 1
-    ReflectPlayheadAtLimit: 0
     DynamicAttenuation:
       RadiusMultiplier: 1
       AgeFadeIn: 0
@@ -618,6 +663,11 @@ MonoBehaviour:
       ReconnectionVolume: 0
       DistanceVolume: 0
       ListenerDistance: 0
+    DSPChainParams: []
+    RuntimeState:
+      ObjectConstructed: 1
+      BaseInitialised: 0
+      EntityInitialised: 0
     VolatileEmitterAsset: {fileID: 11400000, guid: 836ddc243135d9440b2b935c6b3fa7bf,
       type: 2}
   IsConnected: 0

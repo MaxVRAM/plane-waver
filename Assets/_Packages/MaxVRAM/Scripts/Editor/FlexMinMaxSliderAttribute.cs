@@ -3,7 +3,7 @@
 using System;
 using UnityEngine;
 
-namespace MaxVRAM.GUI
+namespace MaxVRAM.CustomGUI
 {
     [AttributeUsage(AttributeTargets.Field, Inherited = true, AllowMultiple = false)]
     public class FlexMinMaxSliderAttribute : PropertyAttribute

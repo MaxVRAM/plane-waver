@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace MaxVRAM.GUI
+namespace MaxVRAM.CustomGUI
 {
     [CustomPropertyDrawer(typeof(ValueSliderAttribute))]
     public class ValueSlider : PropertyDrawer

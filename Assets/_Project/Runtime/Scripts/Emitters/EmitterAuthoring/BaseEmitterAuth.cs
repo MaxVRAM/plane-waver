@@ -31,26 +31,16 @@ namespace PlaneWaver.Emitters
         protected CollisionData CollisionData;
         public bool IsVolatile => this is VolatileEmitterAuth;
 
-        public EmitterAuthRuntimeStates RuntimeState = new();
-
-        // Unsure if I need to serialise the reference of this class, or if it's enough to serialise the data
-        [HideInInspector] [SerializeReference]
-        protected BaseEmitterObject EmitterAsset;
-        
-        //private BaseEmitterObject _emitterObject;
-        
         public PlaybackCondition Condition;
+        protected BaseEmitterObject EmitterAsset;
+        public bool ReflectPlayheadAtLimit;
         [Range(0f, 2f)] public float VolumeAdjustment = 1;
         // This is temporary until I implement age fade in/out for non-volatile emitters in the DynamicAttenuator.
         [Range(0f, 1f)] public float AgeFadeOut;
-
-        public bool ReflectPlayheadAtLimit;
         public EmitterAttenuator DynamicAttenuation;
+        [HideInInspector] public DSPClass[] DSPChainParams;
+        public EmitterAuthRuntimeStates RuntimeState = new();
         
-        // Making this private for now. It's not used in the current implementation.
-        protected DSPClass[] DSPChainParams;
-        
-
         #endregion
 
         #region MANUAL SERLIALISATION CONSTRUCTOR / RESET

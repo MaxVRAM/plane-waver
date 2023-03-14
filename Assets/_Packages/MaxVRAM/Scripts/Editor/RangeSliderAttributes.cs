@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace MaxVRAM.GUI
+namespace MaxVRAM.CustomGUI
 {
     public class RangeSliderAttribute : PropertyAttribute
     {

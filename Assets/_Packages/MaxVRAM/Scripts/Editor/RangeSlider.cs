@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace MaxVRAM.GUI
+namespace MaxVRAM.CustomGUI
 {
     [CustomPropertyDrawer(typeof(RangeSliderAttribute))]
     public class RangeSlider : PropertyDrawer

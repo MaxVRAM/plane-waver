@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEditor;
 
-namespace MaxVRAM.GUI
+namespace MaxVRAM.CustomGUI
 {
     public class PropertyDrawerUtility
     {

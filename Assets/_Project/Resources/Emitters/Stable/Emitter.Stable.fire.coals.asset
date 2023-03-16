@@ -82,7 +82,7 @@ MonoBehaviour:
       NoiseInfluence: 0.3
       NoiseMultiplier: 1
       PerlinSpeed: 1
-      UsePerlin: 1
+      UsePerlin: 0
       LockNoise: 0
   - ParameterProperties:
       Index: 2

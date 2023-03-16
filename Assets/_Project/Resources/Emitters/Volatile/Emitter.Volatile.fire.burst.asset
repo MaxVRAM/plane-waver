@@ -25,7 +25,7 @@ MonoBehaviour:
       FixedStart: 0
       FixedEnd: 1
     ModulationInput:
-      InputGroup: 0
+      InputGroup: 3
       Misc: 0
       Actor: 0
       Relative: 3
@@ -203,15 +203,15 @@ MonoBehaviour:
     ModulationData:
       VolatileEmitter: 0
       ParameterRange: {x: 10, y: 1000}
-      InitialRange: {x: 800, y: 800}
+      InitialRange: {x: 486.4, y: 800}
       ReversePath: 0
-      Enabled: 0
+      Enabled: 1
       ModInputRange: {x: 0, y: 1}
       ModInputMultiplier: 1
       Accumulate: 0
       Smoothing: 0.2
       ModExponent: 1
-      ModInfluence: 0
+      ModInfluence: 0.7070707
       FixedStart: 1
       FixedEnd: 0
       LimiterMode: 0

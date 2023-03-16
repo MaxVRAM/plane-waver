@@ -1,19 +1,27 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-using MaxVRAM.CustomGUI;
 using PlaneWaver.Emitters;
+using PlaneWaver.Interaction;
 
 namespace PlaneWaver.Modulation
 {
     [CustomPropertyDrawer(typeof(Parameter))]
     public class EmitterParameterCustomDrawer : PropertyDrawer
     {
+        private const int ToggleWidth = 20;
+        private const int PrefixWidth = 140;
+        private ActorObject _actor;
+        private bool _actorSet;
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             int indent = EditorGUI.indentLevel;
             EditorGUIUtility.wideMode = true;
             EditorGUI.indentLevel = 0;
+            
+            GUILayoutOption[] floatFieldOptions = { GUILayout.MinWidth(40), GUILayout.ExpandWidth(true) };
+            EditorGUIUtility.labelWidth = PrefixWidth;
             
             SerializedProperty parameterProperties = property.FindPropertyRelative("ParameterProperties");
             SerializedProperty modulationInput = property.FindPropertyRelative("ModulationInput");
@@ -34,30 +42,23 @@ namespace PlaneWaver.Modulation
             Vector2 paramRangeVector = parameterProperties.FindPropertyRelative("ParameterRange").vector2Value;
             string parameterName = parameterProperties.FindPropertyRelative("Name").stringValue;
             bool isVolatile = (BaseEmitterObject)property.serializedObject.targetObject is VolatileEmitterObject;
-            
-            GUILayoutOption[] floatFieldOptions = { GUILayout.MinWidth(40), GUILayout.ExpandWidth(true) };
-            
-            GUILayoutOption[] labelWidthOption = {
-                GUILayout.Width(EditorGUIUtility.labelWidth),
-                GUILayout.ExpandWidth(false)
-            };
+            float labelWidth = EditorGUIUtility.labelWidth;
             
             label = new GUIContent(parameterName);
             EditorGUI.BeginProperty(position, label, property);
-
+            
             using (new EditorGUILayout.HorizontalScope())
             {
-                GUILayout.Label("Modulate " + parameterName, EditorStyles.boldLabel, labelWidthOption);
-                EditorGUILayout.Toggle(GUIContent.none, enabled.boolValue);
+                GUILayout.Label("Influence", EditorStyles.boldLabel, GUILayout.Width(EditorGUIUtility.labelWidth));
+                enabled.boolValue = EditorGUILayout.Toggle(GUIContent.none, enabled.boolValue, EditorStyles.toggle, GUILayout.Width(ToggleWidth));
 
-                float paramRange = paramRangeVector.y - paramRangeVector.x;
-                float modAmount = modInfluence.floatValue * paramRange;
-                
-                // TODO - fix the alignment of the slider
                 if (enabled.boolValue)
                 {
+                    float paramRange = paramRangeVector.y - paramRangeVector.x;
+                    float modAmount = modInfluence.floatValue * paramRange;
+                    EditorGUI.BeginChangeCheck();
                     float newAmount = EditorGUILayout.Slider(GUIContent.none, modAmount, -paramRange, paramRange);
-                    if (Mathf.Approximately(modAmount, newAmount)) { modInfluence.floatValue = modAmount / paramRange; }
+                    if (EditorGUI.EndChangeCheck()) { modInfluence.floatValue = newAmount / paramRange; }
                 }
             }
             
@@ -67,36 +68,42 @@ namespace PlaneWaver.Modulation
                 EditorGUI.EndProperty();
                 return;
             }
-
-            EditorGUILayout.Space();
             
+            if (isVolatile)
+            {
+                SerializedProperty fixedStart = parameterProperties.FindPropertyRelative("FixedStart");
+                SerializedProperty fixedEnd = parameterProperties.FindPropertyRelative("FixedEnd");
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PrefixLabel("Ignore Modulation");
+                EditorGUI.indentLevel++;
+                fixedStart.boolValue = EditorGUILayout.ToggleLeft("At Start", fixedStart.boolValue);
+                fixedEnd.boolValue = EditorGUILayout.ToggleLeft("At End", fixedEnd.boolValue);
+                EditorGUI.indentLevel--;
+                EditorGUI.indentLevel--;
+            }
+            
+            EditorGUILayout.Space(3);
+            EditorGUILayout.ObjectField(new GUIContent("Test Actor"), _actor, typeof(ActorObject), true);
+            _actorSet = _actor != null;
+            EditorGUILayout.Space(3);
+
             // INPUT
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Input", EditorStyles.boldLabel);
+            EditorGUI.indentLevel++;
+
             using (new EditorGUILayout.HorizontalScope())
             {
-                // TODO - maybe don't pair the header with the drop menus. Try dropping it down one.
-                GUILayout.Label("Input Source", EditorStyles.boldLabel, labelWidthOption);
+                var sourceContent = new GUIContent("Source", "The source of the modulation input." );
                 EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(inputGroup, GUIContent.none);
+                EditorGUILayout.PropertyField(inputGroup, sourceContent);
                 if (EditorGUI.EndChangeCheck()) { selectedGroup = GetGroup(inputGroup, modulationInput); }
                 EditorGUILayout.PropertyField(selectedGroup, GUIContent.none);
             }
             
-            EditorGUI.indentLevel++;
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                GUILayout.Label("    Input Range", labelWidthOption);
-                float inputMin = modInputRange.vector2Value.x;
-                float inputMax = modInputRange.vector2Value.y;
-                var minContent = new GUIContent("Min", "Value normalised to 0 from the input source; lowest value accepted by the parameter.");
-                var maxContent = new GUIContent("Max", "Value normalised to 1 from the input source; highest value accepted by the parameter.");
-                GUILayout.Label(minContent);
-                inputMin = EditorGUILayout.FloatField(GUIContent.none, inputMin, floatFieldOptions);
-                GUILayout.Label(maxContent);
-                inputMax = EditorGUILayout.FloatField(GUIContent.none, inputMax, floatFieldOptions);
-                modInputRange.vector2Value = new Vector2(inputMin, inputMax);
-            }
-            var scaleContent = new GUIContent("Scale", "Scaling factor applied to the input value after normalisation.");
+            var scaleContent = new GUIContent("Scale", "Scaling factor applied to the input value before normalisation.");
             EditorGUILayout.PropertyField(modInputMultiplier, scaleContent, floatFieldOptions);
+            EditorGUILayout.Vector2Field(new GUIContent("Range", "The range of the input value."), modInputRange.vector2Value);
             EditorGUI.indentLevel--;
             
             // PROCESSING
@@ -109,51 +116,24 @@ namespace PlaneWaver.Modulation
                 smoothing, 0, 1, new GUIContent(
                     "Smoothing", "Smoothing factor for the modulation value. 0 = no smoothing, 1 = full smoothing."));
             EditorGUILayout.Slider( modExponent, 0.1f, 5, new GUIContent(
-                "Modulation Exponent", "Exponent for the modulation value. < 1 = log, 1 = linear, > 1 = raised to the power of the exponent."));
+                "Exponent", "Exponent for the modulation value. < 1 = log, 1 = linear, > 1 = raised to the power of the exponent."));
+
+            var limitLabel = new GUIContent("Limiting",
+                "The mode to use for limiting the parameter value. Clip = clamp to parameter range, Wrap = wrap around the min/max range, PingPong = reverse direction when reaching the min/max range.");
+            EditorGUILayout.PropertyField(limiterMode, limitLabel);
+
             EditorGUI.indentLevel--;
-            
-            // LIMITING
-            EditorGUILayout.Space();
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                var limitLabel = new GUIContent
-                ("Limiting",
-                    "The mode to use for limiting the parameter value. Clip = clamp to parameter range, Wrap = wrap around the min/max range, PingPong = reverse direction when reaching the min/max range.");
-                GUILayout.Label(limitLabel, EditorStyles.boldLabel, labelWidthOption);
-                EditorGUILayout.PropertyField(limiterMode, GUIContent.none);
-            }
-            
-            if (isVolatile)
-            {
-                using (new EditorGUILayout.HorizontalScope())
-                {
-                    SerializedProperty fixedStart = parameterProperties.FindPropertyRelative("FixedStart");
-                    SerializedProperty fixedEnd = parameterProperties.FindPropertyRelative("FixedEnd");
-                    GUILayout.Label("    Ignore Modulation", labelWidthOption);
-                    fixedStart.boolValue = GUILayout.Toggle(fixedStart.boolValue, "Start");
-                    fixedEnd.boolValue = GUILayout.Toggle(fixedEnd.boolValue, "End");
-                }
-            }
             
             // NOISE
             EditorGUILayout.Space();
-            using (new EditorGUILayout.HorizontalScope())
-            {
-                // TODO - maybe don't pair the header with the slider. Try dropping the slider down one.
-                var noiseLabel = new GUIContent("Noise", "Influence of the noise value on the parameter value. 0 = no influence, 1 = full influence.");
-                GUILayout.Label(noiseLabel, EditorStyles.boldLabel, labelWidthOption);
-                EditorGUILayout.Slider(noiseInfluence, 0, 1, GUIContent.none);
-            }
+            EditorGUILayout.LabelField("Noise", EditorStyles.boldLabel);
             EditorGUI.indentLevel++;
-            var noiseMultiplyLabel = new GUIContent("Multiplier", "Multiplier for the noise value, providing greater control over the noise influence.");
-            EditorGUILayout.Slider(noiseMultiplier, 0, 1, noiseMultiplyLabel);
-
+            
             if (!isVolatile)
             {
                 SerializedProperty usePerlin = modulationData.FindPropertyRelative("UsePerlin");
-                // TODO - perform value change check here
-                usePerlin.boolValue = EditorGUILayout.PropertyField(usePerlin);
-                
+                EditorGUILayout.PropertyField(usePerlin);
+
                 if (usePerlin.boolValue)
                 {
                     SerializedProperty perlinSpeed = modulationData.FindPropertyRelative("PerlinSpeed");
@@ -161,7 +141,12 @@ namespace PlaneWaver.Modulation
                         "Perlin Speed", "Speed of the Perlin noise. 0 = no movement, 1 = steady, 10 = extremely fast."));
                 }
             }
-            EditorGUI.indentLevel--;
+            
+            var noiseMultiplyLabel = new GUIContent("Multiplier", "Multiplier for the noise value, providing greater control over the noise influence.");
+            EditorGUILayout.Slider(noiseMultiplier, 0, 1, noiseMultiplyLabel);
+            var noiseLabel = new GUIContent("Amount", "Influence of the noise value on the parameter value. 0 = no influence, 1 = full influence.");
+            EditorGUILayout.Slider(noiseInfluence, 0, 1, noiseLabel);
+            
             EditorGUI.indentLevel = indent;
             EditorGUI.EndProperty();
         }

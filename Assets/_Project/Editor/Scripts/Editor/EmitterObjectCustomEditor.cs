@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.AnimatedValues;
@@ -26,23 +27,27 @@ namespace PlaneWaver.Modulation
         private static float EditorWidth => EditorGUIUtility.currentViewWidth - 30;
         private const int PrefixMinWidth = 40;
         private const int PrefixMaxWidth = 120;
-        private const int PrefixWidth = 120;
+        private const int PrefixWidth = 140;
         private const int SmallIconSize = 18;
         private const int FloatFieldWidth = 40;
         private const int ToolbarIconSize = 48;
         private const int AudioObjectWidth = 64;
+        private float modulationHeaderHalfWidth;
         
         private Dictionary<string, GUIContent> _toggleIcons;
         private GUIContent[] _parameterIcons;
+        private GUIContent _modulationHeader;
 
         private GUILayoutOption[] _prefixOptions;
-        private GUILayoutOption[] _paramPrefixOptions;
+        private GUILayoutOption[] _paramNoIconOptions;
+        private GUILayoutOption[] _paramWithIconOptions;
         private GUILayoutOption[] _floatFieldOptions;
         private GUILayoutOption[] _parameterOptions;
         private GUILayoutOption[] _toggleOptions;
         private GUILayoutOption[] _toolbarOptions;
-        
+
         private GUIStyle _titleStyle;
+        private GUIStyle _modulationTypeHeader;
         private GUIStyle _parameterStyle;
         private GUIStyle _toggleStyle;
         private GUIStyle _toolbarStyle;
@@ -73,7 +78,8 @@ namespace PlaneWaver.Modulation
 
             _toggleOptions = new [] { GUILayout.Height(SmallIconSize), GUILayout.Width(SmallIconSize) };
             _prefixOptions = new[] { GUILayout.Width(PrefixWidth) };
-            _paramPrefixOptions = new[] { GUILayout.Width(PrefixWidth - SmallIconSize) };
+            _paramNoIconOptions = new[] { GUILayout.Width(PrefixWidth - SmallIconSize) };
+            _paramWithIconOptions = new[] { GUILayout.Width(PrefixWidth - SmallIconSize * 2) };
             _floatFieldOptions = new[] { GUILayout.Width(FloatFieldWidth) };
             
             _toggleStyle = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).button) {
@@ -102,6 +108,18 @@ namespace PlaneWaver.Modulation
                     textColor = Color.white
                 }
             };
+            
+            _modulationTypeHeader = new GUIStyle {
+                fontSize = 14,
+                stretchWidth = false,
+                fontStyle = FontStyle.Normal,
+                alignment = TextAnchor.UpperLeft,
+                normal = new GUIStyleState {
+                    textColor = Color.white
+                }
+            };
+            
+            _modulationHeader = GUIContent.none;
             
             _selectedModIndex = -1;
             _editSelectionArray = new AnimBool[_parameterArray.arraySize];
@@ -156,6 +174,9 @@ namespace PlaneWaver.Modulation
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("Parameters", _titleStyle);
             EditorGUILayout.Space(2);
+
+            Rect previousFieldRect;
+            Rect previousSliderRect;
             
             // Parameter list with basic configuration
             using (new EditorGUILayout.VerticalScope())
@@ -165,18 +186,22 @@ namespace PlaneWaver.Modulation
                     SerializedProperty currentParam = _parameterArray.GetArrayElementAtIndex(i);
                     SerializedProperty modulationData = currentParam.FindPropertyRelative("ModulationData");
                     SerializedProperty initialRange = modulationData.FindPropertyRelative("InitialRange");
-            
+                    SerializedProperty modulationEnabled = modulationData.FindPropertyRelative("Enabled");
+                 
+                    Vector2 paramRangeVector = _parameterProperties[i].ParameterRange;
+                    float paramRange = paramRangeVector.y - paramRangeVector.x;
+                    
+                    EditorGUILayout.BeginVertical();
+                    
                     using (new EditorGUILayout.HorizontalScope())
                     {
                         EditorGUILayout.LabelField(_parameterIcons[i], _toggleOptions);
-                        EditorGUILayout.LabelField(_parameterProperties[i].Name, _paramPrefixOptions);
-                        
-                        SerializedProperty modulationEnabled = modulationData.FindPropertyRelative("Enabled");
+                        EditorGUILayout.LabelField(_parameterProperties[i].Name, _paramWithIconOptions);
+                    
                         GUIContent modIcon = modulationEnabled.boolValue
                                 ? _toggleIcons["ModulationOn"]
                                 : _toggleIcons["ModulationOff"];
-            
-                        
+
                         if (GUILayout.Button(modIcon, _toggleStyle, _toggleOptions))
                             modulationEnabled.boolValue = !modulationEnabled.boolValue;
                         
@@ -184,45 +209,76 @@ namespace PlaneWaver.Modulation
                         initRange.x = initRange.x.RoundDigits(4);
                         initRange.y = initRange.y.RoundDigits(4);
                         initRange.x = EditorGUILayout.DelayedFloatField(initRange.x, _floatFieldOptions);
-            
+                        previousFieldRect = GUILayoutUtility.GetLastRect();
+
                         if (_emitterObject.Parameters[i] is Length)
                         {
-                            initRange.x = GUILayout.HorizontalSlider( initRange.x,
-                                _parameterProperties[i].ParameterRange.x,
-                                _parameterProperties[i].ParameterRange.y);
+                            initRange.x = GUILayout.HorizontalSlider(initRange.x, paramRangeVector.x, paramRangeVector.y);
+                            previousSliderRect = GUILayoutUtility.GetLastRect();
                         }
                         else
-                            EditorGUILayout.MinMaxSlider(
-                                ref initRange.x, ref initRange.y,
-                                _parameterProperties[i].ParameterRange.x,
-                                _parameterProperties[i].ParameterRange.y);
-            
+                        {
+                            EditorGUILayout.MinMaxSlider(ref initRange.x, ref initRange.y, paramRangeVector.x, paramRangeVector.y);
+                            previousSliderRect = GUILayoutUtility.GetLastRect();
+                        }
+                        
                         if (_emitterObject.Parameters[i] is not Length)
                         {
                             initRange.y = EditorGUILayout.DelayedFloatField(initRange.y, _floatFieldOptions);
-            
-                            if (_isVolatile)
-                            {
+                        }
+
+                        initialRange.vector2Value = initRange;
+                        
+                        if (_isVolatile && _emitterObject.Parameters[i] is not Length)
+                        {
                                 SerializedProperty reversePath = modulationData.FindPropertyRelative("ReversePath");
                                 GUIContent revIcon = reversePath.boolValue
                                         ? _toggleIcons["PathReverse"]
                                         : _toggleIcons["PathForward"];
-            
+
                                 if (GUILayout.Button(revIcon, _toggleStyle, _toggleOptions))
                                     reversePath.boolValue = !reversePath.boolValue;
+                        }
+                    }
+                    
+                    SerializedProperty modInfluence = modulationData.FindPropertyRelative("ModInfluence");
+                    
+                    EditorGUILayout.Space(2);
+                    var newFieldRect = new Rect(previousFieldRect) { y = previousFieldRect.y + previousFieldRect.height + 2 };
+                    float modAmount = modInfluence.floatValue * paramRange;
+                    modAmount = modAmount.RoundDigits(3);
+
+                    using (new EditorGUILayout.HorizontalScope())
+                    {
+                        EditorGUILayout.LabelField(GUIContent.none, _paramWithIconOptions);
+                        using (new EditorGUI.DisabledGroupScope(!modulationEnabled.boolValue))
+                        {
+                            modAmount = EditorGUI.DelayedFloatField(newFieldRect, modAmount);
+                            Rect newSliderRect = previousSliderRect;
+                            newSliderRect.y = newFieldRect.y;
+                            modAmount = GUI.HorizontalSlider(newSliderRect, modAmount, -paramRange, paramRange);
+
+                            if (!Mathf.Approximately(modInfluence.floatValue, modAmount))
+                            {
+                                modAmount = Mathf.Clamp(modAmount, -paramRange, paramRange);
+                                modInfluence.floatValue = modAmount / paramRange;
                             }
                         }
-                        
-                        initialRange.vector2Value = initRange;
                     }
+                    
+                    EditorGUILayout.EndVertical();
+                    EditorGUILayout.Space(2);
                 }
             }
             
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("Modulation Editor", _titleStyle);
             EditorGUILayout.Space(2);
+
             
             // Toolbar for selecting parameter modulation
+            Rect toolbarRect;
+
             using (new EditorGUILayout.HorizontalScope())
             {
                 _toolbarOptions = new [] {
@@ -230,24 +286,44 @@ namespace PlaneWaver.Modulation
                     GUILayout.Width(EditorGUIUtility.currentViewWidth - 30)
                 };
                 
-                EditorGUI.BeginChangeCheck();
                 int prevIndex = _selectedModIndex;
+                EditorGUI.BeginChangeCheck();
                 int newIndex = UpdateSelectedModulationToggles(
                     GUILayout.Toolbar(_selectedModIndex, _parameterIcons, _toolbarStyle, _toolbarOptions));
-                if (EditorGUI.EndChangeCheck()) newIndex = newIndex == prevIndex ? -1 : newIndex;
+                toolbarRect = GUILayoutUtility.GetLastRect();
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    newIndex = newIndex == prevIndex ? -1 : newIndex;
+                    if (newIndex > -1)
+                        _modulationHeader = new GUIContent(_parameterProperties[newIndex].Name);
+                }
                 _selectedModIndex = UpdateSelectedModulationToggles(newIndex);
             }
+
+            if (_selectedModIndex > -1)
+            {
+                float toolbarItemWidth = toolbarRect.width / _editSelectionArray.Length;
+                float toolbarItemHalf = toolbarItemWidth / 2;
+                Rect headerRect = GUILayoutUtility.GetRect(_modulationHeader, _modulationTypeHeader);
+                if (headerRect.width > 1) { modulationHeaderHalfWidth = headerRect.width / 2; }
+                var modulationHeaderRect = new Rect(toolbarRect) {
+                    x = toolbarRect.x + toolbarItemWidth * _selectedModIndex + toolbarItemHalf - modulationHeaderHalfWidth,
+                    y = toolbarRect.y + toolbarRect.height + 4
+                };
+                GUI.Label(modulationHeaderRect, _modulationHeader, _modulationTypeHeader);
+            }
             
-            EditorGUI.indentLevel++;
             // Dynamically display modulation editor for selected parameter
             for (var i = 0; i < _editSelectionArray.Length; i++)
             {
                 if (EditorGUILayout.BeginFadeGroup(_editSelectionArray[i].faded))
+                {
                     EditorGUILayout.PropertyField(_parameterArray.GetArrayElementAtIndex(i));
+                }
                 EditorGUILayout.EndFadeGroup();
             }
             
-            EditorGUI.indentLevel--;
             EditorGUILayout.Space();
             serializedObject.ApplyModifiedProperties();
         }
@@ -265,7 +341,13 @@ namespace PlaneWaver.Modulation
             foreach (AnimBool t in _editSelectionArray)
                 t.valueChanged.RemoveListener(Repaint);
         }
+        
+        void BlankAction(Rect position)
+        {
+        
+        }
     }
+    
 
     [CustomEditor(typeof(StableEmitterObject))]
     public class StableEmitterObjectCustomEditor : EmitterObjectCustomEditor

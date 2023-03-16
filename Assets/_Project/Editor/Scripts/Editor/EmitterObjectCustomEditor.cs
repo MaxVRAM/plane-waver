@@ -7,6 +7,7 @@ using UnityEditor.AnimatedValues;
 using MaxVRAM.Extensions;
 using PlaneWaver.Library;
 using PlaneWaver.Emitters;
+using PlaneWaver.Interaction;
 using PropertiesObject = PlaneWaver.Modulation.Parameter.PropertiesObject;
 
 namespace PlaneWaver.Modulation
@@ -32,7 +33,7 @@ namespace PlaneWaver.Modulation
         private const int FloatFieldWidth = 40;
         private const int ToolbarIconSize = 48;
         private const int AudioObjectWidth = 64;
-        private float modulationHeaderHalfWidth;
+        private float _modulationHeaderHalfWidth;
         
         private Dictionary<string, GUIContent> _toggleIcons;
         private GUIContent[] _parameterIcons;
@@ -52,6 +53,13 @@ namespace PlaneWaver.Modulation
         private GUIStyle _toggleStyle;
         private GUIStyle _toolbarStyle;
         
+        private ActorObject _actor;
+        private bool _actorSet;
+
+        private void OnSceneGUI()
+        {
+        }
+
         public void OnEnable()
         {
             _emitterObject = (BaseEmitterObject)target;
@@ -273,8 +281,11 @@ namespace PlaneWaver.Modulation
             
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("Modulation Editor", _titleStyle);
-            EditorGUILayout.Space(2);
-
+            EditorGUILayout.Space(3);
+            EditorGUILayout.ObjectField(new GUIContent("Test Actor"), _actor, typeof(ActorObject), true);
+            _actorSet = _actor != null;
+            EditorGUILayout.Space(3);
+            
             
             // Toolbar for selecting parameter modulation
             Rect toolbarRect;
@@ -306,9 +317,9 @@ namespace PlaneWaver.Modulation
                 float toolbarItemWidth = toolbarRect.width / _editSelectionArray.Length;
                 float toolbarItemHalf = toolbarItemWidth / 2;
                 Rect headerRect = GUILayoutUtility.GetRect(_modulationHeader, _modulationTypeHeader);
-                if (headerRect.width > 1) { modulationHeaderHalfWidth = headerRect.width / 2; }
+                if (headerRect.width > 1) { _modulationHeaderHalfWidth = headerRect.width / 2; }
                 var modulationHeaderRect = new Rect(toolbarRect) {
-                    x = toolbarRect.x + toolbarItemWidth * _selectedModIndex + toolbarItemHalf - modulationHeaderHalfWidth,
+                    x = toolbarRect.x + toolbarItemWidth * _selectedModIndex + toolbarItemHalf - _modulationHeaderHalfWidth,
                     y = toolbarRect.y + toolbarRect.height + 4
                 };
                 GUI.Label(modulationHeaderRect, _modulationHeader, _modulationTypeHeader);

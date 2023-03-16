@@ -11,8 +11,6 @@ namespace PlaneWaver.Modulation
     {
         private const int ToggleWidth = 20;
         private const int PrefixWidth = 140;
-        private ActorObject _actor;
-        private bool _actorSet;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -81,11 +79,6 @@ namespace PlaneWaver.Modulation
                 EditorGUI.indentLevel--;
                 EditorGUI.indentLevel--;
             }
-            
-            EditorGUILayout.Space(3);
-            EditorGUILayout.ObjectField(new GUIContent("Test Actor"), _actor, typeof(ActorObject), true);
-            _actorSet = _actor != null;
-            EditorGUILayout.Space(3);
 
             // INPUT
             EditorGUILayout.Space();

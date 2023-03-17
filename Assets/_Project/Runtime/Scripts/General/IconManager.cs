@@ -20,23 +20,23 @@ namespace PlaneWaver
         private const string ParameterBase = BaseIconFolder + "Parameters/" + IconPrefix + "parameter-";
 
         private static readonly Dictionary<string, string> IconPaths = new() {
-            {"Default", GeneralBase + "undefined" + IconExtension},
-            {"StableEmitter", EmitterBase + "stable" + IconExtension},
-            {"VolatileEmitter", EmitterBase + "volatile" + IconExtension},
-            {"ConstantEmitter", EmitterBase + "constant" + IconExtension},
-            {"ContactEmitter", EmitterBase + "contact" + IconExtension},
-            {"AirborneEmitter", EmitterBase + "airborne" + IconExtension},
-            {"CollisionEmitter", EmitterBase + "collision" + IconExtension},
-            {"Volume", ParameterBase + "volume" + IconExtension},
-            {"Playhead", ParameterBase + "playhead" + IconExtension},
-            {"Duration", ParameterBase + "duration" + IconExtension},
-            {"Density", ParameterBase + "density" + IconExtension},
-            {"Transpose", ParameterBase + "transpose" + IconExtension},
-            {"Length", ParameterBase + "length" + IconExtension},
-            {"ModulationOn", ModulationBase + "on" + IconExtension},
-            {"ModulationOff", ModulationBase + "off" + IconExtension},
-            {"PathForward", ModulationBase + "forward" + IconExtension},
-            {"PathReverse", ModulationBase + "reverse" + IconExtension},
+            { "Default", GeneralBase + "undefined" + IconExtension },
+            { "StableEmitter", EmitterBase + "stable" + IconExtension },
+            { "VolatileEmitter", EmitterBase + "volatile" + IconExtension },
+            { "ConstantEmitter", EmitterBase + "constant" + IconExtension },
+            { "ContactEmitter", EmitterBase + "contact" + IconExtension },
+            { "AirborneEmitter", EmitterBase + "airborne" + IconExtension },
+            { "CollisionEmitter", EmitterBase + "collision" + IconExtension },
+            { "Volume", ParameterBase + "volume" + IconExtension },
+            { "Playhead", ParameterBase + "playhead" + IconExtension },
+            { "Duration", ParameterBase + "duration" + IconExtension },
+            { "Density", ParameterBase + "density" + IconExtension },
+            { "Transpose", ParameterBase + "transpose" + IconExtension },
+            { "Length", ParameterBase + "length" + IconExtension },
+            { "ModulationOn", ModulationBase + "on" + IconExtension },
+            { "ModulationOff", ModulationBase + "off" + IconExtension },
+            { "PathForward", ModulationBase + "forward" + IconExtension },
+            { "PathReverse", ModulationBase + "reverse" + IconExtension },
         };
 
         public static Texture GetIcon(string name)
@@ -45,9 +45,23 @@ namespace PlaneWaver
             return AssetDatabase.LoadAssetAtPath<Texture>(iconPath) ?? Texture2D.whiteTexture;
         }
 
-        public static Texture GetIcon(IHasGUIContent obj)
-        {
-            return GetIcon(obj.GetType().Name);
-        }
+        public static Texture GetIcon(IHasGUIContent obj) { return GetIcon(obj.GetType().Name); }
+
+        public static readonly Dictionary<string, GUIContent> ToggleIcons = new() {
+            { "ModulationOn", new GUIContent(IconManager.GetIcon("ModulationOn"), "Modulation On") },
+            { "ModulationOff", new GUIContent(IconManager.GetIcon("ModulationOff"), "Modulation Off") }, {
+                "PathForward",
+                new GUIContent
+                (IconManager.GetIcon("PathForward"),
+                    "Path Forward. " +
+                    "Parameter value will traverse the range in a FORWARD direction over the duration of the grain burst.")
+            }, {
+                "PathReverse",
+                new GUIContent
+                (IconManager.GetIcon("PathReverse"),
+                    "Path Reverse. " +
+                    "Parameter value will traverse the range in a REVERSE direction over the duration of the grain burst.")
+            }
+        };
     }
 }

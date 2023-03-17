@@ -14,6 +14,7 @@ namespace PlaneWaver.Modulation
         public InputCollision Collision;
         private Vector3 _previousVector;
         private float _previousValue;
+        public bool IsInstant => InputGroup == InputGroups.Collision;
 
         public ModulationInputObject()
         {

@@ -188,14 +188,8 @@ public partial class GrainSynthSystem : SystemBase
                 Random randomGen = randomArray[nativeThreadIndex];
                 int currentDSPTime = timer.NextFrameIndexEstimate + (int)(randomGen.NextFloat(0, 1) * timer.RandomiseBurstStartIndex);
 
-                var lengthRange = (int)(emitter.ModLength.Max - emitter.ModLength.Min);
-
-                var lengthModulation = (int)(MaxMath.Map(emitter.ModLength.ModValue, 0, 1, 0, 1,
-                    emitter.ModLength.ModExponent) * emitter.ModLength.ModInfluence * lengthRange);
-
-                var lengthRandom = (int)(randomGen.NextFloat(-1, 1) * emitter.ModLength.Noise * lengthRange);
-
-                int totalBurstLength = (int)Mathf.Clamp(emitter.ModLength.StartValue + lengthModulation + lengthRandom,
+                var lengthRandom = (int)(randomGen.NextFloat(-1, 1) * emitter.ModLength.Noise * (emitter.ModLength.Max - emitter.ModLength.Min));
+                int totalBurstLength = (int)Mathf.Clamp(emitter.ModLength.StartValue + emitter.ModLength.ModValue + lengthRandom,
                     emitter.ModLength.Min, emitter.ModLength.Max) * samplesPerMS;
 
                 float randomDensity = randomGen.NextFloat(-1, 1);
@@ -432,21 +426,20 @@ public partial class GrainSynthSystem : SystemBase
 
     private static float ComputeBurstParameter(ModulationComponent mod, float currentSample, float totalSamples, float randomValue)
     {
-        float parameterRange = Mathf.Abs(mod.Max - mod.Min);
-        float timeShaped = Mathf.Pow(currentSample / totalSamples, mod.ModExponent);
+        float timeShaped = Mathf.Pow(currentSample / totalSamples, mod.TimeExponent);
         float burstPath = timeShaped * (mod.EndValue - mod.StartValue);
-        float modulation = mod.ModValue * mod.ModInfluence * parameterRange;
+        float modulation = mod.ModValue;
 
         if (mod.FixedStart) modulation *= timeShaped;
-        else if (mod.FixedEnd) modulation *= 1 - timeShaped;
+        if (mod.FixedEnd) modulation *= 1 - timeShaped;
 
-        float random = randomValue * mod.Noise * parameterRange;
+        float random = randomValue * mod.Noise * Mathf.Abs(mod.Max - mod.Min);
         return Mathf.Clamp(mod.StartValue + burstPath + modulation + random, mod.Min, mod.Max);
     }
 
     private static float FadeFactor(int currentIndex, int fadeStart, int fadeEnd)
     {
-        if (fadeStart == int.MaxValue || fadeEnd == int.MaxValue || fadeEnd == 0)
+        if (fadeStart == int.MaxValue || fadeEnd is int.MaxValue or 0)
             return 1;
 
         return 1 - Mathf.Clamp((float)(currentIndex - fadeStart) / fadeEnd, 0, 1);

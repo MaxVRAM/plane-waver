@@ -23,8 +23,9 @@ namespace PlaneWaver.Modulation
             public float ModInputMultiplier;
             public bool Accumulate;
             public float Smoothing;
-            public float ModExponent;
+            public float InputExponent;
             public float ModInfluence;
+            public float TimeExponent;
             public bool FixedStart;
             public bool FixedEnd;
             public ModulationLimiter LimiterMode;
@@ -54,7 +55,8 @@ namespace PlaneWaver.Modulation
                 ModInputMultiplier = 1;
                 Accumulate = false;
                 Smoothing = 0.2f;
-                ModExponent = 1;
+                InputExponent = 1;
+                TimeExponent = 1;
                 ModInfluence = 0;
                 FixedStart = propertiesObject.FixedStart;
                 FixedEnd = propertiesObject.FixedEnd;
@@ -91,13 +93,14 @@ namespace PlaneWaver.Modulation
                     EndValue = ReversePath ? InitialRange.x : InitialRange.y,
                     ModValue = modulationValue,
                     ModInfluence = ModInfluence,
-                    ModExponent = ModExponent,
+                    InputExponent = InputExponent,
                     Min = ParameterRange.x,
                     Max = ParameterRange.y,
                     Noise = NoiseInfluence * NoiseMultiplier,
                     PerlinValue = -1,
                     UsePerlin = false,
                     LockNoise = LockNoise,
+                    TimeExponent = TimeExponent,
                     FixedStart = FixedStart,
                     FixedEnd = FixedEnd
                 };
@@ -110,13 +113,14 @@ namespace PlaneWaver.Modulation
                     EndValue = -1,
                     ModValue = -1,
                     ModInfluence = -1,
-                    ModExponent = -1,
+                    InputExponent = -1,
                     Min = ParameterRange.x,
                     Max = ParameterRange.y,
                     Noise = NoiseInfluence * NoiseMultiplier,
                     PerlinValue = GetPerlinValue(),
                     UsePerlin = UsePerlin,
                     LockNoise = false,
+                    TimeExponent = -1,
                     FixedStart = false,
                     FixedEnd = false
                 };
@@ -143,7 +147,8 @@ namespace PlaneWaver.Modulation
         public float EndValue;
         public float ModValue;
         public float ModInfluence;
-        public float ModExponent;
+        public float InputExponent;
+        public float TimeExponent;
         public float Min;
         public float Max;
         public float Noise;

@@ -80,6 +80,27 @@ namespace MaxVRAM
             return RangedToNorm(minMaxVector.x, minMaxVector.y, rangedVector);
         }
         
+        public static float LargestComponent(Vector3 vector)
+        {
+            return Mathf.Max(Mathf.Abs(vector.x), Mathf.Abs(vector.y), Mathf.Abs(vector.z));
+        }
+        
+        public static float LargestComponent(Vector2 vector)
+        {
+            return Mathf.Max(Mathf.Abs(vector.x), Mathf.Abs(vector.y));
+        }
+        
+        public static float SmallestComponent(Vector3 vector)
+        {
+            return Mathf.Min(Mathf.Abs(vector.x), Mathf.Abs(vector.y), Mathf.Abs(vector.z));
+        }
+        
+        public static float SmallestComponent(Vector2 vector)
+        {
+            return Mathf.Min(Mathf.Abs(vector.x), Mathf.Abs(vector.y));
+        }
+        
+        
         public static float ScaleToNormNoClamp(float value, Vector2 range)
         {
             return range.x == range.y ? 0 : (value - range.x) / (range.y - range.x);

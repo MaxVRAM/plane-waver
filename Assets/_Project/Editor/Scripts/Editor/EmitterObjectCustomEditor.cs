@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using MaxVRAM;
 using UnityEngine;
 using UnityEditor;
@@ -18,6 +19,7 @@ namespace PlaneWaver.Modulation
     {
         private int _selectedModIndex;
         private bool _showModulation;
+        private bool _isVolatileEmitter;
         private bool _volatileTriggered;
         private Parameter.ProcessedValues _processedValues;
         private Parameter _currentParameter;
@@ -51,18 +53,18 @@ namespace PlaneWaver.Modulation
         private GUIStyle _parameterStyle;
         private GUIStyle _toggleStyle;
         
-        private ActorObject _actor;
+        public ActorObject Actor;
         private bool _actorSet;
         
         public void OnEnable()
         {
             EditorApplication.update += Update;
             _emitterObject = (BaseEmitterObject)target;
-            
+            _isVolatileEmitter = _emitterObject is VolatileEmitterObject;
             _processedValues = new Parameter.ProcessedValues();
+            _parameterProperties = _emitterObject.Parameters.ConvertAll(parameter => parameter.ParameterProperties).ToArray();
             
             _parameterArray = serializedObject.FindProperty("Parameters.Array");
-            _parameterProperties = _emitterObject.Parameters.ConvertAll(parameter => parameter.ParameterProperties).ToArray();
             _parameterIcons = new GUIContent[_parameterArray.arraySize];
             
             for (var i = 0; i < _parameterArray.arraySize; i++)
@@ -73,36 +75,7 @@ namespace PlaneWaver.Modulation
             _paramWithIconOptions = new[] { GUILayout.Width(PrefixWidth - SmallIconSize * 2) };
             _floatFieldOptions = new[] { GUILayout.Width(FloatFieldWidth) };
             
-            _toggleStyle = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).button) {
-                margin = new RectOffset(0,0,2,0),
-                padding = new RectOffset(1,1,1,1),
-                border = new RectOffset(1,1,1,1),
-                normal = {
-                    background = Texture2D.grayTexture
-                },
-                active = {
-                    background = Texture2D.whiteTexture
-                }
-            };
-            
-            _titleStyle = new GUIStyle {
-                fontSize = 16,
-                fontStyle = FontStyle.Normal,
-                alignment = TextAnchor.MiddleLeft,
-                normal = new GUIStyleState {
-                    textColor = Color.white
-                }
-            };
-            
-            _modulationTypeHeader = new GUIStyle {
-                fontSize = 12,
-                stretchWidth = false,
-                fontStyle = FontStyle.Normal,
-                alignment = TextAnchor.UpperLeft,
-                normal = new GUIStyleState {
-                    textColor = Color.white
-                }
-            };
+            DefineStyles();
             
             _modulationHeader = GUIContent.none;
             
@@ -119,20 +92,20 @@ namespace PlaneWaver.Modulation
         private void OnDisable()
         {
             EditorApplication.update += Update;
-            if (_actor != null)
-                _actor.OnNewValidCollision -= TriggerCollisionEmitters;
+            if (Actor != null)
+                Actor.OnNewValidCollision -= TriggerCollisionEmitters;
             foreach (AnimBool t in _editSelectionArray)
                 t.valueChanged.RemoveListener(Repaint);
         }
         
         private void Update()
         {
-            if (_actor != null && !_actorSet)
+            if (Actor != null && !_actorSet)
             {
-                _actor.OnNewValidCollision += TriggerCollisionEmitters;
+                Actor.OnNewValidCollision += TriggerCollisionEmitters;
             }
 
-            _actorSet = _actor != null;
+            _actorSet = Actor != null;
 
             if (!_actorSet || !Application.isPlaying || _selectedModIndex < 0)
             {
@@ -148,10 +121,11 @@ namespace PlaneWaver.Modulation
                 return;
             }
             
-            if (_emitterObject is not VolatileEmitterObject || !_processedValues.Instant || _volatileTriggered)
+            if (!_isVolatileEmitter || !_processedValues.Instant || _volatileTriggered)
             {
                 _volatileTriggered = false;
-                _currentParameter.UpdateInputValue(ref _processedValues, _actor);
+                _currentParameter.UpdateInputValue(ref _processedValues, Actor);
+                _currentParameter.ModulationData.IsVolatileEmitter = _isVolatileEmitter;
                 Parameter.ProcessModulation(ref _processedValues, in _currentParameter.ModulationData);
             }
             
@@ -335,7 +309,13 @@ namespace PlaneWaver.Modulation
         {
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("Modulation Editor", _titleStyle);
-            _actor = (ActorObject)EditorGUILayout.ObjectField(new GUIContent("Test Actor"), _actor, typeof(ActorObject), true);
+            EditorGUI.BeginChangeCheck();
+            var newActor = (ActorObject)EditorGUILayout.ObjectField(new GUIContent("Test Actor"), Actor, typeof(ActorObject), true);
+            if (EditorGUI.EndChangeCheck())
+            {
+                Actor = newActor;
+                ReinitialisePreviewObjects();
+            }
             EditorGUILayout.Space(3);
             
             Rect toolbarRect;
@@ -363,16 +343,7 @@ namespace PlaneWaver.Modulation
                 {
                     newIndex = newIndex == prevIndex ? -1 : newIndex;
                     _selectedModIndex = UpdateSelectedModulationToggles(newIndex);
-
-                    if (_selectedModIndex > -1)
-                    {
-                        bool isInstant = _emitterObject.Parameters[newIndex].ModulationInput.IsInstant;
-                        _processedValues = new Parameter.ProcessedValues(isInstant);
-                        _modulationHeader = new GUIContent(_parameterProperties[newIndex].Name);
-
-                        if (_actor != null)
-                            _emitterObject.Parameters[newIndex].Initialise(_actor);
-                    }
+                    ReinitialisePreviewObjects();
                 }
             }
 
@@ -388,6 +359,19 @@ namespace PlaneWaver.Modulation
                 y = toolbarRect.y + toolbarRect.height + 4
             };
             GUI.Label(modulationHeaderRect, _modulationHeader, _modulationTypeHeader);
+        }
+
+        private void ReinitialisePreviewObjects()
+        {
+            if (_selectedModIndex <= -1) return;
+
+            bool isInstant = _emitterObject.Parameters[_selectedModIndex].ModulationInput.IsInstant;
+            _processedValues = new Parameter.ProcessedValues(isInstant);
+            _modulationHeader = new GUIContent(_parameterProperties[_selectedModIndex].Name);
+            _emitterObject.Parameters[_selectedModIndex].IsVolatileEmitter = _isVolatileEmitter;
+
+            if (Actor != null)
+                _emitterObject.Parameters[_selectedModIndex].Initialise(Actor);
         }
 
         private void DrawFadeGroups()
@@ -407,29 +391,31 @@ namespace PlaneWaver.Modulation
             EditorGUILayout.LabelField("Modulation Preview", _titleStyle);
             EditorGUILayout.Space(3);
 
-            EditorGUILayout.LabelField("Input", _processedValues.Input.ToString("F3"));
+            EditorGUILayout.LabelField("Input", _processedValues.Input.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
             EditorGUILayout.Slider(new GUIContent("Normalised"), _processedValues.Normalised, 0, 1);
-            EditorGUILayout.LabelField("Scaled", _processedValues.Scaled.ToString("F3"));
+            EditorGUILayout.LabelField("Scaled", _processedValues.Scaled.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
 
             Parameter.ModulationDataObject currentData = _currentParameter.ModulationData;
             
             if (currentData.Accumulate)
-                EditorGUILayout.LabelField("Accumulated", _processedValues.Accumulated.ToString("F3"));
+                EditorGUILayout.LabelField("Accumulated", _processedValues.Accumulated.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
             if (currentData.LimiterMode == ModulationLimiter.Clip)
-                EditorGUILayout.LabelField("Raised", _processedValues.Raised.ToString("F3"));
+                EditorGUILayout.LabelField("Raised", _processedValues.Raised.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
             if (!_processedValues.Instant)
-                EditorGUILayout.LabelField("Smoothed", _processedValues.Smoothed.ToString("F3"));
-            
-            
-            // TODO - Volatile emitters using CLAMP mode currently do not display correct values in this field or the output field.
-            EditorGUILayout.Slider(new GUIContent("Limited"), _processedValues.Limited, 0, 1);
-            
+                EditorGUILayout.LabelField("Smoothed", _processedValues.Smoothed.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
+
+            float initialOffset = currentData.InitialValue;
             float modValue = _processedValues.Output;
 
-            if (currentData.IsVolatileEmitter)
-                modValue += MaxMath.LargestComponent(currentData.InitialRange);
-            
-            EditorGUILayout.LabelField("Output", modValue.ToString("F3"), new GUIStyle(EditorStyles.boldLabel));
+            if (_isVolatileEmitter)
+            {
+                initialOffset = currentData.ReversePath ? currentData.InitialRange.y : currentData.InitialRange.x;
+                EditorGUILayout.Slider(new GUIContent("Limited"), _processedValues.Limited, 0, 1);
+                modValue += initialOffset;
+            }
+
+            EditorGUILayout.LabelField("Initial Offset", initialOffset.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
+            EditorGUILayout.LabelField("Output", modValue.RoundDigits(4).ToString(CultureInfo.InvariantCulture), new GUIStyle(EditorStyles.boldLabel));
             EditorGUILayout.Space(3);
         }
 
@@ -439,6 +425,40 @@ namespace PlaneWaver.Modulation
             for (var i = 0; i < _editSelectionArray.Length; i++)
                 _editSelectionArray[i].target = i == index;
             return index;
+        }
+
+        private void DefineStyles()
+        {
+            _toggleStyle = new GUIStyle(EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).button) {
+                margin = new RectOffset(0,0,2,0),
+                padding = new RectOffset(1,1,1,1),
+                border = new RectOffset(1,1,1,1),
+                normal = {
+                    background = Texture2D.grayTexture
+                },
+                active = {
+                    background = Texture2D.whiteTexture
+                }
+            };
+            
+            _titleStyle = new GUIStyle {
+                fontSize = 16,
+                fontStyle = FontStyle.Normal,
+                alignment = TextAnchor.MiddleLeft,
+                normal = new GUIStyleState {
+                    textColor = Color.white
+                }
+            };
+            
+            _modulationTypeHeader = new GUIStyle {
+                fontSize = 12,
+                stretchWidth = false,
+                fontStyle = FontStyle.Normal,
+                alignment = TextAnchor.UpperLeft,
+                normal = new GUIStyleState {
+                    textColor = Color.white
+                }
+            };
         }
     }
     

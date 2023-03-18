@@ -14,28 +14,28 @@ namespace PlaneWaver.Modulation
 
         private ProcessedValues _processedValues;
         private ActorObject _actor;
-        protected bool IsVolatileEmitter;
+        public bool IsVolatileEmitter;
         private bool _isInitialised;
 
         public Parameter(bool isVolatileEmitter = false)
         {
             IsVolatileEmitter = isVolatileEmitter;
             ModulationInput = new ModulationInputObject();
-            _processedValues = new ProcessedValues();
+            _processedValues = new ProcessedValues(IsVolatileEmitter);
         }
 
         public void Reset()
         {
             ModulationInput = new ModulationInputObject();
-            ModulationData = new ModulationDataObject(ParameterProperties);
+            ModulationData = new ModulationDataObject(ParameterProperties, IsVolatileEmitter);
             ModulationData.Initialise();
-            _processedValues = new ProcessedValues();
+            _processedValues = new ProcessedValues(IsVolatileEmitter);
         }
 
         public void Initialise(in ActorObject actor)
         {
             ModulationData.Initialise();
-            _processedValues = new ProcessedValues();
+            _processedValues = new ProcessedValues(IsVolatileEmitter);
             _actor = actor;
             _isInitialised = true;
         }
@@ -79,15 +79,17 @@ namespace PlaneWaver.Modulation
             values.Normalised = Mathf.InverseLerp(modData.ModInputRange.x, modData.ModInputRange.y, values.Input);
             values.Scaled = values.Normalised * modData.ModInputMultiplier;
 
-            values.Accumulated = modData.Accumulate ? values.Accumulated + values.Scaled : values.Scaled;
+            values.Accumulated = modData.Accumulate 
+                    ? values.Accumulated + values.Scaled 
+                    : values.Scaled;
 
-            values.Raised = modData.LimiterMode == ModulationLimiter.Clip
-                    ? Mathf.Pow(Mathf.Clamp01(values.Accumulated), modData.InputExponent)
-                    : values.Accumulated;
+            values.Raised = modData.LimiterMode != ModulationLimiter.Clip
+                    ? values.Accumulated
+                    : Mathf.Pow(Mathf.Clamp01(values.Accumulated), modData.InputExponent);
 
-            values.Smoothed = !values.Instant
-                    ? values.Smoothed.Smooth(values.Raised, modData.Smoothing)
-                    : values.Raised;
+            values.Smoothed = values.Instant 
+                    ? values.Raised
+                    : values.Smoothed.Smooth(values.Raised, modData.Smoothing);
 
             if (modData.IsVolatileEmitter)
             {

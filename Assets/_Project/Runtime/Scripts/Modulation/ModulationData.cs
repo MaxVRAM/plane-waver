@@ -13,8 +13,7 @@ namespace PlaneWaver.Modulation
             #region DEFINITIONS
 
             private int _parameterIndex;
-            [SerializeField] private bool VolatileEmitter;
-            public bool IsVolatileEmitter => VolatileEmitter;
+            public bool IsVolatileEmitter;
             public Vector2 ParameterRange;
             public Vector2 InitialRange;
             public bool ReversePath;
@@ -45,7 +44,7 @@ namespace PlaneWaver.Modulation
             public ModulationDataObject(PropertiesObject propertiesObject, bool isVolatileEmitter = false)
             {
                 _parameterIndex = propertiesObject.Index;
-                VolatileEmitter = isVolatileEmitter;
+                IsVolatileEmitter = isVolatileEmitter;
                 ParameterRange = propertiesObject.ParameterRange;
                 InitialRange = propertiesObject.InitialRange;
                 InitialValue = 0;
@@ -74,9 +73,14 @@ namespace PlaneWaver.Modulation
             {
                 if (IsVolatileEmitter) return;
 
-                InitialValue = Random.Range(InitialRange.x, InitialRange.y);
+                InitialValue = GetNewInitialValue();
                 PerlinOffset = Random.Range(0f, 1000f) * (1 + _parameterIndex);
                 PerlinSeed = Mathf.PerlinNoise(PerlinOffset + _parameterIndex, PerlinOffset * 0.5f + _parameterIndex);
+            }
+            
+            public float GetNewInitialValue()
+            {
+                return Random.Range(InitialRange.x, InitialRange.y);
             }
             
             public ModulationComponent BuildComponent(float modulationValue)

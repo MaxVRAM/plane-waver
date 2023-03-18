@@ -59,6 +59,7 @@ namespace PlaneWaver.Modulation
         public void OnEnable()
         {
             EditorApplication.update += Update;
+            EditorApplication.pauseStateChanged += HandlePauseState;
             _emitterObject = (BaseEmitterObject)target;
             _isVolatileEmitter = _emitterObject is VolatileEmitterObject;
             _processedValues = new Parameter.ProcessedValues();
@@ -91,11 +92,20 @@ namespace PlaneWaver.Modulation
 
         private void OnDisable()
         {
-            EditorApplication.update += Update;
+            EditorApplication.update -= Update;
+            EditorApplication.pauseStateChanged -= HandlePauseState;
             if (Actor != null)
                 Actor.OnNewValidCollision -= TriggerCollisionEmitters;
             foreach (AnimBool t in _editSelectionArray)
                 t.valueChanged.RemoveListener(Repaint);
+        }
+        
+        private void HandlePauseState(PauseState state)
+        {
+            if (state == PauseState.Paused)
+                EditorApplication.update -= Update;
+            else
+                EditorApplication.update += Update;
         }
         
         private void Update()

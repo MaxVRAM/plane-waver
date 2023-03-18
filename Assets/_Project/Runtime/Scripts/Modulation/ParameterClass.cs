@@ -1,4 +1,5 @@
 using System;
+using MaxVRAM;
 using UnityEngine;
 using MaxVRAM.Extensions;
 using PlaneWaver.Interaction;
@@ -66,7 +67,6 @@ namespace PlaneWaver.Modulation
         /// </summary>
         /// <param name="modData">Modulation data object containing the processing configuration.</param>
         /// <param name="values">Processed values object for maintaining input, output, and mid-processing values.</param>
-        /// <returns>Float: Processed modulation output value for displaying in the editor.</returns>
         public static void ProcessModulation(
             ref ProcessedValues values, in ModulationDataObject modData)
         {
@@ -76,7 +76,9 @@ namespace PlaneWaver.Modulation
                 return;
             }
 
-            values.Normalised = Mathf.InverseLerp(modData.ModInputRange.x, modData.ModInputRange.y, values.Input);
+            values.Normalised = values.Input.InverseLerp(modData.ModInputRange.x, modData.ModInputRange.y, modData.Absolute);
+            // values.Normalised = Mathf.InverseLerp(modData.ModInputRange.x, modData.ModInputRange.y, values.Input);
+            // values.Absolute = modData.Absolute ? Mathf.Abs(values.Normalised) : values.Normalised;
             values.Scaled = values.Normalised * modData.ModInputMultiplier;
 
             values.Accumulated = modData.Accumulate 
@@ -117,6 +119,7 @@ namespace PlaneWaver.Modulation
         {
             public float Input;
             public float Normalised;
+            public float Absolute;
             public float Scaled;
             public float Accumulated;
             public float Smoothed;
@@ -129,6 +132,7 @@ namespace PlaneWaver.Modulation
             {
                 Input = 0;
                 Normalised = 0;
+                Absolute = 0;
                 Scaled = 0;
                 Accumulated = 0;
                 Smoothed = 0;

@@ -37,9 +37,11 @@ namespace MaxVRAM
                 return targetValue;
         }
 
-        public static float InverseLerp(Vector2 range, float value)
+        public static float InverseLerp(float a , float b, float value, bool absolute = false)
         {
-            return Mathf.InverseLerp(range.x, range.y, value);
+            float scaledValue = Map(value, a, b, 0, 1);
+            scaledValue = absolute ? Mathf.Abs(scaledValue) : scaledValue;
+            return Mathf.Clamp01(scaledValue);
         }
         
         /// <summary>

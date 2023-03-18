@@ -39,8 +39,8 @@ namespace PlaneWaver.Interaction
         public Quaternion Rotation => transform.rotation;
         public float Scale => transform.localScale.magnitude;
         public Vector3 Velocity => _hasRigidbody ? _rigidbody.velocity : Vector3.zero;
-        public float Speed => _hasRigidbody ? Velocity.magnitude : 0;
-        public float Acceleration => _hasRigidbody ? (_rigidbody.velocity - _previousVelocity).magnitude : 0;
+        public float Speed => _hasRigidbody ? _rigidbody.velocity.magnitude : 0;
+        public float Acceleration => (_currentSpeed - _previousSpeed) / Time.fixedDeltaTime;
         public float Mass => _hasRigidbody ? _rigidbody.mass : 0;
         public float Momentum => Speed * (Mass / 2 + 0.5f);
         public float SlideMomentum => RollMomentum != 0 ? Momentum - AngularMomentum : 0;
@@ -51,9 +51,9 @@ namespace PlaneWaver.Interaction
         public float CollisionForce => _hasCollided ? _latestCollision.Force : 0;
         public bool IsColliding { get; private set; }
         
-        private Vector3 _currentVelocity;
+        private float _currentSpeed;
+        private float _previousSpeed;
         private Vector3 _currentDirection;
-        private Vector3 _previousVelocity;
         private Vector3 _previousDirection;
 
         #endregion
@@ -148,11 +148,15 @@ namespace PlaneWaver.Interaction
         private void Update()
         {
             UpdateContactRigidity();
-            _previousVelocity = _currentVelocity;
-            _currentVelocity = Velocity;
             if (!_hasOtherBody) return;
             _previousDirection = _currentDirection;
             _currentDirection = DirectionFromOther;
+        }
+
+        private void FixedUpdate()
+        {
+            _previousSpeed = _currentSpeed;
+            _currentSpeed = Speed;
         }
         
         private void UpdateContactRigidity()

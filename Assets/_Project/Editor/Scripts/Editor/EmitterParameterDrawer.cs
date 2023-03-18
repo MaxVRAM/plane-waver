@@ -27,6 +27,7 @@ namespace PlaneWaver.Modulation
             SerializedProperty inputGroup = modulationInput.FindPropertyRelative("InputGroup");
             SerializedProperty selectedGroup = GetGroup(inputGroup, modulationInput);
             SerializedProperty modInputRange = modulationData.FindPropertyRelative("ModInputRange");
+            SerializedProperty modInputAbsolute = modulationData.FindPropertyRelative("Absolute");
             SerializedProperty modInputMultiplier = modulationData.FindPropertyRelative("ModInputMultiplier");
             SerializedProperty accumulate = modulationData.FindPropertyRelative("Accumulate");
             SerializedProperty smoothing = modulationData.FindPropertyRelative("Smoothing");
@@ -102,8 +103,9 @@ namespace PlaneWaver.Modulation
             }
 
             var rangeContent = new GUIContent("Range", "The range of the input value.");
-            //modInputRange.vector2Value = EditorGUILayout.Vector2Field(rangeContent, modInputRange.vector2Value);
             EditorGUILayout.PropertyField(modInputRange, rangeContent);
+            var absoluteContent = new GUIContent("Absolute", "Use the absolute value from the positive and negative normalised ranged.");
+            EditorGUILayout.PropertyField(modInputAbsolute, absoluteContent);
             var scaleContent = new GUIContent("Scale", "Scaling factor applied to the input value before normalisation.");
             EditorGUILayout.PropertyField(modInputMultiplier, scaleContent, floatFieldOptions);
             EditorGUI.indentLevel--;

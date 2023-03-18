@@ -19,6 +19,7 @@ namespace PlaneWaver.Modulation
             public bool ReversePath;
             public bool Enabled;
             public Vector2 ModInputRange;
+            public bool Absolute;
             public float ModInputMultiplier;
             public bool Accumulate;
             public float Smoothing;
@@ -51,6 +52,7 @@ namespace PlaneWaver.Modulation
                 ReversePath = propertiesObject.ReversePath;
                 Enabled = false;
                 ModInputRange = new Vector2(0f, 1f);
+                Absolute = false;
                 ModInputMultiplier = 1;
                 Accumulate = false;
                 Smoothing = 0.2f;

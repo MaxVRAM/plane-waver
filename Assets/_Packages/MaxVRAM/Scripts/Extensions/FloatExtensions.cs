@@ -47,6 +47,13 @@ namespace MaxVRAM.Extensions
             int decimalPlaces = value < 0 ? targetDigits - digits - 1 : targetDigits - digits;
             return value.RoundDecimal(Mathf.Clamp(decimalPlaces, 0, 10));
         }
+        
+        public static float InverseLerp(this float value, float a , float b, bool absolute = false)
+        {
+            float scaledValue = MaxMath.Map(value, a, b, 0, 1);
+            scaledValue = absolute ? Mathf.Abs(scaledValue) : scaledValue;
+            return Mathf.Clamp01(scaledValue);
+        }
 
         /// <summary>
         /// Provides standard Mathf.Lerp() functionality that snaps values closer than epsilon from the target.

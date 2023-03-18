@@ -31,9 +31,9 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
-      VolatileEmitter: 0
+      IsVolatileEmitter: 0
       ParameterRange: {x: 0, y: 1}
-      InitialRange: {x: 0.4508, y: 0.4508}
+      InitialRange: {x: 0.5, y: 0.5}
       ReversePath: 0
       Enabled: 1
       ModInputRange: {x: 0, y: 30}
@@ -51,6 +51,7 @@ MonoBehaviour:
       PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
+    IsVolatileEmitter: 0
   - ParameterProperties:
       Index: 1
       Name: Playhead
@@ -66,7 +67,7 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
-      VolatileEmitter: 0
+      IsVolatileEmitter: 0
       ParameterRange: {x: 0, y: 1}
       InitialRange: {x: 0.5, y: 0.5}
       ReversePath: 0
@@ -86,6 +87,7 @@ MonoBehaviour:
       PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
+    IsVolatileEmitter: 0
   - ParameterProperties:
       Index: 2
       Name: Grain Duration
@@ -95,32 +97,33 @@ MonoBehaviour:
       FixedStart: 0
       FixedEnd: 0
     ModulationInput:
-      InputGroup: 0
+      InputGroup: 1
       Misc: 0
       Actor: 0
       Relative: 3
       Collision: 1
     ModulationData:
-      VolatileEmitter: 0
+      IsVolatileEmitter: 0
       ParameterRange: {x: 10, y: 250}
       InitialRange: {x: 40, y: 40}
       ReversePath: 0
-      Enabled: 0
-      ModInputRange: {x: 0, y: 1}
+      Enabled: 1
+      ModInputRange: {x: 0, y: 30}
       ModInputMultiplier: 1
       Accumulate: 0
       Smoothing: 0.2
       InputExponent: 1
-      ModInfluence: 0
+      ModInfluence: -0.03375
       TimeExponent: 1
       FixedStart: 0
       FixedEnd: 0
-      LimiterMode: 0
+      LimiterMode: 1
       NoiseInfluence: 0
       NoiseMultiplier: 1
       PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
+    IsVolatileEmitter: 0
   - ParameterProperties:
       Index: 3
       Name: Density
@@ -136,7 +139,7 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
-      VolatileEmitter: 0
+      IsVolatileEmitter: 0
       ParameterRange: {x: 0.1, y: 10}
       InitialRange: {x: 3, y: 3}
       ReversePath: 0
@@ -156,6 +159,7 @@ MonoBehaviour:
       PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
+    IsVolatileEmitter: 0
   - ParameterProperties:
       Index: 4
       Name: Transpose
@@ -171,7 +175,7 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
-      VolatileEmitter: 0
+      IsVolatileEmitter: 0
       ParameterRange: {x: -3, y: 3}
       InitialRange: {x: 0, y: 0}
       ReversePath: 0
@@ -191,3 +195,4 @@ MonoBehaviour:
       PerlinSpeed: 1
       UsePerlin: 0
       LockNoise: 0
+    IsVolatileEmitter: 0

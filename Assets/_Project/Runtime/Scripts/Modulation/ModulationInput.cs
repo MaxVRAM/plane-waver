@@ -12,7 +12,6 @@ namespace PlaneWaver.Modulation
         public InputActor Actor;
         public InputRelative Relative;
         public InputCollision Collision;
-        private Vector3 _previousVector;
         private float _previousValue;
         public bool IsInstant => InputGroup == InputGroups.Collision;
 
@@ -29,8 +28,8 @@ namespace PlaneWaver.Modulation
         {
             _previousValue = InputGroup switch {
                 InputGroups.Misc      => GetMiscValue(Misc, actor),
-                InputGroups.Actor     => actor.GetActorValue(Actor, ref _previousVector),
-                InputGroups.Relative  => actor.GetRelativeValue(Relative, ref _previousVector),
+                InputGroups.Actor     => actor.GetActorValue(Actor),
+                InputGroups.Relative  => actor.GetRelativeValue(Relative),
                 InputGroups.Collision => actor.GetCollisionValue(Collision),
                 _                     => throw new ArgumentOutOfRangeException()
             };

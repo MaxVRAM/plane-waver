@@ -196,12 +196,15 @@ namespace PlaneWaver
             SpeakerUpkeep();
             UpdateSpeakers();
             DistributeGrains();
-
+            
             UpdateFrames();
             UpdateTimerComponent();
-            
             //UpdateStatsUI();
         }
+
+        // private void LateUpdate()
+        // {
+        // }
 
         #endregion
 

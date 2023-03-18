@@ -31,11 +31,16 @@ namespace PlaneWaver.Interaction
         private CollisionData _latestCollision;
         private bool _hasCollided;
         public Vector3 Position => transform.position;
+        public Vector3 RelativePosition => _hasOtherBody ? transform.position - OtherBody.position : Vector3.zero;
+        public Vector3 DirectionToOther => _hasOtherBody ? (OtherBody.position - transform.position).normalized : Vector3.zero;
+        public Vector3 DirectionFromOther => _hasOtherBody ? (transform.position - OtherBody.position).normalized : Vector3.zero;
+        public float Distance => _hasOtherBody ? Vector3.Distance(transform.position, OtherBody.position) : 0;
         public Vector3 EulerAngles => transform.rotation.eulerAngles;
         public Quaternion Rotation => transform.rotation;
         public float Scale => transform.localScale.magnitude;
         public Vector3 Velocity => _hasRigidbody ? _rigidbody.velocity : Vector3.zero;
         public float Speed => _hasRigidbody ? Velocity.magnitude : 0;
+        public float Acceleration => _hasRigidbody ? (_rigidbody.velocity - _previousVelocity).magnitude : 0;
         public float Mass => _hasRigidbody ? _rigidbody.mass : 0;
         public float Momentum => Speed * (Mass / 2 + 0.5f);
         public float SlideMomentum => RollMomentum != 0 ? Momentum - AngularMomentum : 0;
@@ -45,47 +50,15 @@ namespace PlaneWaver.Interaction
         public float CollisionSpeed => _hasCollided ? _latestCollision.Speed : 0;
         public float CollisionForce => _hasCollided ? _latestCollision.Force : 0;
         public bool IsColliding { get; private set; }
+        
+        private Vector3 _currentVelocity;
+        private Vector3 _currentDirection;
+        private Vector3 _previousVelocity;
+        private Vector3 _previousDirection;
 
         #endregion
 
         #region PHYSICS PROPERTY METHODS
-
-        public float Acceleration(float previousSpeed)
-        {
-            return Speed - previousSpeed;
-        }
-
-        public float Acceleration(Vector3 previousVelocity)
-        {
-            return (Velocity - previousVelocity).magnitude;
-        }
-
-        public float Acceleration(ref Vector3 previousVelocity)
-        {
-            float returnValue = (Velocity - previousVelocity).magnitude;
-            previousVelocity = Velocity;
-            return returnValue;
-        }
-
-        public Vector3 RelativePosition(Transform other)
-        {
-            return other.position - Position;
-        }
-
-        public Vector3 DirectionTowardsOther(Transform other)
-        {
-            return (other.position - Position).normalized;
-        }
-
-        public Vector3 DirectionFromOther(Transform other)
-        {
-            return (Position - other.position).normalized;
-        }
-
-        public float Distance(Transform other)
-        {
-            return Vector3.Distance(Position, other.position);
-        }
 
         public float DistanceToListener()
         {
@@ -102,40 +75,27 @@ namespace PlaneWaver.Interaction
             return SynthManager.Instance.DistanceToListenerNorm(SpeakerTarget);
         }
 
-        public float RelativeSpeed(Transform other)
+        public float RelativeSpeed()
         {
-            if (!other.TryGetComponent(out Rigidbody otherRb))
+            if (!_hasRigidbody || !_hasOtherBody || !OtherBody.TryGetComponent(out Rigidbody otherRb))
                 return 0;
 
             return Vector3.Dot(otherRb.velocity, Velocity);
         }
 
-        public SphericalCoordinates SphericalCoords(Transform other)
+        public SphericalCoordinates SphericalCoords => new(RelativePosition);
+
+        public Quaternion RotationDelta()
         {
-            return new SphericalCoordinates(RelativePosition(other));
+            return Quaternion.FromToRotation(_previousDirection, _currentDirection);
         }
 
-        public Quaternion RotationDelta(Transform other, Vector3 previousDirection)
-        {
-            return Quaternion.FromToRotation(previousDirection, DirectionFromOther(other));
-        }
+        // public float TangentalSpeed(Quaternion rotation)
+        // {
+        //     return TangentalSpeedFromQuaternion(rotation);
+        // }
 
-        public float TangentalSpeed(Quaternion rotation)
-        {
-            return TangentalSpeedFromQuaternion(rotation);
-        }
-
-        public float TangentalSpeed(Transform other, Vector3 previousDirection)
-        {
-            return TangentalSpeedFromQuaternion(RotationDelta(other, previousDirection));
-        }
-
-        public float TangentalSpeed(Transform other, ref Vector3 previousDirection)
-        {
-            float returnValue = TangentalSpeedFromQuaternion(RotationDelta(other, previousDirection));
-            previousDirection = DirectionFromOther(other);
-            return returnValue;
-        }
+        public float TangentalSpeed => TangentalSpeedFromQuaternion(RotationDelta());
 
         #endregion
 
@@ -188,8 +148,13 @@ namespace PlaneWaver.Interaction
         private void Update()
         {
             UpdateContactRigidity();
+            _previousVelocity = _currentVelocity;
+            _currentVelocity = Velocity;
+            if (!_hasOtherBody) return;
+            _previousDirection = _currentDirection;
+            _currentDirection = DirectionFromOther;
         }
-
+        
         private void UpdateContactRigidity()
         {
             if (_activeCollisions.Count == 0)

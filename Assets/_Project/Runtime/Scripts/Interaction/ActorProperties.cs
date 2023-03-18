@@ -10,10 +10,9 @@ namespace PlaneWaver.Interaction
         /// Returns the selected interaction property's latest value from this local Actor.
         /// </summary>
         /// <param name="selection">Actor Source Value selection enum.</param>
-        /// <param name="previousVector">ref Vector3 to store an arbitrary vector for subsequent calculations.</param>
         /// <returns>Float: Represents the most current value from the selected interaction parameter.</returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public float GetActorValue(InputActor selection, ref Vector3 previousVector)
+        public float GetActorValue(InputActor selection)
         {
             return selection switch
             {
@@ -24,7 +23,7 @@ namespace PlaneWaver.Interaction
                 InputActor.SlideMomentum   => SlideMomentum,
                 InputActor.AngularSpeed    => AngularSpeed,
                 InputActor.RollMomentum    => RollMomentum,
-                InputActor.Acceleration    => Acceleration(ref previousVector),
+                InputActor.Acceleration    => Acceleration,
                 _                          => throw new ArgumentOutOfRangeException(nameof(selection), selection, null)
             };
         }
@@ -33,21 +32,22 @@ namespace PlaneWaver.Interaction
         /// Returns the selected interaction property's latest value between this local Actor and another transform.
         /// </summary>
         /// <param name="selection">ActorOther Source Value selection enum.</param>
-        /// <param name="previousVector">ref Vector3 to store an arbitrary vector for subsequent calculations.</param>
         /// <param name="otherBody">Another transform to calculate relative interaction properties.</param>
         /// <returns>Float: Represents the most current value from the selected interaction parameter.</returns>
-        public float GetRelativeValue(InputRelative selection, ref Vector3 previousVector, Transform otherBody)
+        public float GetRelativeValue(InputRelative selection, Transform otherBody)
         {
+            OtherBody = otherBody;
+            
             return selection switch
             {
-                InputRelative.DistanceX => Mathf.Abs(RelativePosition(otherBody).x),
-                InputRelative.DistanceY => Mathf.Abs(RelativePosition(otherBody).y),
-                InputRelative.DistanceZ => Mathf.Abs(RelativePosition(otherBody).z),
-                InputRelative.Radius => SphericalCoords(otherBody).Radius,
-                InputRelative.Polar => SphericalCoords(otherBody).Polar,
-                InputRelative.Elevation => SphericalCoords(otherBody).Elevation,
-                InputRelative.RelativeSpeed => RelativeSpeed(otherBody),
-                InputRelative.TangentialSpeed => TangentalSpeed(otherBody, ref previousVector),
+                InputRelative.DistanceX => Mathf.Abs(RelativePosition.x),
+                InputRelative.DistanceY => Mathf.Abs(RelativePosition.y),
+                InputRelative.DistanceZ => Mathf.Abs(RelativePosition.z),
+                InputRelative.Radius => SphericalCoords.Radius,
+                InputRelative.Polar => SphericalCoords.Polar,
+                InputRelative.Elevation => SphericalCoords.Elevation,
+                InputRelative.RelativeSpeed => RelativeSpeed(),
+                InputRelative.TangentialSpeed => TangentalSpeed,
                 _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, null)
             };
         }
@@ -56,14 +56,13 @@ namespace PlaneWaver.Interaction
         /// Returns the selected interaction property's latest value between this local Actor and another transform.
         /// </summary>
         /// <param name="selection">ActorOther Source Value selection enum.</param>
-        /// <param name="previousVector">ref Vector3 to store an arbitrary vector for subsequent calculations.</param>
         /// <returns>Float: Represents the most current value from the selected interaction parameter.</returns>
-        public float GetRelativeValue(InputRelative selection, ref Vector3 previousVector)
+        public float GetRelativeValue(InputRelative selection)
         {
             if (!_hasOtherBody)
                 return 0;
 
-            return GetRelativeValue(selection, ref previousVector, OtherBody);
+            return GetRelativeValue(selection, OtherBody);
         }
 
         public float GetCollisionValue(InputCollision selection)

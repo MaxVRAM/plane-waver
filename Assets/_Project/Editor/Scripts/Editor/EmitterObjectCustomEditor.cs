@@ -404,6 +404,7 @@ namespace PlaneWaver.Modulation
             if (!_processedValues.Instant)
                 EditorGUILayout.LabelField("Smoothed", _processedValues.Smoothed.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
 
+            float paramRange = _currentParameter.ParameterProperties.ParameterRange.y - _currentParameter.ParameterProperties.ParameterRange.x;
             float initialOffset = currentData.InitialValue;
             float modValue = _processedValues.Output;
 
@@ -411,7 +412,7 @@ namespace PlaneWaver.Modulation
             {
                 initialOffset = currentData.ReversePath ? currentData.InitialRange.y : currentData.InitialRange.x;
                 EditorGUILayout.Slider(new GUIContent("Limited"), _processedValues.Limited, 0, 1);
-                modValue += initialOffset;
+                modValue = Mathf.Clamp(modValue += initialOffset, -paramRange, paramRange);
             }
 
             EditorGUILayout.LabelField("Initial Offset", initialOffset.RoundDigits(4).ToString(CultureInfo.InvariantCulture));

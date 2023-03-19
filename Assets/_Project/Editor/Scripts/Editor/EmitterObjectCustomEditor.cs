@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using MaxVRAM;
+﻿using System.Globalization;
 using MaxVRAM.CustomGUI;
 using UnityEngine;
 using UnityEditor;
@@ -69,6 +65,8 @@ namespace PlaneWaver.Modulation
         public ActorObject Actor;
         private bool _actorSet;
         
+        
+        // TODO - Add separate section for noise modulation with its own enable/disable toggle.
         
         /// <summary>
         /// Define GUI styles and options for the Emitter Object when the inspector is enabled.
@@ -343,12 +341,13 @@ namespace PlaneWaver.Modulation
                         
                         using (new EditorGUI.DisabledGroupScope(!modulationEnabled.boolValue))
                         {
+                            EditorGUI.BeginChangeCheck();
                             modAmount = EditorGUI.DelayedFloatField(newFieldRect, modAmount);
                             Rect newSliderRect = _previousSliderRect;
                             newSliderRect.y = newFieldRect.y;
                             modAmount = GUI.HorizontalSlider(newSliderRect, modAmount, -paramRange, paramRange);
 
-                            if (!Mathf.Approximately(modInfluence.floatValue, modAmount))
+                            if (EditorGUI.EndChangeCheck())
                             {
                                 modAmount = Mathf.Clamp(modAmount, -paramRange, paramRange);
                                 modInfluence.floatValue = modAmount / paramRange;

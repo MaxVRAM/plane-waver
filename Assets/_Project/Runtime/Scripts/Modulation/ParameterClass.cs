@@ -1,5 +1,4 @@
 using System;
-using MaxVRAM;
 using UnityEngine;
 using MaxVRAM.Extensions;
 using PlaneWaver.Interaction;
@@ -17,6 +16,7 @@ namespace PlaneWaver.Modulation
         private ActorObject _actor;
         public bool IsVolatileEmitter;
         private bool _isInitialised;
+        private Vector2 _previousInitialRange;
 
         public Parameter(bool isVolatileEmitter = false)
         {
@@ -45,6 +45,10 @@ namespace PlaneWaver.Modulation
         {
             if (!_isInitialised)
                 throw new Exception("Parameter has not been initialised.");
+
+            if (ModulationData.InitialRange != _previousInitialRange)
+                ModulationData.InitialValue = ModulationData.GetNewInitialValue();
+            _previousInitialRange = ModulationData.InitialRange;
 
             UpdateInputValue(ref _processedValues);
             ProcessModulation(ref _processedValues, ModulationData);
@@ -93,6 +97,8 @@ namespace PlaneWaver.Modulation
                     ? values.Raised
                     : values.Smoothed.Smooth(values.Raised, modData.Smoothing);
 
+            float parameterRange = Mathf.Abs(modData.ParameterRange.y - modData.ParameterRange.x);
+            
             if (modData.IsVolatileEmitter)
             {
                 values.Limited = modData.LimiterMode switch {
@@ -101,19 +107,18 @@ namespace PlaneWaver.Modulation
                     ModulationLimiter.PingPong => values.Smoothed.PingPongNorm(),
                     _                          => Mathf.Clamp01(values.Smoothed)
                 };
-                float parameterRange = Mathf.Abs(modData.ParameterRange.y - modData.ParameterRange.x);
                 float initialOffset = modData.ReversePath ? modData.InitialRange.y : modData.InitialRange.x;
-                // VOLATILE EMITTER CALCULATIONS ARE WRONG HERE
                 values.Output = values.Limited * modData.ModInfluence * parameterRange;
                 values.Preview = Mathf.Clamp(values.Output + initialOffset, -parameterRange, parameterRange);
             }
             else
             {
+                float initialOffset = modData.InitialValue / parameterRange;
                 values.Limited = modData.LimiterMode switch {
-                    ModulationLimiter.Clip => Mathf.Clamp01(modData.InitialValue + values.Smoothed * modData.ModInfluence),
-                    ModulationLimiter.Wrap => values.Smoothed.WrapNorm(modData.ModInfluence, modData.InitialValue),
-                    ModulationLimiter.PingPong => values.Smoothed.PingPongNorm(modData.ModInfluence, modData.InitialValue),
-                    _ => Mathf.Clamp01(modData.InitialValue + values.Smoothed * modData.ModInfluence)
+                    ModulationLimiter.Clip => Mathf.Clamp01(initialOffset + values.Smoothed * modData.ModInfluence),
+                    ModulationLimiter.Wrap => values.Smoothed.WrapNorm(modData.ModInfluence, initialOffset),
+                    ModulationLimiter.PingPong => values.Smoothed.PingPongNorm(modData.ModInfluence, initialOffset),
+                    _ => Mathf.Clamp01(initialOffset + values.Smoothed * modData.ModInfluence)
                 };
                 values.Output = Mathf.Lerp(modData.ParameterRange.x, modData.ParameterRange.y, values.Limited);
                 values.Preview = values.Output;

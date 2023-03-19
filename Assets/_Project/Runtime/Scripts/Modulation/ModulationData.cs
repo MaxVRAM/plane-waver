@@ -36,7 +36,7 @@ namespace PlaneWaver.Modulation
             public bool LockNoise;
             public float PerlinOffset { get; private set; }
             public float PerlinSeed { get; private set; }
-            public float InitialValue { get; private set; }
+            public float InitialValue { get; set; }
 
             #endregion
 
@@ -63,7 +63,7 @@ namespace PlaneWaver.Modulation
                 FixedEnd = propertiesObject.FixedEnd;
                 LimiterMode = ModulationLimiter.Clip;
                 NoiseInfluence = 0;
-                NoiseMultiplier = 1;
+                NoiseMultiplier = 0.1f;
                 UsePerlin = !isVolatileEmitter;
                 PerlinSpeed = 1;
                 LockNoise = false;

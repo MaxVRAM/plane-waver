@@ -141,7 +141,7 @@ namespace MaxVRAM.Extensions
         }
 
         /// <summary>
-        /// Limits the value to a normalised range using a directional repeat limiter, to a value arbitrary normalised offset.
+        /// Limits an arbitrarily offset value within a normalised range using a directional repeat/loop limiter.
         /// </summary>
         /// <param name="value">Float value to be limited.</param>
         /// <param name="amount">Float between -1 and 1. Negative values reverse the direction of the repeat loop.</param>

@@ -25,10 +25,10 @@ MonoBehaviour:
       FixedStart: 0
       FixedEnd: 0
     ModulationInput:
-      InputGroup: 2
+      InputGroup: 1
       Misc: 0
       Actor: 0
-      Relative: 5
+      Relative: 6
       Collision: 1
     ModulationData:
       IsVolatileEmitter: 0
@@ -36,7 +36,7 @@ MonoBehaviour:
       InitialRange: {x: 0.5, y: 0.5}
       ReversePath: 0
       Enabled: 1
-      ModInputRange: {x: 0, y: 2}
+      ModInputRange: {x: 0, y: 20}
       Absolute: 1
       ModInputMultiplier: 1
       Accumulate: 0

@@ -101,7 +101,11 @@ namespace PlaneWaver.Modulation
                     ModulationLimiter.PingPong => values.Smoothed.PingPongNorm(),
                     _                          => Mathf.Clamp01(values.Smoothed)
                 };
-                values.Output = values.Limited * modData.ModInfluence * (modData.ParameterRange.y - modData.ParameterRange.x);
+                float parameterRange = Mathf.Abs(modData.ParameterRange.y - modData.ParameterRange.x);
+                float initialOffset = modData.ReversePath ? modData.InitialRange.y : modData.InitialRange.x;
+                // VOLATILE EMITTER CALCULATIONS ARE WRONG HERE
+                values.Output = values.Limited * modData.ModInfluence * parameterRange;
+                values.Preview = Mathf.Clamp(values.Output + initialOffset, -parameterRange, parameterRange);
             }
             else
             {
@@ -112,6 +116,7 @@ namespace PlaneWaver.Modulation
                     _ => Mathf.Clamp01(modData.InitialValue + values.Smoothed * modData.ModInfluence)
                 };
                 values.Output = Mathf.Lerp(modData.ParameterRange.x, modData.ParameterRange.y, values.Limited);
+                values.Preview = values.Output;
             }
         }
 
@@ -119,26 +124,26 @@ namespace PlaneWaver.Modulation
         {
             public float Input;
             public float Normalised;
-            public float Absolute;
             public float Scaled;
             public float Accumulated;
             public float Smoothed;
             public float Raised;
             public float Limited;
             public float Output;
+            public float Preview;
             public bool Instant;
             
             public ProcessedValues(bool instant = false)
             {
                 Input = 0;
                 Normalised = 0;
-                Absolute = 0;
                 Scaled = 0;
                 Accumulated = 0;
                 Smoothed = 0;
                 Raised = 0;
                 Limited = 0;
                 Output = 0;
+                Preview = 0;
                 Instant = instant;
             }
         }

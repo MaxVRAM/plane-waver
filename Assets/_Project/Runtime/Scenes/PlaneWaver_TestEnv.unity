@@ -167,8 +167,8 @@ MonoBehaviour:
     TukeyHeight: 0.5
     GaussianSigma: 0.5
     LinearInOutFade: 0.01
-  SpeakerPoolCount: 20
-  SpeakerAllocationPeriod: 0.1
+  SpeakerPoolCount: 10
+  SpeakerAllocationPeriod: 0.01
   SynthSpeakerPrefab: {fileID: 2519325204652697373, guid: 6844ced249a80dd4584a457e05fa1c66,
     type: 3}
   SpeakerParentTransform: {fileID: 0}
@@ -183,10 +183,8 @@ MonoBehaviour:
   AttachmentLineMat: {fileID: 0}
   AttachmentLineWidth: 0.005
   OnlyTriggerMostRigidSurface: 1
-  Frames:
-  - {fileID: 1348788758}
-  Speakers:
-  - {fileID: 0}
+  Frames: []
+  Speakers: []
 --- !u!82 &374032799
 AudioSource:
   m_ObjectHideFlags: 0
@@ -575,12 +573,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Actor: {fileID: 0}
+  IsConnected: 0
+  InListenerRange: 0
+  MaterialModulator:
+    _Enabled: 1
+    _Renderer: {fileID: 0}
+    _Colour: {r: 0, g: 0, b: 0, a: 0}
+    _ColourParam: _EmissiveColor
+    _UseExistingColour: 1
+    _ActiveState: 0
+    _ActiveIntensity: 10
+    _InactiveIntensity: 0
+    _Smoothing: 0.5
   SpeakerTarget: {fileID: 0}
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0
   StableEmitters:
   - Condition: 0
-    ReflectPlayheadAtLimit: 1
+    ReflectPlayhead: 0
     VolumeAdjustment: 1
     AgeFadeOut: 0.95
     DynamicAttenuation:
@@ -597,11 +607,10 @@ MonoBehaviour:
       ObjectConstructed: 1
       BaseInitialised: 0
       EntityInitialised: 0
-    StableEmitterAsset: {fileID: 11400000, guid: da074ae0c6e140e44a64620f0fbc8c18,
-      type: 2}
+    StableEmitterAsset: {fileID: 0}
   VolatileEmitters:
   - Condition: 3
-    ReflectPlayheadAtLimit: 0
+    ReflectPlayhead: 0
     VolumeAdjustment: 1
     AgeFadeOut: 1
     DynamicAttenuation:
@@ -618,20 +627,7 @@ MonoBehaviour:
       ObjectConstructed: 1
       BaseInitialised: 0
       EntityInitialised: 0
-    VolatileEmitterAsset: {fileID: 11400000, guid: 836ddc243135d9440b2b935c6b3fa7bf,
-      type: 2}
-  IsConnected: 0
-  InListenerRange: 0
-  MaterialModulator:
-    _Enabled: 1
-    _Renderer: {fileID: 0}
-    _Colour: {r: 0, g: 0, b: 0, a: 0}
-    _ColourParam: _EmissiveColor
-    _UseExistingColour: 1
-    _ActiveState: 0
-    _ActiveIntensity: 10
-    _InactiveIntensity: 0
-    _Smoothing: 0.5
+    VolatileEmitterAsset: {fileID: 0}
 --- !u!23 &1348788759
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -907,6 +903,7 @@ GameObject:
   - component: {fileID: 1809325016}
   - component: {fileID: 1809325015}
   - component: {fileID: 1809325014}
+  - component: {fileID: 1809325018}
   m_Layer: 0
   m_Name: TestOther
   m_TagString: Untagged
@@ -993,6 +990,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &1809325018
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809325013}
+  serializedVersion: 2
+  m_Mass: 10
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &1831216240
 GameObject:
   m_ObjectHideFlags: 0
@@ -1681,6 +1694,7 @@ GameObject:
   - component: {fileID: 2081923543}
   - component: {fileID: 2081923542}
   - component: {fileID: 2081923541}
+  - component: {fileID: 2081923547}
   m_Layer: 0
   m_Name: TestActor
   m_TagString: Untagged
@@ -1799,3 +1813,71 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2081923547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2081923540}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53d167efd7e0ffb4cbcaa90e4e7ac6de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Actor: {fileID: 0}
+  IsConnected: 0
+  InListenerRange: 0
+  MaterialModulator:
+    _Enabled: 1
+    _Renderer: {fileID: 0}
+    _Colour: {r: 0, g: 0, b: 0, a: 0}
+    _ColourParam: _EmissiveColor
+    _UseExistingColour: 1
+    _ActiveState: 0
+    _ActiveIntensity: 10
+    _InactiveIntensity: 0
+    _Smoothing: 0.5
+  SpeakerTarget: {fileID: 0}
+  SpeakerTransform: {fileID: 0}
+  SpeakerIndex: 0
+  StableEmitters:
+  - Condition: 0
+    ReflectPlayhead: 0
+    VolumeAdjustment: 1
+    AgeFadeOut: 0.95
+    DynamicAttenuation:
+      RadiusMultiplier: 1
+      AgeFadeIn: 0
+      AgeFadeOut: 1
+      MuteOnDisconnection: 1
+      ReconnectionFadeInMS: 100
+      ReconnectionVolume: 0
+      DistanceVolume: 0
+      ListenerDistance: 0
+    DSPChainParams: []
+    RuntimeState:
+      ObjectConstructed: 1
+      BaseInitialised: 0
+      EntityInitialised: 0
+    StableEmitterAsset: {fileID: 0}
+  VolatileEmitters:
+  - Condition: 3
+    ReflectPlayhead: 0
+    VolumeAdjustment: 1
+    AgeFadeOut: 1
+    DynamicAttenuation:
+      RadiusMultiplier: 1
+      AgeFadeIn: 0
+      AgeFadeOut: 1
+      MuteOnDisconnection: 1
+      ReconnectionFadeInMS: 100
+      ReconnectionVolume: 0
+      DistanceVolume: 0
+      ListenerDistance: 0
+    DSPChainParams: []
+    RuntimeState:
+      ObjectConstructed: 1
+      BaseInitialised: 0
+      EntityInitialised: 0
+    VolatileEmitterAsset: {fileID: 0}

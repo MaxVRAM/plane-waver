@@ -1,7 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
 using PlaneWaver.Emitters;
-using PlaneWaver.Interaction;
 
 namespace PlaneWaver.Modulation
 {
@@ -49,9 +48,13 @@ namespace PlaneWaver.Modulation
             
             // INPUT
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Modulation", EditorStyles.boldLabel);
-            EditorGUI.indentLevel++;
-            enabled.boolValue = EditorGUILayout.Toggle("Enabled", enabled.boolValue);
+            using (new EditorGUILayout.HorizontalScope() )
+            {
+                var modulationContent = new GUIContent(
+                    "Modulation", "Enable/disable modulation of " + parameterName + " using the selected input");
+                EditorGUILayout.PrefixLabel(modulationContent, EditorStyles.toggle, EditorStyles.boldLabel);
+                enabled.boolValue = EditorGUILayout.Toggle(GUIContent.none, enabled.boolValue);
+            }
 
             if (!enabled.boolValue)
             {
@@ -60,13 +63,14 @@ namespace PlaneWaver.Modulation
                 return;
             }
             
+            EditorGUI.indentLevel++;
             float paramRange = paramRangeVector.y - paramRangeVector.x;
             float modAmount = modInfluence.floatValue * paramRange;
-            var modulationContent = new GUIContent
+            var influenceContent = new GUIContent
                     ("Influence", "Amount of modulation to apply to the parameter. Negative values invert the modulation.");
 
             EditorGUI.BeginChangeCheck();
-            float newAmount = EditorGUILayout.Slider(modulationContent, modAmount, -paramRange, paramRange);
+            float newAmount = EditorGUILayout.Slider(influenceContent, modAmount, -paramRange, paramRange);
             if (EditorGUI.EndChangeCheck()) { modInfluence.floatValue = newAmount / paramRange; }
 
             if (isVolatile)

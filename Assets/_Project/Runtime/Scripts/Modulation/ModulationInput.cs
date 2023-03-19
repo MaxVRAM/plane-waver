@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using PlaneWaver.Interaction;
 using UnityEngine;
 
@@ -22,6 +23,17 @@ namespace PlaneWaver.Modulation
             Actor = InputActor.Speed;
             Relative = InputRelative.Radius;
             Collision = InputCollision.CollisionForce;
+        }
+        
+        public string GetInputName()
+        {
+            return InputGroup switch {
+                InputGroups.Misc      => Misc.ToStringCached(),
+                InputGroups.Actor     => Actor.ToStringCached(),
+                InputGroups.Relative  => Relative.ToStringCached(),
+                InputGroups.Collision => Collision.ToStringCached(),
+                _                     => throw new ArgumentOutOfRangeException()
+            };
         }
 
         public float GetValue(ActorObject actor)
@@ -92,5 +104,41 @@ namespace PlaneWaver.Modulation
     public enum ModulationLimiter
     {
         Clip = 0, Wrap = 1, PingPong = 2
+    }
+    
+    public static class EnumExtensions
+    {
+        // https://www.meziantou.net/caching-enum-tostring-to-improve-performance.htm
+        
+        private static readonly ConcurrentDictionary<InputGroups, string> GroupCache = new();
+        private static readonly ConcurrentDictionary<InputMisc, string> MiscCache = new();
+        private static readonly ConcurrentDictionary<InputActor, string> ActorCache = new();
+        private static readonly ConcurrentDictionary<InputRelative, string> RelativeCache = new();
+        private static readonly ConcurrentDictionary<InputCollision, string> CollisionCache = new();
+
+        public static string ToStringCached(this InputGroups value)
+        {
+            return GroupCache.GetOrAdd(value, v => v.ToString());
+        }
+
+        public static string ToStringCached(this InputMisc value)
+        {
+            return MiscCache.GetOrAdd(value, v => v.ToString());
+        }
+
+        public static string ToStringCached(this InputActor value)
+        {
+            return ActorCache.GetOrAdd(value, v => v.ToString());
+        }
+
+        public static string ToStringCached(this InputRelative value)
+        {
+            return RelativeCache.GetOrAdd(value, v => v.ToString());
+        }
+
+        public static string ToStringCached(this InputCollision value)
+        {
+            return CollisionCache.GetOrAdd(value, v => v.ToString());
+        }
     }
 }

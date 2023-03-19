@@ -14,6 +14,12 @@ namespace PlaneWaver.Emitters
 
         public ActorObject Actor;
 
+        public bool IsConnected;
+        public bool CheckConnection => SpeakerTransform != null && SpeakerTransform != SpeakerTarget;
+        public bool InListenerRange;
+        public MaterialColourModulator MaterialModulator = new();
+        private Transform _headTransform;
+
         [Header("Speaker Attachment")]
         [Tooltip("Parent transform for speakers to target. Defaults to this frame's Actor's transform.")]
         public Transform SpeakerTarget;
@@ -23,13 +29,6 @@ namespace PlaneWaver.Emitters
 
         public List<StableEmitterAuth> StableEmitters = new();
         public List<VolatileEmitterAuth> VolatileEmitters = new();
-
-        public bool IsConnected;
-        public bool CheckConnection => SpeakerTransform != null && SpeakerTransform != SpeakerTarget;
-        public bool InListenerRange;
-        public MaterialColourModulator MaterialModulator = new();
-
-        private Transform _headTransform;
 
         #endregion
 
@@ -50,14 +49,20 @@ namespace PlaneWaver.Emitters
             ElementArchetype = Manager.CreateArchetype(typeof(FrameComponent));
             CreateEntity(EntityIndex);
             InitialiseEmitters();
+            
+            SynthManager.Instance.RegisterFrame(this);
         }
 
         private void OnEnable()
         {
             if (Actor != null)
                 Actor.OnNewValidCollision += TriggerCollisionEmitters;
-            RecreateEmitterEntities();
+
+            if (SynthManager.Instance == null)
+                return;
+
             SynthManager.Instance.RegisterFrame(this);
+            RecreateEmitterEntities();
         }
 
         private void OnDisable()
@@ -173,11 +178,15 @@ namespace PlaneWaver.Emitters
 
         private void RemoveConnectionComponent()
         {
-            Manager.RemoveComponent<AloneOnSpeakerTag>(ElementEntity);
-            Manager.RemoveComponent<SpeakerConnection>(ElementEntity);
             SpeakerTransform = SpeakerTarget;
             SpeakerIndex = -1;
             IsConnected = false;
+            
+            if (World.All.Count == 0 || !Manager.Exists(ElementEntity) || ElementEntity == Entity.Null)
+                return;
+            
+            Manager.RemoveComponent<AloneOnSpeakerTag>(ElementEntity);
+            Manager.RemoveComponent<SpeakerConnection>(ElementEntity);
         }
 
         private void UpdateEmitters()
@@ -192,7 +201,10 @@ namespace PlaneWaver.Emitters
         private void TriggerCollisionEmitters(CollisionData data)
         {
             foreach (VolatileEmitterAuth emitter in VolatileEmitters)
-                emitter.ApplyNewCollision(data);
+            {
+                if (emitter != null)
+                    emitter.ApplyNewCollision(data);
+            }
         }
 
         protected override void BeforeDestroyingEntity()

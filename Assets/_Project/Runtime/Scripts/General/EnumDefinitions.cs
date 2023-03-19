@@ -8,8 +8,7 @@ namespace PlaneWaver
     {
         // https://www.meziantou.net/caching-enum-tostring-to-improve-performance.htm
         
-        private static readonly ConcurrentDictionary<SynthElementType, string> Cache = 
-                new ConcurrentDictionary<SynthElementType, string>();
+        private static readonly ConcurrentDictionary<SynthElementType, string> Cache = new();
 
         public static string ToStringCached(this SynthElementType value)
         {

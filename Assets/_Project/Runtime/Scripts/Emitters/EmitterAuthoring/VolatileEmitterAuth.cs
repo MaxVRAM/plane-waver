@@ -22,7 +22,7 @@ namespace PlaneWaver.Emitters
         {
             base.Reset();
             Condition = PlaybackCondition.Collision;
-            ReflectPlayheadAtLimit = false;
+            ReflectPlayhead = false;
             AgeFadeOut = 1;
         }
 
@@ -50,7 +50,7 @@ namespace PlaneWaver.Emitters
                 LastGrainDuration = -1,
                 SamplesUntilFade = -1,
                 SamplesUntilDeath = -1,
-                ReflectPlayhead = ReflectPlayheadAtLimit,
+                ReflectPlayhead = ReflectPlayhead,
                 EmitterVolume = VolumeAdjustment,
                 DynamicAmplitude = DynamicAttenuation.CalculateAmplitude(Actor),
                 ModVolume = modulations[0],

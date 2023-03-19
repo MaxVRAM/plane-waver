@@ -33,7 +33,7 @@ namespace PlaneWaver.Emitters
 
         public PlaybackCondition Condition;
         protected BaseEmitterObject EmitterAsset;
-        public bool ReflectPlayheadAtLimit;
+        public bool ReflectPlayhead;
         [Range(0f, 2f)] public float VolumeAdjustment = 1;
         // This is temporary until I implement age fade in/out for non-volatile emitters in the DynamicAttenuator.
         [Range(0f, 1f)] public float AgeFadeOut;
@@ -55,7 +55,6 @@ namespace PlaneWaver.Emitters
 
         public virtual void Reset()
         {
-            Debug.Log( "BaseEmitterAuth: Reset");
             DSPChainParams = Array.Empty<DSPClass>();
             RuntimeState ??= new EmitterAuthRuntimeStates();
             RuntimeState.ObjectConstructed = true;
@@ -99,24 +98,23 @@ namespace PlaneWaver.Emitters
 
             EmitterAsset.InitialiseParameters(in actor);
             RuntimeState.BaseInitialised = true;
-            InitialiseEntity();
-            return true;
+            RuntimeState.EntityInitialised = InitialiseEntity() && InitialiseComponents();
+            
+            return RuntimeState.EntityInitialised;
         }
 
         public virtual bool InitialiseSubType() { return false; }
 
-        public void InitialiseEntity(bool ignoreBase = false)
+        public bool InitialiseEntity(bool ignoreBase = false)
         {
             if (!ignoreBase && !RuntimeState.BaseInitialised)
             {
                 Debug.LogWarning("EmitterAuth: Not initialised. Cannot create entity.");
-                return;                
+                return false;
             }
 
             if (RuntimeState.EntityInitialised)
-            {
-                return;
-            }
+                return true;
             
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
             ElementArchetype = Manager.CreateArchetype(typeof(EmitterComponent));
@@ -126,18 +124,20 @@ namespace PlaneWaver.Emitters
             Manager.SetName(EmitterEntity, FrameName + "." + (IsVolatile ? "Volatile" : "Stable"));
 #endif
             
-            RuntimeState.EntityInitialised = true;
-            InitialiseComponents();
+            return true;
         }
 
-        public void InitialiseComponents()
+        public bool InitialiseComponents()
         {
-            if (!RuntimeState.EntityInitialised)
+            if (!Manager.Exists(EmitterEntity))
+            {
                 Debug.LogWarning("EmitterAuth: Entity not initialised.");
+                return false;                
+            }
 
             Manager.SetComponentData
             (EmitterEntity, new EmitterComponent {
-                ReflectPlayhead = ReflectPlayheadAtLimit,
+                ReflectPlayhead = ReflectPlayhead,
                 AudioClipIndex = EmitterAsset.AudioObject.ClipEntityIndex,
                 LastSampleIndex = -1,
                 SamplesUntilFade = -1,
@@ -153,14 +153,18 @@ namespace PlaneWaver.Emitters
                 ModLength = new ModulationComponent()
             });
 
-            if (IsVolatile) Manager.AddComponentData(EmitterEntity, new EmitterVolatileTag());
+            if (IsVolatile)
+                Manager.AddComponentData(EmitterEntity, new EmitterVolatileTag());
             
             Manager.AddBuffer<AudioEffectParameters>(EmitterEntity);
             DynamicBuffer<AudioEffectParameters> dspParams = Manager.GetBuffer<AudioEffectParameters>(EmitterEntity);
 
-            if (DSPChainParams == null) return;
+            if (DSPChainParams == null)
+                return true;
             foreach (DSPClass t in DSPChainParams)
                 dspParams.Add(t.GetDSPBufferElement());
+            
+            return true;
         }
 
         #endregion
@@ -210,9 +214,13 @@ namespace PlaneWaver.Emitters
         protected void UpdateDSPEffectsBuffer(bool clear = true)
         {
             //--- TODO not sure if clearing and adding again is the best way to do this.
+            if (!RuntimeState.EntityInitialised || Manager.Exists(EmitterEntity))
+                return;
             DynamicBuffer<AudioEffectParameters> dspBuffer = Manager.GetBuffer<AudioEffectParameters>(EmitterEntity);
-            if (clear) dspBuffer.Clear();
-            if (DSPChainParams == null) return;
+            if (clear)
+                dspBuffer.Clear();
+            if (DSPChainParams == null)
+                return;
             foreach (DSPClass t in DSPChainParams)
                 dspBuffer.Add(t.GetDSPBufferElement());
         }

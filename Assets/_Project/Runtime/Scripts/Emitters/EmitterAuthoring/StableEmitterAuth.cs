@@ -21,7 +21,7 @@ namespace PlaneWaver.Emitters
         {
             base.Reset();
             Condition = PlaybackCondition.Constant;
-            ReflectPlayheadAtLimit = true;
+            ReflectPlayhead = true;
             AgeFadeOut = 0.95f;
         }
         
@@ -53,7 +53,7 @@ namespace PlaneWaver.Emitters
                 LastGrainDuration = previousData.LastGrainDuration,
                 SamplesUntilFade = int.MaxValue,  //_actor.Life.SamplesUntilFade(AgeFadeOut),
                 SamplesUntilDeath = int.MaxValue, //_actor.Life.SamplesUntilDeath(),
-                ReflectPlayhead = ReflectPlayheadAtLimit,
+                ReflectPlayhead = ReflectPlayhead,
                 EmitterVolume = VolumeAdjustment,
                 DynamicAmplitude = DynamicAttenuation.CalculateAmplitude(Actor),
                 ModVolume = modulations[0],

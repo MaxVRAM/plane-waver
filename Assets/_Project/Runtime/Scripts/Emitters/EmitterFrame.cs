@@ -38,6 +38,8 @@ namespace PlaneWaver.Emitters
         {
             if (Actor == null)
                 Actor = GetComponent<ActorObject>() ?? gameObject.AddComponent<ActorObject>();
+            
+            Actor.OnNewValidCollision += TriggerCollisionEmitters;
 
             InitialiseSpeakerTarget();
             InitialiseMaterialModulator();
@@ -82,9 +84,6 @@ namespace PlaneWaver.Emitters
             for (var i = 0; i < VolatileEmitters.Count; i++)
                 if (VolatileEmitters[i] != null)
                     VolatileEmitters[i].Initialise(i, name, in Actor);
-
-            // StableEmitters.RemoveAll(e => e == null);
-            // VolatileEmitters.RemoveAll(e => e == null);
         }
         
         private void RecreateEmitterEntities()

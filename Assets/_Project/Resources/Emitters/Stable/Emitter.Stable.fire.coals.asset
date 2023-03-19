@@ -33,7 +33,7 @@ MonoBehaviour:
     ModulationData:
       IsVolatileEmitter: 0
       ParameterRange: {x: 0, y: 1}
-      InitialRange: {x: 0.5, y: 0.5}
+      InitialRange: {x: 0, y: 0}
       ReversePath: 0
       Enabled: 1
       ModInputRange: {x: 0, y: 20}
@@ -41,7 +41,7 @@ MonoBehaviour:
       ModInputMultiplier: 1
       Accumulate: 0
       Smoothing: 0.2
-      InputExponent: 1
+      InputExponent: 2
       ModInfluence: 1
       TimeExponent: 1
       FixedStart: 0
@@ -65,21 +65,21 @@ MonoBehaviour:
       InputGroup: 2
       Misc: 0
       Actor: 0
-      Relative: 5
+      Relative: 6
       Collision: 1
     ModulationData:
       IsVolatileEmitter: 0
       ParameterRange: {x: 0, y: 1}
       InitialRange: {x: 0.5, y: 0.5}
       ReversePath: 0
-      Enabled: 1
-      ModInputRange: {x: 0, y: 1}
-      Absolute: 0
+      Enabled: 0
+      ModInputRange: {x: 0, y: 4}
+      Absolute: 1
       ModInputMultiplier: 1
       Accumulate: 0
       Smoothing: 0
       InputExponent: 1
-      ModInfluence: 0.275
+      ModInfluence: -0.35
       TimeExponent: 1
       FixedStart: 0
       FixedEnd: 0
@@ -107,7 +107,7 @@ MonoBehaviour:
     ModulationData:
       IsVolatileEmitter: 0
       ParameterRange: {x: 10, y: 250}
-      InitialRange: {x: 40, y: 40}
+      InitialRange: {x: 20, y: 40}
       ReversePath: 0
       Enabled: 1
       ModInputRange: {x: 0, y: 30}
@@ -116,7 +116,7 @@ MonoBehaviour:
       Accumulate: 0
       Smoothing: 0.2
       InputExponent: 1
-      ModInfluence: -0.03375
+      ModInfluence: 1
       TimeExponent: 1
       FixedStart: 0
       FixedEnd: 0
@@ -144,7 +144,7 @@ MonoBehaviour:
     ModulationData:
       IsVolatileEmitter: 0
       ParameterRange: {x: 0.1, y: 10}
-      InitialRange: {x: 3, y: 3}
+      InitialRange: {x: 1, y: 1}
       ReversePath: 0
       Enabled: 0
       ModInputRange: {x: 0, y: 1}

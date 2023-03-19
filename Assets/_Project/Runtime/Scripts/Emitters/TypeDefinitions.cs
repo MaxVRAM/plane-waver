@@ -42,17 +42,13 @@ namespace PlaneWaver.Emitters
         }
         
         /// <summary>
-        /// Updates the playing state of the emitter and returns whether the update was successful
+        /// Updates playback state if emitter, defaulting to false if not ready.
         /// </summary>
         /// <param name="playing">(bool) New playing state to set emitter.</param>
-        /// <returns>(bool) True if the update was successful, based on the emitter's ready state.</returns>
+        /// <returns>(bool) Returns new state.</returns>
         public bool SetPlaying(bool playing)
         {
-            if (!IsReady())
-                return IsPlaying = false;
-
-            IsPlaying = playing;
-            return true;
+            return IsPlaying = IsReady() && playing;
         }
     }
     

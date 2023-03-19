@@ -25,7 +25,7 @@ namespace PlaneWaver.Emitters
             AgeFadeOut = 0.95f;
         }
         
-        public override bool RequestPlayback()
+        public override bool CurrentPlayback()
         {
             RuntimeState.SetPlaying
             (Condition switch {

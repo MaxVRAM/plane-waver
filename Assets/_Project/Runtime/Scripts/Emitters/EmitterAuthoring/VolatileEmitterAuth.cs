@@ -26,12 +26,6 @@ namespace PlaneWaver.Emitters
             AgeFadeOut = 1;
         }
 
-        public override bool RequestPlayback()
-        {
-            // Triggered Volatile Emitters set playback to false once they have received a playback request.
-            return RuntimeState.IsPlaying && RuntimeState.SetPlaying(false);
-        }
-
         public override void ApplyNewCollision(CollisionData collisionData)
         {
             base.ApplyNewCollision(collisionData);

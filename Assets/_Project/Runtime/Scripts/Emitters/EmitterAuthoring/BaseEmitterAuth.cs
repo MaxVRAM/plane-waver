@@ -98,8 +98,7 @@ namespace PlaneWaver.Emitters
 
             EmitterAsset.InitialiseParameters(in actor);
             RuntimeState.BaseInitialised = true;
-            RuntimeState.EntityInitialised = InitialiseEntity() && InitialiseComponents();
-            
+            InitialiseEntity();
             return RuntimeState.EntityInitialised;
         }
 
@@ -124,6 +123,7 @@ namespace PlaneWaver.Emitters
             Manager.SetName(EmitterEntity, FrameName + "." + (IsVolatile ? "Volatile" : "Stable"));
 #endif
             
+            RuntimeState.EntityInitialised = InitialiseComponents();
             return true;
         }
 
@@ -178,7 +178,8 @@ namespace PlaneWaver.Emitters
     
         public void UpdateEmitterEntity(bool inListenerRange, bool isConnected, int speakerIndex)
         {
-            if (!RuntimeState.IsInitialised()) { return; }
+            if (!RuntimeState.IsInitialised()) 
+                return;
 
             if (!RuntimeState.SetConnected(isConnected && inListenerRange))
             {
@@ -189,15 +190,19 @@ namespace PlaneWaver.Emitters
             
             DynamicAttenuation.UpdateConnectionState(true);
 
-            if (!RequestPlayback()) return;
-
+            if (!CurrentPlayback())
+                return;
+            
             var data = Manager.GetComponentData<EmitterComponent>(EmitterEntity);
             data = UpdateEmitterComponent(data, speakerIndex);
             Manager.SetComponentData(EmitterEntity, data);
             Manager.AddComponent<EmitterReadyTag>(EmitterEntity);
+            
+            if (IsVolatile)
+                RuntimeState.SetPlaying(false);
         }
         
-        public virtual bool RequestPlayback()
+        public virtual bool CurrentPlayback()
         {
             return RuntimeState.IsPlaying;
         }

@@ -5,15 +5,6 @@ using PlaneWaver.Modulation;
 using Unity.Entities;
 using UnityEngine;
 
-// Trying to call the constructor on the hosted class, but it's not working.
-// Attempted calling it from a custom Inspector, but the data wouldn't serialise when referencing
-// the Serializable class. So I'm trying to call it from the constructor of the hosting class.
-// More information is here:
-// https://forum.unity.com/threads/how-to-inherit-from-list-t-make-a-list-t-propertydrawer.543154/
-// https://docs.unity3d.com/ScriptReference/ISerializationCallbackReceiver.html
-// ISerializationCallbackReceiver
-
-
 namespace PlaneWaver.Emitters
 {
     [Serializable]

@@ -24,7 +24,7 @@ namespace PlaneWaver.Library
                 if (library.PreviewAudioObject != null && library.AudioSource != null)
                 {
                     AudioObject audioObject = library.PreviewAudioObject;
-                    Debug.Log($"Previewing audio asset clip '{audioObject.Clip.name}' with duration {audioObject.Duration}.");
+                    // Debug.Log($"Previewing audio asset clip '{audioObject.Clip.name}' with duration {audioObject.Duration}.");
                     library.AudioSource.clip = audioObject.Clip;
                     library.AudioSource.Play();
                 }

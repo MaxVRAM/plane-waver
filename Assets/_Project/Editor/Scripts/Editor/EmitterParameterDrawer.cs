@@ -7,21 +7,42 @@ namespace PlaneWaver.Modulation
     [CustomPropertyDrawer(typeof(Parameter))]
     public class EmitterParameterCustomDrawer : PropertyDrawer
     {
-        private const int ToggleWidth = 20;
+        private int _indent = 0;
         private const int PrefixWidth = 140;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            int indent = EditorGUI.indentLevel;
-            EditorGUIUtility.wideMode = true;
+            _indent = EditorGUI.indentLevel;
             EditorGUI.indentLevel = 0;
-
-            GUILayoutOption[] floatFieldOptions = { GUILayout.MinWidth(40), GUILayout.ExpandWidth(true) };
+            
+            EditorGUIUtility.wideMode = true;
             EditorGUIUtility.labelWidth = PrefixWidth;
 
             SerializedProperty parameterProperties = property.FindPropertyRelative("ParameterProperties");
-            SerializedProperty modulationInput = property.FindPropertyRelative("ModulationInput");
             SerializedProperty modulationData = property.FindPropertyRelative("ModulationData");
+            
+            bool isVolatile = (BaseEmitterObject)property.serializedObject.targetObject is VolatileEmitterObject;
+            string parameterName = parameterProperties.FindPropertyRelative("Name").stringValue;
+            Vector2 range = parameterProperties.FindPropertyRelative("ParameterRange").vector2Value;
+
+            label = new GUIContent(parameterName);
+            EditorGUI.BeginProperty(position, label, property);
+            
+            DrawModulationFields( property, modulationData, range, isVolatile, parameterName == "Burst Length");
+            DrawNoiseFields(modulationData, isVolatile);
+            
+            EditorGUI.indentLevel = _indent;
+            EditorGUI.EndProperty();
+        }
+
+        private void DrawModulationFields(
+            SerializedProperty property,
+            SerializedProperty modulationData,
+            Vector2 range,
+            bool isVolatile,
+            bool isLength)
+        {
+            SerializedProperty modulationInput = property.FindPropertyRelative("ModulationInput");
             SerializedProperty enabled = modulationData.FindPropertyRelative("Enabled");
             SerializedProperty inputGroup = modulationInput.FindPropertyRelative("InputGroup");
             SerializedProperty selectedGroup = GetGroup(inputGroup, modulationInput);
@@ -33,38 +54,25 @@ namespace PlaneWaver.Modulation
             SerializedProperty inputExponent = modulationData.FindPropertyRelative("InputExponent");
             SerializedProperty modInfluence = modulationData.FindPropertyRelative("ModInfluence");
             SerializedProperty limiterMode = modulationData.FindPropertyRelative("LimiterMode");
-            SerializedProperty noiseInfluence = modulationData.FindPropertyRelative("NoiseInfluence");
-            SerializedProperty noiseMultiplier = modulationData.FindPropertyRelative("NoiseMultiplier");
 
-            Vector2 paramRangeVector = parameterProperties.FindPropertyRelative("ParameterRange").vector2Value;
-            string parameterName = parameterProperties.FindPropertyRelative("Name").stringValue;
-            bool isVolatile = (BaseEmitterObject)property.serializedObject.targetObject is VolatileEmitterObject;
+            GUILayoutOption[] floatFieldOptions = { GUILayout.MinWidth(40), GUILayout.ExpandWidth(true) };
             bool isInstant = modulationInput.FindPropertyRelative("InputGroup").enumValueIndex == (int)InputGroups.Collision;
-            bool isLength = parameterName == "Burst Length";
-            float labelWidth = EditorGUIUtility.labelWidth;
-
-            label = new GUIContent(parameterName);
-            EditorGUI.BeginProperty(position, label, property);
             
             // INPUT
             EditorGUILayout.Space();
             using (new EditorGUILayout.HorizontalScope() )
             {
                 var modulationContent = new GUIContent(
-                    "Modulation", "Enable/disable modulation of " + parameterName + " using the selected input");
+                    "Modulation", "Enable/disable modulation of parameter using the selected input");
                 EditorGUILayout.PrefixLabel(modulationContent, EditorStyles.toggle, EditorStyles.boldLabel);
                 enabled.boolValue = EditorGUILayout.Toggle(GUIContent.none, enabled.boolValue);
             }
-
+            
             if (!enabled.boolValue)
-            {
-                EditorGUI.indentLevel = indent;
-                EditorGUI.EndProperty();
                 return;
-            }
             
             EditorGUI.indentLevel++;
-            float paramRange = paramRangeVector.y - paramRangeVector.x;
+            float paramRange = range.y - range.x;
             float modAmount = modInfluence.floatValue * paramRange;
             var influenceContent = new GUIContent
                     ("Influence", "Amount of modulation to apply to the parameter. Negative values invert the modulation.");
@@ -75,17 +83,20 @@ namespace PlaneWaver.Modulation
 
             if (isVolatile)
             {
-                var timeContent = new GUIContent
-                        ("Time Exponent", "Apply exponent to the parameter over the duration of the volatile burst");
-                SerializedProperty timeExponent = modulationData.FindPropertyRelative("TimeExponent");
-                SerializedProperty fixedStart = parameterProperties.FindPropertyRelative("FixedStart");
-                SerializedProperty fixedEnd = parameterProperties.FindPropertyRelative("FixedEnd");
                 if (!isLength)
+                {
+                    var timeContent = new GUIContent
+                            ("Time Exponent", "Apply exponent to the parameter over the duration of the volatile burst");
+                    SerializedProperty timeExponent = modulationData.FindPropertyRelative("TimeExponent");
                     EditorGUILayout.Slider(timeExponent, 0.1f, 5f, timeContent);
+                }
+                
                 EditorGUILayout.PrefixLabel("Ignore Modulation");
                 EditorGUI.indentLevel++;
-                fixedStart.boolValue = EditorGUILayout.ToggleLeft("At Start", fixedStart.boolValue);
-                fixedEnd.boolValue = EditorGUILayout.ToggleLeft("At End", fixedEnd.boolValue);
+                SerializedProperty fixedStart = modulationData.FindPropertyRelative("FixedStart");
+                SerializedProperty fixedEnd = modulationData.FindPropertyRelative("FixedEnd");
+                EditorGUILayout.PropertyField(fixedStart);
+                EditorGUILayout.PropertyField(fixedEnd);
                 EditorGUI.indentLevel--;
             }
             EditorGUI.indentLevel--;
@@ -145,12 +156,30 @@ namespace PlaneWaver.Modulation
             EditorGUILayout.PropertyField(limiterMode, limitLabel);
 
             EditorGUI.indentLevel--;
+        }
 
+        private void DrawNoiseFields(SerializedProperty modulationData, bool isVolatile)
+        {
             // NOISE
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Noise", EditorStyles.boldLabel);
-            EditorGUI.indentLevel++;
+            SerializedProperty noiseEnabled = modulationData.FindPropertyRelative("NoiseEnabled");
+            SerializedProperty noiseInfluence = modulationData.FindPropertyRelative("NoiseInfluence");
+            SerializedProperty noiseMultiplier = modulationData.FindPropertyRelative("NoiseMultiplier");
+            
+            
+            EditorGUILayout.Space(2);
+            var noiseEnabledLabel = new GUIContent
+                    ("Noise", "Enable/disable noise modulation of the parameter.");
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.PrefixLabel(noiseEnabledLabel, EditorStyles.toggle, EditorStyles.boldLabel);
+                noiseEnabled.boolValue = EditorGUILayout.Toggle(GUIContent.none, noiseEnabled.boolValue);
+            }
 
+            if (!noiseEnabled.boolValue)
+                return;
+            
+            EditorGUI.indentLevel++;
+            
             if (!isVolatile)
             {
                 SerializedProperty usePerlin = modulationData.FindPropertyRelative("UsePerlin");
@@ -166,6 +195,11 @@ namespace PlaneWaver.Modulation
                             "Speed of the Perlin noise. 0 = no movement, 1 = steady, 10 = extremely fast."));
                 }
             }
+            else
+            {
+                SerializedProperty lockNoise = modulationData.FindPropertyRelative("LockNoise");
+                EditorGUILayout.PropertyField(lockNoise);
+            }
 
             var noiseMultiplyLabel = new GUIContent
                     ("Multiplier", "Multiplier for the noise value, providing greater control over the noise influence.");
@@ -173,9 +207,6 @@ namespace PlaneWaver.Modulation
             var noiseLabel = new GUIContent
                     ("Amount", "Influence of the noise value on the parameter value. 0 = no influence, 1 = full influence.");
             EditorGUILayout.Slider(noiseInfluence, 0, 1, noiseLabel);
-
-            EditorGUI.indentLevel = indent;
-            EditorGUI.EndProperty();
         }
 
         private static SerializedProperty GetGroup(SerializedProperty group, SerializedProperty property)

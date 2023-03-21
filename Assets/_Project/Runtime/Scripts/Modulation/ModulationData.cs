@@ -29,6 +29,7 @@ namespace PlaneWaver.Modulation
             public bool FixedStart;
             public bool FixedEnd;
             public ModulationLimiter LimiterMode;
+            public bool NoiseEnabled;
             public float NoiseInfluence;
             public float NoiseMultiplier;
             public float PerlinSpeed;
@@ -62,6 +63,7 @@ namespace PlaneWaver.Modulation
                 FixedStart = propertiesObject.FixedStart;
                 FixedEnd = propertiesObject.FixedEnd;
                 LimiterMode = ModulationLimiter.Clip;
+                NoiseEnabled = false;
                 NoiseInfluence = 0;
                 NoiseMultiplier = 0.1f;
                 UsePerlin = !isVolatileEmitter;
@@ -102,7 +104,7 @@ namespace PlaneWaver.Modulation
                     InputExponent = InputExponent,
                     Min = ParameterRange.x,
                     Max = ParameterRange.y,
-                    Noise = NoiseInfluence * NoiseMultiplier,
+                    Noise = NoiseEnabled ? NoiseInfluence * NoiseMultiplier : 0,
                     PerlinValue = -1,
                     UsePerlin = false,
                     LockNoise = LockNoise,
@@ -122,7 +124,7 @@ namespace PlaneWaver.Modulation
                     InputExponent = -1,
                     Min = ParameterRange.x,
                     Max = ParameterRange.y,
-                    Noise = NoiseInfluence * NoiseMultiplier,
+                    Noise = NoiseEnabled ? NoiseInfluence * NoiseMultiplier : 0,
                     PerlinValue = GetPerlinValue(),
                     UsePerlin = UsePerlin,
                     LockNoise = false,
@@ -134,7 +136,7 @@ namespace PlaneWaver.Modulation
 
             public float GetPerlinValue()
             {
-                if (IsVolatileEmitter || !UsePerlin || Mathf.Approximately(NoiseInfluence, 0f))
+                if (IsVolatileEmitter || !NoiseEnabled || !UsePerlin || Mathf.Approximately(NoiseInfluence, 0f))
                     return 0;
 
                 PerlinOffset += PerlinSpeed * Time.deltaTime;

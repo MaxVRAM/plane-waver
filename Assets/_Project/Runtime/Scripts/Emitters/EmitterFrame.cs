@@ -14,6 +14,7 @@ namespace PlaneWaver.Emitters
 
         public ActorObject Actor;
 
+        private bool _emittersCreated;
         public bool IsConnected;
         public bool CheckConnection => SpeakerTransform != null && SpeakerTransform != SpeakerTarget;
         public bool InListenerRange;
@@ -84,10 +85,15 @@ namespace PlaneWaver.Emitters
             for (var i = 0; i < VolatileEmitters.Count; i++)
                 if (VolatileEmitters[i] != null)
                     VolatileEmitters[i].Initialise(i, name, in Actor);
+            
+            _emittersCreated = true;
         }
         
         private void RecreateEmitterEntities()
         {
+            if (!_emittersCreated)
+                return;
+            
             foreach (StableEmitterAuth emitter in StableEmitters)
                 if (emitter != null)
                     emitter.InitialiseEntity(true);

@@ -252,13 +252,14 @@ public partial class GrainSynthSystem : SystemBase
                         }
                     }
                     // Get random values for next iteration and update random array to avoid repeating values
+                    if (!emitter.ModVolume.LockNoise)
+                        randomVolume = randomGen.NextFloat(-1, 1);
                     if (!emitter.ModDensity.LockNoise)
                         randomDensity = randomGen.NextFloat(-1, 1);
                     if (!emitter.ModPlayhead.LockNoise)
                         randomPlayhead = randomGen.NextFloat(-1, 1);
                     if (!emitter.ModDuration.LockNoise)
                         randomDuration = randomGen.NextFloat(-1, 1);
-                    randomVolume = randomGen.NextFloat(-1, 1);
                     if (!emitter.ModTranspose.LockNoise)
                         randomTranspose = randomGen.NextFloat(-1, 1);
                     randomArray[nativeThreadIndex] = randomGen;

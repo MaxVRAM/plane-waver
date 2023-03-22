@@ -1,7 +1,7 @@
 
 using UnityEngine;
 
-namespace PlaneWaver
+namespace PlaneWaver.Interaction
 {
     public enum JointType
     {
@@ -13,13 +13,13 @@ namespace PlaneWaver
         Configurable
     }
 
-    public class BaseJointScriptable : InteractionBaseScriptable
+    public class JointBaseObject : BaseInteractionObject
     {
         public bool Enabled = true;
         [Range(0f,1f)] public float JointLineWidth = 0.1f;
         public float LineWidth => JointLineWidth * 0.2f;
 
-        public override void Initialise()
+        protected override void Initialise()
         {
             base.Initialise();
         }

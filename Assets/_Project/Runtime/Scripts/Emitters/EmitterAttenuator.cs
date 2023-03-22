@@ -84,7 +84,9 @@ namespace PlaneWaver.Modulation
                 return 1;
 
             ListenerDistance = actor.SpeakerTargetToListener();
-            DistanceVolume = ScaleAmplitude.ListenerDistanceVolume(ListenerDistance, SynthManager.Instance.ListenerRadius * RadiusMultiplier);
+            DistanceVolume = ScaleAmplitude.ListenerDistanceVolume(
+                ListenerDistance,
+                SynthManager.Instance.ListenerRadius * RadiusMultiplier);
             return DistanceVolume;
         }
 

@@ -2,17 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PlaneWaver
+namespace PlaneWaver.Interaction
 {
     [CreateAssetMenu(fileName = "Joint.Spring.", menuName = "PlaneWaver/Joint/Spring", order = 1)]
-    public class JointSpringScriptable : BaseJointScriptable
+    public class JointSpringObject : JointBaseObject
     {
         public float Spring;
         public float Damper;
         public float MinDistance;
         public float MaxDistance;
 
-        public override void Initialise()
+        protected override void Initialise()
         {
             base.Initialise();
         }
@@ -22,6 +22,10 @@ namespace PlaneWaver
         public override Joint AssignJointConfig(Joint joint)
         {
             var springJoint = joint as SpringJoint;
+            
+            if (springJoint == null)
+                return null;
+            
             springJoint.spring = Spring;
             springJoint.damper = Damper;
             springJoint.minDistance = MinDistance;

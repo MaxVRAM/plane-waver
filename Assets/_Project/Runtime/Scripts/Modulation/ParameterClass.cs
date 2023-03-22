@@ -113,7 +113,8 @@ namespace PlaneWaver.Modulation
             }
             else
             {
-                float initialOffset = modData.InitialValue / parameterRange;
+                float initialOffset = Mathf.InverseLerp(modData.ParameterRange.x, modData.ParameterRange.y, modData.InitialValue);
+                //float initialOffset = modData.InitialValue / parameterRange;
                 values.Limited = modData.LimiterMode switch {
                     ModulationLimiter.Clip => Mathf.Clamp01(initialOffset + values.Smoothed * modData.ModInfluence),
                     ModulationLimiter.Wrap => values.Smoothed.WrapNorm(modData.ModInfluence, initialOffset),

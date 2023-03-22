@@ -4,21 +4,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using MaxVRAM.Extensions;
 
-namespace PlaneWaver
+namespace PlaneWaver.Interaction
 {
     [RequireComponent(typeof(Rigidbody))]
-    public class InteractionJointController : MonoBehaviour
+    public class JointController : MonoBehaviour
     {
-        private bool _initialised = false;
+        private bool _initialised;
         public Transform LocalTransform;
         public Transform RemoteTransform;
         private Rigidbody _remoteRigidbody;
         public Joint JointComponent;
-        public BaseJointScriptable JointSetup;
+        public JointBaseObject JointSetup;
         public bool VisualiseJointLine = true;
         private AttachmentLine _jointLine;
 
-        void Update()
+        private void Update()
         {
             if (!_initialised)
                 return;
@@ -26,15 +26,16 @@ namespace PlaneWaver
             UpdateLine();
         }
 
-        public void Initialise(BaseJointScriptable jointConfig, Transform remoteTransform)
+        public void Initialise(JointBaseObject jointConfig, Transform remoteTransform)
         {
             JointSetup = jointConfig;
             LocalTransform = transform;
             RemoteTransform = remoteTransform;
             if (!RemoteTransform.TryGetComponent(out _remoteRigidbody))
             {
-                Debug.LogError($"Remote transform {RemoteTransform.name} does not have a rigidbody");
-                _initialised = false;
+                var rb = RemoteTransform.gameObject.AddComponent<Rigidbody>();
+                rb.useGravity = false;
+                rb.isKinematic = true;
             }
 
             switch (JointSetup.GetJointType)
@@ -67,29 +68,23 @@ namespace PlaneWaver
 
             JointComponent = JointSetup.AssignJointConfig(JointComponent);
             JointComponent.connectedBody = _remoteRigidbody;
-
+            
+            if (_jointLine == null)
+                _jointLine = new GameObject("JointLine").SetParentAndZero(gameObject).AddComponent<AttachmentLine>();
+            
+            _jointLine.Active = false;
+            _jointLine.TransformA = LocalTransform;
             _initialised = true;
         }
 
         private void UpdateLine()
         {
-            if (!VisualiseJointLine)
-            {
-                if (_jointLine != null)
-                    _jointLine._Active = false;
+            if (_jointLine == null || JointSetup == null || LocalTransform == null || RemoteTransform == null)
                 return;
-            }
-
-            if (LocalTransform == null || RemoteTransform == null)
-                return;
-
-            if (_jointLine == null)
-                _jointLine = new GameObject("JointLine").SetParentAndZero(gameObject).AddComponent<AttachmentLine>();
             
-            _jointLine._TransformA = LocalTransform;
-            _jointLine._TransformB = RemoteTransform;
             _jointLine.JointLineWidth = JointSetup.LineWidth;
-            _jointLine._Active = true;
+            _jointLine.TransformB = RemoteTransform;
+            _jointLine.Active = VisualiseJointLine;
         }
     }
 }

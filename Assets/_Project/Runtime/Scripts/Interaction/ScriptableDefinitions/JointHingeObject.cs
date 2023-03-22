@@ -2,13 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PlaneWaver
+namespace PlaneWaver.Interaction
 {
     [CreateAssetMenu(fileName = "Joint.Hinge.", menuName = "PlaneWaver/Joint/Hinge", order = 1)]
-    public class JointHingeScriptable : BaseJointScriptable
+    public class JointHingeObject : JointBaseObject
     {
 
-        public override void Initialise()
+        protected override void Initialise()
         {
             base.Initialise();
         }

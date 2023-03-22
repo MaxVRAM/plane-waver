@@ -4,100 +4,97 @@ namespace PlaneWaver
 {
     public class AttachmentLine : MonoBehaviour
     {
-        public bool _Active = false;
-        public LineRenderer _Line;
-        public Transform _TransformA;
-        public Transform _TransformB;
-        public Material _CustomMaterial;
-        public bool _UseJointConnectionBody = false;
-        private bool _LineReady = false;
-        private bool _PointsReady = false;
-        private float _JointLineWidth = float.MaxValue;
+        public bool Active;
+        public LineRenderer Line;
+        public Transform TransformA;
+        public Transform TransformB;
+        public Material CustomMaterial;
+        public bool UseJointConnectionBody = false;
+        private bool _lineReady;
+        private bool _pointsReady;
+        private float _jointLineWidth = -1;
+        
         public float JointLineWidth {
-            get => _JointLineWidth != float.MaxValue ? _JointLineWidth : SynthManager.Instance.AttachmentLineWidth;
-            set => _JointLineWidth = value;
+            get => _jointLineWidth > 0 ? _jointLineWidth : SynthManager.Instance.AttachmentLineWidth;
+            set => _jointLineWidth = value;
         }
 
-        public bool LineInitialised()
+        private bool LineInitialised()
         {
-            if (_LineReady)
+            if (_lineReady)
                 return true;
 
-            if (!TryGetComponent(out _Line))
-                _Line = gameObject.AddComponent<LineRenderer>();
+            if (!TryGetComponent(out Line))
+                Line = gameObject.AddComponent<LineRenderer>();
 
-            _Line.material = _CustomMaterial != null ? _CustomMaterial : SynthManager.Instance.AttachmentLineMat;
+            Line.material = CustomMaterial != null ? CustomMaterial : SynthManager.Instance.AttachmentLineMat;
 
-            if (_CustomMaterial != null)
-                _Line.material = _CustomMaterial;
-            else if (SynthManager.Instance != null)
-                _Line.material = SynthManager.Instance.AttachmentLineMat;
+            Line.material = CustomMaterial != null ? CustomMaterial : SynthManager.Instance.AttachmentLineMat;
+            Line.widthMultiplier = JointLineWidth;
+            Line.positionCount = 2;
 
-            _Line.widthMultiplier = JointLineWidth;
-            _Line.positionCount = 2;
-
-            return _LineReady = true;
+            return _lineReady = true;
         }
 
-        public bool PointsInitialised()
+        private bool PointsInitialised()
         {
-            if (_PointsReady)
+            if (_pointsReady)
                 return true;
 
             if (!LineInitialised())
             {
-                _Line.enabled = false;
-                return _PointsReady = false;
+                Line.enabled = false;
+                return _pointsReady = false;
             }
 
-            if (_TransformA == null)
-                _TransformA = transform;
+            if (TransformA == null)
+                TransformA = transform;
 
-            _Line.SetPosition(0, _TransformA.position);
+            Line.SetPosition(0, TransformA.position);
 
-            if (_TransformB != null)
+            if (TransformB != null)
             {
-                _Line.SetPosition(1, _TransformB.position);
-                return _PointsReady = true;
+                Line.SetPosition(1, TransformB.position);
+                return _pointsReady = true;
             }
 
-            if (!_UseJointConnectionBody || !_TransformA.TryGetComponent(out Joint joint))
+            if (!UseJointConnectionBody || !TransformA.TryGetComponent(out Joint joint))
             {
-                _Line.enabled = false;
-                return _PointsReady = false;
+                Line.enabled = false;
+                return _pointsReady = false;
             }
 
             if (joint.connectedBody == null)
             {
-                _Line.enabled = false;
-                return _PointsReady = false;
+                Line.enabled = false;
+                return _pointsReady = false;
             }
 
-            _TransformB = joint.connectedBody.transform;
-            _Line.SetPosition(1, _TransformB.position);
-            return _PointsReady = true;
+            TransformB = joint.connectedBody.transform;
+            Line.SetPosition(1, TransformB.position);
+            return _pointsReady = true;
         }
 
-        void Update()
+        private void Update()
         {
             if (!PointsInitialised())
                 return;
 
-            if (!_Active || _TransformA == null || _TransformB == null)
+            if (!Active || TransformA == null || TransformB == null)
             {
-                _Line.enabled = false;
+                Line.enabled = false;
                 return;
             }
 
-            if (Vector3.Distance(_TransformA.position, _TransformB.position) > .01f)
+            if (Vector3.Distance(TransformA.position, TransformB.position) > .01f)
             {
-                _Line.enabled = true;
-                _Line.SetPosition(0, _TransformA.position);
-                _Line.SetPosition(1, _TransformB.position);
+                Line.enabled = true;
+                Line.SetPosition(0, TransformA.position);
+                Line.SetPosition(1, TransformB.position);
             }
             else
             {
-                _Line.enabled = false;
+                Line.enabled = false;
             }
         }
     }

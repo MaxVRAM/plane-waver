@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-
 using UnityEngine;
-using MaxVRAM.Extensions;
-using UnityEngine.Serialization;
+using System.Collections.Generic;
 
-namespace PlaneWaver
+using MaxVRAM.Extensions;
+
+namespace PlaneWaver.Interaction
 {
     public class SliderLineMultiPoint : MonoBehaviour
     {
@@ -26,8 +23,8 @@ namespace PlaneWaver
         private bool _nodesInitialised = false;
 
         [Header("Joint Configs")]
-        public BaseJointScriptable AnchorJoint = null;
-        public BaseJointScriptable NodeNeighbourJoint = null;
+        public JointBaseObject AnchorJoint = null;
+        public JointBaseObject NodeNeighbourJoint = null;
 
         [Header("Visualisation")]
         public bool VisualiseLine = true;

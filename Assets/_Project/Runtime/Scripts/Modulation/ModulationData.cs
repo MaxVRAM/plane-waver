@@ -84,6 +84,7 @@ namespace PlaneWaver.Modulation
             
             public float GetNewInitialValue()
             {
+                Random.InitState((int) (Time.realtimeSinceStartup * 1000));
                 return Random.Range(InitialRange.x, InitialRange.y);
             }
             

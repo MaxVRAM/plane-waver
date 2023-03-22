@@ -1,15 +1,15 @@
-using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 using UnityEngine;
 
 using GD.MinMaxSlider;
 
 using MaxVRAM;
 using MaxVRAM.Counters;
+
 using PlaneWaver.Emitters;
-using Random = UnityEngine.Random;
 
 namespace PlaneWaver.Interaction
 {
@@ -34,7 +34,7 @@ namespace PlaneWaver.Interaction
         )]
         public List<GameObject> SpawnablePrefabs;
         public bool RandomiseSpawnPrefab;
-        public BaseJointScriptable AttachmentJoint;
+        public JointBaseObject AttachmentJoint;
 
         private const int MaxObjects = 100;
         [Header("Spawning Rules")] [Range(0, 100)]
@@ -43,7 +43,6 @@ namespace PlaneWaver.Interaction
         public float SpawnPeriodSeconds = 0.2f;
         public SpawnCondition SpawnWhen = SpawnCondition.AfterSpeakersPopulated;
         public bool SpawnAfterPeriodSet => SpawnWhen == SpawnCondition.AfterDelayPeriod;
-        //[EnableIf("SpawnAfterPeriodSet")]
         [Tooltip("Number of seconds after this ObjectSpawner is created before it starts spawning loop.")]
         public float SpawnDelaySeconds = 2;
         public bool AutoSpawn = true;
@@ -275,8 +274,9 @@ namespace PlaneWaver.Interaction
 
         private void InitialiseSpawnVelocity(int index)
         {
-            Rigidbody rb = _spawnedObjectPool[index].GetComponent<Rigidbody>() ??
-                           _spawnedObjectPool[index].AddComponent<Rigidbody>();
+            if (!_spawnedObjectPool[index].TryGetComponent(out Rigidbody rb))
+                rb = _spawnedObjectPool[index].AddComponent<Rigidbody>();
+            
             Vector3 randomDirection = Random.onUnitSphere;
 
             Vector3 spawnDirectionUnitVector = Vector3.Slerp(
@@ -288,15 +288,13 @@ namespace PlaneWaver.Interaction
             Vector3 velocity = _spawnedObjectPool[index].transform.localRotation * spawnDirectionUnitVector * 
                                (EjectionDirection.magnitude * Rando.Range(EjectionSpeed));
             rb.velocity = velocity;
+            
+            if (PrefabToSpawn.TryGetComponent(out Rigidbody prefabRb))
+                rb.mass = prefabRb.mass * _spawnedObjectPool[index].transform.localScale.magnitude;
         }
 
         private void ConfigureObjectComponents(int index, Transform controllerTransform)
         {
-            if (AttachmentJoint != null)
-                _spawnedObjectPool[index]
-                       .AddComponent<InteractionJointController>()
-                       .Initialise(AttachmentJoint, controllerTransform);
-
             ActorObject actor = _spawnedObjectPool[index].GetComponent<ActorObject>() ??
                                 _spawnedObjectPool[index].AddComponent<ActorObject>();
             actor.Spawner = this;
@@ -310,7 +308,7 @@ namespace PlaneWaver.Interaction
             );
 
             EmitterFrame[] attachedEmitterFrames = _spawnedObjectPool[index].GetComponentsInChildren<EmitterFrame>();
-            if (attachedEmitterFrames.Length <= 0) return;
+            
             if (attachedEmitterFrames.Length > 1)
                 Debug.LogWarning($"ActorSpawner {name} has more than one EmitterFrame attached to it. " +
                                  "This is not supported and may cause unexpected behaviour. " +
@@ -321,6 +319,18 @@ namespace PlaneWaver.Interaction
                 frame.Actor = actor;
                 frame.EntityIndex = index;
             }
+            
+            var jointController = _spawnedObjectPool[index].GetComponent<JointController>();
+
+            if (jointController == null)
+            {
+                if (AttachmentJoint == null)
+                    Destroy(jointController);
+                else
+                    jointController = _spawnedObjectPool[index].AddComponent<JointController>();
+            }
+            
+            jointController.Initialise(AttachmentJoint, controllerTransform);
         }
 
         #endregion

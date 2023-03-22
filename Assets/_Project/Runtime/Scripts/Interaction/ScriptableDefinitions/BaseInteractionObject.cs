@@ -1,18 +1,18 @@
 using UnityEngine;
 
-public class InteractionBaseScriptable : ScriptableObject
+public class BaseInteractionObject : ScriptableObject
 {
-    void Start()
+    private void Start()
     {
         
     }
 
-    void Update()
+    private void Update()
     {
         
     }
 
-    public virtual void Initialise()
+    protected virtual void Initialise()
     {
         
     }

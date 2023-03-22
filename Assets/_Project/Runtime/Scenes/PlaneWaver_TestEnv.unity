@@ -180,7 +180,7 @@ MonoBehaviour:
   SpeakerLingerTime: 100
   StatsValuesText: {fileID: 0}
   StatsValuesPeakText: {fileID: 0}
-  AttachmentLineMat: {fileID: 0}
+  AttachmentLineMat: {fileID: 2100000, guid: bef1d408af17a9c40bcb880dc206819b, type: 2}
   AttachmentLineWidth: 0.005
   OnlyTriggerMostRigidSurface: 1
   Frames: []
@@ -418,7 +418,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 800963904}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -426,7 +426,7 @@ Transform:
   m_Father: {fileID: 1507485546}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &817876741
+--- !u!1 &903864539
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -434,53 +434,52 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 817876742}
-  - component: {fileID: 817876745}
-  - component: {fileID: 817876744}
-  - component: {fileID: 817876743}
+  - component: {fileID: 903864540}
+  - component: {fileID: 903864543}
+  - component: {fileID: 903864542}
+  - component: {fileID: 903864541}
   m_Layer: 0
-  m_Name: SpawnController
+  m_Name: Sphere.Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &817876742
+--- !u!4 &903864540
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 817876741}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_GameObject: {fileID: 903864539}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.1, z: 0.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1507485546}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &817876743
-CapsuleCollider:
+--- !u!135 &903864541
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 817876741}
+  m_GameObject: {fileID: 903864539}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 0
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
---- !u!23 &817876744
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &903864542
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 817876741}
+  m_GameObject: {fileID: 903864539}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -516,14 +515,14 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!33 &817876745
+--- !u!33 &903864543
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 817876741}
-  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+  m_GameObject: {fileID: 903864539}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1348788755
 GameObject:
   m_ObjectHideFlags: 0
@@ -607,7 +606,8 @@ MonoBehaviour:
       ObjectConstructed: 1
       BaseInitialised: 0
       EntityInitialised: 0
-    StableEmitterAsset: {fileID: 0}
+    StableEmitterAsset: {fileID: 11400000, guid: da074ae0c6e140e44a64620f0fbc8c18,
+      type: 2}
   VolatileEmitters:
   - Condition: 3
     ReflectPlayhead: 0
@@ -627,7 +627,8 @@ MonoBehaviour:
       ObjectConstructed: 1
       BaseInitialised: 0
       EntityInitialised: 0
-    VolatileEmitterAsset: {fileID: 0}
+    VolatileEmitterAsset: {fileID: 11400000, guid: 836ddc243135d9440b2b935c6b3fa7bf,
+      type: 2}
 --- !u!23 &1348788759
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -723,7 +724,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1507485546
 Transform:
   m_ObjectHideFlags: 0
@@ -736,7 +737,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 817876742}
+  - {fileID: 903864540}
   - {fileID: 800963905}
   m_Father: {fileID: 0}
   m_RootOrder: 4
@@ -753,31 +754,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abaa7077d43660243b3aa238516d9d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ControllerTransform: {fileID: 817876742}
+  ControllerTransform: {fileID: 903864540}
   ControllerAnchor: {fileID: 0}
   SpawnParentTransform: {fileID: 800963905}
   PrefabToSpawn: {fileID: 1348788755}
   SpawnablePrefabs: []
   RandomiseSpawnPrefab: 0
-  AttachmentJoint: {fileID: 0}
-  TargetNumObjects: 10
-  SpawnPeriodSeconds: 0.25
+  AttachmentJoint: {fileID: 11400000, guid: dc6ae2967ee3b914e8cdc627519a9d7a, type: 2}
+  TargetNumObjects: 1
+  SpawnPeriodSeconds: 0.1
   SpawnWhen: 1
   SpawnDelaySeconds: 2
   AutoSpawn: 1
   AutoRemove: 1
-  SpawnObjectScale: {x: 1, y: 1}
-  EjectionPosition: {x: 0, y: 1, z: 0}
-  PositionVariance: 0.5
-  EjectionRadius: {x: 1, y: 2}
-  EjectionDirection: {x: 0, y: 0, z: -1}
-  DirectionVariance: 0.25
-  EjectionSpeed: {x: 5, y: 10}
+  SpawnObjectScale: {x: 0.5, y: 2}
+  EjectionPosition: {x: 1, y: 0, z: 0}
+  PositionVariance: 0
+  EjectionRadius: {x: 4, y: 4}
+  EjectionDirection: {x: 1, y: 0, z: 0}
+  DirectionVariance: 0
+  EjectionSpeed: {x: 20, y: 20}
   BoundingAreaType: 2
   BoundingCollider: {fileID: 0}
   BoundingRadius: 30
   UseSpawnLifespan: 1
-  SpawnLifeSpanDuration: {x: 4, y: 4}
+  SpawnLifeSpanDuration: {x: 3, y: 10}
   AllowSiblingSurfaceContact: 0
   AllowSiblingCollisionTrigger: 2
   EmissiveFlashTrigger: 1
@@ -904,13 +905,14 @@ GameObject:
   - component: {fileID: 1809325015}
   - component: {fileID: 1809325014}
   - component: {fileID: 1809325018}
+  - component: {fileID: 1809325019}
   m_Layer: 0
   m_Name: TestOther
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!136 &1809325014
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1006,6 +1008,102 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!153 &1809325019
+ConfigurableJoint:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1809325013}
+  m_ConnectedBody: {fileID: 0}
+  m_ConnectedArticulationBody: {fileID: 0}
+  m_Anchor: {x: 0, y: 1, z: 0}
+  m_Axis: {x: 1, y: 0, z: 0}
+  m_AutoConfigureConnectedAnchor: 1
+  m_ConnectedAnchor: {x: 0, y: 0, z: 0}
+  serializedVersion: 2
+  m_SecondaryAxis: {x: 0, y: 1, z: 0}
+  m_XMotion: 2
+  m_YMotion: 2
+  m_ZMotion: 2
+  m_AngularXMotion: 2
+  m_AngularYMotion: 2
+  m_AngularZMotion: 2
+  m_LinearLimitSpring:
+    spring: 0
+    damper: 0
+  m_LinearLimit:
+    limit: 0
+    bounciness: 0
+    contactDistance: 0
+  m_AngularXLimitSpring:
+    spring: 0
+    damper: 0
+  m_LowAngularXLimit:
+    limit: 0
+    bounciness: 0
+    contactDistance: 0
+  m_HighAngularXLimit:
+    limit: 0
+    bounciness: 0
+    contactDistance: 0
+  m_AngularYZLimitSpring:
+    spring: 0
+    damper: 0
+  m_AngularYLimit:
+    limit: 0
+    bounciness: 0
+    contactDistance: 0
+  m_AngularZLimit:
+    limit: 0
+    bounciness: 0
+    contactDistance: 0
+  m_TargetPosition: {x: 0, y: 0, z: 0}
+  m_TargetVelocity: {x: 0, y: 0, z: 0}
+  m_XDrive:
+    serializedVersion: 3
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+  m_YDrive:
+    serializedVersion: 3
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+  m_ZDrive:
+    serializedVersion: 3
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+  m_TargetRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_TargetAngularVelocity: {x: 0, y: 0, z: 0}
+  m_RotationDriveMode: 0
+  m_AngularXDrive:
+    serializedVersion: 3
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+  m_AngularYZDrive:
+    serializedVersion: 3
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+  m_SlerpDrive:
+    serializedVersion: 3
+    positionSpring: 0
+    positionDamper: 0
+    maximumForce: 3.4028233e+38
+  m_ProjectionMode: 0
+  m_ProjectionDistance: 0.1
+  m_ProjectionAngle: 180
+  m_ConfiguredInWorldSpace: 0
+  m_SwapBodies: 0
+  m_BreakForce: Infinity
+  m_BreakTorque: Infinity
+  m_EnableCollision: 0
+  m_EnablePreprocessing: 1
+  m_MassScale: 1
+  m_ConnectedMassScale: 1
 --- !u!1 &1831216240
 GameObject:
   m_ObjectHideFlags: 0
@@ -1476,7 +1574,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 7769135d038d6a945abbb7b0724573f3, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 0188f662333bb654ea6b9d728fdd51cd, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -1646,7 +1744,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b50a036e64e62884cb9bffde5e8caa8e, type: 2}
   - {fileID: 11400000, guid: 08dadce22ee386c4a9510c99c5a8e397, type: 2}
   AudioSource: {fileID: 1981806605}
-  PreviewAudioObject: {fileID: 11400000, guid: 1debf7b403f6ab1448b715f2f504b39b, type: 2}
+  PreviewAudioObject: {fileID: 11400000, guid: d0afba6914cf08647bf98954f628dd22, type: 2}
 --- !u!1 &2017981030
 GameObject:
   m_ObjectHideFlags: 0
@@ -1701,7 +1799,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!54 &2081923541
 Rigidbody:
   m_ObjectHideFlags: 0

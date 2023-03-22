@@ -2,12 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PlaneWaver
+namespace PlaneWaver.Interaction
 {
     [CreateAssetMenu(fileName = "Joint.Fixed", menuName = "PlaneWaver/Joint/Fixed", order = 1)]
-    public class JointFixedScriptable : BaseJointScriptable
+    public class JointFixedObject : JointBaseObject
     {
-        public override void Initialise()
+        protected override void Initialise()
         {
             base.Initialise();
         }

@@ -9,96 +9,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bb05c03cc2610c499df23d4e51dfe39, type: 3}
-  m_Name: Emitter.Volatile.fire.burst
+  m_Script: {fileID: 11500000, guid: 631cd795d7508044999ab678f8d8713e, type: 3}
+  m_Name: Emitter.Stable.microsounds
   m_EditorClassIdentifier: 
   EmitterName: 
   Description: 
-  AudioObject: {fileID: 11400000, guid: 7a7a3afc66b425049ab0b7558a9bb7f0, type: 2}
+  AudioObject: {fileID: 11400000, guid: 2f3598a4f4b1cd74f93ea20c3704ec6c, type: 2}
   Parameters:
   - ParameterProperties:
       Index: 0
       Name: Volume
       ParameterRange: {x: 0, y: 1}
-      InitialRange: {x: 0, y: 1}
-      ReversePath: 1
-      FixedStart: 0
-      FixedEnd: 1
-    ModulationInput:
-      InputGroup: 3
-      Misc: 0
-      Actor: 0
-      Relative: 7
-      Collision: 0
-    ModulationData:
-      IsVolatileEmitter: 1
-      ParameterRange: {x: 0, y: 1}
-      InitialRange: {x: 0, y: 0}
-      ReversePath: 1
-      Enabled: 1
-      ModInputRange: {x: 0, y: 10}
-      Absolute: 0
-      ModInputMultiplier: 1
-      Accumulate: 0
-      Smoothing: 0.2
-      InputExponent: 0.8
-      ModInfluence: 1
-      TimeExponent: 1
-      FixedStart: 0
-      FixedEnd: 1
-      LimiterMode: 0
-      NoiseEnabled: 0
-      NoiseInfluence: 0
-      NoiseMultiplier: 1
-      PerlinSpeed: 1
-      UsePerlin: 0
-      LockNoise: 0
-    IsVolatileEmitter: 1
-  - ParameterProperties:
-      Index: 1
-      Name: Playhead
-      ParameterRange: {x: 0, y: 1}
-      InitialRange: {x: 0, y: 0.3}
-      ReversePath: 1
-      FixedStart: 0
-      FixedEnd: 1
-    ModulationInput:
-      InputGroup: 3
-      Misc: 0
-      Actor: 5
-      Relative: 3
-      Collision: 1
-    ModulationData:
-      IsVolatileEmitter: 1
-      ParameterRange: {x: 0, y: 1}
-      InitialRange: {x: 0.22, y: 0.75}
+      InitialRange: {x: 0.5, y: 0.5}
       ReversePath: 0
-      Enabled: 1
-      ModInputRange: {x: 0, y: 10}
-      Absolute: 0
-      ModInputMultiplier: 1
-      Accumulate: 0
-      Smoothing: 0.5
-      InputExponent: 1
-      ModInfluence: -0.2
-      TimeExponent: 1
       FixedStart: 0
-      FixedEnd: 1
-      LimiterMode: 0
-      NoiseEnabled: 0
-      NoiseInfluence: 0
-      NoiseMultiplier: 1
-      PerlinSpeed: 1
-      UsePerlin: 0
-      LockNoise: 0
-    IsVolatileEmitter: 1
-  - ParameterProperties:
-      Index: 2
-      Name: Grain Duration
-      ParameterRange: {x: 10, y: 250}
-      InitialRange: {x: 40, y: 80}
-      ReversePath: 0
-      FixedStart: 1
       FixedEnd: 0
     ModulationInput:
       InputGroup: 0
@@ -107,9 +31,9 @@ MonoBehaviour:
       Relative: 3
       Collision: 1
     ModulationData:
-      IsVolatileEmitter: 1
-      ParameterRange: {x: 10, y: 250}
-      InitialRange: {x: 40, y: 100}
+      IsVolatileEmitter: 0
+      ParameterRange: {x: 0, y: 1}
+      InitialRange: {x: 0.5, y: 0.5}
       ReversePath: 0
       Enabled: 0
       ModInputRange: {x: 0, y: 1}
@@ -120,127 +44,165 @@ MonoBehaviour:
       InputExponent: 1
       ModInfluence: 0
       TimeExponent: 1
-      FixedStart: 1
+      FixedStart: 0
       FixedEnd: 0
       LimiterMode: 0
       NoiseEnabled: 0
       NoiseInfluence: 0
-      NoiseMultiplier: 1
+      NoiseMultiplier: 0.1
       PerlinSpeed: 1
-      UsePerlin: 0
+      UsePerlin: 1
       LockNoise: 0
-    IsVolatileEmitter: 1
+    IsVolatileEmitter: 0
   - ParameterProperties:
-      Index: 3
-      Name: Density
-      ParameterRange: {x: 0.1, y: 10}
-      InitialRange: {x: 2, y: 3}
-      ReversePath: 1
+      Index: 1
+      Name: Playhead
+      ParameterRange: {x: 0, y: 1}
+      InitialRange: {x: 0, y: 1}
+      ReversePath: 0
       FixedStart: 0
       FixedEnd: 0
     ModulationInput:
-      InputGroup: 1
+      InputGroup: 0
+      Misc: 1
+      Actor: 0
+      Relative: 3
+      Collision: 1
+    ModulationData:
+      IsVolatileEmitter: 0
+      ParameterRange: {x: 0, y: 1}
+      InitialRange: {x: 0, y: 1}
+      ReversePath: 0
+      Enabled: 1
+      ModInputRange: {x: 0, y: 1}
+      Absolute: 0
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      InputExponent: 1
+      ModInfluence: 0
+      TimeExponent: 1
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseEnabled: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 0.1
+      PerlinSpeed: 1
+      UsePerlin: 1
+      LockNoise: 0
+    IsVolatileEmitter: 0
+  - ParameterProperties:
+      Index: 2
+      Name: Grain Duration
+      ParameterRange: {x: 10, y: 250}
+      InitialRange: {x: 60, y: 60}
+      ReversePath: 0
+      FixedStart: 0
+      FixedEnd: 0
+    ModulationInput:
+      InputGroup: 0
       Misc: 0
       Actor: 0
       Relative: 3
       Collision: 1
     ModulationData:
-      IsVolatileEmitter: 1
-      ParameterRange: {x: 0.1, y: 10}
-      InitialRange: {x: 3, y: 3}
-      ReversePath: 1
+      IsVolatileEmitter: 0
+      ParameterRange: {x: 10, y: 250}
+      InitialRange: {x: 60, y: 60}
+      ReversePath: 0
       Enabled: 0
-      ModInputRange: {x: 0, y: 30}
+      ModInputRange: {x: 0, y: 1}
       Absolute: 0
-      ModInputMultiplier: 0.1
+      ModInputMultiplier: 1
       Accumulate: 0
-      Smoothing: 0
+      Smoothing: 0.2
       InputExponent: 1
-      ModInfluence: 0.23737374
+      ModInfluence: 0
       TimeExponent: 1
       FixedStart: 0
       FixedEnd: 0
-      LimiterMode: 1
+      LimiterMode: 0
       NoiseEnabled: 0
       NoiseInfluence: 0
-      NoiseMultiplier: 1
+      NoiseMultiplier: 0.1
       PerlinSpeed: 1
-      UsePerlin: 0
+      UsePerlin: 1
       LockNoise: 0
-    IsVolatileEmitter: 1
+    IsVolatileEmitter: 0
+  - ParameterProperties:
+      Index: 3
+      Name: Density
+      ParameterRange: {x: 0.1, y: 10}
+      InitialRange: {x: 3, y: 3}
+      ReversePath: 0
+      FixedStart: 0
+      FixedEnd: 0
+    ModulationInput:
+      InputGroup: 0
+      Misc: 0
+      Actor: 0
+      Relative: 3
+      Collision: 1
+    ModulationData:
+      IsVolatileEmitter: 0
+      ParameterRange: {x: 0.1, y: 10}
+      InitialRange: {x: 3, y: 3}
+      ReversePath: 0
+      Enabled: 0
+      ModInputRange: {x: 0, y: 1}
+      Absolute: 0
+      ModInputMultiplier: 1
+      Accumulate: 0
+      Smoothing: 0.2
+      InputExponent: 1
+      ModInfluence: 0
+      TimeExponent: 1
+      FixedStart: 0
+      FixedEnd: 0
+      LimiterMode: 0
+      NoiseEnabled: 0
+      NoiseInfluence: 0
+      NoiseMultiplier: 0.1
+      PerlinSpeed: 1
+      UsePerlin: 1
+      LockNoise: 0
+    IsVolatileEmitter: 0
   - ParameterProperties:
       Index: 4
       Name: Transpose
       ParameterRange: {x: -3, y: 3}
       InitialRange: {x: 0, y: 0}
       ReversePath: 0
-      FixedStart: 1
-      FixedEnd: 1
-    ModulationInput:
-      InputGroup: 1
-      Misc: 0
-      Actor: 2
-      Relative: 3
-      Collision: 1
-    ModulationData:
-      IsVolatileEmitter: 1
-      ParameterRange: {x: -3, y: 3}
-      InitialRange: {x: 1, y: 1}
-      ReversePath: 1
-      Enabled: 0
-      ModInputRange: {x: 0, y: 30}
-      Absolute: 0
-      ModInputMultiplier: 1
-      Accumulate: 0
-      Smoothing: 0.2
-      InputExponent: 1
-      ModInfluence: -0.33333334
-      TimeExponent: 1
-      FixedStart: 0
-      FixedEnd: 1
-      LimiterMode: 0
-      NoiseEnabled: 0
-      NoiseInfluence: 0.1
-      NoiseMultiplier: 0.1
-      PerlinSpeed: 1
-      UsePerlin: 0
-      LockNoise: 0
-    IsVolatileEmitter: 1
-  - ParameterProperties:
-      Index: 5
-      Name: Burst Length
-      ParameterRange: {x: 10, y: 1000}
-      InitialRange: {x: 800, y: 800}
-      ReversePath: 0
       FixedStart: 0
       FixedEnd: 0
     ModulationInput:
-      InputGroup: 3
+      InputGroup: 0
       Misc: 0
       Actor: 0
       Relative: 3
       Collision: 1
     ModulationData:
-      IsVolatileEmitter: 1
-      ParameterRange: {x: 10, y: 1000}
-      InitialRange: {x: 400, y: 800}
+      IsVolatileEmitter: 0
+      ParameterRange: {x: -3, y: 3}
+      InitialRange: {x: 0, y: 0}
       ReversePath: 0
-      Enabled: 1
-      ModInputRange: {x: 0, y: 30}
+      Enabled: 0
+      ModInputRange: {x: 0, y: 1}
       Absolute: 0
       ModInputMultiplier: 1
       Accumulate: 0
       Smoothing: 0.2
       InputExponent: 1
-      ModInfluence: 0.4040404
+      ModInfluence: 0
       TimeExponent: 1
-      FixedStart: 1
+      FixedStart: 0
       FixedEnd: 0
       LimiterMode: 0
       NoiseEnabled: 0
       NoiseInfluence: 0
-      NoiseMultiplier: 1
+      NoiseMultiplier: 0.1
       PerlinSpeed: 1
-      UsePerlin: 0
+      UsePerlin: 1
       LockNoise: 0
-    IsVolatileEmitter: 1
+    IsVolatileEmitter: 0

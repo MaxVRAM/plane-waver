@@ -101,7 +101,7 @@ namespace PlaneWaver.Modulation
                     StartValue = ReversePath ? InitialRange.y : InitialRange.x,
                     EndValue = ReversePath ? InitialRange.x : InitialRange.y,
                     ModValue = modulationValue,
-                    ModInfluence = ModInfluence,
+                    ModInfluence = -1,
                     InputExponent = InputExponent,
                     Min = ParameterRange.x,
                     Max = ParameterRange.y,

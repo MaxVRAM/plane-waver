@@ -48,14 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 688e5dfc58d903e4e9071cb2f4363c8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _State: 0
-  _GrainArraySize: 100
-  _NumGrainsFree: 0
-  _GrainLoad: 0
-  _ConnectedHosts: 0
-  _InactiveDuration: 0
-  _ConnectionRadius: 1
-  _TargetVolume: 0
+  State: 0
 --- !u!82 &4563112762925737388
 AudioSource:
   m_ObjectHideFlags: 0
@@ -76,7 +69,7 @@ AudioSource:
   Spatialize: 1
   SpatializePostEffects: 0
   Priority: 128
-  DopplerLevel: 1.5
+  DopplerLevel: 1
   MinDistance: 0.2
   MaxDistance: 200
   Pan2D: 0

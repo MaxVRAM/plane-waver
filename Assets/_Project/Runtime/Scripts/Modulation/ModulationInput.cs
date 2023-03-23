@@ -78,10 +78,11 @@ namespace PlaneWaver.Modulation
         Scale = 1,
         Mass = 2,
         MassTimesScale = 3,
-        AngularSpeed = 4,
-        Acceleration = 5,
-        SlideMomentum = 6,
-        RollMomentum = 7
+        Momentum = 4,
+        AngularSpeed = 5,
+        Acceleration = 6,
+        SlideMomentum = 7,
+        RollMomentum =8
     }
 
     public enum InputRelative

@@ -760,15 +760,15 @@ MonoBehaviour:
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0
   StableEmitters:
-  - Condition: 0
+  - Condition: 2
     ReflectPlayhead: 1
-    VolumeAdjustment: 1
+    VolumeAdjustment: 0.8
     AgeFadeOut: 0.95
     DynamicAttenuation:
-      RadiusMultiplier: 1
+      RadiusMultiplier: 0.6
       AgeFadeIn: 0.05
       AgeFadeOut: 0.95
-      ConnectionFade: 0
+      ConnectionFade: 1
       ConnectFadeIn: 0.2
       ReconnectionTime: 0
       ReconnectionVolume: 0
@@ -864,7 +864,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1348788755}
-  m_Material: {fileID: 13400000, guid: fa37bbe0fe368b945b3fdf8733d0f24a, type: 2}
+  m_Material: {fileID: 13400000, guid: 17f8fdf568ccbe049bed4f65b499150e, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -1066,7 +1066,7 @@ MonoBehaviour:
   ControllerTransform: {fileID: 903864540}
   SpawnParentTransform: {fileID: 800963905}
   PrefabToSpawn: {fileID: 1348788755}
-  AttachmentJoint: {fileID: 11400000, guid: 848ad29f701c7d34ea8faeb8272496e8, type: 2}
+  AttachmentJoint: {fileID: 0}
   TargetNumObjects: 1
   SpawnPeriodSeconds: 0.1
   SpawnWhen: 1
@@ -1077,9 +1077,9 @@ MonoBehaviour:
   EjectionPosition: {x: 1, y: 0, z: 0}
   PositionVariance: 0.1
   EjectionRadius: {x: 4, y: 4}
-  EjectionDirection: {x: 1, y: 0, z: 0}
-  DirectionVariance: 0.1
-  EjectionSpeed: {x: 10, y: 20}
+  EjectionDirection: {x: 0, y: 1, z: 0}
+  DirectionVariance: 0.5
+  EjectionSpeed: {x: 2, y: 5}
   BoundingAreaType: 2
   BoundingCollider: {fileID: 0}
   BoundingRadius: 30
@@ -1668,7 +1668,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 0188f662333bb654ea6b9d728fdd51cd, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 53b7a6008f4f8a34aa88afe35b64b329, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -1838,7 +1838,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b50a036e64e62884cb9bffde5e8caa8e, type: 2}
   - {fileID: 11400000, guid: 08dadce22ee386c4a9510c99c5a8e397, type: 2}
   AudioSource: {fileID: 1981806605}
-  PreviewAudioObject: {fileID: 11400000, guid: d0afba6914cf08647bf98954f628dd22, type: 2}
+  PreviewAudioObject: {fileID: 11400000, guid: 2f3598a4f4b1cd74f93ea20c3704ec6c, type: 2}
 --- !u!1 &2017981030
 GameObject:
   m_ObjectHideFlags: 0

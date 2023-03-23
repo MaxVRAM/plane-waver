@@ -14,17 +14,17 @@ namespace PlaneWaver.Interaction
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public float GetActorValue(InputActor selection)
         {
-            return selection switch
-            {
-                InputActor.Speed => Speed,
-                InputActor.Scale => Scale,
-                InputActor.Mass  => Mass,
-                InputActor.MassTimesScale  => Mass * Scale,
-                InputActor.SlideMomentum   => SlideMomentum,
-                InputActor.AngularSpeed    => AngularSpeed,
-                InputActor.RollMomentum    => RollMomentum,
-                InputActor.Acceleration    => Acceleration,
-                _                          => throw new ArgumentOutOfRangeException(nameof(selection), selection, null)
+            return selection switch {
+                InputActor.Speed          => Speed,
+                InputActor.Scale          => Scale,
+                InputActor.Mass           => Mass,
+                InputActor.MassTimesScale => Mass * Scale,
+                InputActor.Momentum       => Momentum,
+                InputActor.SlideMomentum  => SlideMomentum,
+                InputActor.AngularSpeed   => AngularSpeed,
+                InputActor.RollMomentum   => RollMomentum,
+                InputActor.Acceleration   => Acceleration,
+                _                         => throw new ArgumentOutOfRangeException(nameof(selection), selection, null)
             };
         }
 
@@ -37,18 +37,17 @@ namespace PlaneWaver.Interaction
         public float GetRelativeValue(InputRelative selection, Transform otherBody)
         {
             OtherBody = otherBody;
-            
-            return selection switch
-            {
-                InputRelative.DistanceX => Mathf.Abs(RelativePosition.x),
-                InputRelative.DistanceY => Mathf.Abs(RelativePosition.y),
-                InputRelative.DistanceZ => Mathf.Abs(RelativePosition.z),
-                InputRelative.Radius => SphericalCoords.Radius,
-                InputRelative.Polar => SphericalCoords.Polar,
-                InputRelative.Elevation => SphericalCoords.Elevation,
-                InputRelative.RelativeSpeed => RelativeSpeed(),
+
+            return selection switch {
+                InputRelative.DistanceX       => Mathf.Abs(RelativePosition.x),
+                InputRelative.DistanceY       => Mathf.Abs(RelativePosition.y),
+                InputRelative.DistanceZ       => Mathf.Abs(RelativePosition.z),
+                InputRelative.Radius          => SphericalCoords.Radius,
+                InputRelative.Polar           => SphericalCoords.Polar,
+                InputRelative.Elevation       => SphericalCoords.Elevation,
+                InputRelative.RelativeSpeed   => RelativeSpeed(),
                 InputRelative.TangentialSpeed => TangentalSpeed,
-                _ => throw new ArgumentOutOfRangeException(nameof(selection), selection, null)
+                _                             => throw new ArgumentOutOfRangeException(nameof(selection), selection, null)
             };
         }
 
@@ -67,11 +66,10 @@ namespace PlaneWaver.Interaction
 
         public float GetCollisionValue(InputCollision selection)
         {
-            return selection switch
-            {
+            return selection switch {
                 InputCollision.CollisionSpeed => CollisionSpeed,
                 InputCollision.CollisionForce => CollisionForce,
-                _                                       => 0
+                _                             => 0
             };
         }
     }

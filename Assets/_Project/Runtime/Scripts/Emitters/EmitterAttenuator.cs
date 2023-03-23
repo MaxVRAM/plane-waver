@@ -76,9 +76,14 @@ namespace PlaneWaver.Modulation
 
         public float UpdateReconnectionVolume()
         {
-            if (ConnectionFade is not ConnectionFadeState.FadingIn)
-                ReconnectionVolume = ConnectionFade is ConnectionFadeState.Disconnected ? 0 : 1;
-            
+            switch (ConnectionFade)
+            {
+                case ConnectionFadeState.AlwaysFull or ConnectionFadeState.Connected:
+                    return ReconnectionVolume = 1;
+                case ConnectionFadeState.Disconnected:
+                    return  ReconnectionVolume = 0;
+            }
+
             ReconnectionVolume = Mathf.InverseLerp(0, ConnectFadeIn, Time.time - ReconnectionTime);
 
             if (ReconnectionVolume < 1)

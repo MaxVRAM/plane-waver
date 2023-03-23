@@ -10,6 +10,7 @@ using MaxVRAM;
 using MaxVRAM.Counters;
 
 using PlaneWaver.Emitters;
+using Unity.Entities;
 
 namespace PlaneWaver.Interaction
 {
@@ -23,18 +24,16 @@ namespace PlaneWaver.Interaction
         [Header("Runtime Dynamics")] private bool _initialised;
         private HashSet<GameObject> _collidedThisUpdate;
 
-        [Header("Object Configuration")] [Tooltip("Object providing the spawn location and controller behaviour.")]
-        public Transform ControllerTransform;
+        [Header("Object Configuration")]
+        [Tooltip("Transform with an attached joint component to anchor the controller object.")]
         public Transform ControllerAnchor;
+        [Tooltip("Transform of the game object to act as the spawner.")]
+        public Transform ControllerTransform;
         [Tooltip("Parent transform to attach spawned prefabs.")]
         public Transform SpawnParentTransform;
-        [Tooltip("Prefab to spawn.")] public GameObject PrefabToSpawn;
-        [Tooltip(
-            "A list of prefabs to spawn can also be supplied, allowing runtime selection of object spawn selection."
-        )]
-        public List<GameObject> SpawnablePrefabs;
-        public bool RandomiseSpawnPrefab;
-        public JointBaseObject AttachmentJoint;
+        [Tooltip("Prefab to spawn.")]
+        public GameObject PrefabToSpawn;
+        public BaseJointObject AttachmentJoint;
 
         private const int MaxObjects = 100;
         [Header("Spawning Rules")] [Range(0, 100)]
@@ -52,28 +51,29 @@ namespace PlaneWaver.Interaction
         private bool _startTimeReached;
         private CountTrigger _spawnTimer;
 
-        [Header("Object Properties")] [SerializeField] //[MinMaxSlider(0.01f, 2)]
-        [MinMaxSlider(0.01f, 2f)] public Vector2 SpawnObjectScale = new(1, 1);
+        [Header("Object Properties")]
+        [SerializeField]
+        [MinMaxSlider(0.01f, 5f)]
+        public Vector2 SpawnObjectScale = new(1, 1);
 
         [Header("Spawn Position")]
         [Tooltip("Spawn position relative to the controller object. Converts to unit vector.")]
         public Vector3 EjectionPosition = new(1, 0, 0);
         [Tooltip("Apply randomisation to the spawn position unit vector.")] [Range(0f, 1f)]
         public float PositionVariance;
-        [Tooltip("Distance from the controller to spawn objects.")] //[MinMaxSlider(0f, 10f)]
-        [MinMaxSlider(0,10)]public Vector2 EjectionRadius = new(1, 2);
+        [Tooltip("Distance from the controller to spawn objects.")]
+        [MinMaxSlider(0,10)]
+        public Vector2 EjectionRadius = new(1, 2);
 
-        [Header("Spawn Velocity")] //[MinValue(-1)] [MaxValue(1)]
+        [Header("Spawn Velocity")]
         public Vector3 EjectionDirection = new(0, 0, 1);
         [Tooltip("Apply randomisation to the spawn direction.")] [Range(0f, 1f)]
         public float DirectionVariance;
-        [Tooltip("Speed that spawned objects leave the controller.")] //[MinMaxSlider(0f, 20)]
-        [MinMaxSlider(0,20)] public Vector2 EjectionSpeed = new(0, 2);
+        [Tooltip("Speed that spawned objects leave the controller.")]
+        [MinMaxSlider(0,20)]
+        public Vector2 EjectionSpeed = new(0, 2);
 
         [Header("Object Removal")]
-        [Tooltip(
-            "Coordinates that define the bounding for spawned objects, which are destroyed if they leave. The bounding radius is ignored when using Collider Bounds, defined instead by the supplied collider bounding area, deaulting to the controller's collider if it has one."
-        )]
         public ActorBounds BoundingAreaType = ActorBounds.ControllerTransform;
         public Collider BoundingCollider;
         [Tooltip("Radius of the bounding volume.")]
@@ -93,10 +93,9 @@ namespace PlaneWaver.Interaction
         [Header("Visual Feedback")] public ControllerEvent EmissiveFlashTrigger = ControllerEvent.OnSpawn;
         public MaterialColourModulator MaterialModulator;
         
-        public List<GameObject> _spawnedObjectPool;
+        public List<GameObject> SpawnedObjectPool;
         public int PooledObjectCount;
-        public int ActiveObjectCount => MaxObjects - PooledObjectCount;
-        //private List<GameObject> _activeObjects;
+        private int ActiveObjectCount => MaxObjects - PooledObjectCount;
 
         #endregion
 
@@ -112,14 +111,14 @@ namespace PlaneWaver.Interaction
         {
             StartCoroutine(ClearCollisions());
             _spawnTimer = new CountTrigger(TimeUnit.Seconds, SpawnPeriodSeconds);
-            _spawnedObjectPool = new List<GameObject>();
+            SpawnedObjectPool = new List<GameObject>();
         }
         
         private void OnDisable()
         {
-            _spawnedObjectPool?.ForEach(o => o.SetActive(false));
-            if (_spawnedObjectPool != null)
-                PooledObjectCount = _spawnedObjectPool.Count;
+            SpawnedObjectPool?.ForEach(o => o.SetActive(false));
+            if (SpawnedObjectPool != null)
+                PooledObjectCount = SpawnedObjectPool.Count;
         }
 
         private IEnumerator ClearCollisions()
@@ -147,27 +146,20 @@ namespace PlaneWaver.Interaction
             if (SpawnParentTransform == null)
                 SpawnParentTransform = transform;
 
-            if (SpawnablePrefabs.Count == 0 &&
-                PrefabToSpawn != null)
-                SpawnablePrefabs.Add(PrefabToSpawn);
-
-            if (SpawnablePrefabs.Count >= 1 && PrefabToSpawn == null)
-                PrefabToSpawn = SpawnablePrefabs[0];
-
-            if (SpawnablePrefabs.Count == 0)
+            if (PrefabToSpawn == null)
             {
-                Debug.LogWarning($"ActorSpawner cannot spawn without prefab defined. Assign a SpawnablePrefab to {name}.");
+                Debug.LogWarning($"{name} has not been assigned a prefab to spawn.");
                 return _initialised = false;
             }
             
-            _spawnedObjectPool = new List<GameObject>();
+            SpawnedObjectPool = new List<GameObject>();
             
             for (var i = 0; i < MaxObjects; i++)
             {
                 GameObject tempObject = Instantiate(PrefabToSpawn, SpawnParentTransform);
                 tempObject.SetActive(false);
                 tempObject.name = string.Format("{0}.{1}", name, "spawned");
-                _spawnedObjectPool.Add(tempObject);
+                SpawnedObjectPool.Add(tempObject);
                 PooledObjectCount++;
             }
 
@@ -223,7 +215,7 @@ namespace PlaneWaver.Interaction
             InitialiseObjectTransform(index);
             InitialiseSpawnVelocity(index);
             ConfigureObjectComponents(index, ControllerTransform);
-            _spawnedObjectPool[index].SetActive(true);
+            SpawnedObjectPool[index].SetActive(true);
             PooledObjectCount--;
 
             if (EmissiveFlashTrigger == ControllerEvent.OnSpawn)
@@ -236,8 +228,8 @@ namespace PlaneWaver.Interaction
                 !_spawnTimer.DrainTrigger())
                 return;
 
-            if (index < MaxObjects && _spawnedObjectPool[index].activeInHierarchy)
-                _spawnedObjectPool[index].SetActive(false);
+            if (index < MaxObjects && SpawnedObjectPool[index].activeInHierarchy)
+                SpawnedObjectPool[index].SetActive(false);
         }
 
         public void ObjectPooled()
@@ -251,10 +243,10 @@ namespace PlaneWaver.Interaction
 
         private int GetPooledObjectIndex(out int index)
         {
-            foreach (GameObject obj in _spawnedObjectPool)
+            foreach (GameObject obj in SpawnedObjectPool)
             {
                 if (obj.activeInHierarchy) continue;
-                return index = _spawnedObjectPool.IndexOf(obj);
+                return index = SpawnedObjectPool.IndexOf(obj);
             }
 
             return index = -1;
@@ -266,16 +258,16 @@ namespace PlaneWaver.Interaction
             Vector3 randomPosition = Random.onUnitSphere;
             Vector3 unitPosition = Vector3.Slerp(EjectionPosition.normalized, randomPosition, PositionVariance);
             Vector3 positionLocal = unitPosition * spawnDistance;
-            _spawnedObjectPool[index].transform.parent = SpawnParentTransform;
-            _spawnedObjectPool[index].transform.position = ControllerTransform.position + positionLocal;
-            _spawnedObjectPool[index].transform.rotation = Quaternion.LookRotation(unitPosition);
-            _spawnedObjectPool[index].transform.localScale *= Rando.Range(SpawnObjectScale);
+            SpawnedObjectPool[index].transform.parent = SpawnParentTransform;
+            SpawnedObjectPool[index].transform.position = ControllerTransform.position + positionLocal;
+            SpawnedObjectPool[index].transform.rotation = Quaternion.LookRotation(unitPosition);
+            SpawnedObjectPool[index].transform.localScale = PrefabToSpawn.transform.localScale * Rando.Range(SpawnObjectScale);
         }
 
         private void InitialiseSpawnVelocity(int index)
         {
-            if (!_spawnedObjectPool[index].TryGetComponent(out Rigidbody rb))
-                rb = _spawnedObjectPool[index].AddComponent<Rigidbody>();
+            if (!SpawnedObjectPool[index].TryGetComponent(out Rigidbody rb))
+                rb = SpawnedObjectPool[index].AddComponent<Rigidbody>();
             
             Vector3 randomDirection = Random.onUnitSphere;
 
@@ -285,20 +277,22 @@ namespace PlaneWaver.Interaction
                 DirectionVariance
             );
 
-            Vector3 velocity = _spawnedObjectPool[index].transform.localRotation * spawnDirectionUnitVector * 
+            Vector3 velocity = SpawnedObjectPool[index].transform.localRotation * spawnDirectionUnitVector * 
                                (EjectionDirection.magnitude * Rando.Range(EjectionSpeed));
             rb.velocity = velocity;
             
             if (PrefabToSpawn.TryGetComponent(out Rigidbody prefabRb))
-                rb.mass = prefabRb.mass * _spawnedObjectPool[index].transform.localScale.magnitude;
+                rb.mass = prefabRb.mass * SpawnedObjectPool[index].transform.localScale.magnitude;
         }
 
         private void ConfigureObjectComponents(int index, Transform controllerTransform)
         {
-            ActorObject actor = _spawnedObjectPool[index].GetComponent<ActorObject>() ??
-                                _spawnedObjectPool[index].AddComponent<ActorObject>();
+            ActorObject actor = SpawnedObjectPool[index].GetComponent<ActorObject>() ??
+                                SpawnedObjectPool[index].AddComponent<ActorObject>();
+            
             actor.Spawner = this;
             actor.OtherBody = controllerTransform;
+            
             actor.ControllerData = new ActorControllerData(
                 UseSpawnLifespan ? SpawnLifespan : -1,
                 BoundingRadius,
@@ -307,7 +301,7 @@ namespace PlaneWaver.Interaction
                 controllerTransform
             );
 
-            EmitterFrame[] attachedEmitterFrames = _spawnedObjectPool[index].GetComponentsInChildren<EmitterFrame>();
+            EmitterFrame[] attachedEmitterFrames = SpawnedObjectPool[index].GetComponentsInChildren<EmitterFrame>();
             
             if (attachedEmitterFrames.Length > 1)
                 Debug.LogWarning($"ActorSpawner {name} has more than one EmitterFrame attached to it. " +
@@ -320,15 +314,17 @@ namespace PlaneWaver.Interaction
                 frame.EntityIndex = index;
             }
             
-            var jointController = _spawnedObjectPool[index].GetComponent<JointController>();
+            var jointController = SpawnedObjectPool[index].GetComponent<JointController>();
 
-            if (jointController == null)
+            if (AttachmentJoint == null)
             {
-                if (AttachmentJoint == null)
+                if (jointController != null)
                     Destroy(jointController);
-                else
-                    jointController = _spawnedObjectPool[index].AddComponent<JointController>();
+                return;
             }
+            
+            if (jointController == null)
+                jointController = SpawnedObjectPool[index].AddComponent<JointController>();
             
             jointController.Initialise(AttachmentJoint, controllerTransform);
         }
@@ -339,8 +335,8 @@ namespace PlaneWaver.Interaction
 
         public bool CollisionAllowed(GameObject objA, GameObject objB)
         {
-            if (!_spawnedObjectPool.Contains(objA) ||
-                !_spawnedObjectPool.Contains(objB) ||
+            if (!SpawnedObjectPool.Contains(objA) ||
+                !SpawnedObjectPool.Contains(objB) ||
                 AllowSiblingCollisionTrigger == SiblingCollision.All)
                 return true;
 
@@ -355,7 +351,7 @@ namespace PlaneWaver.Interaction
 
         public bool ContactAllowed(GameObject goA, GameObject goB)
         {
-            return !_spawnedObjectPool.Contains(goA) || AllowSiblingSurfaceContact || !_spawnedObjectPool.Contains(goB);
+            return !SpawnedObjectPool.Contains(goA) || AllowSiblingSurfaceContact || !SpawnedObjectPool.Contains(goB);
         }
 
         #endregion

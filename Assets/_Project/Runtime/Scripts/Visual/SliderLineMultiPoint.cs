@@ -23,8 +23,8 @@ namespace PlaneWaver.Interaction
         private bool _nodesInitialised = false;
 
         [Header("Joint Configs")]
-        public JointBaseObject AnchorJoint = null;
-        public JointBaseObject NodeNeighbourJoint = null;
+        public BaseJointObject AnchorJoint = null;
+        public BaseJointObject NodeNeighbourJoint = null;
 
         [Header("Visualisation")]
         public bool VisualiseLine = true;

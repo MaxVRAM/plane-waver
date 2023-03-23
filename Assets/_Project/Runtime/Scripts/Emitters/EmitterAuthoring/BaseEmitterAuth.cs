@@ -172,7 +172,9 @@ namespace PlaneWaver.Emitters
             if (!RuntimeState.IsInitialised()) 
                 return;
 
-            if (!RuntimeState.SetConnected(isConnected && inListenerRange))
+            RuntimeState.SetConnected(isConnected && inListenerRange);
+            
+            if (!RuntimeState.IsReady())
             {
                 DynamicAttenuation.UpdateConnectionState(false);
                 Manager.RemoveComponent<EmitterReadyTag>(EmitterEntity);
@@ -181,7 +183,7 @@ namespace PlaneWaver.Emitters
             
             DynamicAttenuation.UpdateConnectionState(true);
 
-            if (!CurrentPlayback())
+            if (!IsPlaying())
                 return;
             
             var data = Manager.GetComponentData<EmitterComponent>(EmitterEntity);
@@ -193,7 +195,7 @@ namespace PlaneWaver.Emitters
                 RuntimeState.SetPlaying(false);
         }
         
-        public virtual bool CurrentPlayback()
+        public virtual bool IsPlaying()
         {
             return RuntimeState.IsPlaying;
         }

@@ -10,15 +10,15 @@ namespace PlaneWaver.Emitters
         public bool ObjectConstructed;
         public bool BaseInitialised;
         public bool EntityInitialised;
-        private bool _isConnected;
-        public bool IsPlaying { get; private set; }
+        public bool IsConnected;
+        public bool IsPlaying;
         
         public EmitterAuthRuntimeStates()
         {
             ObjectConstructed = false;
             BaseInitialised = false;
             EntityInitialised = false;
-            _isConnected = false;
+            IsConnected = false;
             IsPlaying = false;
         }
 
@@ -27,18 +27,30 @@ namespace PlaneWaver.Emitters
             return ObjectConstructed && BaseInitialised && EntityInitialised;
         }
         
-        public bool SetConnected(bool connected)
+        /// <summary>
+        /// Set connected if bool parameter is true and emitter initialised.
+        /// Otherwise, disables current playback state.
+        /// </summary>
+        /// <param name="connected">Connection bool state.</param>
+        public void SetConnected(bool connected)
         {
-            if (IsInitialised()) return _isConnected = connected;
+            if (IsInitialised())
+            {
+                IsConnected = connected;
+                return;
+            }
 
             IsPlaying = false;
-            return _isConnected = false;
-
+            IsConnected = false;
         }
         
+        /// <summary>
+        /// Returns true if emitter is initialised and connected.
+        /// </summary>
+        /// <returns>(bool) Ready state.</returns>
         public bool IsReady()
         {
-            return IsInitialised() && _isConnected;
+            return IsInitialised() && IsConnected;
         }
         
         /// <summary>

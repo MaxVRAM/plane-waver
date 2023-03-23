@@ -113,7 +113,7 @@ namespace PlaneWaver
         public bool PopulatingSpeakers => SpeakerPoolCount != Speakers.Count;
         public float AttachSmoothing => Mathf.Clamp(Time.deltaTime * SpeakerTrackingSpeed, 0, 1);
         
-        public TextMeshProUGUI StatsValuesText;
+        public TextMeshProUGUI StatsValuesValues;
         public TextMeshProUGUI StatsValuesPeakText;
         public Material AttachmentLineMat;
         [Range(0, 0.02f)] public float AttachmentLineWidth = 0.005f;
@@ -197,7 +197,7 @@ namespace PlaneWaver
             
             UpdateFrames();
             UpdateTimerComponent();
-            //UpdateStatsUI();
+            UpdateStatsUI();
         }
 
         // private void LateUpdate()
@@ -474,12 +474,12 @@ namespace PlaneWaver
             _frameCount = Mathf.CeilToInt(Mathf.Lerp(_frameCount, Frames.Count, Time.deltaTime * 10));
             _emitterCount = Mathf.CeilToInt(Mathf.Lerp(_emitterCount, Emitters.Count, Time.deltaTime * 10));
 
-            if (StatsValuesText != null)
+            if (StatsValuesValues != null)
             {
-                StatsValuesText.text = $"{(int)_grainsPerSecond}\n{_grainsDiscarded}\n{_averageGrainAgeMS.ToString("F2")}";
-                StatsValuesText.text += $"\n{_speakerCount}\n{_frameCount}\n{_emitterCount}";
+                StatsValuesValues.text = $"{(int)_grainsPerSecond}\n{_grainsDiscarded}\n{_averageGrainAgeMS.ToString("F2")}";
+                StatsValuesValues.text += $"\n{_speakerCount}\n{_frameCount}\n{_emitterCount}";
             }
-            if (StatsValuesText != null)
+            if (StatsValuesValues != null)
             {
                 StatsValuesPeakText.text = $"{(int)_grainsPerSecondPeak}";
             }

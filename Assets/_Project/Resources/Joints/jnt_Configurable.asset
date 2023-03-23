@@ -1,0 +1,84 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 402788a0e6035df4a8a9758cc75085ac, type: 3}
+  m_Name: jnt_Configurable
+  m_EditorClassIdentifier: 
+  Enabled: 1
+  AutoConfigureConnectedAnchor: 0
+  JointLineWidth: 0.1
+  XMotion: 2
+  YMotion: 2
+  ZMotion: 2
+  AngularXMotion: 2
+  AngularYMotion: 2
+  AngularZMotion: 2
+  LinearLimitSpring:
+    Spring: 0
+    Damper: 0
+  LinearLimit:
+    Limit: 0
+    Bounciness: 0
+    ContentDistance: 0
+  AngularYLimit:
+    Limit: 0
+    Bounciness: 0
+    ContentDistance: 0
+  AngularZLimit:
+    Limit: 0
+    Bounciness: 0
+    ContentDistance: 0
+  AngularXLimitSpring:
+    Spring: 0
+    Damper: 0
+  AngularYZLimitSpring:
+    Spring: 0
+    Damper: 0
+  TargetPosition: {x: 0, y: 0, z: 0}
+  TargetVelocity: {x: 0, y: 0, z: 0}
+  XDrive:
+    PositionSpring: 10
+    PositionDamper: 0
+    MaximumForce: 3.4028233e+38
+  YDrive:
+    PositionSpring: 10
+    PositionDamper: 0
+    MaximumForce: 3.4028233e+38
+  ZDrive:
+    PositionSpring: 10
+    PositionDamper: 0
+    MaximumForce: 3.4028233e+38
+  TargetRotation: {x: 0, y: 0, z: 0, w: 1}
+  TargetAngularVelocity: {x: 0, y: 0, z: 0}
+  RotationDriveMode: 0
+  AngularXDrive:
+    PositionSpring: 0
+    PositionDamper: 0
+    MaximumForce: 3.4028233e+38
+  AngularYZDrive:
+    PositionSpring: 0
+    PositionDamper: 0
+    MaximumForce: 3.4028233e+38
+  SlerpDrive:
+    PositionSpring: 0
+    PositionDamper: 0
+    MaximumForce: 3.4028233e+38
+  ProjectionMode: 0
+  ProjectionDistance: 0.1
+  ProjectionAngle: 180
+  ConfiguredInWorldSpace: 0
+  SwapBodies: 0
+  BreakForce: Infinity
+  BreakTorque: Infinity
+  EnableCollision: 0
+  EnablePreprocessing: 1
+  MassScale: 1
+  ConnectedMassScale: 1

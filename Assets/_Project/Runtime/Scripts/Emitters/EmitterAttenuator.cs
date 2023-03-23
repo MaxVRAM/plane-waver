@@ -9,14 +9,21 @@ namespace PlaneWaver.Modulation
     [Serializable]
     public class EmitterAttenuator
     {
+        public enum ConnectionFadeState
+        {
+            AlwaysFull = 0,
+            Disconnected = 1,
+            FadingIn = 2,
+            Connected = 3
+        }
+        
         [Range(0f, 1f)] public float RadiusMultiplier;
         [Range(0f, 0.5f)] public float AgeFadeIn;
         [Range(0.5f, 1f)] public float AgeFadeOut;
 
-        public bool MuteOnDisconnection;
-        [Range(0, 500)] public int ReconnectionFadeInMS;
-        private float _reconnectionTimer;
-        private bool _muted;
+        public ConnectionFadeState ConnectionFade;
+        [Range(0, 1)] public float ConnectFadeIn;
+        public float ReconnectionTime;
         
         public float ReconnectionVolume;
         public float DistanceVolume;
@@ -27,55 +34,59 @@ namespace PlaneWaver.Modulation
             RadiusMultiplier = 1f;
             AgeFadeIn = 0f;
             AgeFadeOut = 1f;
-            MuteOnDisconnection = true;
-            ReconnectionFadeInMS = 100;
-            _reconnectionTimer = ReconnectionFadeInMS;
-            _muted = false;
+            ConnectionFade = ConnectionFadeState.AlwaysFull;
+            ConnectFadeIn = 0.1f;
         }
         
         public void UpdateConnectionState(bool isConnected)
         {
-            if (!MuteOnDisconnection)
+            if (ConnectionFade == ConnectionFadeState.AlwaysFull)
             {
-                _muted = false;
-                _reconnectionTimer = 0;
                 ReconnectionVolume = 1;
                 return;
             }
 
             if (!isConnected)
             {
-                _muted = true;
+                ConnectionFade = ConnectionFadeState.Disconnected;
                 ReconnectionVolume = 0;
                 return;
             }
 
-            if (!_muted) return;
-
-            _reconnectionTimer = 0;
-            _muted = false;
+            if (ConnectionFade != ConnectionFadeState.Disconnected)
+                return;
+            
+            ReconnectionVolume = 0;
+            ReconnectionTime = Time.time;
+            ConnectionFade = ConnectionFadeState.FadingIn;
         }
 
         public float CalculateAmplitude(ActorObject actor)
         {
-            if (MuteOnDisconnection && _muted)
+            float outputVolume = UpdateReconnectionVolume();
+
+            if (outputVolume == 0)
                 return 0;
 
-            ReconnectionVolume = CalculateReconnectionAmplitude();
-            return ReconnectionVolume * CalculateDistanceAmplitude(actor) * CalculateAgeAmplitude(actor);
+            outputVolume *= CalculateDistanceAmplitude(actor);
+            outputVolume *= CalculateAgeAmplitude(actor);
+            
+            return outputVolume;
         }
 
-        public float CalculateReconnectionAmplitude()
+        public float UpdateReconnectionVolume()
         {
-            if (!MuteOnDisconnection)
-                return 1;
+            if (ConnectionFade is not ConnectionFadeState.FadingIn)
+                ReconnectionVolume = ConnectionFade is ConnectionFadeState.Disconnected ? 0 : 1;
+            
+            ReconnectionVolume = Mathf.InverseLerp(0, ConnectFadeIn, Time.time - ReconnectionTime);
 
-            _reconnectionTimer += Time.deltaTime * 1000;
-            
-            if (_reconnectionTimer > ReconnectionFadeInMS)
-                return 1;
-            
-            return Mathf.InverseLerp(0, ReconnectionFadeInMS, _reconnectionTimer);
+            if (ReconnectionVolume < 1)
+                return ReconnectionVolume;
+
+            ConnectionFade = ConnectionFadeState.Connected;
+
+            return ReconnectionVolume = 1;
         }
 
         public float CalculateDistanceAmplitude(ActorObject actor)
@@ -93,21 +104,17 @@ namespace PlaneWaver.Modulation
         // TODO - Not implemented yet. Move these calculations to the Synthesis system for sample accuracy fades.
         public float CalculateAgeAmplitude(ActorObject actor)
         {
-            // if (actor == null || actor.ActorLifeController.LiveForever)
-            //     return 1;
-            //
-            // float age = actor.ActorLifeController.NormalisedAge();
-            //
-            // if (age < AgeFadeIn)
-            //     return !Mathf.Approximately(AgeFadeIn, 0)
-            //         ? Mathf.Clamp01(actor.ActorLifeController.NormalisedAge() / AgeFadeIn)
-            //         : 1;
-            //
-            // if (age > AgeFadeOut)
-            //     return !Mathf.Approximately(AgeFadeOut, 1)
-            //         ? Mathf.Clamp01(1 - actor.ActorLifeController.NormalisedAge() / AgeFadeOut)
-            //         : 1;
-            //
+            if (actor == null || actor.Controller.LiveForever)
+                return 1;
+            
+            float age = actor.Controller.NormalisedAge();
+            
+            if (age < AgeFadeIn)
+                return Mathf.Clamp01(age / AgeFadeIn);
+            
+            if (age > AgeFadeOut)
+                return 1 - Mathf.Clamp01((age - AgeFadeOut) / AgeFadeOut);
+            
             return 1;
         }
     }

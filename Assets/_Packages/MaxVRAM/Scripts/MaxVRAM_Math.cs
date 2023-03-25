@@ -36,7 +36,19 @@ namespace MaxVRAM
             else
                 return targetValue;
         }
-
+        
+        /// <summary>
+        /// Returns the centre of a range between two floats.
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        public static float RangeCentre(float min, float max)
+        {
+            float centrePoint = (max - min) / 2;
+            return min + centrePoint;
+        }
+        
         public static float InverseLerp(float a , float b, float value, bool absolute = false)
         {
             float scaledValue = Map(value, a, b, 0, 1);

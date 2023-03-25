@@ -59,6 +59,7 @@ namespace PlaneWaver.Library
             if (GUILayout.Button("Reload Audio Objects"))
             {
                 library.AudioObjects = LibraryUtilities.LoadAssets();
+                Debug.Log($"Loaded {library.AudioObjects.Count} audio objects.");
             }
 
             if (GUILayout.Button("Rebuild Audio Library"))

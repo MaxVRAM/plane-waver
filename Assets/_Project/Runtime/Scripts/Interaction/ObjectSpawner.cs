@@ -53,7 +53,7 @@ namespace PlaneWaver.Interaction
 
         [Header("Object Properties")]
         [SerializeField]
-        [MinMaxSlider(0.01f, 5f)]
+        [MinMaxSlider(0.01f, 10f)]
         public Vector2 SpawnObjectScale = new(1, 1);
 
         [Header("Spawn Position")]
@@ -70,7 +70,7 @@ namespace PlaneWaver.Interaction
         [Tooltip("Apply randomisation to the spawn direction.")] [Range(0f, 1f)]
         public float DirectionVariance;
         [Tooltip("Speed that spawned objects leave the controller.")]
-        [MinMaxSlider(0,20)]
+        [MinMaxSlider(0,40)]
         public Vector2 EjectionSpeed = new(0, 2);
 
         [Header("Object Removal")]
@@ -280,6 +280,7 @@ namespace PlaneWaver.Interaction
             Vector3 velocity = SpawnedObjectPool[index].transform.localRotation * spawnDirectionUnitVector * 
                                (EjectionDirection.magnitude * Rando.Range(EjectionSpeed));
             rb.velocity = velocity;
+            rb.angularVelocity = Vector3.zero;
             
             if (PrefabToSpawn.TryGetComponent(out Rigidbody prefabRb))
                 rb.mass = prefabRb.mass * SpawnedObjectPool[index].transform.localScale.magnitude;

@@ -278,8 +278,8 @@ namespace PlaneWaver.Modulation
                             modulationEnabled.boolValue = !modulationEnabled.boolValue;
                         
                         Vector2 initRange = initialRange.vector2Value;
-                        initRange.x = initRange.x.RoundDigits(4);
-                        initRange.y = initRange.y.RoundDigits(4);
+                        initRange.x = initRange.x.LimitDigits(4);
+                        initRange.y = initRange.y.LimitDigits(4);
                         initRange.x = EditorGUILayout.DelayedFloatField(initRange.x, _floatFieldOptions);
                         _prevFieldRect = GUILayoutUtility.GetLastRect();
 
@@ -337,7 +337,7 @@ namespace PlaneWaver.Modulation
                         
                         var newFieldRect = new Rect(_prevFieldRect) { y = _prevFieldRect.y + _prevFieldRect.height + 2 };
                         float modAmount = modInfluence.floatValue * paramRange;
-                        modAmount = modAmount.RoundDigits(3);
+                        modAmount = modAmount.LimitDigits(3);
                         
                         using (new EditorGUI.DisabledGroupScope(!modulationEnabled.boolValue))
                         {
@@ -356,7 +356,7 @@ namespace PlaneWaver.Modulation
 
                         if (modulationEnabled.boolValue)
                         {
-                            var valuePreviewLabel = _processedValues[i].Output.RoundDigits(4).ToString();
+                            var valuePreviewLabel = _processedValues[i].Output.LimitDigits(4).ToString();
                             var previewValueRect = new Rect(previewLabelRect) {
                                 x = _previousSliderRect.xMax + 5,
                                 width = EditorWidth - _previousSliderRect.xMax - 5
@@ -473,18 +473,18 @@ namespace PlaneWaver.Modulation
             EditorGUILayout.LabelField("Modulation Preview", _titleStyle);
             EditorGUILayout.Space(3);
 
-            EditorGUILayout.LabelField("Input", currentValues.Input.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
+            EditorGUILayout.LabelField("Input", currentValues.Input.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
             EditorGUILayout.Slider(new GUIContent("Normalised"), currentValues.Normalised, 0, 1);
-            EditorGUILayout.LabelField("Scaled", currentValues.Scaled.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
+            EditorGUILayout.LabelField("Scaled", currentValues.Scaled.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
 
             Parameter.ModulationDataObject currentData = _currentParameter.ModulationData;
             
             if (currentData.Accumulate)
-                EditorGUILayout.LabelField("Accumulated", currentValues.Accumulated.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
+                EditorGUILayout.LabelField("Accumulated", currentValues.Accumulated.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
             if (currentData.LimiterMode == ModulationLimiter.Clip)
-                EditorGUILayout.LabelField("Raised", currentValues.Raised.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
+                EditorGUILayout.LabelField("Raised", currentValues.Raised.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
             if (!currentValues.Instant)
-                EditorGUILayout.LabelField("Smoothed", currentValues.Smoothed.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
+                EditorGUILayout.LabelField("Smoothed", currentValues.Smoothed.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
 
             float initialOffset = currentData.InitialValue;
 
@@ -494,9 +494,9 @@ namespace PlaneWaver.Modulation
             }
 
             EditorGUILayout.LabelField("Initial Offset",
-                initialOffset.RoundDigits(4).ToString(CultureInfo.InvariantCulture));
+                initialOffset.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
             EditorGUILayout.LabelField(
-                "Output", currentValues.Preview.RoundDigits(4).ToString(CultureInfo.InvariantCulture),
+                "Output", currentValues.Preview.LimitDigits(4).ToString(CultureInfo.InvariantCulture),
                 new GUIStyle(EditorStyles.boldLabel));
             
             EditorGUILayout.Space(3);

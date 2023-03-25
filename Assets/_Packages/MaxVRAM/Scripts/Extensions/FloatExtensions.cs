@@ -26,11 +26,23 @@ namespace MaxVRAM.Extensions
                 return value >= minMax.x && value <= minMax.y;
             return value > minMax.x && value < minMax.y;
         }
-
+        
         public static float Mirrored(this float value, float mid)
         {
             float diff = value - mid;
-            return diff > 0 ? mid - diff: mid + mid;
+            return diff > 0 ? mid - diff : mid + diff;
+        }
+
+        /// <summary>
+        /// Creates an additional float that mirrors the input float against provided mid-point parameter.
+        /// </summary>
+        /// <param name="value">Float to generate the mirrored value from.</param>
+        /// <param name="mid">Float defining the centre value to mirror the input against.</param>
+        /// <returns>(Vector2) where X is the original float and Y is the mirrored value.</returns>
+        public static Vector2 MirroredValueVector(this float value, float mid)
+        {
+            float mirroredValue = mid - (value - mid);
+            return new Vector2(value, mirroredValue);
         }
         
         public static float RoundDecimal(this float value, int decimalPlaces)
@@ -41,11 +53,24 @@ namespace MaxVRAM.Extensions
             return Mathf.Round(value * multiplier) / multiplier;
         }
         
-        public static float RoundDigits(this float value, int targetDigits)
+        /// <summary>
+        /// Rounds a float to a specified number of digits, leaving whole numbers intact.
+        /// Takes the negative symbol into account. For example, with targetDigits = 5,
+        /// a value of -0.0001 will be rounded to -0.000.
+        /// This is useful for limiting the number of digits displayed in a UI.
+        /// </summary>
+        /// <param name="value">Original float to limit the digits of.</param>
+        /// <param name="targetDigits"></param>
+        /// <returns></returns>
+        public static float LimitDigits(this float value, int targetDigits)
         {
-            int digits = Math.Truncate(Math.Abs(value)).ToString("####").Length;
-            int decimalPlaces = value < 0 ? targetDigits - digits - 1 : targetDigits - digits;
-            return value.RoundDecimal(Mathf.Clamp(decimalPlaces, 0, 10));
+            int digits = Math.Truncate(Mathf.Abs(value)).ToString("####").Length;
+            digits = Math.Max(digits, 1);
+            
+            if (value < 0)
+                digits += 1;
+            
+            return value.RoundDecimal(Mathf.Clamp(targetDigits - digits, 0, 10));
         }
         
         public static float InverseLerp(this float value, float a , float b, bool absolute = false)
@@ -152,12 +177,6 @@ namespace MaxVRAM.Extensions
             float normalised = amount > 0 ? offset + value : offset - value;
             float repeated = normalised.WrapNorm();
             return offset + (repeated - offset) * amount.Abs();
-        }
-
-        public static Vector2 MakeMirroredVector(this float value, float mid)
-        {
-            float diff = Mathf.Abs(value - mid);
-            return new Vector2(mid - diff, mid + diff);
         }
     }
 }

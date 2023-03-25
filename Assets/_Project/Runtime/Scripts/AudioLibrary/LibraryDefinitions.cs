@@ -23,6 +23,7 @@ namespace PlaneWaver.Library
         public static string EmitterObjectPath = "Assets/_Project/Resources/Emitters";
         public static string SourceTypeFilter = "t:AudioClip";
         public static string SourceExtensionFilter = ".wav";
+        public static string AudioObjectTag = "AudioObject";
     }
 
     #endregion

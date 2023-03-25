@@ -19,17 +19,8 @@ namespace PlaneWaver.Library
         
         public static List<AudioObject> LoadAssets()
         {
-            var audioObjects = new List<AudioObject>();
-            string[] assetGUIDs = AssetDatabase.FindAssets
-            ("t: ", new[] {
-                LibraryConfig.AudioFilePath
-            });
-
-            IEnumerable<AudioObject> loadedAssets = Resources.LoadAll
-                    (LibraryConfig.AudioObjectPath, typeof(AudioObject)).Cast<AudioObject>();
-            audioObjects.AddRange(loadedAssets);
-
-            return audioObjects;
+            List<AudioObject> libraryAssets = Resources.LoadAll<AudioObject>("Audio").ToList();
+            return libraryAssets;
         }
 
         #endregion
@@ -62,6 +53,7 @@ namespace PlaneWaver.Library
                 newAudioAsset
                        .AssignAudioClip(clipName, tags, clip, clipType, audioObjects.Count);
 
+                newAudioAsset.Tags = new [] { LibraryConfig.AudioObjectTag };
                 audioObjects.Add(newAudioAsset);
 
                 AssetDatabase.CreateAsset

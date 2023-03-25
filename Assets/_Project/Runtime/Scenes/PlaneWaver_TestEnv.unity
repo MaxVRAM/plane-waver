@@ -155,7 +155,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EnableDebugCounters: 1
-  ListenerRadius: 30
+  ListenerRadius: 40
   QueueDurationMS: 40
   DelayPercentLastFrame: 10
   DiscardGrainsOlderThanMS: 30
@@ -299,6 +299,52 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &681537497
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 681537498}
+  - component: {fileID: 681537499}
+  m_Layer: 0
+  m_Name: DigitsTester
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &681537498
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 681537497}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &681537499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 681537497}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e1dd34e26de4fce8cdda498c53b154b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FitDigits: 1107.16
+  MirroredValue: {x: -2500.7, y: -2500.7}
 --- !u!1 &737128193
 GameObject:
   m_ObjectHideFlags: 0
@@ -543,7 +589,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!153 &1333207895
 ConfigurableJoint:
   m_ObjectHideFlags: 0
@@ -760,12 +806,12 @@ MonoBehaviour:
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0
   StableEmitters:
-  - Condition: 2
+  - Condition: 0
     ReflectPlayhead: 1
     VolumeAdjustment: 0.8
     AgeFadeOut: 0.95
     DynamicAttenuation:
-      RadiusMultiplier: 0.6
+      RadiusMultiplier: 0.8
       AgeFadeIn: 0.05
       AgeFadeOut: 0.95
       ConnectionFade: 1
@@ -805,7 +851,7 @@ MonoBehaviour:
       EntityInitialised: 0
       IsConnected: 0
       IsPlaying: 0
-    VolatileEmitterAsset: {fileID: 11400000, guid: 836ddc243135d9440b2b935c6b3fa7bf,
+    VolatileEmitterAsset: {fileID: 11400000, guid: 8caeb3a970fd6bd4b9c54d525ef0512d,
       type: 2}
 --- !u!23 &1348788759
 MeshRenderer:
@@ -864,7 +910,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1348788755}
-  m_Material: {fileID: 13400000, guid: 17f8fdf568ccbe049bed4f65b499150e, type: 2}
+  m_Material: {fileID: 13400000, guid: ab8202ce8c8f77f48b986b2945a3d781, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -1041,7 +1087,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1507485545}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 10, z: 10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1066,20 +1112,20 @@ MonoBehaviour:
   ControllerTransform: {fileID: 903864540}
   SpawnParentTransform: {fileID: 800963905}
   PrefabToSpawn: {fileID: 1348788755}
-  AttachmentJoint: {fileID: 0}
+  AttachmentJoint: {fileID: 11400000, guid: 848ad29f701c7d34ea8faeb8272496e8, type: 2}
   TargetNumObjects: 1
   SpawnPeriodSeconds: 0.1
   SpawnWhen: 1
   SpawnDelaySeconds: 2
   AutoSpawn: 1
   AutoRemove: 1
-  SpawnObjectScale: {x: 0.5, y: 3}
-  EjectionPosition: {x: 1, y: 0, z: 0}
-  PositionVariance: 0.1
-  EjectionRadius: {x: 4, y: 4}
-  EjectionDirection: {x: 0, y: 1, z: 0}
+  SpawnObjectScale: {x: 0.5, y: 7}
+  EjectionPosition: {x: 0, y: -1, z: 0}
+  PositionVariance: 1
+  EjectionRadius: {x: 2, y: 2}
+  EjectionDirection: {x: 0, y: 0, z: 1}
   DirectionVariance: 0.5
-  EjectionSpeed: {x: 2, y: 5}
+  EjectionSpeed: {x: 20, y: 40}
   BoundingAreaType: 2
   BoundingCollider: {fileID: 0}
   BoundingRadius: 30
@@ -1191,7 +1237,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1565470865}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -5, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 50, y: 50, z: 50}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1493,7 +1539,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1856446588}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 0, y: 8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1668,7 +1714,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 53b7a6008f4f8a34aa88afe35b64b329, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 74d9d5691a773ff41bf1552f6b3a8b66, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -1838,7 +1884,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b50a036e64e62884cb9bffde5e8caa8e, type: 2}
   - {fileID: 11400000, guid: 08dadce22ee386c4a9510c99c5a8e397, type: 2}
   AudioSource: {fileID: 1981806605}
-  PreviewAudioObject: {fileID: 11400000, guid: 2f3598a4f4b1cd74f93ea20c3704ec6c, type: 2}
+  PreviewAudioObject: {fileID: 11400000, guid: 406ee53ef13b5184ca54a136fb0e8fb8, type: 2}
 --- !u!1 &2017981030
 GameObject:
   m_ObjectHideFlags: 0

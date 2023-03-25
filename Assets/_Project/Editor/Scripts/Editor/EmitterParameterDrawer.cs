@@ -7,12 +7,12 @@ namespace PlaneWaver.Modulation
     [CustomPropertyDrawer(typeof(Parameter))]
     public class EmitterParameterCustomDrawer : PropertyDrawer
     {
-        private int _indent = 0;
         private const int PrefixWidth = 140;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            _indent = EditorGUI.indentLevel;
+            int indent = EditorGUI.indentLevel;
+            float labelWidth = EditorGUIUtility.labelWidth;
             EditorGUI.indentLevel = 0;
             
             EditorGUIUtility.wideMode = true;
@@ -31,7 +31,8 @@ namespace PlaneWaver.Modulation
             DrawModulationFields( property, modulationData, range, isVolatile, parameterName == "Burst Length");
             DrawNoiseFields(modulationData, isVolatile);
             
-            EditorGUI.indentLevel = _indent;
+            EditorGUI.indentLevel = indent;
+            EditorGUIUtility.labelWidth = labelWidth;
             EditorGUI.EndProperty();
         }
 

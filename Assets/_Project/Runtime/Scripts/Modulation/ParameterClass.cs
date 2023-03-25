@@ -41,6 +41,7 @@ namespace PlaneWaver.Modulation
             _isInitialised = true;
         }
 
+        // TODO - Move modulation data and perlin to auth objects for unique data per emitter instance.
         public ModulationComponent CreateModulationComponent()
         {
             if (!_isInitialised)

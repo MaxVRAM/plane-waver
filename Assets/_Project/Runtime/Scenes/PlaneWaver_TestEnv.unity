@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 262.38354, g: 325.1084, b: 430.30957, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -805,52 +805,8 @@ MonoBehaviour:
   SpeakerTarget: {fileID: 0}
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0
-  StableEmitters:
-  - Condition: 0
-    ReflectPlayhead: 1
-    VolumeAdjustment: 0.8
-    DynamicAttenuation:
-      RadiusMultiplier: 0.8
-      AgeFadeIn: 0.05
-      AgeFadeOut: 0.95
-      ConnectionFade: 1
-      ConnectFadeIn: 0.2
-      ReconnectionTime: 0
-      ReconnectionVolume: 0
-      DistanceVolume: 0
-      ListenerDistance: 0
-    RuntimeState:
-      ObjectConstructed: 1
-      BaseInitialised: 0
-      EntityInitialised: 0
-      IsConnected: 0
-      IsPlaying: 0
-    DSPChainParams: []
-    StableEmitterAsset: {fileID: 11400000, guid: da074ae0c6e140e44a64620f0fbc8c18,
-      type: 2}
-  VolatileEmitters:
-  - Condition: 3
-    ReflectPlayhead: 0
-    VolumeAdjustment: 1
-    DynamicAttenuation:
-      RadiusMultiplier: 1
-      AgeFadeIn: 0
-      AgeFadeOut: 1
-      ConnectionFade: 0
-      ConnectFadeIn: 0
-      ReconnectionTime: 0
-      ReconnectionVolume: 0
-      DistanceVolume: 0
-      ListenerDistance: 0
-    RuntimeState:
-      ObjectConstructed: 1
-      BaseInitialised: 0
-      EntityInitialised: 0
-      IsConnected: 0
-      IsPlaying: 0
-    DSPChainParams: []
-    VolatileEmitterAsset: {fileID: 11400000, guid: 8caeb3a970fd6bd4b9c54d525ef0512d,
-      type: 2}
+  StableEmitters: []
+  VolatileEmitters: []
 --- !u!23 &1348788759
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -1,8 +1,6 @@
 ﻿using System;
 using UnityEngine;
 
-using PlaneWaver.Modulation;
-
 namespace PlaneWaver.Emitters
 {
     [Serializable]
@@ -12,7 +10,7 @@ namespace PlaneWaver.Emitters
         
         public override bool InitialiseSubType()
         {
-            Condition = PlaybackCondition.Constant;
+            Condition = Condition == PlaybackCondition.Collision ? PlaybackCondition.Constant : Condition;
             EmitterAsset = StableEmitterAsset;
             return true;
         }
@@ -22,7 +20,6 @@ namespace PlaneWaver.Emitters
             base.Reset();
             Condition = PlaybackCondition.Constant;
             ReflectPlayhead = true;
-            AgeFadeOut = 0.95f;
         }
         
         public override bool IsPlaying()
@@ -38,29 +35,25 @@ namespace PlaneWaver.Emitters
             return RuntimeState.IsPlaying;
         }
         
-        public override EmitterComponent UpdateEmitterComponent(EmitterComponent previousData, int speakerIndex)
+        public override EmitterComponent UpdateEmitterComponent(EmitterComponent emitter, int speakerIndex)
         {
             UpdateDSPEffectsBuffer();
-            ModulationComponent[] modulations = EmitterAsset.GetModulationComponents();
-
-            // data.LastSampleIndex = data.SpeakerIndex == speakerIndex ? data.LastSampleIndex : -1;
-            // data.LastGrainDuration = data.SpeakerIndex == speakerIndex ? data.LastGrainDuration : -1;
             
             return new EmitterComponent {
                 SpeakerIndex = speakerIndex,
                 AudioClipIndex = EmitterAsset.AudioObject.ClipEntityIndex,
-                LastSampleIndex = previousData.LastSampleIndex,
-                LastGrainDuration = previousData.LastGrainDuration,
+                LastSampleIndex = emitter.LastSampleIndex,
+                LastGrainDuration = emitter.LastGrainDuration,
                 SamplesUntilFade = int.MaxValue,  //_actor.Life.SamplesUntilFade(AgeFadeOut),
                 SamplesUntilDeath = int.MaxValue, //_actor.Life.SamplesUntilDeath(),
                 ReflectPlayhead = ReflectPlayhead,
                 EmitterVolume = VolumeAdjustment,
                 DynamicAmplitude = DynamicAttenuation.CalculateAmplitude(Actor),
-                ModVolume = modulations[0],
-                ModPlayhead = modulations[1],
-                ModDuration = modulations[2],
-                ModDensity = modulations[3],
-                ModTranspose = modulations[4]
+                ModVolume = Parameters[0].GetModulationComponent(),
+                ModPlayhead = Parameters[1].GetModulationComponent(),
+                ModDuration = Parameters[2].GetModulationComponent(),
+                ModDensity = Parameters[3].GetModulationComponent(),
+                ModTranspose = Parameters[4].GetModulationComponent()
             };
         }
     }

@@ -11,7 +11,7 @@ public class TestWindow : EditorWindow
 {
     private AnimBool _showExtraFields;
     
-    private ModulationInputObject _modulationInput = new ModulationInputObject();
+    private ModulationInput _modulationInput = new ModulationInput();
     
     private Vector2 _paramMaxRange = new Vector2(-3,3);
     private Vector2 _paramVisible = Vector2.zero;

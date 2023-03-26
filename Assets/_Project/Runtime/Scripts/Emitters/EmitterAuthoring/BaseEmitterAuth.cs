@@ -12,7 +12,6 @@ namespace PlaneWaver.Emitters
     {
         #region FIELDS & PROPERTIES
 
-        // Runtime fields/properties
         public int EntityIndex { get; private set; }
         protected string FrameName;
         protected EntityArchetype ElementArchetype;
@@ -26,11 +25,11 @@ namespace PlaneWaver.Emitters
         protected BaseEmitterObject EmitterAsset;
         public bool ReflectPlayhead;
         [Range(0f, 2f)] public float VolumeAdjustment = 1;
-        // This is temporary until I implement age fade in/out for non-volatile emitters in the DynamicAttenuator.
-        [Range(0f, 1f)] public float AgeFadeOut;
         public EmitterAttenuator DynamicAttenuation;
-        [HideInInspector] public DSPClass[] DSPChainParams;
         public EmitterAuthRuntimeStates RuntimeState = new();
+        public ParameterInstance[] Parameters;
+        
+        [HideInInspector] public DSPClass[] DSPChainParams;
         
         #endregion
 
@@ -87,9 +86,15 @@ namespace PlaneWaver.Emitters
             if (actor == null)
                 Debug.LogWarning("Actor is null.");
 
-            EmitterAsset.InitialiseParameters(in actor);
+            Parameters = new ParameterInstance[EmitterAsset.Parameters.Count];
+            
+            for (var i = 0; i < Parameters.Length; i++)
+                Parameters[i] = new ParameterInstance(EmitterAsset.Parameters[i].Data);
+            
             RuntimeState.BaseInitialised = true;
+            
             InitialiseEntity();
+            
             return RuntimeState.EntityInitialised;
         }
 
@@ -166,6 +171,11 @@ namespace PlaneWaver.Emitters
         {
             CollisionData = collisionData;
         }
+        
+        public virtual bool IsPlaying()
+        {
+            return RuntimeState.IsPlaying;
+        }
     
         public void UpdateEmitterEntity(bool inListenerRange, bool isConnected, int speakerIndex)
         {
@@ -186,27 +196,19 @@ namespace PlaneWaver.Emitters
             if (!IsPlaying())
                 return;
             
-            var data = Manager.GetComponentData<EmitterComponent>(EmitterEntity);
-            data = UpdateEmitterComponent(data, speakerIndex);
-            Manager.SetComponentData(EmitterEntity, data);
+            var emitterComponent = Manager.GetComponentData<EmitterComponent>(EmitterEntity);
+            foreach (ParameterInstance param in Parameters) { param.UpdateInputValue(Actor); }
+            emitterComponent = UpdateEmitterComponent(emitterComponent, speakerIndex);
+            Manager.SetComponentData(EmitterEntity, emitterComponent);
             Manager.AddComponent<EmitterReadyTag>(EmitterEntity);
             
             if (IsVolatile)
                 RuntimeState.SetPlaying(false);
         }
-        
-        public virtual bool IsPlaying()
+
+        public virtual EmitterComponent UpdateEmitterComponent(EmitterComponent emitter, int speakerIndex)
         {
-            return RuntimeState.IsPlaying;
-        }
-
-        #endregion
-
-        #region UPDATE EMITTER COMPONENT
-
-        public virtual EmitterComponent UpdateEmitterComponent(EmitterComponent previousData, int speakerIndex)
-        {
-            return previousData;
+            return emitter;
         }
         
         protected void UpdateDSPEffectsBuffer(bool clear = true)

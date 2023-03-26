@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PlaneWaver.Modulation
 {
-    [CustomPropertyDrawer(typeof(ModulationInputObject))]
+    [CustomPropertyDrawer(typeof(ModulationInput))]
     public class ModulationInputDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

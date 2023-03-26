@@ -6,17 +6,16 @@ using UnityEngine;
 namespace PlaneWaver.Modulation
 {
     [Serializable]
-    public class ModulationInputObject
+    public class ModulationInput
     {
         public InputGroups InputGroup;
         public InputMisc Misc;
         public InputActor Actor;
         public InputRelative Relative;
         public InputCollision Collision;
-        private float _previousValue;
         public bool IsInstant => InputGroup == InputGroups.Collision;
 
-        public ModulationInputObject()
+        public ModulationInput()
         {
             InputGroup = InputGroups.Misc;
             Misc = InputMisc.Blank;
@@ -38,21 +37,19 @@ namespace PlaneWaver.Modulation
 
         public float GetValue(ActorObject actor)
         {
-            _previousValue = InputGroup switch {
+            return InputGroup switch {
                 InputGroups.Misc      => GetMiscValue(Misc, actor),
                 InputGroups.Actor     => actor.GetActorValue(Actor),
                 InputGroups.Relative  => actor.GetRelativeValue(Relative),
                 InputGroups.Collision => actor.GetCollisionValue(Collision),
                 _                     => throw new ArgumentOutOfRangeException()
             };
-
-            return _previousValue;
         }
 
         public float GetMiscValue(InputMisc misc, ActorObject actor)
         {
             return misc switch {
-                InputMisc.Blank          => _previousValue,
+                InputMisc.Blank          => 0,
                 InputMisc.TimeSinceStart => Time.time,
                 InputMisc.DeltaTime      => Time.deltaTime,
                 InputMisc.ActorAge       => actor.Controller.Age,

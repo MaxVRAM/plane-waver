@@ -7,7 +7,7 @@ namespace PlaneWaver.Emitters
     /// <summary>
     ///     Scriptable Object for storing deployable Stable Emitter configurations, which are then assigned to Frames.
     /// </summary>
-    [CreateAssetMenu(fileName = "Emitter.Stable.", menuName = "PlaneWaver/Emitters/Stable", order = 1)]
+    [CreateAssetMenu(fileName = "emit_Stable", menuName = "PlaneWaver/Emitters/Stable", order = 1)]
     public class StableEmitterObject : BaseEmitterObject, IHasGUIContent
     {
         public GUIContent GetGUIContent()

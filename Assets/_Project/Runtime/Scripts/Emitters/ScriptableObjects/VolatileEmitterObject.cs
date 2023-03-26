@@ -7,7 +7,7 @@ namespace PlaneWaver.Emitters
     /// <summary>
     ///     Scriptable Object for storing deployable Volatile Emitter configurations, which are then assigned to Frames.
     /// </summary>
-    [CreateAssetMenu(fileName = "Emitter.Volatile.", menuName = "PlaneWaver/Emitters/Volatile", order = 1)]
+    [CreateAssetMenu(fileName = "emit_Volatile", menuName = "PlaneWaver/Emitters/Volatile", order = 1)]
     public class VolatileEmitterObject : BaseEmitterObject, IHasGUIContent
     {
         public GUIContent GetGUIContent()
@@ -20,12 +20,12 @@ namespace PlaneWaver.Emitters
         public VolatileEmitterObject()
         {
             Parameters = new List<Parameter> {
-                new Volume(true),
-                new Playhead(true),
-                new Duration(true),
-                new Density(true),
-                new Transpose(true),
-                new Length(true),
+                new Volume(),
+                new Playhead(),
+                new Duration(),
+                new Density(),
+                new Transpose(),
+                new Length(),
             };
         }
     }

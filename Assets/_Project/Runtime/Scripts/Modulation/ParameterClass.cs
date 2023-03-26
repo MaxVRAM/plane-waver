@@ -1,158 +1,193 @@
-using System;
-using UnityEngine;
-using MaxVRAM.Extensions;
-using PlaneWaver.Interaction;
+﻿using UnityEngine;
 
 namespace PlaneWaver.Modulation
 {
-    [Serializable]
-    public partial class Parameter
+    public class Parameter : IHasGUIContent
     {
-        public PropertiesObject ParameterProperties;
-        public ModulationInputObject ModulationInput;
-        public ModulationDataObject ModulationData;
-
-        private ProcessedValues _processedValues;
-        private ActorObject _actor;
+        public ModulationData Data;
         public bool IsVolatileEmitter;
-        private bool _isInitialised;
-        private Vector2 _previousInitialRange;
 
-        public Parameter(bool isVolatileEmitter = false)
+        protected Parameter(bool isVolatileEmitter = false)
         {
             IsVolatileEmitter = isVolatileEmitter;
-            ModulationInput = new ModulationInputObject();
-            _processedValues = new ProcessedValues(IsVolatileEmitter);
+            Reset();
         }
 
         public void Reset()
         {
-            ModulationInput = new ModulationInputObject();
-            ModulationData = new ModulationDataObject(ParameterProperties, IsVolatileEmitter);
-            ModulationData.Initialise();
-            _processedValues = new ProcessedValues(IsVolatileEmitter);
+            Data.Input = new ModulationInput();
+            Data = new ModulationData(GetDefaults(), IsVolatileEmitter);
         }
+        
+        public virtual Defaults GetDefaults() { return new Defaults(); }
 
-        public void Initialise(in ActorObject actor)
+        public class Defaults
         {
-            ModulationData.Initialise();
-            _processedValues = new ProcessedValues(IsVolatileEmitter);
-            _actor = actor;
-            _isInitialised = true;
-        }
+            public readonly int Index;
+            public readonly string Name;
+            public readonly Vector2 ParameterRange;
+            public readonly Vector2 InitialRange;
+            public readonly bool ReversePath;
+            public readonly bool FixedStart;
+            public readonly bool FixedEnd;
 
-        // TODO - Move modulation data and perlin to auth objects for unique data per emitter instance.
-        public ModulationComponent CreateModulationComponent()
-        {
-            if (!_isInitialised)
-                throw new Exception("Parameter has not been initialised.");
+            public Defaults() { }
 
-            if (ModulationData.InitialRange != _previousInitialRange)
-                ModulationData.InitialValue = ModulationData.GetNewInitialValue();
-            _previousInitialRange = ModulationData.InitialRange;
-
-            UpdateInputValue(ref _processedValues);
-            ProcessModulation(ref _processedValues, ModulationData);
-            ModulationComponent component = ModulationData.BuildComponent(_processedValues.Output);
-            return component;
-        }
-
-        public void UpdateInputValue(ref ProcessedValues values, ActorObject actor = null)
-        {
-            if (actor == null && !_isInitialised)
-                throw new Exception("Cannot get input value without actor from uninitialised parameter.");
-
-            values.Instant = ModulationInput.IsInstant;
-            values.Input = ModulationData.Enabled ? ModulationInput.GetValue(actor ? actor : _actor) : 0;
-        }
-
-        /// <summary>
-        /// Performs parameter modulation processing on provided set of processed values object, using the
-        /// parameter modulations from a given modulation data configuration object.
-        /// </summary>
-        /// <param name="modData">Modulation data object containing the processing configuration.</param>
-        /// <param name="values">Processed values object for maintaining input, output, and mid-processing values.</param>
-        public static void ProcessModulation(
-            ref ProcessedValues values, in ModulationDataObject modData)
-        {
-            if (!modData.Enabled)
+            public Defaults(int index, string name, Vector2 parameterRange, Vector2 initialRange, bool reversePath, bool fixedStart, bool fixedEnd)
             {
-                values.Output = modData.IsVolatileEmitter ? 0 : modData.InitialValue;
-                return;
-            }
-
-            values.Normalised = values.Input.InverseLerp(modData.ModInputRange.x, modData.ModInputRange.y, modData.Absolute);
-            // values.Normalised = Mathf.InverseLerp(modData.ModInputRange.x, modData.ModInputRange.y, values.Input);
-            // values.Absolute = modData.Absolute ? Mathf.Abs(values.Normalised) : values.Normalised;
-            values.Scaled = values.Normalised * modData.ModInputMultiplier;
-
-            values.Accumulated = modData.Accumulate 
-                    ? values.Accumulated + values.Scaled 
-                    : values.Scaled;
-
-            values.Raised = modData.LimiterMode != ModulationLimiter.Clip
-                    ? values.Accumulated
-                    : Mathf.Pow(Mathf.Clamp01(values.Accumulated), modData.InputExponent);
-
-            values.Smoothed = values.Instant 
-                    ? values.Raised
-                    : values.Smoothed.Smooth(values.Raised, modData.Smoothing);
-
-            float parameterRange = Mathf.Abs(modData.ParameterRange.y - modData.ParameterRange.x);
-            
-            if (modData.IsVolatileEmitter)
-            {
-                values.Limited = modData.LimiterMode switch {
-                    ModulationLimiter.Clip     => Mathf.Clamp01(values.Smoothed),
-                    ModulationLimiter.Wrap     => values.Smoothed.WrapNorm(),
-                    ModulationLimiter.PingPong => values.Smoothed.PingPongNorm(),
-                    _                          => Mathf.Clamp01(values.Smoothed)
-                };
-                float initialOffset = modData.ReversePath ? modData.InitialRange.y : modData.InitialRange.x;
-                values.Output = values.Limited * modData.ModInfluence * parameterRange;
-                values.Preview = Mathf.Clamp(values.Output + initialOffset, -parameterRange, parameterRange);
-            }
-            else
-            {
-                float initialOffset = Mathf.InverseLerp(modData.ParameterRange.x, modData.ParameterRange.y, modData.InitialValue);
-                //float initialOffset = modData.InitialValue / parameterRange;
-                values.Limited = modData.LimiterMode switch {
-                    ModulationLimiter.Clip => Mathf.Clamp01(initialOffset + values.Smoothed * modData.ModInfluence),
-                    ModulationLimiter.Wrap => values.Smoothed.WrapNorm(modData.ModInfluence, initialOffset),
-                    ModulationLimiter.PingPong => values.Smoothed.PingPongNorm(modData.ModInfluence, initialOffset),
-                    _ => Mathf.Clamp01(initialOffset + values.Smoothed * modData.ModInfluence)
-                };
-                values.Output = Mathf.Lerp(modData.ParameterRange.x, modData.ParameterRange.y, values.Limited);
-                values.Preview = values.Output;
+                Index = index;
+                Name = name;
+                ParameterRange = parameterRange;
+                InitialRange = initialRange;
+                ReversePath = reversePath;
+                FixedStart = fixedStart;
+                FixedEnd = fixedEnd;
             }
         }
 
-        public class ProcessedValues
+        public virtual GUIContent GetGUIContent()
         {
-            public float Input;
-            public float Normalised;
-            public float Scaled;
-            public float Accumulated;
-            public float Smoothed;
-            public float Raised;
-            public float Limited;
-            public float Output;
-            public float Preview;
-            public bool Instant;
-            
-            public ProcessedValues(bool instant = false)
-            {
-                Input = 0;
-                Normalised = 0;
-                Scaled = 0;
-                Accumulated = 0;
-                Smoothed = 0;
-                Raised = 0;
-                Limited = 0;
-                Output = 0;
-                Preview = 0;
-                Instant = instant;
-            }
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "This is an undefined parameter.");
+        }
+    }
+
+    public class Volume : Parameter
+    {
+        public override Defaults GetDefaults()
+        {
+            return new Defaults(
+                0,
+                "Volume",
+                new Vector2(0f, 1f),
+                IsVolatileEmitter ? new Vector2(0,1) : new Vector2(0.5f, 0.5f),
+                IsVolatileEmitter,
+                false,
+                IsVolatileEmitter
+            );
+        }
+
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "Volume of the emitted grains");
+        }
+    }
+
+    public class Playhead : Parameter
+    {
+        public override Defaults GetDefaults()
+        {
+            return new Defaults(
+                1,
+                "Playhead",
+                new Vector2(0f, 1f),
+                IsVolatileEmitter ? new Vector2(0f,0.75f) : new Vector2(0, 1),
+                false,
+                false,
+                IsVolatileEmitter
+            );
+        }
+        
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "Normalised audio clip playback position");
+        }
+    }
+
+    public class Duration : Parameter
+    {
+        public override Defaults GetDefaults()
+        {
+            return new Defaults(
+                2,
+                "Grain Duration",
+                new Vector2(10f, 250f),
+                IsVolatileEmitter ? new Vector2(40,80) : new Vector2(60,60),
+                false,
+                IsVolatileEmitter,
+                false
+            );
+        }
+
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "Playback duration (ms) for each emitted grain");
+        }
+    }
+
+    public class Density : Parameter
+    {
+        public override Defaults GetDefaults()
+        {
+            return new Defaults(
+                3,
+                "Density",
+                new Vector2(0.1f, 10),
+                IsVolatileEmitter ? new Vector2(2,3) : new Vector2(3, 3),
+                IsVolatileEmitter,
+                false,
+                false
+            );
+        }
+        
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent
+            (IconManager.GetIcon(this),
+                "Number of overlapping grains");
+        }
+    }
+
+    public class Transpose : Parameter
+    {
+        public override Defaults GetDefaults()
+        {
+            return new Defaults(
+                4,
+                "Transpose",
+                new Vector2(-3, 3),
+                Vector2.zero,
+                false,
+                IsVolatileEmitter,
+                false
+            );
+        }
+
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "Pitch shift of grains in octaves. 0 = same pitch as source sample");
+        }
+    }
+
+    public class Length : Parameter
+    {
+        public override Defaults GetDefaults()
+        {
+            return new Defaults(
+                5,
+                "Burst Length",
+                new Vector2(10, 1000),
+                new Vector2(800,800),
+                false,
+                true,
+                false
+            );
+        }
+        
+        public override GUIContent GetGUIContent()
+        {
+            return new GUIContent(
+                IconManager.GetIcon(this), 
+                "Length (ms) of the triggered grain burst. This parameter is only valid for volatile emitters.");
         }
     }
 }

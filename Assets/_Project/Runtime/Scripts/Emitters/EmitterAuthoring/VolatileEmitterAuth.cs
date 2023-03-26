@@ -2,7 +2,6 @@
 using UnityEngine;
 
 using PlaneWaver.Interaction;
-using PlaneWaver.Modulation;
 
 namespace PlaneWaver.Emitters
 {
@@ -23,7 +22,6 @@ namespace PlaneWaver.Emitters
             base.Reset();
             Condition = PlaybackCondition.Collision;
             ReflectPlayhead = false;
-            AgeFadeOut = 1;
         }
 
         public override void ApplyNewCollision(CollisionData collisionData)
@@ -32,10 +30,9 @@ namespace PlaneWaver.Emitters
             RuntimeState.SetPlaying(true);
         }
 
-        public override EmitterComponent UpdateEmitterComponent(EmitterComponent previousData, int speakerIndex)
+        public override EmitterComponent UpdateEmitterComponent(EmitterComponent emitter, int speakerIndex)
         {
             UpdateDSPEffectsBuffer();
-            ModulationComponent[] modulations = EmitterAsset.GetModulationComponents();
             
             return new EmitterComponent {
                 SpeakerIndex = speakerIndex,
@@ -47,12 +44,12 @@ namespace PlaneWaver.Emitters
                 ReflectPlayhead = ReflectPlayhead,
                 EmitterVolume = VolumeAdjustment,
                 DynamicAmplitude = DynamicAttenuation.CalculateAmplitude(Actor),
-                ModVolume = modulations[0],
-                ModPlayhead = modulations[1],
-                ModDuration = modulations[2],
-                ModDensity = modulations[3],
-                ModTranspose = modulations[4],
-                ModLength = modulations[5]
+                ModVolume = Parameters[0].GetModulationComponent(),
+                ModPlayhead = Parameters[1].GetModulationComponent(),
+                ModDuration = Parameters[2].GetModulationComponent(),
+                ModDensity = Parameters[3].GetModulationComponent(),
+                ModTranspose = Parameters[4].GetModulationComponent(),
+                ModLength = Parameters[5].GetModulationComponent()
             };
         }
     }

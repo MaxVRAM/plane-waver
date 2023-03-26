@@ -8,7 +8,6 @@ using MaxVRAM.Extensions;
 using PlaneWaver.Library;
 using PlaneWaver.Emitters;
 using PlaneWaver.Interaction;
-using PropertiesObject = PlaneWaver.Modulation.Parameter.PropertiesObject;
 
 namespace PlaneWaver.Modulation
 {
@@ -20,13 +19,13 @@ namespace PlaneWaver.Modulation
         private bool _showModulation;
         private bool _isVolatileEmitter;
         private bool _volatileTriggered;
-        private Parameter.ProcessedValues[] _processedValues;
+        private ParameterInstance[] _parameters;
         private Parameter _currentParameter;
         
         private AnimBool[] _editSelectionArray;
         private BaseEmitterObject _emitterObject;
         private SerializedProperty _parameterArray;
-        private PropertiesObject[] _parameterProperties;
+        private Parameter.Defaults[] _parameterDefaults;
         private float[] _modulationPreviewValues;
         
         private static float EditorWidth => EditorGUIUtility.currentViewWidth - 30;
@@ -77,16 +76,15 @@ namespace PlaneWaver.Modulation
             EditorApplication.pauseStateChanged += HandlePauseState;
             _emitterObject = (BaseEmitterObject)target;
             _isVolatileEmitter = _emitterObject is VolatileEmitterObject;
-            _parameterProperties = _emitterObject.Parameters.ConvertAll(parameter => parameter.ParameterProperties).ToArray();
-            
+            _parameterDefaults = _emitterObject.Parameters.ConvertAll(parameter => parameter.GetDefaults()).ToArray();
             _parameterArray = serializedObject.FindProperty("Parameters.Array");
             
             _modulationPreviewValues = new float[_parameterArray.arraySize];
             
-            _processedValues = new Parameter.ProcessedValues[_parameterArray.arraySize];
+            _parameters = new ParameterInstance[_parameterArray.arraySize];
             
-            for (var i = 0; i < _parameterArray.arraySize; i++)
-                _processedValues[i] = new Parameter.ProcessedValues();
+            for (var i = 0; i < _parameters.Length; i++)
+                _parameters[i] = new ParameterInstance(_emitterObject.Parameters[i].Data);
             
             _parameterIcons = new GUIContent[_parameterArray.arraySize];
             
@@ -149,15 +147,14 @@ namespace PlaneWaver.Modulation
             
             for (var i = 0; i < _emitterObject.Parameters.Count; i++)
             {
-                _emitterObject.Parameters[i].ModulationData.IsVolatileEmitter = _isVolatileEmitter;
-                _processedValues[i].Instant = _emitterObject.Parameters[i].ModulationInput.IsInstant;
+                _emitterObject.Parameters[i].Data.IsVolatileEmitter = _isVolatileEmitter;
                 
-                if (_isVolatileEmitter && _processedValues[i].Instant && !_volatileTriggered)
+                if (_isVolatileEmitter && _parameters[i].Values.Instant && !_volatileTriggered)
                     continue;
                 
-                _emitterObject.Parameters[i].UpdateInputValue(ref _processedValues[i], Actor);
-                Parameter.ProcessModulation(ref _processedValues[i], in _emitterObject.Parameters[i].ModulationData);
-                _modulationPreviewValues[i] = _processedValues[i].Output;
+                _parameters[i].UpdateInputValue(Actor);
+                _parameters[i].Values.Process();
+                _modulationPreviewValues[i] = _parameters[i].Values.Output;
             }
 
             if (_selectedModIndex >= 0 && _selectedModIndex < _emitterObject.Parameters.Count)
@@ -165,7 +162,7 @@ namespace PlaneWaver.Modulation
             else
                 _currentParameter = null;
             
-            _showModulation = _currentParameter != null && _currentParameter.ModulationData.Enabled;
+            _showModulation = _currentParameter != null && _currentParameter.Data.Enabled;
             _volatileTriggered = false;
             Repaint();
         }
@@ -259,7 +256,7 @@ namespace PlaneWaver.Modulation
                     SerializedProperty initialRange = modulationData.FindPropertyRelative("InitialRange");
                     SerializedProperty modulationEnabled = modulationData.FindPropertyRelative("Enabled");
 
-                    Vector2 paramRangeVector = _parameterProperties[i].ParameterRange;
+                    Vector2 paramRangeVector = _parameterDefaults[i].ParameterRange;
                     float paramRange = paramRangeVector.y - paramRangeVector.x;
 
                     EditorGUILayout.BeginVertical();
@@ -267,7 +264,7 @@ namespace PlaneWaver.Modulation
                     using (new EditorGUILayout.HorizontalScope())
                     {
                         EditorGUILayout.LabelField(_parameterIcons[i], _toggleOptions);
-                        EditorGUILayout.LabelField(_parameterProperties[i].Name, _paramWithIconOptions);
+                        EditorGUILayout.LabelField(_parameterDefaults[i].Name, _paramWithIconOptions);
                         _previousLabelRect = GUILayoutUtility.GetLastRect();
 
                         GUIContent modIcon = modulationEnabled.boolValue
@@ -327,7 +324,7 @@ namespace PlaneWaver.Modulation
                     using (new EditorGUILayout.HorizontalScope())
                     {
                         string inputPreviewLabel = modulationEnabled.boolValue
-                                ? _emitterObject.Parameters[i].ModulationInput.GetInputName()
+                                ? _parameters[i].DataRef.Input.GetInputName()
                                 : " - ";
                         
                         EditorGUILayout.LabelField(GUIContent.none, _paramWithIconOptions);
@@ -356,7 +353,7 @@ namespace PlaneWaver.Modulation
 
                         if (modulationEnabled.boolValue)
                         {
-                            var valuePreviewLabel = _processedValues[i].Output.LimitDigits(4).ToString();
+                            var valuePreviewLabel = _parameters[i].Values.Output.LimitDigits(4).ToString();
                             var previewValueRect = new Rect(previewLabelRect) {
                                 x = _previousSliderRect.xMax + 5,
                                 width = EditorWidth - _previousSliderRect.xMax - 5
@@ -440,11 +437,8 @@ namespace PlaneWaver.Modulation
             if (_selectedModIndex <= -1)
                 return;
             
-            _modulationHeader = new GUIContent(_parameterProperties[_selectedModIndex].Name);
-            _emitterObject.Parameters[_selectedModIndex].IsVolatileEmitter = _isVolatileEmitter;
-
-            if (Actor != null)
-                _emitterObject.Parameters[_selectedModIndex].Initialise(Actor);
+            _modulationHeader = new GUIContent(_parameterDefaults[_selectedModIndex].Name);
+            // _emitterObject.Parameters[_selectedModIndex].IsVolatileEmitter = _isVolatileEmitter;
         }
 
         private void DrawFadeGroups()
@@ -467,7 +461,7 @@ namespace PlaneWaver.Modulation
                 return;
             }
             
-            Parameter.ProcessedValues currentValues = _processedValues[_selectedModIndex];
+            ModulationValues currentValues = _parameters[_selectedModIndex].Values;
             
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("Modulation Preview", _titleStyle);
@@ -477,7 +471,7 @@ namespace PlaneWaver.Modulation
             EditorGUILayout.Slider(new GUIContent("Normalised"), currentValues.Normalised, 0, 1);
             EditorGUILayout.LabelField("Scaled", currentValues.Scaled.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
 
-            Parameter.ModulationDataObject currentData = _currentParameter.ModulationData;
+            ModulationData currentData = _currentParameter.Data;
             
             if (currentData.Accumulate)
                 EditorGUILayout.LabelField("Accumulated", currentValues.Accumulated.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
@@ -486,7 +480,7 @@ namespace PlaneWaver.Modulation
             if (!currentValues.Instant)
                 EditorGUILayout.LabelField("Smoothed", currentValues.Smoothed.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
 
-            float initialOffset = currentData.InitialValue;
+            float initialOffset = currentValues.Initial;
 
             if (_isVolatileEmitter)
             {

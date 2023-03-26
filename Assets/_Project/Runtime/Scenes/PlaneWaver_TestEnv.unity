@@ -344,7 +344,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FitDigits: 1107.16
-  MirroredValue: {x: -2500.7, y: -2500.7}
+  MirroredValue: {x: -4572.8545, y: -428.5454}
 --- !u!1 &737128193
 GameObject:
   m_ObjectHideFlags: 0
@@ -809,7 +809,6 @@ MonoBehaviour:
   - Condition: 0
     ReflectPlayhead: 1
     VolumeAdjustment: 0.8
-    AgeFadeOut: 0.95
     DynamicAttenuation:
       RadiusMultiplier: 0.8
       AgeFadeIn: 0.05
@@ -820,20 +819,19 @@ MonoBehaviour:
       ReconnectionVolume: 0
       DistanceVolume: 0
       ListenerDistance: 0
-    DSPChainParams: []
     RuntimeState:
       ObjectConstructed: 1
       BaseInitialised: 0
       EntityInitialised: 0
       IsConnected: 0
       IsPlaying: 0
+    DSPChainParams: []
     StableEmitterAsset: {fileID: 11400000, guid: da074ae0c6e140e44a64620f0fbc8c18,
       type: 2}
   VolatileEmitters:
   - Condition: 3
     ReflectPlayhead: 0
     VolumeAdjustment: 1
-    AgeFadeOut: 1
     DynamicAttenuation:
       RadiusMultiplier: 1
       AgeFadeIn: 0
@@ -844,13 +842,13 @@ MonoBehaviour:
       ReconnectionVolume: 0
       DistanceVolume: 0
       ListenerDistance: 0
-    DSPChainParams: []
     RuntimeState:
       ObjectConstructed: 1
       BaseInitialised: 0
       EntityInitialised: 0
       IsConnected: 0
       IsPlaying: 0
+    DSPChainParams: []
     VolatileEmitterAsset: {fileID: 11400000, guid: 8caeb3a970fd6bd4b9c54d525ef0512d,
       type: 2}
 --- !u!23 &1348788759
@@ -2083,7 +2081,6 @@ MonoBehaviour:
   - Condition: 0
     ReflectPlayhead: 1
     VolumeAdjustment: 1
-    AgeFadeOut: 0.95
     DynamicAttenuation:
       RadiusMultiplier: 1
       AgeFadeIn: 0
@@ -2094,20 +2091,19 @@ MonoBehaviour:
       ReconnectionVolume: 0
       DistanceVolume: 0
       ListenerDistance: 0
-    DSPChainParams: []
     RuntimeState:
       ObjectConstructed: 1
       BaseInitialised: 0
       EntityInitialised: 0
       IsConnected: 0
       IsPlaying: 0
+    DSPChainParams: []
     StableEmitterAsset: {fileID: 11400000, guid: da074ae0c6e140e44a64620f0fbc8c18,
       type: 2}
   VolatileEmitters:
   - Condition: 3
     ReflectPlayhead: 0
     VolumeAdjustment: 1
-    AgeFadeOut: 1
     DynamicAttenuation:
       RadiusMultiplier: 1
       AgeFadeIn: 0
@@ -2118,12 +2114,12 @@ MonoBehaviour:
       ReconnectionVolume: 0
       DistanceVolume: 0
       ListenerDistance: 0
-    DSPChainParams: []
     RuntimeState:
       ObjectConstructed: 1
       BaseInitialised: 0
       EntityInitialised: 0
       IsConnected: 0
       IsPlaying: 0
+    DSPChainParams: []
     VolatileEmitterAsset: {fileID: 11400000, guid: 836ddc243135d9440b2b935c6b3fa7bf,
       type: 2}

@@ -6,6 +6,6 @@ namespace PlaneWaver.Modulation
 {
     public class InputEnumTester : MonoBehaviour
     {
-        public ModulationInputObject ModulationInput;
+        public ModulationInput ModulationInput;
     }
 }

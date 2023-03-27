@@ -13,6 +13,9 @@ namespace PlaneWaver.Emitters
         public AudioObject AudioObject;
         public List<Parameter> Parameters;
         
-        
+        public BaseEmitterObject()
+        {
+            Parameters = new List<Parameter>();
+        }
     }
 }

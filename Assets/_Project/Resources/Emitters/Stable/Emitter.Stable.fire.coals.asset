@@ -9,12 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bb05c03cc2610c499df23d4e51dfe39, type: 3}
-  m_Name: Emitter.Volatile.metal.hollow
+  m_Script: {fileID: 11500000, guid: 631cd795d7508044999ab678f8d8713e, type: 3}
+  m_Name: Emitter.Stable.fire.coals
   m_EditorClassIdentifier: 
-  EmitterName: 
+  EmitterName: FireballMovement
   Description: 
-  AudioObject: {fileID: 11400000, guid: 406ee53ef13b5184ca54a136fb0e8fb8, type: 2}
+  AudioObject: {fileID: 11400000, guid: fe2bb3116778abc4ab2efab96403e0e1, type: 2}
   Parameters:
   - Data:
       Enabled: 1
@@ -24,14 +24,14 @@ MonoBehaviour:
       IsLengthParameter: 0
       ParameterRange: {x: 0, y: 1}
       Input:
-        InputGroup: 3
+        InputGroup: 1
         Misc: 0
-        Actor: 0
+        Actor: 4
         Relative: 3
         Collision: 1
       InitialRange: {x: 0, y: 0}
       ReversePath: 0
-      ModInputRange: {x: 0, y: 20}
+      ModInputRange: {x: 0, y: 30}
       Absolute: 0
       ModInputMultiplier: 1
       Accumulate: 0
@@ -63,7 +63,7 @@ MonoBehaviour:
         Actor: 0
         Relative: 3
         Collision: 1
-      InitialRange: {x: 0.25, y: 0.75}
+      InitialRange: {x: 0, y: 1}
       ReversePath: 0
       ModInputRange: {x: 0, y: 1}
       Absolute: 0
@@ -176,40 +176,6 @@ MonoBehaviour:
       ModInfluence: 0
       TimeExponent: 1
       FixedStart: 0
-      FixedEnd: 0
-      LimiterMode: 0
-      NoiseEnabled: 0
-      NoiseInfluence: 0
-      NoiseMultiplier: 0.1
-      PerlinSpeed: 1
-      UsePerlin: 1
-      LockNoise: 0
-    IsVolatileEmitter: 0
-    IsLengthParameter: 0
-  - Data:
-      Enabled: 0
-      Name: Burst Length
-      ParameterIndex: 5
-      IsVolatileEmitter: 0
-      IsLengthParameter: 1
-      ParameterRange: {x: 10, y: 1000}
-      Input:
-        InputGroup: 0
-        Misc: 0
-        Actor: 0
-        Relative: 3
-        Collision: 1
-      InitialRange: {x: 800, y: 800}
-      ReversePath: 0
-      ModInputRange: {x: 0, y: 1}
-      Absolute: 0
-      ModInputMultiplier: 1
-      Accumulate: 0
-      Smoothing: 0.2
-      InputExponent: 1
-      ModInfluence: 0
-      TimeExponent: 1
-      FixedStart: 1
       FixedEnd: 0
       LimiterMode: 0
       NoiseEnabled: 0

@@ -10,23 +10,23 @@ namespace PlaneWaver.Emitters
     [CreateAssetMenu(fileName = "emit_Volatile", menuName = "PlaneWaver/Emitters/Volatile", order = 1)]
     public class VolatileEmitterObject : BaseEmitterObject, IHasGUIContent
     {
+        public VolatileEmitterObject()
+        {
+            Parameters = new List<Parameter> {
+                new Volume(true),
+                new Playhead(true),
+                new Duration(true),
+                new Density(true),
+                new Transpose(true),
+                new Length(true)
+            };
+        }
+        
         public GUIContent GetGUIContent()
         {
             return new GUIContent(
                 IconManager.GetIcon(this), 
                 "Grain Emitter that spawns grains for a short, predetermined duration after being triggered.");
-        }
-        
-        public VolatileEmitterObject()
-        {
-            Parameters = new List<Parameter> {
-                new Volume(),
-                new Playhead(),
-                new Duration(),
-                new Density(),
-                new Transpose(),
-                new Length(),
-            };
         }
     }
 }

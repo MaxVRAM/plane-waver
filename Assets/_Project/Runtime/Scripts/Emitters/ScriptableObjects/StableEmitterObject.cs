@@ -10,22 +10,22 @@ namespace PlaneWaver.Emitters
     [CreateAssetMenu(fileName = "emit_Stable", menuName = "PlaneWaver/Emitters/Stable", order = 1)]
     public class StableEmitterObject : BaseEmitterObject, IHasGUIContent
     {
-        public GUIContent GetGUIContent()
-        {
-            return new GUIContent(
-                IconManager.GetIcon(this), 
-                "Grain Emitter that continues producing grains while its condition evaluates as true.");
-        }
-        
         public StableEmitterObject()
         {
             Parameters = new List<Parameter> {
-                new Volume(),
-                new Playhead(),
-                new Duration(),
-                new Density(),
-                new Transpose()
+                new Volume(false),
+                new Playhead(false),
+                new Duration(false),
+                new Density(false),
+                new Transpose(false)
             };
+        }
+
+        public GUIContent GetGUIContent()
+        {
+            return new GUIContent
+            (IconManager.GetIcon(this),
+                "Grain Emitter that continues producing grains while its condition evaluates as true.");
         }
     }
 }

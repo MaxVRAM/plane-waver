@@ -4,7 +4,7 @@ namespace PlaneWaver
 {
     public enum SynthElementType { Blank, Speaker, Emitter, Frame };
     
-    public static class EnumExtensions
+    public static class ElementEnumExtensions
     {
         // https://www.meziantou.net/caching-enum-tostring-to-improve-performance.htm
         

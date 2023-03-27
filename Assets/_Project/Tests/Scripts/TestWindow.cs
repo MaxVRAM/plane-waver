@@ -18,8 +18,8 @@ public class TestWindow : EditorWindow
     private Vector2 _paramData = Vector2.zero;
     
     
-    private const float _minFieldWidth = 45f;
-    private const float _maxFieldWidth = 80f;
+    private const float MinFieldWidth = 45f;
+    private const float MaxFieldWidth = 80f;
     
     [MenuItem("Plane Waver/Test Window")]
     static void Init()
@@ -36,7 +36,7 @@ public class TestWindow : EditorWindow
     void OnGUI()
     {
         float viewWidth = EditorGUIUtility.currentViewWidth;
-        float rangeFieldWidth = Mathf.Clamp(viewWidth * 0.3f, _minFieldWidth, _maxFieldWidth);
+        float rangeFieldWidth = Mathf.Clamp(viewWidth * 0.3f, MinFieldWidth, MaxFieldWidth);
         _showExtraFields.target = EditorGUILayout.ToggleLeft("Show extra fields", _showExtraFields.target);
         
         //Extra block that can be toggled on and off.

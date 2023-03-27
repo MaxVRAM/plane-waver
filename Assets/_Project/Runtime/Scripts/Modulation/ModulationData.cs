@@ -14,13 +14,12 @@ namespace PlaneWaver.Modulation
         public string Name;
         public int ParameterIndex;
         public bool IsVolatileEmitter;
+        public bool IsLengthParameter;
+        public Vector2 ParameterRange;
         
         public ModulationInput Input;
-
-        public Vector2 ParameterRange;
         public Vector2 InitialRange;
         public bool ReversePath;
-
         public Vector2 ModInputRange;
         public bool Absolute;
         public float ModInputMultiplier;
@@ -46,13 +45,15 @@ namespace PlaneWaver.Modulation
 
         #region CONSTRUCTOR AND INITIALISATION
 
+        public ModulationData(bool isVolatileEmitter) { IsVolatileEmitter = isVolatileEmitter; }
+        
         public ModulationData(in Parameter.Defaults defaults, bool isVolatileEmitter = false)
         {
             Name = defaults.Name;
             ParameterIndex = defaults.Index;
             IsVolatileEmitter = isVolatileEmitter;
+            IsLengthParameter = defaults.IsLengthParameter;
             Input = new ModulationInput();
-            
             ParameterRange = defaults.ParameterRange;
             InitialRange = defaults.InitialRange;
             ReversePath = defaults.ReversePath;

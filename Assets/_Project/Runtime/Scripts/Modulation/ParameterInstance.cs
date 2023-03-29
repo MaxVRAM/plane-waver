@@ -4,27 +4,26 @@ namespace PlaneWaver.Modulation
 {
     public class ParameterInstance
     {
-        public readonly ModulationData DataRef;
+        public readonly Parameter ParameterRef;
         public ModulationValues Values;
         
-        public ParameterInstance(in ModulationData data)
+        public ParameterInstance(in Parameter parameter)
         {
-            DataRef = data;
-            Values = new ModulationValues(in data, data.IsVolatileEmitter) {
-                Instant = DataRef.Input.IsInstant
-            };
+            ParameterRef = parameter;
+            Values = new ModulationValues(in parameter);
         }
         
         public void UpdateInputValue(in ActorObject actor)
         {
-            Values.Instant = DataRef.Input.IsInstant;
-            Values.Input = DataRef.Enabled ? DataRef.Input.GetValue(actor) : 0;
+            Values.Instant = ParameterRef.Input.Source.IsInstant;
+            Values.Input = ParameterRef.Input.Enabled ? ParameterRef.Input.Source.GetValue(actor) : 0;
         }
         
-        public ModulationComponent GetModulationComponent()
+        public ParameterComponent GetModulationComponent()
         {
             Values.Process();
-            return DataRef.BuildComponent(Values.Output);
+            ParameterComponent component = ParameterRef.BuildComponent(Values.Output);
+            return component;
         } 
     }
 }

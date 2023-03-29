@@ -18,9 +18,9 @@ namespace PlaneWaver.Modulation
         public float Output;
         public float Preview;
         public bool Instant;
-        public readonly ModulationData Data;
+        public readonly Parameter ParameterRef;
 
-        public ModulationValues(in ModulationData data, bool instant = false)
+        public ModulationValues(in Parameter parameter)
         {
             Input = 0;
             Initial = 0;
@@ -32,34 +32,34 @@ namespace PlaneWaver.Modulation
             Limited = 0;
             Output = 0;
             Preview = 0;
-            Instant = instant;
-            Data = data;
+            Instant = parameter.Input.Source.IsInstant;
+            ParameterRef = parameter;
             PerlinOffset = 0;
             PerlinSeed = 0;
 
-            if (Data.IsVolatileEmitter) return;
+            if (parameter.IsVolatileEmitter) return;
 
             ResetInitialValue();
             Random.InitState((int)(Time.time * 1000));
-            PerlinOffset = Random.Range(0f, 1000f) * (1 + Data.ParameterIndex);
-            PerlinSeed = Mathf.PerlinNoise(PerlinOffset + Data.ParameterIndex, PerlinOffset * 0.5f + Data.ParameterIndex);
+            PerlinOffset = Random.Range(0f, 1000f) * (1 + parameter.ParameterIndex);
+            PerlinSeed = Mathf.PerlinNoise(PerlinOffset + parameter.ParameterIndex, PerlinOffset * 0.5f + parameter.ParameterIndex);
 
         }
 
         public void ResetInitialValue()
         {
-            Initial = Random.Range(Data.InitialRange.x, Data.InitialRange.y);
+            Initial = Random.Range(ParameterRef.BaseRange.x, ParameterRef.BaseRange.y);
         }
 
         public float GetPerlinValue()
         {
-            if (Data.IsVolatileEmitter ||
-                !Data.NoiseEnabled ||
-                !Data.UsePerlin ||
-                Mathf.Approximately(Data.NoiseInfluence, 0f))
+            if (ParameterRef.IsVolatileEmitter ||
+                !ParameterRef.Noise.Enabled ||
+                !ParameterRef.Noise.UsePerlin ||
+                Mathf.Approximately(ParameterRef.Noise.Amount, 0f))
                 return 0;
 
-            PerlinOffset += Data.PerlinSpeed * Time.deltaTime;
+            PerlinOffset += ParameterRef.Noise.PerlinSpeed * Time.deltaTime;
             return Mathf.PerlinNoise(PerlinSeed + PerlinOffset, (PerlinSeed + PerlinOffset) * 0.5f);
         }
 
@@ -68,48 +68,48 @@ namespace PlaneWaver.Modulation
         /// </summary>
         public void Process()
         {
-            if (!Data.Enabled)
+            if (!ParameterRef.Input.Enabled)
             {
-                Output = Data.IsVolatileEmitter ? 0 : Initial;
+                Output = ParameterRef.IsVolatileEmitter ? 0 : Initial;
                 return;
             }
 
-            Normalised = Input.InverseLerp(Data.ModInputRange.x, Data.ModInputRange.y, Data.Absolute);
-            Scaled = Normalised * Data.ModInputMultiplier;
-            Accumulated = Data.Accumulate ? Accumulated + Scaled : Scaled;
+            Normalised = Input.InverseLerp(ParameterRef.Input.Range.x, ParameterRef.Input.Range.y, ParameterRef.Input.Absolute);
+            Scaled = Normalised * ParameterRef.Input.Factor;
+            Accumulated = ParameterRef.Input.Accumulate ? Accumulated + Scaled : Scaled;
 
-            Raised = Data.LimiterMode != ModulationLimiter.Clip
+            Raised = ParameterRef.Output.Limiter != ModulationLimiter.Clip
                     ? Accumulated
-                    : Mathf.Pow(Mathf.Clamp01(Accumulated), Data.InputExponent);
+                    : Mathf.Pow(Mathf.Clamp01(Accumulated), ParameterRef.Input.Exponent);
 
-            Smoothed = Instant ? Raised : Smoothed.Smooth(Raised, Data.Smoothing);
+            Smoothed = Instant ? Raised : Smoothed.Smooth(Raised, ParameterRef.Input.Smoothing);
 
-            float parameterRange = Mathf.Abs(Data.ParameterRange.y - Data.ParameterRange.x);
+            float parameterRange = Mathf.Abs(ParameterRef.Range.y - ParameterRef.Range.x);
 
-            if (Data.IsVolatileEmitter)
+            if (ParameterRef.IsVolatileEmitter)
             {
-                Limited = Data.LimiterMode switch {
+                Limited = ParameterRef.Output.Limiter switch {
                     ModulationLimiter.Clip     => Mathf.Clamp01(Smoothed),
                     ModulationLimiter.Wrap     => Smoothed.WrapNorm(),
                     ModulationLimiter.PingPong => Smoothed.PingPongNorm(),
                     _                          => Mathf.Clamp01(Smoothed)
                 };
 
-                float initialOffset = Data.ReversePath ? Data.InitialRange.y : Data.InitialRange.x;
-                Output = Limited * Data.ModInfluence * parameterRange;
+                float initialOffset = ParameterRef.ReversePath ? ParameterRef.BaseRange.y : ParameterRef.BaseRange.x;
+                Output = Limited * ParameterRef.Output.Amount * parameterRange;
                 Preview = Mathf.Clamp(Output + initialOffset, -parameterRange, parameterRange);
             }
             else
             {
-                float initialOffset = Mathf.InverseLerp(Data.ParameterRange.x, Data.ParameterRange.y, Initial);
+                float initialOffset = Mathf.InverseLerp(ParameterRef.Range.x, ParameterRef.Range.y, Initial);
 
-                Limited = Data.LimiterMode switch {
-                    ModulationLimiter.Clip     => Mathf.Clamp01(initialOffset + Smoothed * Data.ModInfluence),
-                    ModulationLimiter.Wrap     => Smoothed.WrapNorm(Data.ModInfluence, initialOffset),
-                    ModulationLimiter.PingPong => Smoothed.PingPongNorm(Data.ModInfluence, initialOffset),
-                    _                          => Mathf.Clamp01(initialOffset + Smoothed * Data.ModInfluence)
+                Limited = ParameterRef.Output.Limiter switch {
+                    ModulationLimiter.Clip     => Mathf.Clamp01(initialOffset + Smoothed * ParameterRef.Output.Amount),
+                    ModulationLimiter.Wrap     => Smoothed.WrapNorm(ParameterRef.Output.Amount, initialOffset),
+                    ModulationLimiter.PingPong => Smoothed.PingPongNorm(ParameterRef.Output.Amount, initialOffset),
+                    _                          => Mathf.Clamp01(initialOffset + Smoothed * ParameterRef.Output.Amount)
                 };
-                Output = Mathf.Lerp(Data.ParameterRange.x, Data.ParameterRange.y, Limited);
+                Output = Mathf.Lerp(ParameterRef.Range.x, ParameterRef.Range.y, Limited);
                 Preview = Output;
             }
         }

@@ -80,12 +80,12 @@ namespace PlaneWaver.Emitters
         public bool ReflectPlayhead;
         public float EmitterVolume;
         public float DynamicAmplitude;
-        public ModulationComponent ModVolume;
-        public ModulationComponent ModPlayhead;
-        public ModulationComponent ModDuration;
-        public ModulationComponent ModDensity;
-        public ModulationComponent ModTranspose;
-        public ModulationComponent ModLength;
+        public ParameterComponent ModVolume;
+        public ParameterComponent ModPlayhead;
+        public ParameterComponent ModDuration;
+        public ParameterComponent ModDensity;
+        public ParameterComponent ModTranspose;
+        public ParameterComponent ModLength;
     }
 
     public struct EmitterReadyTag : IComponentData { }

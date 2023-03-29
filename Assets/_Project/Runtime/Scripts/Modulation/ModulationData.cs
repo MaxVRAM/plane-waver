@@ -1,143 +1,68 @@
 ﻿using System;
 using UnityEngine;
-using Unity.Entities;
 
 namespace PlaneWaver.Modulation
 {
     [Serializable]
-    public class ModulationData
+    public class ModulationInput
     {
-        #region DEFINITIONS
-
         public bool Enabled;
-
-        public string Name;
-        public int ParameterIndex;
-        public bool IsVolatileEmitter;
-        public bool IsLengthParameter;
-        public Vector2 ParameterRange;
-        
-        public ModulationInput Input;
-        public Vector2 InitialRange;
-        public bool ReversePath;
-        public Vector2 ModInputRange;
+        public InputSource Source;
+        public Vector2 Range;
         public bool Absolute;
-        public float ModInputMultiplier;
+        public float Factor;
         public bool Accumulate;
+        public float Exponent;
         public float Smoothing;
-        public float InputExponent;
-        public float ModInfluence;
 
-        public float TimeExponent;
-        public bool FixedStart;
-        public bool FixedEnd;
+        public ModulationInput()
+        {
+            Enabled = false;
+            Source = new InputSource();
+            Range = new Vector2(0, 1);
+            Absolute = false;
+            Factor = 1;
+            Accumulate = false;
+            Exponent = 1;
+            Smoothing = 0;
+        }
+    }
+    
+    [Serializable]
+    public class ModulationOutput
+    {
+        public ModulationLimiter Limiter;
+        public float Amount;
+        public bool Start;
+        public bool End;
 
-        public ModulationLimiter LimiterMode;
-
-        public bool NoiseEnabled;
-        public float NoiseInfluence;
-        public float NoiseMultiplier;
+        public ModulationOutput()
+        {
+            Limiter = ModulationLimiter.Clip;
+            Amount = 0;
+            Start = false;
+            End = false;
+        }
+    }
+        
+    [Serializable]
+    public class ModulationNoise
+    {
+        public bool Enabled;
+        public float Amount;
+        public float Factor;
         public float PerlinSpeed;
         public bool UsePerlin;
-        public bool LockNoise;
+        public bool VolatileLock;
 
-        #endregion
-
-        #region CONSTRUCTOR AND INITIALISATION
-
-        public ModulationData(bool isVolatileEmitter) { IsVolatileEmitter = isVolatileEmitter; }
-        
-        public ModulationData(in Parameter.Defaults defaults, bool isVolatileEmitter = false)
+        public ModulationNoise()
         {
-            Name = defaults.Name;
-            ParameterIndex = defaults.Index;
-            IsVolatileEmitter = isVolatileEmitter;
-            IsLengthParameter = defaults.IsLengthParameter;
-            Input = new ModulationInput();
-            ParameterRange = defaults.ParameterRange;
-            InitialRange = defaults.InitialRange;
-            ReversePath = defaults.ReversePath;
             Enabled = false;
-            ModInputRange = new Vector2(0f, 1f);
-            Absolute = false;
-            ModInputMultiplier = 1;
-            Accumulate = false;
-            Smoothing = 0.2f;
-            InputExponent = 1;
-            TimeExponent = 1;
-            ModInfluence = 0;
-            FixedStart = defaults.FixedStart;
-            FixedEnd = defaults.FixedEnd;
-            LimiterMode = ModulationLimiter.Clip;
-            NoiseEnabled = false;
-            NoiseInfluence = 0;
-            NoiseMultiplier = 0.1f;
-            UsePerlin = !isVolatileEmitter;
+            Amount = 0;
+            Factor = 0.1f;
             PerlinSpeed = 1;
-            LockNoise = false;
+            UsePerlin = false;
+            VolatileLock = false;
         }
-        
-        public ModulationComponent BuildComponent(float modulationValue)
-        {
-            return IsVolatileEmitter ? BuildVolatileComponent(modulationValue) : BuildStableComponent(modulationValue);
-        }
-
-        public ModulationComponent BuildVolatileComponent(float modulationValue)
-        {
-            return new ModulationComponent {
-                StartValue = ReversePath ? InitialRange.y : InitialRange.x,
-                EndValue = ReversePath ? InitialRange.x : InitialRange.y,
-                ModValue = modulationValue,
-                Min = ParameterRange.x,
-                Max = ParameterRange.y,
-                Noise = NoiseEnabled ? NoiseInfluence * NoiseMultiplier : 0,
-                PerlinValue = -1,
-                UsePerlin = false,
-                LockNoise = LockNoise,
-                TimeExponent = TimeExponent,
-                FixedStart = FixedStart,
-                FixedEnd = FixedEnd
-            };
-        }
-
-        public ModulationComponent BuildStableComponent(float modulationValue, float perlinValue = -1)
-        {
-            return new ModulationComponent {
-                StartValue = modulationValue,
-                EndValue = -1,
-                ModValue = -1,
-                Min = ParameterRange.x,
-                Max = ParameterRange.y,
-                Noise = NoiseEnabled ? NoiseInfluence * NoiseMultiplier : 0,
-                PerlinValue = perlinValue,
-                UsePerlin = UsePerlin,
-                LockNoise = false,
-                TimeExponent = -1,
-                FixedStart = false,
-                FixedEnd = false
-            };
-        }
-
-        #endregion
     }
-
-    #region COMPONENT DATA MODEL
-
-    public struct ModulationComponent : IComponentData
-    {
-        public float StartValue;
-        public float EndValue;
-        public float TimeExponent;
-        public bool FixedStart;
-        public bool FixedEnd;
-        public float ModValue;
-        public float Min;
-        public float Max;
-        public float Noise;
-        public float PerlinValue;
-        public bool UsePerlin;
-        public bool LockNoise;
-    }
-
-    #endregion
 }

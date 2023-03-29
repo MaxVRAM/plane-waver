@@ -89,7 +89,7 @@ namespace PlaneWaver.Emitters
             Parameters = new ParameterInstance[EmitterAsset.Parameters.Count];
             
             for (var i = 0; i < Parameters.Length; i++)
-                Parameters[i] = new ParameterInstance(EmitterAsset.Parameters[i].Data);
+                Parameters[i] = new ParameterInstance(EmitterAsset.Parameters[i]);
             
             RuntimeState.BaseInitialised = true;
             
@@ -141,12 +141,12 @@ namespace PlaneWaver.Emitters
                 LastGrainDuration = -1,
                 EmitterVolume = VolumeAdjustment,
                 DynamicAmplitude = 0,
-                ModVolume = new ModulationComponent(),
-                ModPlayhead = new ModulationComponent(),
-                ModDuration = new ModulationComponent(),
-                ModDensity = new ModulationComponent(),
-                ModTranspose = new ModulationComponent(),
-                ModLength = new ModulationComponent()
+                ModVolume = new ParameterComponent(),
+                ModPlayhead = new ParameterComponent(),
+                ModDuration = new ParameterComponent(),
+                ModDensity = new ParameterComponent(),
+                ModTranspose = new ParameterComponent(),
+                ModLength = new ParameterComponent()
             });
 
             if (IsVolatile)

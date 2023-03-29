@@ -13,12 +13,12 @@ namespace PlaneWaver.Emitters
         public VolatileEmitterObject()
         {
             Parameters = new List<Parameter> {
-                new Volume(true),
-                new Playhead(true),
-                new Duration(true),
-                new Density(true),
-                new Transpose(true),
-                new Length(true)
+                new(ParameterType.Volume, true),
+                new(ParameterType.Playhead, true),
+                new(ParameterType.Duration, true),
+                new(ParameterType.Density, true),
+                new(ParameterType.Transpose, true),
+                new(ParameterType.Length, true)
             };
         }
         

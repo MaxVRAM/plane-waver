@@ -6,7 +6,7 @@ using UnityEngine;
 namespace PlaneWaver.Modulation
 {
     [Serializable]
-    public class ModulationInput
+    public class InputSource
     {
         public InputGroups InputGroup;
         public InputMisc Misc;
@@ -15,7 +15,7 @@ namespace PlaneWaver.Modulation
         public InputCollision Collision;
         public bool IsInstant => InputGroup == InputGroups.Collision;
 
-        public ModulationInput()
+        public InputSource()
         {
             InputGroup = InputGroups.Misc;
             Misc = InputMisc.Blank;

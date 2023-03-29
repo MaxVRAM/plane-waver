@@ -13,11 +13,11 @@ namespace PlaneWaver.Emitters
         public StableEmitterObject()
         {
             Parameters = new List<Parameter> {
-                new Volume(false),
-                new Playhead(false),
-                new Duration(false),
-                new Density(false),
-                new Transpose(false)
+                new(ParameterType.Volume, false),
+                new(ParameterType.Playhead, false),
+                new(ParameterType.Duration, false),
+                new(ParameterType.Density, false),
+                new(ParameterType.Transpose, false)
             };
         }
 

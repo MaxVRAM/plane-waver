@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using Unity.Entities;
 using UnityEngine;
 
 namespace PlaneWaver.Modulation
@@ -8,219 +9,188 @@ namespace PlaneWaver.Modulation
     public class Parameter : IHasGUIContent
     {
         public ParameterType ParamType;
-        public ModulationData Data;
+        public string ParameterName;
+        public int ParameterIndex;
         public bool IsVolatileEmitter;
+        public Vector2 Range;
+        public Vector2 BaseRange;
+        public float TimeExponent;
+        public bool ReversePath;
 
-        protected Parameter(ParameterType paramType, bool isVolatileEmitter)
+        public ModulationInput Input;
+        public ModulationOutput Output;
+        public ModulationNoise Noise;
+
+        public Parameter(ParameterType paramType, bool isVolatileEmitter)
         {
             ParamType = paramType;
+            ParameterName = paramType.ToStringCached();
+            ParameterIndex = (int)paramType;
             IsVolatileEmitter = isVolatileEmitter;
-            Reset(ParamType);
+            Reset();
         }
 
-        public void Reset(ParameterType paramType)
+        #region COMPONENT BUILDERS
+        
+        public ParameterComponent BuildComponent(float modulationValue)
         {
-            ParamType = paramType;
+            return IsVolatileEmitter ? VolatileComponent(modulationValue) : StableComponent(modulationValue);
+        }
 
-            Data = ParamType switch {
-                ParameterType.Volume => new ModulationData(IsVolatileEmitter) {
-                    Input = new ModulationInput(),
-                    Name = "Volume",
-                    ParameterRange = new Vector2(0f, 1f),
-                    InitialRange = IsVolatileEmitter ? new Vector2(0, 1) : new Vector2(0.5f, 0.5f),
-                    ReversePath = IsVolatileEmitter,
-                    FixedStart = false,
-                    FixedEnd = IsVolatileEmitter
-                },
-                ParameterType.Playhead => new ModulationData(IsVolatileEmitter) {
-                    Input = new ModulationInput(),
-                    Name = "Playhead",
-                    ParameterRange = new Vector2(0f, 1f),
-                    InitialRange = IsVolatileEmitter ? new Vector2(0.25f, 0.75f) : new Vector2(0f, 1f),
-                    ReversePath = false,
-                    FixedStart = false,
-                    FixedEnd = IsVolatileEmitter
-                },
-                ParameterType.Duration => new ModulationData(IsVolatileEmitter) {
-                    Input = new ModulationInput(),
-                    Name = "Duration",
-                    ParameterRange = new Vector2(10f, 400f),
-                    InitialRange = IsVolatileEmitter ? new Vector2(40, 80) : new Vector2(60, 60),
-                    ReversePath = false,
-                    FixedStart = IsVolatileEmitter,
-                    FixedEnd = false
-                },
-                ParameterType.Density => new ModulationData(IsVolatileEmitter) {
-                    Input = new ModulationInput(),
-                    Name = "Density",
-                    ParameterRange = new Vector2(0.1f, 10f),
-                    InitialRange = new Vector2(3f, 3f),
-                    ReversePath = false,
-                    FixedStart = IsVolatileEmitter,
-                    FixedEnd = false
-                },
-                ParameterType.Transpose => new ModulationData(IsVolatileEmitter) {
-                    Input = new ModulationInput(),
-                    Name = "Transpose",
-                    ParameterRange = new Vector2(-3f, 3f),
-                    InitialRange = Vector2.zero,
-                    ReversePath = false,
-                    FixedStart = IsVolatileEmitter,
-                    FixedEnd = true,
-                    
-                },
-                ParameterType.Length => new ModulationData(IsVolatileEmitter) {
-                    Input = new ModulationInput(),
-                    Name = "Burst Length",
-                    ParameterRange = new Vector2(10f, 1000f),
-                    InitialRange = new Vector2(500, 500),
-                    ReversePath = false,
-                    FixedStart = true,
-                    FixedEnd = false
-                },
-                _ => Data
+        public ParameterComponent VolatileComponent(float modulationValue)
+        {
+            return new ParameterComponent {
+                StartValue = ReversePath ? BaseRange.y : BaseRange.x,
+                EndValue = ReversePath ? BaseRange.x : BaseRange.y,
+                ModValue = modulationValue,
+                Min = Range.x,
+                Max = Range.y,
+                Noise = Noise.Enabled ? Noise.Amount * Noise.Factor : 0,
+                PerlinValue = -1,
+                UsePerlin = false,
+                LockNoise = Noise.VolatileLock,
+                TimeExponent = TimeExponent,
+                ModulateStart = Output.Start,
+                ModulateEnd = Output.End
             };
         }
 
-        public virtual GUIContent GetGUIContent()
+        public ParameterComponent StableComponent(float modulationValue, float perlinValue = -1)
         {
-            return new GUIContent(IconManager.GetIcon(this), "This is an undefined parameter.");
+            return new ParameterComponent {
+                StartValue = modulationValue,
+                EndValue = -1,
+                ModValue = -1,
+                Min = Range.x,
+                Max = Range.y,
+                Noise = Noise.Enabled ? Noise.Amount * Noise.Factor : 0,
+                PerlinValue = perlinValue,
+                UsePerlin = Noise.UsePerlin,
+                LockNoise = false,
+                TimeExponent = -1,
+                ModulateStart = false,
+                ModulateEnd = false
+            };
         }
 
-        public struct Defaults
+        #endregion
+        
+        public void Reset()
         {
-            public int Index;
-            public string Name;
-            public Vector2 ParameterRange;
-            public Vector2 InitialRange;
-            public bool ReversePath;
-            public bool FixedStart;
-            public bool FixedEnd;
-            public bool IsLengthParameter;
+            TimeExponent = 1;
+            Input = new ModulationInput();
+            Output = new ModulationOutput();
+            Noise = new ModulationNoise();
 
-            public Defaults(
-                int index, string name, Vector2 parameterRange, Vector2 initialRange, bool reversePath,
-                bool fixedStart, bool fixedEnd, bool isLengthParameter = false)
+            switch (ParamType)
             {
-                Index = index;
-                Name = name;
-                ParameterRange = parameterRange;
-                InitialRange = initialRange;
-                ReversePath = reversePath;
-                FixedStart = fixedStart;
-                FixedEnd = fixedEnd;
-                IsLengthParameter = isLengthParameter;
+                case ParameterType.Volume:
+                    Range = new Vector2(0f, 1f);
+                    BaseRange = IsVolatileEmitter ? new Vector2(0, 1) : new Vector2(0.5f, 0.5f);
+                    ReversePath = true;
+                    Output = new ModulationOutput {
+                        Start = true,
+                        End = false
+                    };
+                    break;
+                case ParameterType.Playhead:
+                    Range = new Vector2(0f, 1f);
+                    BaseRange = IsVolatileEmitter ? new Vector2(0.25f, 0.75f) : new Vector2(0f, 1f);
+                    ReversePath = false;
+                    Output = new ModulationOutput {
+                        Start = true,
+                        End = false
+                    };
+                    break;
+                case ParameterType.Duration:
+                    Range = new Vector2(10f, 500f);
+                    BaseRange = IsVolatileEmitter ? new Vector2(40, 80) : new Vector2(60, 60);
+                    ReversePath = false;
+                    Output = new ModulationOutput {
+                        Start = false,
+                        End = true
+                    };
+                    break;
+                case ParameterType.Density:
+                    Range = new Vector2(0.1f, 10f);
+                    BaseRange = new Vector2(3f, 3f);
+                    ReversePath = false;
+                    Output = new ModulationOutput {
+                        Start = true,
+                        End = true
+                    };
+                    break;
+                case ParameterType.Transpose:
+                    Range = new Vector2(-3, 3);
+                    BaseRange = Vector2.zero;
+                    ReversePath = false;
+                    Output = new ModulationOutput {
+                        Start = false,
+                        End = true
+                    };
+                    break;
+                case ParameterType.Length:
+                    Range = new Vector2(10f, 1000f);
+                    BaseRange = new Vector2(500, 500);
+                    ReversePath = false;
+                    Output = new ModulationOutput {
+                        Start = true,
+                        End = false
+                    };
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
-        //     public static Defaults GetDefaults(ParameterType paramType)
-        //     {
-        //         return paramType switch {
-        //             ParameterType.Volume _ => new Defaults
-        //             (0, "Volume", new Vector2(0f, 1f),
-        //                 parameter.IsVolatileEmitter ? new Vector2(0, 1) : new Vector2(0.5f, 0.5f),
-        //                 parameter.IsVolatileEmitter, false, parameter.IsVolatileEmitter, false),
-        //             Playhead _ => new Defaults
-        //             (1, "Playhead", new Vector2(0f, 1f),
-        //                 parameter.IsVolatileEmitter ? new Vector2(0.25f, 0.75f) : new Vector2(0, 1), false, false,
-        //                 parameter.IsVolatileEmitter, false),
-        //             Duration _ => new Defaults
-        //             (2, "Grain Duration", new Vector2(10f, 250f),
-        //                 parameter.IsVolatileEmitter ? new Vector2(40, 80) : new Vector2(60, 60), false,
-        //                 parameter.IsVolatileEmitter, false, false),
-        //             Density _ => new Defaults
-        //             (3, "Grain Density", new Vector2(0.1f, 10f), new Vector2(3f, 3f), false,
-        //                 parameter.IsVolatileEmitter, false),
-        //             Transpose _ => new Defaults
-        //             (4, "Transpose", new Vector2(-3, 3f), Vector2.zero, false,
-        //                 parameter.IsVolatileEmitter, false, false),
-        //             Length _ => new Defaults
-        //             (5, "Burst Length", new Vector2(10f, 1000f), new Vector2(800, 800), false, true,
-        //                 false, true),
-        //             _ => new Defaults()
-        //         };
-        //     }
-        // }
-        //
-        // public class Volume : Parameter
-        // {
-        //     public Volume(bool isVolatileEmitter) : base(isVolatileEmitter) { }
-        //     
-        //     public override GUIContent GetGUIContent()
-        //     {
-        //         return new GUIContent(IconManager.GetIcon(this), "Volume of the emitted grains");
-        //     }
-        // }
-        //
-        // public class Playhead : Parameter
-        // {
-        //     public Playhead(bool isVolatileEmitter) : base(isVolatileEmitter) { }
-        //     
-        //     public override GUIContent GetGUIContent()
-        //     {
-        //         return new GUIContent(IconManager.GetIcon(this), "Normalised audio clip playback position");
-        //     }
-        // }
-        //
-        // public class Duration : Parameter
-        // {
-        //     public Duration(bool isVolatileEmitter) : base(isVolatileEmitter) { }
-        //
-        //     public override GUIContent GetGUIContent()
-        //     {
-        //         return new GUIContent(IconManager.GetIcon(this), "Playback duration (ms) for each emitted grain");
-        //     }
-        // }
-        //
-        // public class Density : Parameter
-        // {
-        //     public Density(bool isVolatileEmitter) : base(isVolatileEmitter) { }
-        //
-        //     public override GUIContent GetGUIContent()
-        //     {
-        //         return new GUIContent(IconManager.GetIcon(this), "Number of overlapping grains");
-        //     }
-        // }
-        //
-        // public class Transpose : Parameter
-        // {
-        //     public Transpose(bool isVolatileEmitter) : base(isVolatileEmitter) { }
-        //
-        //     public override GUIContent GetGUIContent()
-        //     {
-        //         return new GUIContent
-        //         (IconManager.GetIcon(this),
-        //             "Pitch shift of grains in octaves. 0 = same pitch as source sample");
-        //     }
-        // }
-        //
-        // public class Length : Parameter
-        // {
-        //     public Length(bool isVolatileEmitter) : base(isVolatileEmitter) { }
-        //
-        //     public override GUIContent GetGUIContent()
-        //     {
-        //         return new GUIContent
-        //         (IconManager.GetIcon(this),
-        //             "Length (ms) of the triggered grain burst. This parameter is only valid for volatile emitters.");
-        //     }
-        // }
+        public GUIContent GetGUIContent()
+        {
+            string tooltip = ParamType switch {
+                ParameterType.Volume   => "Volume of the emitted grains",
+                ParameterType.Playhead => "Normalised audio clip playback position",
+                ParameterType.Duration => "Playback duration (ms) for each emitted grain",
+                ParameterType.Density  => "Number of overlapping grains",
+                ParameterType.Transpose =>
+                        "Pitch shift of grains in octaves. 0 = same pitch as source sample",
+                ParameterType.Length =>
+                        "Length (ms) of the triggered grain burst. Only valid for volatile emitters",
+                _ => "Undefined parameter type"
+            };
+
+            var paramGUIContent = new GUIContent(IconManager.GetIcon(ParamType.ToStringCached()), tooltip);
+            return paramGUIContent;
+        }
     }
+    
+    #region COMPONENT DATA MODEL
+
+    public struct ParameterComponent : IComponentData
+    {
+        public float StartValue;
+        public float EndValue;
+        public float TimeExponent;
+        public bool ModulateStart;
+        public bool ModulateEnd;
+        public float ModValue;
+        public float Min;
+        public float Max;
+        public float Noise;
+        public float PerlinValue;
+        public bool UsePerlin;
+        public bool LockNoise;
+    }
+
+    #endregion
 
     public enum ParameterType
     {
-        Volume = 0,
-        Playhead = 1,
-        Duration = 2,
-        Density = 3,
-        Transpose = 4,
-        Length = 5
+        Volume = 0, Playhead = 1, Duration = 2, Density = 3, Transpose = 4, Length = 5
     }
-    
+
     public static class ParameterEnumExtensions
     {
         // https://www.meziantou.net/caching-enum-tostring-to-improve-performance.htm
-        
+
         private static readonly ConcurrentDictionary<ParameterType, string> Cache = new();
 
         public static string ToStringCached(this ParameterType value)

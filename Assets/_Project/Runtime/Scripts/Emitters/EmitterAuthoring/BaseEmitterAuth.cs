@@ -21,6 +21,7 @@ namespace PlaneWaver.Emitters
         protected CollisionData CollisionData;
         public bool IsVolatile => this is VolatileEmitterAuth;
 
+        public bool Enabled;
         public PlaybackCondition Condition;
         protected BaseEmitterObject EmitterAsset;
         public bool ReflectPlayhead;
@@ -50,6 +51,7 @@ namespace PlaneWaver.Emitters
             RuntimeState.ObjectConstructed = true;
             DynamicAttenuation = new EmitterAttenuator();
             VolumeAdjustment = 1;
+            Enabled = true;
         }
 
         #endregion
@@ -92,6 +94,7 @@ namespace PlaneWaver.Emitters
                 Parameters[i] = new ParameterInstance(EmitterAsset.Parameters[i]);
             
             RuntimeState.BaseInitialised = true;
+            Enabled = true;
             
             InitialiseEntity();
             
@@ -174,7 +177,7 @@ namespace PlaneWaver.Emitters
         
         public virtual bool IsPlaying()
         {
-            return RuntimeState.IsPlaying;
+            return true;
         }
     
         public void UpdateEmitterEntity(bool inListenerRange, bool isConnected, int speakerIndex)

@@ -5,7 +5,7 @@ using PlaneWaver.Emitters;
 namespace PlaneWaver.Modulation
 {
     [CustomPropertyDrawer(typeof(Parameter))]
-    public class EmitterParameterCustomDrawer : PropertyDrawer
+    public class ParameterDrawer : PropertyDrawer
     {
         private const int PrefixWidth = 140;
 
@@ -144,12 +144,12 @@ namespace PlaneWaver.Modulation
             EditorGUI.indentLevel++;
             float paramRange = range.y - range.x;
             float modAmount = amount.floatValue * paramRange;
-            var influenceContent = new GUIContent
-            ("Influence",
-                "Amount of modulation to apply to the parameter. Negative values invert the modulation.");
+            var amountContent = new GUIContent
+            ("Amount",
+                "Amount of modulation applied to the parameter. Negative values invert the modulation.");
 
             EditorGUI.BeginChangeCheck();
-            float newAmount = EditorGUILayout.Slider(influenceContent, modAmount, -paramRange, paramRange);
+            float newAmount = EditorGUILayout.Slider(amountContent, modAmount, -paramRange, paramRange);
 
             if (EditorGUI.EndChangeCheck()) { amount.floatValue = newAmount / paramRange; }
 
@@ -179,13 +179,15 @@ namespace PlaneWaver.Modulation
                 EditorGUILayout.PropertyField(selectedGroup, GUIContent.none);
             }
 
-            var rangeContent = new GUIContent("Range", "The range of the input value.");
+            var rangeContent = new GUIContent("Range", "The value range of the input source to be normalised.");
             EditorGUILayout.PropertyField(inputRange, rangeContent);
             var absoluteContent = new GUIContent
-                    ("Absolute", "Use the absolute value from the positive and negative normalised ranged.");
+                    ("Absolute", "Include the negative side of the normalised input as an absolute value. " +
+                                 "This is useful for inputs that move in both directions around a central value, such as acceleration.");
             EditorGUILayout.PropertyField(absolute, absoluteContent);
             var scaleContent = new GUIContent
-                    ("Scale", "Scaling factor applied to the input value before normalisation.");
+                    ("Scale", "Allows scaling the normalised input without changing the input range. This is useful +" +
+                              "when accumulating the input value.");
             EditorGUILayout.PropertyField(inputFactor, scaleContent, floatFieldOptions);
             EditorGUI.indentLevel--;
 

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 631cd795d7508044999ab678f8d8713e, type: 3}
   m_Name: Emitter.Stable.fire.coals
   m_EditorClassIdentifier: 
-  EmitterName: 
+  EmitterName: Fireball Movement
   Description: 
   AudioObject: {fileID: 11400000, guid: fe2bb3116778abc4ab2efab96403e0e1, type: 2}
   Parameters:

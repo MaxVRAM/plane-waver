@@ -199,7 +199,7 @@ public partial class GrainSynthSystem : SystemBase
                 float randomVolume = randomGen.NextFloat(-1, 1);
 
                 // Compute first grain value
-                int offset = 0;
+                var offset = 0;
                 float density = ComputeBurstParameter(emitter.ModDensity, offset, totalBurstLength, randomDensity);
                 int duration = (int)ComputeBurstParameter(emitter.ModDuration, offset, totalBurstLength, randomDuration) * samplesPerMS;
 

@@ -343,8 +343,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e1dd34e26de4fce8cdda498c53b154b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FitDigits: 1107.16
-  MirroredValue: {x: -4572.8545, y: -428.5454}
+  FitDigits: -1.99
+  MirroredValue: {x: -2500.7, y: -2500.7}
 --- !u!1 &737128193
 GameObject:
   m_ObjectHideFlags: 0
@@ -1032,7 +1032,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1507485546
 Transform:
   m_ObjectHideFlags: 0
@@ -1893,7 +1893,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!54 &2081923541
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2034,15 +2034,16 @@ MonoBehaviour:
   SpeakerTransform: {fileID: 0}
   SpeakerIndex: 0
   StableEmitters:
-  - Condition: 0
+  - Enabled: 0
+    Condition: 0
     ReflectPlayhead: 1
     VolumeAdjustment: 1
     DynamicAttenuation:
       RadiusMultiplier: 1
       AgeFadeIn: 0
       AgeFadeOut: 1
-      ConnectionFade: 0
-      ConnectFadeIn: 100
+      ConnectionFade: 1
+      ConnectFadeIn: 0.1
       ReconnectionTime: 0
       ReconnectionVolume: 0
       DistanceVolume: 0
@@ -2054,10 +2055,11 @@ MonoBehaviour:
       IsConnected: 0
       IsPlaying: 0
     DSPChainParams: []
-    StableEmitterAsset: {fileID: 11400000, guid: da074ae0c6e140e44a64620f0fbc8c18,
+    StableEmitterAsset: {fileID: 11400000, guid: 6e18136de8caf334e842f292d56e6968,
       type: 2}
   VolatileEmitters:
-  - Condition: 3
+  - Enabled: 0
+    Condition: 3
     ReflectPlayhead: 0
     VolumeAdjustment: 1
     DynamicAttenuation:
@@ -2077,5 +2079,5 @@ MonoBehaviour:
       IsConnected: 0
       IsPlaying: 0
     DSPChainParams: []
-    VolatileEmitterAsset: {fileID: 11400000, guid: 836ddc243135d9440b2b935c6b3fa7bf,
+    VolatileEmitterAsset: {fileID: 11400000, guid: e94713ee5f0749f47acb711a83814310,
       type: 2}

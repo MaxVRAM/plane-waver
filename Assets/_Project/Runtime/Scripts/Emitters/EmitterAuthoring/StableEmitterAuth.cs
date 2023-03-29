@@ -32,7 +32,7 @@ namespace PlaneWaver.Emitters
                 PlaybackCondition.Collision => throw new Exception("Stable emitters cannot use Collision condition."),
                 _                           => throw new ArgumentOutOfRangeException()
             });
-            return RuntimeState.IsPlaying;
+            return RuntimeState.IsPlaying && Enabled;
         }
         
         public override EmitterComponent UpdateEmitterComponent(EmitterComponent emitter, int speakerIndex)

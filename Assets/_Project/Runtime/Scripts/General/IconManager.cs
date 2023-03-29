@@ -29,10 +29,10 @@ namespace PlaneWaver
             { "CollisionEmitter", EmitterBase + "collision" + IconExtension },
             { "Volume", ParameterBase + "volume" + IconExtension },
             { "Playhead", ParameterBase + "playhead" + IconExtension },
-            { "Grain", ParameterBase + "duration" + IconExtension },
+            { "Duration", ParameterBase + "duration" + IconExtension },
             { "Density", ParameterBase + "density" + IconExtension },
             { "Transpose", ParameterBase + "transpose" + IconExtension },
-            { "Burst", ParameterBase + "length" + IconExtension },
+            { "Length", ParameterBase + "length" + IconExtension },
             { "ModulationOn", ModulationBase + "on" + IconExtension },
             { "ModulationOff", ModulationBase + "off" + IconExtension },
             { "PathForward", ModulationBase + "forward" + IconExtension },
@@ -45,7 +45,10 @@ namespace PlaneWaver
             return AssetDatabase.LoadAssetAtPath<Texture>(iconPath) ?? Texture2D.whiteTexture;
         }
 
-        public static Texture GetIcon(IHasGUIContent obj) { return GetIcon(obj.GetType().Name); }
+        public static Texture GetIcon(IHasGUIContent obj)
+        {
+            return GetIcon(obj.GetType().Name);
+        }
 
         public static readonly Dictionary<string, GUIContent> ToggleIcons = new() {
             { "ModulationOn", new GUIContent(GetIcon("ModulationOn"), "Modulation On") },

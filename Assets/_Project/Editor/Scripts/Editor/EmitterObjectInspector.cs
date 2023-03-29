@@ -11,7 +11,7 @@ using PlaneWaver.Interaction;
 namespace PlaneWaver.Modulation
 {
     [CustomEditor(typeof(BaseEmitterObject))]
-    public class EmitterObjectCustomEditor : Editor
+    public class EmitterObjectInspector : Editor
     {
         private int _selectedModIndex;
         private bool _isPaused;
@@ -586,7 +586,7 @@ namespace PlaneWaver.Modulation
     }
 
     [CustomEditor(typeof(StableEmitterObject))]
-    public class StableEmitterObjectCustomEditor : EmitterObjectCustomEditor
+    public class StableEmitterObjectInspector : EmitterObjectInspector
     {
         public override void OnInspectorGUI()
         {
@@ -600,7 +600,7 @@ namespace PlaneWaver.Modulation
     }
 
     [CustomEditor(typeof(VolatileEmitterObject))]
-    public class VolatileEmitterObjectCustomEditor : EmitterObjectCustomEditor
+    public class VolatileEmitterObjectInspector : EmitterObjectInspector
     {
         public override void OnInspectorGUI()
         {

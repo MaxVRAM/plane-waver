@@ -29,6 +29,15 @@ namespace PlaneWaver.Emitters
             base.ApplyNewCollision(collisionData);
             RuntimeState.SetPlaying(true);
         }
+        
+        public override bool IsPlaying()
+        {
+            if (Enabled)
+                return RuntimeState.IsPlaying;
+
+            RuntimeState.SetPlaying(false);
+            return false;
+        }
 
         public override EmitterComponent UpdateEmitterComponent(EmitterComponent emitter, int speakerIndex)
         {

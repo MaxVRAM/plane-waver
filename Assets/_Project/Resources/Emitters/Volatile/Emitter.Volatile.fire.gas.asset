@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bb05c03cc2610c499df23d4e51dfe39, type: 3}
   m_Name: Emitter.Volatile.fire.gas
   m_EditorClassIdentifier: 
-  EmitterName: 
+  EmitterName: Fireball Gas Burst
   Description: 
   AudioObject: {fileID: 11400000, guid: 61884dd0003d50143b788a886411ad72, type: 2}
   Parameters:
@@ -59,7 +59,7 @@ MonoBehaviour:
     TimeExponent: 1
     ReversePath: 0
     Input:
-      Enabled: 0
+      Enabled: 1
       Source:
         InputGroup: 0
         Misc: 0
@@ -78,7 +78,7 @@ MonoBehaviour:
       Start: 1
       End: 0
     Noise:
-      Enabled: 0
+      Enabled: 1
       Amount: 0
       Factor: 0.1
       PerlinSpeed: 1

@@ -12,6 +12,7 @@ using MaxVRAM.Audio;
 
 using PlaneWaver.DSP;
 using PlaneWaver.Emitters;
+using PlaneWaver.Interaction;
 
 // There's a good topic for me to answer on here at StackOverflow from someone trying to stream audio
 // from one buffer to another in real-time. Don't have time to answer now, but could provide good
@@ -123,6 +124,8 @@ namespace PlaneWaver
         public List<EmitterFrame> Frames = new ();
         public List<BaseEmitterAuth> Emitters = new();
         public List<SynthSpeaker> Speakers = new ();
+        
+        public ActorObject EmitterEditorActor;
         
         #endregion
 

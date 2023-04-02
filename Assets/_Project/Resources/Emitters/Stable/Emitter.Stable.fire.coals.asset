@@ -21,75 +21,75 @@ MonoBehaviour:
     ParameterIndex: 0
     IsVolatileEmitter: 0
     Range: {x: 0, y: 1}
-    BaseRange: {x: 0.5, y: 0.5}
+    BaseRange: {x: 0, y: 0}
     TimeExponent: 1
     ReversePath: 1
     Input:
-      Enabled: 0
+      Enabled: 1
       Source:
-        InputGroup: 0
+        InputGroup: 1
         Misc: 0
         Actor: 0
         Relative: 3
         Collision: 1
-      Range: {x: 0, y: 1}
+      Range: {x: 0, y: 30}
       Absolute: 0
       Factor: 1
       Accumulate: 0
-      Exponent: 1
-      Smoothing: 0
+      Exponent: 0.9
+      Smoothing: 0.2
     Output:
       Limiter: 0
-      Amount: 0
+      Amount: 1
       Start: 1
       End: 0
     Noise:
       Enabled: 0
-      Amount: 0
+      Amount: 0.1
       Factor: 0.1
       PerlinSpeed: 1
-      UsePerlin: 0
+      UsePerlin: 1
       VolatileLock: 0
   - ParamType: 1
     ParameterName: Playhead
     ParameterIndex: 1
     IsVolatileEmitter: 0
     Range: {x: 0, y: 1}
-    BaseRange: {x: 0, y: 1}
+    BaseRange: {x: 0.65, y: 0.7}
     TimeExponent: 1
     ReversePath: 0
     Input:
-      Enabled: 0
+      Enabled: 1
       Source:
-        InputGroup: 0
+        InputGroup: 1
         Misc: 0
         Actor: 0
         Relative: 3
         Collision: 1
-      Range: {x: 0, y: 1}
+      Range: {x: 0, y: 30}
       Absolute: 0
       Factor: 1
       Accumulate: 0
-      Exponent: 1
+      Exponent: 1.5
       Smoothing: 0
     Output:
       Limiter: 0
-      Amount: 0
+      Amount: -0.5
       Start: 1
       End: 0
     Noise:
-      Enabled: 0
-      Amount: 0
+      Enabled: 1
+      Amount: 0.05
       Factor: 0.1
-      PerlinSpeed: 1
-      UsePerlin: 0
+      PerlinSpeed: 2
+      UsePerlin: 1
       VolatileLock: 0
   - ParamType: 2
     ParameterName: Duration
     ParameterIndex: 2
     IsVolatileEmitter: 0
     Range: {x: 10, y: 500}
-    BaseRange: {x: 60, y: 60}
+    BaseRange: {x: 100, y: 120}
     TimeExponent: 1
     ReversePath: 0
     Input:
@@ -127,14 +127,14 @@ MonoBehaviour:
     TimeExponent: 1
     ReversePath: 0
     Input:
-      Enabled: 0
+      Enabled: 1
       Source:
-        InputGroup: 0
+        InputGroup: 1
         Misc: 0
-        Actor: 0
+        Actor: 2
         Relative: 3
         Collision: 1
-      Range: {x: 0, y: 1}
+      Range: {x: 0.2, y: 5}
       Absolute: 0
       Factor: 1
       Accumulate: 0
@@ -142,7 +142,7 @@ MonoBehaviour:
       Smoothing: 0
     Output:
       Limiter: 0
-      Amount: 0
+      Amount: 0.20202021
       Start: 1
       End: 1
     Noise:
@@ -157,18 +157,18 @@ MonoBehaviour:
     ParameterIndex: 4
     IsVolatileEmitter: 0
     Range: {x: -3, y: 3}
-    BaseRange: {x: 0, y: 0}
+    BaseRange: {x: 2, y: 2}
     TimeExponent: 1
     ReversePath: 0
     Input:
-      Enabled: 0
+      Enabled: 1
       Source:
-        InputGroup: 0
+        InputGroup: 1
         Misc: 0
-        Actor: 0
+        Actor: 1
         Relative: 3
         Collision: 1
-      Range: {x: 0, y: 1}
+      Range: {x: 0.2, y: 5}
       Absolute: 0
       Factor: 1
       Accumulate: 0
@@ -176,12 +176,12 @@ MonoBehaviour:
       Smoothing: 0
     Output:
       Limiter: 0
-      Amount: 0
+      Amount: -0.33333334
       Start: 0
       End: 1
     Noise:
-      Enabled: 0
-      Amount: 0
+      Enabled: 1
+      Amount: 0.1
       Factor: 0.1
       PerlinSpeed: 1
       UsePerlin: 0

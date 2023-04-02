@@ -419,23 +419,22 @@ public partial class GrainSynthSystem : SystemBase
     #region HELPERS
 
     private static float ComputeEmitterParameter(ParameterComponent mod, float randomValue)
-    {
+    {   
         float random = (mod.UsePerlin ? mod.PerlinValue : randomValue) * mod.Noise * Mathf.Abs(mod.Max - mod.Min);
-        //return Mathf.Clamp(mod.Min + (mod.StartValue + random) * parameterRange, mod.Min, mod.Max);
         return Mathf.Clamp(mod.StartValue + random, mod.Min, mod.Max);
     }
 
     private static float ComputeBurstParameter(ParameterComponent mod, float currentSample, float totalSamples, float randomValue)
     {
         float timeShaped = Mathf.Pow(currentSample / totalSamples, mod.TimeExponent);
-        float burstPath = timeShaped * (mod.EndValue - mod.StartValue);
+        float pathValue = mod.StartValue + timeShaped * (mod.EndValue - mod.StartValue);
         float modulation = mod.ModValue;
 
         if (!mod.ModulateStart) modulation *= timeShaped;
         if (!mod.ModulateEnd) modulation *= 1 - timeShaped;
 
         float random = randomValue * mod.Noise * Mathf.Abs(mod.Max - mod.Min);
-        return Mathf.Clamp(mod.StartValue + burstPath + modulation + random, mod.Min, mod.Max);
+        return Mathf.Clamp(pathValue + modulation + random, mod.Min, mod.Max);
     }
 
     private static float FadeFactor(int currentIndex, int fadeStart, int fadeEnd)

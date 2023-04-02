@@ -51,6 +51,10 @@ namespace PlaneWaver.Modulation
             Initial = Random.Range(ParameterRef.BaseRange.x, ParameterRef.BaseRange.y);
         }
 
+        /// <summary>
+        /// Gets a new perlin noise value for the current parameter.
+        /// </summary>
+        /// <returns>(float) A 0-centred value with a range of 2 (-1 to 1).</returns>
         public float GetPerlinValue()
         {
             if (ParameterRef.IsVolatileEmitter ||
@@ -60,7 +64,8 @@ namespace PlaneWaver.Modulation
                 return 0;
 
             PerlinOffset += ParameterRef.Noise.PerlinSpeed * Time.deltaTime;
-            return Mathf.PerlinNoise(PerlinSeed + PerlinOffset, (PerlinSeed + PerlinOffset) * 0.5f);
+            float perlinValue = Mathf.PerlinNoise(PerlinSeed + PerlinOffset, (PerlinSeed + PerlinOffset) * 0.5f);
+            return Mathf.Clamp01(perlinValue) * 2 - 1;
         }
 
         /// <summary>
@@ -68,6 +73,8 @@ namespace PlaneWaver.Modulation
         /// </summary>
         public void Process()
         {
+            // TODO - This should be built into a DOTS system.
+            
             if (!ParameterRef.Input.Enabled)
             {
                 Output = ParameterRef.IsVolatileEmitter ? 0 : Initial;

@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.ComponentModel.Design.Serialization;
+using System.Globalization;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.AnimatedValues;
@@ -25,7 +26,6 @@ namespace PlaneWaver.Modulation
         private int _parameterCount;
 
         private ParameterInstance[] _paramInstances;
-        private ModulationValues[] _modulationValues;
         private GUIContent[] _parameterIcons;
 
         private static float EditorWidth => EditorGUIUtility.currentViewWidth - 30;
@@ -79,14 +79,12 @@ namespace PlaneWaver.Modulation
             _isVolatileEmitter = _emitterObject is VolatileEmitterObject;
             _serialisedParameters = serializedObject.FindProperty("Parameters.Array");
             _paramInstances = new ParameterInstance[_parameterCount];
-            _modulationValues = new ModulationValues[_parameterCount];
             _parameterIcons = new GUIContent[_parameterCount];
             _editSelectionArray = new AnimBool[_parameterCount];
 
             for (var i = 0; i < _parameterCount; i++)
             {
                 _paramInstances[i] = new ParameterInstance(_emitterObject.Parameters[i]);
-                _modulationValues[i] = _paramInstances[i].Values;
                 _parameterIcons[i] = _emitterObject.Parameters[i].GetGUIContent();
                 _editSelectionArray[i] = new AnimBool(false);
                 _editSelectionArray[i].valueChanged.AddListener(Repaint);
@@ -127,6 +125,12 @@ namespace PlaneWaver.Modulation
         /// </summary>
         private void Update()
         {
+            if (!EditorApplication.isPlaying)
+                return;
+            
+            if (Actor == null)
+                Actor = SynthManager.Instance.EmitterEditorActor;
+            
             if (Actor != null && !_actorSet)
                 Actor.OnNewValidCollision += TriggerCollisionEmitters;
 
@@ -137,11 +141,11 @@ namespace PlaneWaver.Modulation
 
             for (var i = 0; i < _parameterCount; i++)
             {
-                if (_isVolatileEmitter && _modulationValues[i].Instant && !_volatileTriggered)
+                if (_isVolatileEmitter && _paramInstances[i].Values.Instant && !_volatileTriggered)
                     continue;
 
                 _paramInstances[i].UpdateInputValue(Actor);
-                _modulationValues[i].Process();
+                _paramInstances[i].Values.Process();
             }
 
             if (_selectedModIndex >= 0 && _selectedModIndex < _parameterCount)
@@ -383,7 +387,12 @@ namespace PlaneWaver.Modulation
             if (EditorGUI.EndChangeCheck())
             {
                 Actor = newActor;
-                ReinitialisePreviewObjects();
+
+                if (Actor != null)
+                {
+                    SynthManager.Instance.EmitterEditorActor = Actor;
+                    ReinitialisePreviewObjects();
+                }
             }
         }
 

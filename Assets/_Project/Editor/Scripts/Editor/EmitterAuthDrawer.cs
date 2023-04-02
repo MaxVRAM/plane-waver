@@ -7,8 +7,14 @@ namespace PlaneWaver.Emitters
     public class EmitterAuthDrawer : PropertyDrawer
     {
         private bool _expanded;
+        private float _propertyHeight = EditorGUIUtility.singleLineHeight;
         protected SerializedProperty Emitter;
         
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            return _propertyHeight;
+        }
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             const int margin = 2;
@@ -20,6 +26,8 @@ namespace PlaneWaver.Emitters
             float labelWidth = EditorGUIUtility.labelWidth;
             bool largeWindow = viewWidth > viewLargeWidth;
             
+            _propertyHeight = EditorGUIUtility.singleLineHeight;
+            position.height = _propertyHeight;
             int indent = EditorGUI.indentLevel;
             EditorGUI.indentLevel = 0;
             
@@ -36,7 +44,7 @@ namespace PlaneWaver.Emitters
                 width = labelWidth
             };
             var toggleRect = new Rect(position) {
-                x = labelRect.xMax - buttonSize - margin,
+                x = labelRect.xMax - buttonSize - margin * 3,
                 width = buttonSize
             };
 
@@ -44,8 +52,8 @@ namespace PlaneWaver.Emitters
             EditorGUI.PropertyField(toggleRect, enabled, GUIContent.none);
             
             position = new Rect(position) {
-                x = labelRect.xMax + margin,
-                width = viewWidth - labelRect.xMax - margin
+                x = labelRect.xMax - margin,
+                width = viewWidth - labelRect.xMax - margin * 2
             };
             
             Rect objectRect = largeWindow
@@ -66,29 +74,43 @@ namespace PlaneWaver.Emitters
             
             if (_expanded && Emitter.objectReferenceValue != null)
             {
+                position.x = labelRect.x;
+                position.y += EditorGUIUtility.singleLineHeight + margin;
+                position.width = viewWidth - margin * 4 - labelRect.x;
+                
                 var emitterRect = new Rect(position) {
-                    x = position.x + margin,
-                    y = position.y + EditorGUIUtility.singleLineHeight,
                     width = position.width - margin * 2
                 };
                 
-                EditorGUI.indentLevel++;
                 SerializedProperty reflect = property.FindPropertyRelative("ReflectPlayhead");
-                EditorGUI.PropertyField(emitterRect, reflect, GUIContent.none);
                 SerializedProperty volume = property.FindPropertyRelative("VolumeAdjustment");
-                EditorGUI.PropertyField(emitterRect, volume, GUIContent.none);
                 SerializedProperty attenuation = property.FindPropertyRelative("DynamicAttenuation");
-                EditorGUI.PropertyField(emitterRect, attenuation, GUIContent.none);
                 SerializedProperty runtime = property.FindPropertyRelative("RuntimeState");
-                EditorGUI.PropertyField(emitterRect, runtime, GUIContent.none);
+                
+                float reflectHeight = GetPropertyHeight(reflect, GUIContent.none);
+                float volumeHeight = GetPropertyHeight(volume, GUIContent.none);
+                float attenuationHeight = GetPropertyHeight(attenuation, GUIContent.none);
+                float runtimeHeight = GetPropertyHeight(runtime, GUIContent.none);
+                
+                EditorGUI.indentLevel++;
+                EditorGUI.PropertyField(emitterRect, reflect);
+                emitterRect.y += reflectHeight;
+                EditorGUI.PropertyField(emitterRect, volume);
+                emitterRect.y += volumeHeight;
+                EditorGUI.PropertyField(emitterRect, attenuation);
+                emitterRect.y += attenuationHeight;
+                EditorGUI.PropertyField(emitterRect, runtime);
                 EditorGUI.indentLevel--;
+                
+                _propertyHeight += reflectHeight + volumeHeight + attenuationHeight + runtimeHeight + margin;
+                EditorUtility.SetDirty(property.serializedObject.targetObject);
             }
             
             EditorGUI.indentLevel = indent;
             EditorGUI.EndProperty();
         }
     }
-    
+
     [CustomPropertyDrawer(typeof(StableEmitterAuth))]
     public class StableAuthDrawer : EmitterAuthDrawer
     {

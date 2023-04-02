@@ -32,9 +32,9 @@ namespace PlaneWaver.Modulation
 
         #region COMPONENT BUILDERS
         
-        public ParameterComponent BuildComponent(float modulationValue)
+        public ParameterComponent BuildComponent(float modulationValue, float perlinValue = 0)
         {
-            return IsVolatileEmitter ? VolatileComponent(modulationValue) : StableComponent(modulationValue);
+            return IsVolatileEmitter ? VolatileComponent(modulationValue) : StableComponent(modulationValue, perlinValue);
         }
 
         public ParameterComponent VolatileComponent(float modulationValue)
@@ -46,8 +46,6 @@ namespace PlaneWaver.Modulation
                 Min = Range.x,
                 Max = Range.y,
                 Noise = Noise.Enabled ? Noise.Amount * Noise.Factor : 0,
-                PerlinValue = -1,
-                UsePerlin = false,
                 LockNoise = Noise.VolatileLock,
                 TimeExponent = TimeExponent,
                 ModulateStart = Output.Start,
@@ -55,21 +53,15 @@ namespace PlaneWaver.Modulation
             };
         }
 
-        public ParameterComponent StableComponent(float modulationValue, float perlinValue = -1)
+        public ParameterComponent StableComponent(float modulationValue, float perlinValue = 0)
         {
             return new ParameterComponent {
                 StartValue = modulationValue,
-                EndValue = -1,
-                ModValue = -1,
                 Min = Range.x,
                 Max = Range.y,
                 Noise = Noise.Enabled ? Noise.Amount * Noise.Factor : 0,
                 PerlinValue = perlinValue,
-                UsePerlin = Noise.UsePerlin,
-                LockNoise = false,
-                TimeExponent = -1,
-                ModulateStart = false,
-                ModulateEnd = false
+                UsePerlin = Noise.UsePerlin
             };
         }
 

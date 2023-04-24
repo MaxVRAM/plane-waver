@@ -4,7 +4,7 @@ using UnityEngine;
 using MaxVRAM.Audio;
 using PlaneWaver.Interaction;
 
-namespace PlaneWaver.Modulation
+namespace PlaneWaver.Emitters
 {
     [Serializable]
     public class EmitterAttenuator

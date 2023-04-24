@@ -27,9 +27,7 @@ namespace PlaneWaver.Emitters
         public Transform SpeakerTransform;
         public int SpeakerIndex;
         
-        [NonReorderable]
         public List<StableEmitterAuth> StableEmitters = new();
-        [NonReorderable]
         public List<VolatileEmitterAuth> VolatileEmitters = new();
 
         #endregion

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
@@ -27,8 +26,10 @@ namespace PlaneWaver.Emitters
         [Tooltip("Assigned to the speaker's transform when connected, otherwise the frame's Speaker Target.")]
         public Transform SpeakerTransform;
         public int SpeakerIndex;
-
+        
+        [NonReorderable]
         public List<StableEmitterAuth> StableEmitters = new();
+        [NonReorderable]
         public List<VolatileEmitterAuth> VolatileEmitters = new();
 
         #endregion

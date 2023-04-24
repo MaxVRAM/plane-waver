@@ -1,5 +1,4 @@
 ﻿using UnityEditor;
-using UnityEditor.Graphs;
 using UnityEngine;
 
 namespace MaxVRAM.CustomGUI
@@ -9,9 +8,9 @@ namespace MaxVRAM.CustomGUI
         /// <summary>
         /// Draw a horizontal line in the editor.
         /// </summary>
-        /// <param name="color"></param>
-        /// <param name="thickness"></param>
-        /// <param name="padding"></param>
+        /// <param name="color">UnityEngine color to draw the line with.</param>
+        /// <param name="thickness">Thickness of the line in pixels.</param>
+        /// <param name="padding">Padding from the top and bottom of the line in pixels.</param>
         public static void EditorUILine(Color color, int thickness = 2, int padding = 10)
         {
             Rect r = EditorGUILayout.GetControlRect(GUILayout.Height(padding + thickness));

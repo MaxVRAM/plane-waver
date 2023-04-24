@@ -29,7 +29,6 @@ namespace PlaneWaver.Emitters
             _propertyHeight = EditorGUIUtility.singleLineHeight;
             position.height = _propertyHeight;
             int indent = EditorGUI.indentLevel;
-            EditorGUI.indentLevel = 0;
             
             EditorGUI.BeginProperty(position, label, property);
             SerializedProperty enabled = property.FindPropertyRelative("Enabled");
@@ -48,8 +47,9 @@ namespace PlaneWaver.Emitters
                 width = buttonSize
             };
 
-            _expanded = EditorGUI.Foldout(labelRect, _expanded, labelContent);
+            _expanded = EditorGUI.Foldout(labelRect, _expanded, labelContent, true);
             EditorGUI.PropertyField(toggleRect, enabled, GUIContent.none);
+            EditorGUI.indentLevel = 0;
             
             position = new Rect(position) {
                 x = labelRect.xMax - margin,
@@ -74,12 +74,15 @@ namespace PlaneWaver.Emitters
             
             if (_expanded && Emitter.objectReferenceValue != null)
             {
-                position.x = labelRect.x;
-                position.y += EditorGUIUtility.singleLineHeight + margin;
-                position.width = viewWidth - margin * 4 - labelRect.x;
+                EditorGUI.indentLevel++;
+                EditorGUI.indentLevel++;
                 
-                var emitterRect = new Rect(position) {
-                    width = position.width - margin * 2
+                position.x = labelRect.x - margin;
+                position.y += EditorGUIUtility.singleLineHeight;
+                position.width = viewWidth - labelRect.x - margin;
+                
+                var fieldRect = new Rect(position) {
+                    width = position.width
                 };
                 
                 SerializedProperty reflect = property.FindPropertyRelative("ReflectPlayhead");
@@ -87,22 +90,24 @@ namespace PlaneWaver.Emitters
                 SerializedProperty attenuation = property.FindPropertyRelative("DynamicAttenuation");
                 SerializedProperty runtime = property.FindPropertyRelative("RuntimeState");
                 
-                float reflectHeight = GetPropertyHeight(reflect, GUIContent.none);
-                float volumeHeight = GetPropertyHeight(volume, GUIContent.none);
-                float attenuationHeight = GetPropertyHeight(attenuation, GUIContent.none);
-                float runtimeHeight = GetPropertyHeight(runtime, GUIContent.none);
+                float reflectHeight = EditorGUI.GetPropertyHeight(reflect, GUIContent.none);
+                float volumeHeight = EditorGUI.GetPropertyHeight(volume, GUIContent.none);
+                float attenuationHeight = EditorGUI.GetPropertyHeight(attenuation, GUIContent.none, attenuation.isExpanded);
+                float runtimeHeight = EditorGUI.GetPropertyHeight(runtime, GUIContent.none, attenuation.isExpanded);
                 
-                EditorGUI.indentLevel++;
-                EditorGUI.PropertyField(emitterRect, reflect);
-                emitterRect.y += reflectHeight;
-                EditorGUI.PropertyField(emitterRect, volume);
-                emitterRect.y += volumeHeight;
-                EditorGUI.PropertyField(emitterRect, attenuation);
-                emitterRect.y += attenuationHeight;
-                EditorGUI.PropertyField(emitterRect, runtime);
+                EditorGUI.PropertyField(fieldRect, reflect, new GUIContent { text = "Reflect Playhead" });
+                fieldRect.y += reflectHeight;
+                EditorGUI.PropertyField(fieldRect, volume, new GUIContent { text = "Volume Scaling" });
+                fieldRect.y += volumeHeight;
+                EditorGUI.PropertyField(fieldRect, attenuation, new GUIContent { text = "Attenuation" });
+                fieldRect.y += attenuationHeight;
+                EditorGUI.PropertyField(fieldRect, runtime, new GUIContent { text = "Runtime State" });
+                fieldRect.y += runtimeHeight;
+                
                 EditorGUI.indentLevel--;
-                
-                _propertyHeight += reflectHeight + volumeHeight + attenuationHeight + runtimeHeight + margin;
+                EditorGUI.indentLevel--;
+
+                _propertyHeight += fieldRect.yMax - position.y;
                 EditorUtility.SetDirty(property.serializedObject.targetObject);
             }
             

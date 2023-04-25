@@ -2,6 +2,7 @@
 using UnityEngine;
 using MaxVRAM.Audio;
 using PlaneWaver.Interaction;
+using UnityEngine.Serialization;
 
 namespace PlaneWaver.Emitters
 {
@@ -18,8 +19,8 @@ namespace PlaneWaver.Emitters
         [Range(0f, 0.5f)] public float AgeFadeIn;
         [Range(0.5f, 1f)] public float AgeFadeOut;
 
-        public bool ReconnectionFade;
-        [Range(0, 1)] public float ReconnectionFadeSeconds;
+        public bool ConnectFadeIn;
+        [Range(0, 1)] public float ConnectFadeDuration;
         private ConnectionFadeState _reconnectionState;
 
         private float _reconnectionTime;
@@ -32,13 +33,13 @@ namespace PlaneWaver.Emitters
             AudibleRange = 1f;
             AgeFadeIn = 0f;
             AgeFadeOut = 1f;
-            ReconnectionFade = false;
-            ReconnectionFadeSeconds = 0.1f;
+            ConnectFadeIn = false;
+            ConnectFadeDuration = 0.1f;
         }
 
         public void UpdateConnectionState(bool isConnected)
         {
-            if (!ReconnectionFade)
+            if (!ConnectFadeIn)
             {
                 _reconnectionVolume = 1;
                 return;
@@ -74,7 +75,7 @@ namespace PlaneWaver.Emitters
 
         public float UpdateReconnectionVolume()
         {
-            if (!ReconnectionFade)
+            if (!ConnectFadeIn)
                 return _reconnectionVolume = 1;
 
             return _reconnectionState switch {
@@ -86,7 +87,7 @@ namespace PlaneWaver.Emitters
 
         public float ProcessReconnectionFade()
         {
-            float volume = Mathf.InverseLerp(0, ReconnectionFadeSeconds, Time.time - _reconnectionTime);
+            float volume = Mathf.InverseLerp(0, ConnectFadeDuration, Time.time - _reconnectionTime);
 
             if (_reconnectionVolume >= 1)
                 _reconnectionState = ConnectionFadeState.Connected;

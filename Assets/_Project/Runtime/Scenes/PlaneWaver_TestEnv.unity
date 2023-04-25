@@ -2043,8 +2043,27 @@ MonoBehaviour:
       AudibleRange: 1
       AgeFadeIn: 0
       AgeFadeOut: 1
-      ReconnectionFade: 0
-      ReconnectionFadeSeconds: 0.1
+      ConnectFadeIn: 1
+      ConnectFadeDuration: 0.1
+    RuntimeState:
+      ObjectConstructed: 1
+      BaseInitialised: 0
+      EntityInitialised: 0
+      IsConnected: 0
+      IsPlaying: 0
+    DSPChainParams: []
+    StableEmitterAsset: {fileID: 11400000, guid: 6e18136de8caf334e842f292d56e6968,
+      type: 2}
+  - Enabled: 0
+    Condition: 0
+    ReflectPlayhead: 1
+    Attenuation:
+      Gain: 1
+      AudibleRange: 1
+      AgeFadeIn: 0
+      AgeFadeOut: 1
+      ConnectFadeIn: 1
+      ConnectFadeDuration: 0.1
     RuntimeState:
       ObjectConstructed: 1
       BaseInitialised: 0
@@ -2063,8 +2082,8 @@ MonoBehaviour:
       AudibleRange: 1
       AgeFadeIn: 0
       AgeFadeOut: 1
-      ReconnectionFade: 0
-      ReconnectionFadeSeconds: 0.1
+      ConnectFadeIn: 0
+      ConnectFadeDuration: 0.1
     RuntimeState:
       ObjectConstructed: 1
       BaseInitialised: 0

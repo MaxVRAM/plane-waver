@@ -6,7 +6,6 @@ namespace PlaneWaver.Emitters
     [CustomPropertyDrawer(typeof(BaseEmitterAuth))]
     public class EmitterAuthDrawer : PropertyDrawer
     {
-        private bool _expanded;
         private float _propertyHeight = EditorGUIUtility.singleLineHeight;
         protected SerializedProperty Emitter;
 
@@ -18,33 +17,38 @@ namespace PlaneWaver.Emitters
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            // const int margin = 2;
-            const int buttonSize = 16;
-            // const float conditionWidth = 80;
-            // const float viewLargeWidth = 350;
-
-            float viewWidth = EditorGUIUtility.currentViewWidth;
-            float labelWidth = EditorGUIUtility.labelWidth;
-            // bool largeWindow = viewWidth > viewLargeWidth;
-
+            int indent = EditorGUI.indentLevel;
             Rect originalPropertyRect = position;
             _propertyHeight = EditorGUIUtility.singleLineHeight;
             position.height = _propertyHeight;
-            int indent = EditorGUI.indentLevel;
 
-            EditorGUI.BeginProperty(position, label, property);
-            SerializedProperty enabled = property.FindPropertyRelative("Enabled");
+            const int buttonSize = 16;
+            const int margin = 2;
+            float viewWidth = EditorGUIUtility.currentViewWidth;
+            float labelWidth = EditorGUIUtility.labelWidth;
+            float fieldWidth = viewWidth - labelWidth;
+            bool expanded = property.isExpanded;
+
+
             var emitterObject = (BaseEmitterObject)Emitter.objectReferenceValue;
+            SerializedProperty enabled = property.FindPropertyRelative("Enabled");
 
-            var labelContent = new GUIContent(
-                Emitter.objectReferenceValue != null
-                        ? emitterObject.EmitterName
-                        : "Unassigned emitter");
+            // EditorGUI.BeginProperty(position, label, property);
+            label = Emitter.objectReferenceValue != null
+                    ? new GUIContent { text = emitterObject.EmitterName }
+                    : new GUIContent { text = "Unassigned emitter" };
 
             position.width = labelWidth;
-            _expanded = EditorGUI.Foldout(position, _expanded, labelContent);
+            EditorGUI.BeginChangeCheck();
+            EditorGUI.Foldout(position, property.isExpanded, label);
 
-            position.x = position.xMax;
+            if (EditorGUI.EndChangeCheck())
+            {
+                property.isExpanded = !property.isExpanded;
+                expanded = property.isExpanded;
+            }
+
+            position.x = position.xMax + margin;
             position.width = buttonSize;
             EditorGUI.PropertyField(position, enabled, GUIContent.none);
 
@@ -55,14 +59,14 @@ namespace PlaneWaver.Emitters
             //     width = viewWidth - labelRect.xMax - margin * 4
             // };
 
-            position.x = position.xMax;
-            position.width = originalPropertyRect.width - position.x;
+            position.x = position.xMax + margin;
+            position.width = originalPropertyRect.xMax - position.x;
+            EditorGUI.PropertyField(position, Emitter, GUIContent.none);
 
             // Rect objectRect = largeWindow
             //         ? new Rect(position) { width = position.width - conditionWidth - margin * 2 }
             //         : new Rect(position) { width = position.width - margin };
 
-            EditorGUI.PropertyField(position, Emitter, GUIContent.none);
 
             // if (largeWindow)
             // {
@@ -74,12 +78,14 @@ namespace PlaneWaver.Emitters
             //     EditorGUI.PropertyField(conditionRect, condition, GUIContent.none);
             // }
 
-            if (_expanded && Emitter.objectReferenceValue != null)
+            if (expanded && Emitter.objectReferenceValue != null)
             {
-                position.y += EditorGUIUtility.singleLineHeight;
                 position.x = originalPropertyRect.x;
+                position.width = originalPropertyRect.width;
+                EditorGUI.indentLevel++;
                 // position.width = viewWidth - labelRect.x;
-                position = EditorGUI.IndentedRect(position);
+                // position = EditorGUI.IndentedRect(position);
+                //position.width = originalPropertyRect.width - position.x;
 
                 // position.x = labelRect.x - margin;
                 // position.y += EditorGUIUtility.singleLineHeight;
@@ -94,27 +100,26 @@ namespace PlaneWaver.Emitters
                 SerializedProperty attenuation = property.FindPropertyRelative("Attenuation");
                 SerializedProperty runtime = property.FindPropertyRelative("RuntimeState");
 
-                float conditionHeight = EditorGUI.GetPropertyHeight(condition, GUIContent.none);
-                float reflectHeight = EditorGUI.GetPropertyHeight(reflect, GUIContent.none);
-                float attenuationHeight = EditorGUI.GetPropertyHeight(attenuation, GUIContent.none, attenuation.isExpanded);
-                float runtimeHeight = EditorGUI.GetPropertyHeight(runtime, GUIContent.none, attenuation.isExpanded);
+                float conditionHeight = EditorGUI.GetPropertyHeight(condition);
+                float reflectHeight = EditorGUI.GetPropertyHeight(reflect);
+                float attenuationHeight = EditorGUI.GetPropertyHeight(attenuation, attenuation.isExpanded);
+                float runtimeHeight = EditorGUI.GetPropertyHeight(runtime, runtime.isExpanded);
 
-                EditorGUI.PropertyField(position, condition,  new GUIContent { text = "Play Condition" });
+                position.y += EditorGUIUtility.singleLineHeight;
+                EditorGUI.PropertyField(position, condition, new GUIContent { text = "Play Condition" });
                 position.y += conditionHeight;
                 EditorGUI.PropertyField(position, reflect, new GUIContent { text = "Reflect Playhead" });
                 position.y += reflectHeight;
-                EditorGUI.PropertyField(position, attenuation, new GUIContent { text = "Attenuation" });
+                EditorGUI.PropertyField(position, attenuation, attenuation.isExpanded);
                 position.y += attenuationHeight;
-                EditorGUI.PropertyField(position, runtime, new GUIContent { text = "Runtime State" });
+                EditorGUI.PropertyField(position, runtime,new GUIContent { text = "Runtime State" }, runtime.isExpanded);
                 position.y += runtimeHeight;
 
-                // _propertyHeight = position.yMax - originalPropertyRect.y; // - position.y;
-                _propertyHeight = position.height; // - originalPropertyRect.y; // - position.y;
+                _propertyHeight = position.y - originalPropertyRect.y;
                 EditorUtility.SetDirty(property.serializedObject.targetObject);
             }
 
             EditorGUI.indentLevel = indent;
-            EditorGUI.EndProperty();
         }
     }
 

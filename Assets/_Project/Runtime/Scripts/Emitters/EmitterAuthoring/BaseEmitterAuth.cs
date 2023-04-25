@@ -4,6 +4,7 @@ using PlaneWaver.Interaction;
 using PlaneWaver.Modulation;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace PlaneWaver.Emitters
 {
@@ -25,32 +26,30 @@ namespace PlaneWaver.Emitters
         public PlaybackCondition Condition;
         protected BaseEmitterObject EmitterAsset;
         public bool ReflectPlayhead;
-        [Range(0f, 2f)] public float VolumeAdjustment = 1;
-        public EmitterAttenuator DynamicAttenuation;
-        public EmitterAuthRuntimeStates RuntimeState = new();
+        public EmitterAttenuator Attenuation;
+        public EmitterRuntimeStates RuntimeState = new();
         public ParameterInstance[] Parameters;
-        
+
         [HideInInspector] public DSPClass[] DSPChainParams;
-        
+
         #endregion
 
         #region MANUAL SERLIALISATION CONSTRUCTOR / RESET
-        
+
         public void OnBeforeSerialize() { }
 
         public void OnAfterDeserialize()
         {
-            if (!RuntimeState.ObjectConstructed) 
+            if (!RuntimeState.ObjectConstructed)
                 Reset();
         }
 
         public virtual void Reset()
         {
             DSPChainParams = Array.Empty<DSPClass>();
-            RuntimeState ??= new EmitterAuthRuntimeStates();
+            RuntimeState ??= new EmitterRuntimeStates();
             RuntimeState.ObjectConstructed = true;
-            DynamicAttenuation = new EmitterAttenuator();
-            VolumeAdjustment = 1;
+            Attenuation = new EmitterAttenuator();
             Enabled = true;
         }
 
@@ -63,7 +62,7 @@ namespace PlaneWaver.Emitters
             EntityIndex = index;
             FrameName = frameName;
             Actor = actor;
-            
+
             if (RuntimeState.BaseInitialised)
                 return true;
 
@@ -84,24 +83,27 @@ namespace PlaneWaver.Emitters
                 Debug.LogWarning("EmitterAsset.AudioAsset is null.");
                 return false;
             }
-            
+
             if (actor == null)
                 Debug.LogWarning("Actor is null.");
 
             Parameters = new ParameterInstance[EmitterAsset.Parameters.Count];
-            
+
             for (var i = 0; i < Parameters.Length; i++)
                 Parameters[i] = new ParameterInstance(EmitterAsset.Parameters[i]);
-            
+
             RuntimeState.BaseInitialised = true;
             Enabled = true;
-            
+
             InitialiseEntity();
-            
+
             return RuntimeState.EntityInitialised;
         }
 
-        public virtual bool InitialiseSubType() { return false; }
+        public virtual bool InitialiseSubType()
+        {
+            return false;
+        }
 
         public bool InitialiseEntity(bool ignoreBase = false)
         {
@@ -113,15 +115,20 @@ namespace PlaneWaver.Emitters
 
             if (RuntimeState.EntityInitialised)
                 return true;
-            
+
             Manager = World.DefaultGameObjectInjectionWorld.EntityManager;
             ElementArchetype = Manager.CreateArchetype(typeof(EmitterComponent));
             EmitterEntity = Manager.CreateEntity(ElementArchetype);
 
 #if UNITY_EDITOR
-            Manager.SetName(EmitterEntity, FrameName + "." + (IsVolatile ? "Volatile" : "Stable"));
+            Manager.SetName
+            (EmitterEntity, FrameName +
+                            "." +
+                            (IsVolatile
+                                    ? "Volatile"
+                                    : "Stable"));
 #endif
-            
+
             RuntimeState.EntityInitialised = InitialiseComponents();
             return true;
         }
@@ -131,7 +138,7 @@ namespace PlaneWaver.Emitters
             if (!Manager.Exists(EmitterEntity))
             {
                 Debug.LogWarning("EmitterAuth: Entity not initialised.");
-                return false;                
+                return false;
             }
 
             Manager.SetComponentData
@@ -142,8 +149,7 @@ namespace PlaneWaver.Emitters
                 SamplesUntilFade = -1,
                 SamplesUntilDeath = -1,
                 LastGrainDuration = -1,
-                EmitterVolume = VolumeAdjustment,
-                DynamicAmplitude = 0,
+                Gain = 1,
                 ModVolume = new ParameterComponent(),
                 ModPlayhead = new ParameterComponent(),
                 ModDuration = new ParameterComponent(),
@@ -154,15 +160,16 @@ namespace PlaneWaver.Emitters
 
             if (IsVolatile)
                 Manager.AddComponentData(EmitterEntity, new EmitterVolatileTag());
-            
+
             Manager.AddBuffer<AudioEffectParameters>(EmitterEntity);
             DynamicBuffer<AudioEffectParameters> dspParams = Manager.GetBuffer<AudioEffectParameters>(EmitterEntity);
 
             if (DSPChainParams == null)
                 return true;
+
             foreach (DSPClass t in DSPChainParams)
                 dspParams.Add(t.GetDSPBufferElement());
-            
+
             return true;
         }
 
@@ -174,37 +181,39 @@ namespace PlaneWaver.Emitters
         {
             CollisionData = collisionData;
         }
-        
+
         public virtual bool IsPlaying()
         {
             return true;
         }
-    
+
         public void UpdateEmitterEntity(bool inListenerRange, bool isConnected, int speakerIndex)
         {
-            if (!RuntimeState.IsInitialised()) 
+            if (!RuntimeState.IsInitialised())
                 return;
 
             RuntimeState.SetConnected(isConnected && inListenerRange);
-            
+
             if (!RuntimeState.IsReady())
             {
-                DynamicAttenuation.UpdateConnectionState(false);
+                Attenuation.UpdateConnectionState(false);
                 Manager.RemoveComponent<EmitterReadyTag>(EmitterEntity);
                 return;
             }
-            
-            DynamicAttenuation.UpdateConnectionState(true);
+
+            Attenuation.UpdateConnectionState(true);
 
             if (!IsPlaying())
                 return;
-            
+
             var emitterComponent = Manager.GetComponentData<EmitterComponent>(EmitterEntity);
+
             foreach (ParameterInstance param in Parameters) { param.UpdateInputValue(Actor); }
+
             emitterComponent = UpdateEmitterComponent(emitterComponent, speakerIndex);
             Manager.SetComponentData(EmitterEntity, emitterComponent);
             Manager.AddComponent<EmitterReadyTag>(EmitterEntity);
-            
+
             if (IsVolatile)
                 RuntimeState.SetPlaying(false);
         }
@@ -213,17 +222,20 @@ namespace PlaneWaver.Emitters
         {
             return emitter;
         }
-        
+
         protected void UpdateDSPEffectsBuffer(bool clear = true)
         {
             //--- TODO not sure if clearing and adding again is the best way to do this.
             if (!RuntimeState.EntityInitialised || Manager.Exists(EmitterEntity))
                 return;
+
             DynamicBuffer<AudioEffectParameters> dspBuffer = Manager.GetBuffer<AudioEffectParameters>(EmitterEntity);
             if (clear)
                 dspBuffer.Clear();
+
             if (DSPChainParams == null)
                 return;
+
             foreach (DSPClass t in DSPChainParams)
                 dspBuffer.Add(t.GetDSPBufferElement());
         }
@@ -238,6 +250,7 @@ namespace PlaneWaver.Emitters
         public void DestroyEntity()
         {
             RuntimeState.EntityInitialised = false;
+
             try { Manager.DestroyEntity(EmitterEntity); }
             catch (Exception ex) when (ex is NullReferenceException or ObjectDisposedException) { }
         }

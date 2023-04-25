@@ -101,6 +101,7 @@ namespace PlaneWaver.Modulation
             EditorApplication.pauseStateChanged -= HandlePauseState;
             if (Actor != null)
                 Actor.OnNewValidCollision -= TriggerCollisionEmitters;
+
             foreach (AnimBool t in _editSelectionArray)
                 t.valueChanged.RemoveListener(Repaint);
         }
@@ -126,10 +127,10 @@ namespace PlaneWaver.Modulation
         {
             if (!EditorApplication.isPlaying)
                 return;
-            
+
             if (Actor == null)
                 Actor = SynthManager.Instance.EmitterEditorActor;
-            
+
             if (Actor != null && !_actorSet)
                 Actor.OnNewValidCollision += TriggerCollisionEmitters;
 
@@ -156,7 +157,7 @@ namespace PlaneWaver.Modulation
                 _showModulation = false;
                 _selectedModIndex = -1;
             }
-            
+
             _volatileTriggered = false;
             Repaint();
         }
@@ -226,13 +227,13 @@ namespace PlaneWaver.Modulation
                     background = Texture2D.grayTexture
                 }
             };
+
             var audioObject = (AudioObject)serialisedAudioObject.objectReferenceValue;
 
             if (audioObject == null) return;
 
             Editor audioAssetEditor = CreateEditor(audioObject.Clip);
-            audioAssetEditor.OnInteractivePreviewGUI
-                    (GUILayoutUtility.GetRect(EditorWidth, audioObjectWidth), bgColor);
+            audioAssetEditor.OnInteractivePreviewGUI(GUILayoutUtility.GetRect(EditorWidth, audioObjectWidth), bgColor);
         }
 
         private void DrawParameters()
@@ -255,8 +256,7 @@ namespace PlaneWaver.Modulation
                     SerializedProperty noiseProperty = currentParam.FindPropertyRelative("Noise");
 
                     string paramName = currentParam.FindPropertyRelative("ParameterName").stringValue;
-                    bool isLength = currentParam.FindPropertyRelative("ParamType").enumValueIndex ==
-                                    (int)ParameterType.Length;
+                    bool isLength = currentParam.FindPropertyRelative("ParamType").enumValueIndex == (int)ParameterType.Length;
                     Vector2 paramRangeVector = currentParam.FindPropertyRelative("Range").vector2Value;
                     float paramRange = paramRangeVector.y - paramRangeVector.x;
                     SerializedProperty baseRange = currentParam.FindPropertyRelative("BaseRange");
@@ -286,9 +286,7 @@ namespace PlaneWaver.Modulation
 
                         if (!isLength)
                         {
-                            EditorGUILayout.MinMaxSlider
-                            (ref initRange.x, ref initRange.y, paramRangeVector.x,
-                                paramRangeVector.y);
+                            EditorGUILayout.MinMaxSlider(ref initRange.x, ref initRange.y, paramRangeVector.x, paramRangeVector.y);
                             _previousSliderRect = GUILayoutUtility.GetLastRect();
                             if (_previousSliderRect.width > 1)
                                 _parameterSliderWidth = _previousSliderRect.width;
@@ -296,8 +294,8 @@ namespace PlaneWaver.Modulation
                         else
                         {
                             initRange.x = GUILayout.HorizontalSlider
-                            (initRange.x, paramRangeVector.x, paramRangeVector.y,
-                                GUILayout.Width(_parameterSliderWidth));
+                                    (initRange.x, paramRangeVector.x, paramRangeVector.y, GUILayout.Width(_parameterSliderWidth));
+
                             _previousSliderRect = GUILayoutUtility.GetLastRect();
                         }
 
@@ -323,7 +321,9 @@ namespace PlaneWaver.Modulation
 
                     using (new EditorGUILayout.HorizontalScope())
                     {
-                        string inputName = enabled.boolValue ? _paramInstances[i].ParameterRef.Input.Source.GetInputName() : " - ";
+                        string inputName = enabled.boolValue
+                                ? _paramInstances[i].ParameterRef.Input.Source.GetInputName()
+                                : " - ";
 
                         SerializedProperty outputAmount = outputProperty.FindPropertyRelative("Amount");
                         EditorGUILayout.LabelField(GUIContent.none, _paramWithIconOptions);
@@ -334,6 +334,7 @@ namespace PlaneWaver.Modulation
                         var newFieldRect = new Rect(_prevFieldRect) {
                             y = _prevFieldRect.y + _prevFieldRect.height + 2
                         };
+
                         float modAmount = outputAmount.floatValue * paramRange;
                         modAmount = modAmount.LimitDigits(3);
 
@@ -343,8 +344,7 @@ namespace PlaneWaver.Modulation
                             modAmount = EditorGUI.DelayedFloatField(newFieldRect, modAmount);
                             Rect newSliderRect = _previousSliderRect;
                             newSliderRect.y = newFieldRect.y;
-                            modAmount = GUI.HorizontalSlider
-                                    (newSliderRect, modAmount, -paramRange, paramRange);
+                            modAmount = GUI.HorizontalSlider(newSliderRect, modAmount, -paramRange, paramRange);
 
                             if (EditorGUI.EndChangeCheck())
                             {
@@ -355,8 +355,7 @@ namespace PlaneWaver.Modulation
 
                         if (enabled.boolValue)
                         {
-                            var valuePreviewLabel = _paramInstances[i].Values.Output.LimitDigits
-                                    (4).ToString();
+                            var valuePreviewLabel = _paramInstances[i].Values.Output.LimitDigits(4).ToString();
                             var previewValueRect = new Rect(previewLabelRect) {
                                 x = _previousSliderRect.xMax + 5,
                                 width = EditorWidth - _previousSliderRect.xMax - 5
@@ -380,8 +379,7 @@ namespace PlaneWaver.Modulation
             EditorGUILayout.LabelField("Modulation Editor", _titleStyle);
             EditorGUILayout.Space(2);
             EditorGUI.BeginChangeCheck();
-            var newActor = (ActorObject)EditorGUILayout.ObjectField
-                    (new GUIContent("Test Actor"), Actor, typeof(ActorObject), true);
+            var newActor = (ActorObject)EditorGUILayout.ObjectField(new GUIContent("Test Actor"), Actor, typeof(ActorObject), true);
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -417,13 +415,16 @@ namespace PlaneWaver.Modulation
                 int prevIndex = _selectedModIndex;
                 EditorGUI.BeginChangeCheck();
                 int newIndex = UpdateSelectedModulationToggles
-                (GUILayout.Toolbar
-                        (_selectedModIndex, _parameterIcons, toolbarStyle, _toolbarOptions));
+                        (GUILayout.Toolbar(_selectedModIndex, _parameterIcons, toolbarStyle, _toolbarOptions));
+
                 toolbarRect = GUILayoutUtility.GetLastRect();
 
                 if (EditorGUI.EndChangeCheck())
                 {
-                    newIndex = newIndex == prevIndex ? -1 : newIndex;
+                    newIndex = newIndex == prevIndex
+                            ? -1
+                            : newIndex;
+
                     _selectedModIndex = UpdateSelectedModulationToggles(newIndex);
                     ReinitialisePreviewObjects();
                 }
@@ -439,12 +440,10 @@ namespace PlaneWaver.Modulation
             if (headerRect.width > 1) { _modulationHeaderHalfWidth = headerRect.width / 2; }
 
             var modulationHeaderRect = new Rect(toolbarRect) {
-                x = toolbarRect.x +
-                    toolbarItemWidth * _selectedModIndex +
-                    toolbarItemHalf -
-                    _modulationHeaderHalfWidth,
+                x = toolbarRect.x + toolbarItemWidth * _selectedModIndex + toolbarItemHalf - _modulationHeaderHalfWidth,
                 y = toolbarRect.y + toolbarRect.height + 4
             };
+
             GUI.Label(modulationHeaderRect, _modulationHeader, _modulationTypeHeader);
         }
 
@@ -465,6 +464,7 @@ namespace PlaneWaver.Modulation
             {
                 if (EditorGUILayout.BeginFadeGroup(_editSelectionArray[i].faded))
                     EditorGUILayout.PropertyField(_serialisedParameters.GetArrayElementAtIndex(i));
+
                 EditorGUILayout.EndFadeGroup();
             }
         }
@@ -484,34 +484,24 @@ namespace PlaneWaver.Modulation
             EditorGUILayout.LabelField("Modulation Preview", _titleStyle);
             EditorGUILayout.Space(3);
 
-            EditorGUILayout.LabelField
-                    ("Input", currentValues.Input.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
+            EditorGUILayout.LabelField("Input", currentValues.Input.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
             EditorGUILayout.Slider(new GUIContent("Normalised"), currentValues.Normalised, 0, 1);
-            EditorGUILayout.LabelField
-                    ("Scaled", currentValues.Scaled.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
+            EditorGUILayout.LabelField("Scaled", currentValues.Scaled.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
 
             if (currentParameter.Input.Accumulate)
-                EditorGUILayout.LabelField
-                ("Accumulated",
-                    currentValues.Accumulated.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
+                EditorGUILayout.LabelField("Accumulated", currentValues.Accumulated.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
+
             if (currentParameter.Output.Limiter == ModulationLimiter.Clip)
-                EditorGUILayout.LabelField
-                ("Raised",
-                    currentValues.Raised.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
+                EditorGUILayout.LabelField("Raised", currentValues.Raised.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
+
             if (!currentValues.Instant)
-                EditorGUILayout.LabelField
-                ("Smoothed",
-                    currentValues.Smoothed.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
+                EditorGUILayout.LabelField("Smoothed", currentValues.Smoothed.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
 
             float initialOffset = currentValues.Initial;
 
-            if (_isVolatileEmitter)
-            {
-                EditorGUILayout.Slider(new GUIContent("Limited"), currentValues.Limited, 0, 1);
-            }
+            if (_isVolatileEmitter) { EditorGUILayout.Slider(new GUIContent("Limited"), currentValues.Limited, 0, 1); }
 
-            EditorGUILayout.LabelField
-                    ("Initial Offset", initialOffset.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
+            EditorGUILayout.LabelField("Initial Offset", initialOffset.LimitDigits(4).ToString(CultureInfo.InvariantCulture));
             EditorGUILayout.LabelField
             ("Output", currentValues.Preview.LimitDigits(4).ToString(CultureInfo.InvariantCulture),
                 new GUIStyle(EditorStyles.boldLabel));
@@ -525,6 +515,7 @@ namespace PlaneWaver.Modulation
 
             for (var i = 0; i < _editSelectionArray.Length; i++)
                 _editSelectionArray[i].target = i == index;
+
             return index;
         }
 

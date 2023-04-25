@@ -37,7 +37,7 @@ namespace PlaneWaver.Modulation
         private static SerializedProperty GetGroup(SerializedProperty group, SerializedProperty property)
         {
             var input = (InputGroups) group.enumValueIndex;
-            return property.FindPropertyRelative(input.ToString());
-        }   
+            return property.FindPropertyRelative(input.ToStringCached());
+        }
     }
 }

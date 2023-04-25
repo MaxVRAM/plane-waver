@@ -24,7 +24,7 @@ namespace PlaneWaver
         public float3 DisconnectedPosition;
         public float3 ListenerPos;
     }
-    
+
     public struct SpeakerIndex : IComponentData
     {
         public int Value;

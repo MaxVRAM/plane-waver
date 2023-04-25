@@ -2038,17 +2038,13 @@ MonoBehaviour:
   - Enabled: 0
     Condition: 0
     ReflectPlayhead: 1
-    VolumeAdjustment: 1
-    DynamicAttenuation:
-      RadiusMultiplier: 1
+    Attenuation:
+      Gain: 1
+      AudibleRange: 1
       AgeFadeIn: 0
       AgeFadeOut: 1
-      ConnectionFade: 1
-      ConnectFadeIn: 0.1
-      ReconnectionTime: 0
-      ReconnectionVolume: 0
-      DistanceVolume: 0
-      ListenerDistance: 0
+      ReconnectionFade: 0
+      ReconnectionFadeSeconds: 0.1
     RuntimeState:
       ObjectConstructed: 1
       BaseInitialised: 0
@@ -2062,17 +2058,13 @@ MonoBehaviour:
   - Enabled: 0
     Condition: 3
     ReflectPlayhead: 0
-    VolumeAdjustment: 1
-    DynamicAttenuation:
-      RadiusMultiplier: 1
+    Attenuation:
+      Gain: 0
+      AudibleRange: 1
       AgeFadeIn: 0
       AgeFadeOut: 1
-      ConnectionFade: 0
-      ConnectFadeIn: 100
-      ReconnectionTime: 0
-      ReconnectionVolume: 0
-      DistanceVolume: 0
-      ListenerDistance: 0
+      ReconnectionFade: 0
+      ReconnectionFadeSeconds: 0.1
     RuntimeState:
       ObjectConstructed: 1
       BaseInitialised: 0

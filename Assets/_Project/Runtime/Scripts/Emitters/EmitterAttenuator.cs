@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-
 using MaxVRAM.Audio;
 using PlaneWaver.Interaction;
 
@@ -11,54 +10,53 @@ namespace PlaneWaver.Emitters
     {
         public enum ConnectionFadeState
         {
-            AlwaysFull = 0,
-            Disconnected = 1,
-            FadingIn = 2,
-            Connected = 3
+            Disconnected, FadingIn, Connected
         }
-        
-        [Range(0f, 1f)] public float RadiusMultiplier;
+
+        [Range(0f, 2f)] public float Gain;
+        [Range(0f, 1f)] public float AudibleRange;
         [Range(0f, 0.5f)] public float AgeFadeIn;
         [Range(0.5f, 1f)] public float AgeFadeOut;
 
-        public ConnectionFadeState ConnectionFade;
-        [Range(0, 1)] public float ConnectFadeIn;
-        public float ReconnectionTime;
-        
-        public float ReconnectionVolume;
-        public float DistanceVolume;
-        public float ListenerDistance;
+        public bool ReconnectionFade;
+        [Range(0, 1)] public float ReconnectionFadeSeconds;
+        private ConnectionFadeState _reconnectionState;
+
+        private float _reconnectionTime;
+        private float _reconnectionVolume;
+        private float _distanceVolume;
+        private float _listenerDistance;
 
         public EmitterAttenuator()
         {
-            RadiusMultiplier = 1f;
+            AudibleRange = 1f;
             AgeFadeIn = 0f;
             AgeFadeOut = 1f;
-            ConnectionFade = ConnectionFadeState.AlwaysFull;
-            ConnectFadeIn = 0.1f;
+            ReconnectionFade = false;
+            ReconnectionFadeSeconds = 0.1f;
         }
-        
+
         public void UpdateConnectionState(bool isConnected)
         {
-            if (ConnectionFade == ConnectionFadeState.AlwaysFull)
+            if (!ReconnectionFade)
             {
-                ReconnectionVolume = 1;
+                _reconnectionVolume = 1;
                 return;
             }
 
             if (!isConnected)
             {
-                ConnectionFade = ConnectionFadeState.Disconnected;
-                ReconnectionVolume = 0;
+                _reconnectionState = ConnectionFadeState.Disconnected;
+                _reconnectionVolume = 0;
                 return;
             }
 
-            if (ConnectionFade != ConnectionFadeState.Disconnected)
+            if (_reconnectionState != ConnectionFadeState.Disconnected)
                 return;
-            
-            ReconnectionVolume = 0;
-            ReconnectionTime = Time.time;
-            ConnectionFade = ConnectionFadeState.FadingIn;
+
+            _reconnectionVolume = 0;
+            _reconnectionTime = Time.time;
+            _reconnectionState = ConnectionFadeState.FadingIn;
         }
 
         public float CalculateAmplitude(ActorObject actor)
@@ -70,28 +68,30 @@ namespace PlaneWaver.Emitters
 
             outputVolume *= CalculateDistanceAmplitude(actor);
             outputVolume *= CalculateAgeAmplitude(actor);
-            
-            return outputVolume;
+
+            return outputVolume * Gain;
         }
 
         public float UpdateReconnectionVolume()
         {
-            switch (ConnectionFade)
-            {
-                case ConnectionFadeState.AlwaysFull or ConnectionFadeState.Connected:
-                    return ReconnectionVolume = 1;
-                case ConnectionFadeState.Disconnected:
-                    return  ReconnectionVolume = 0;
-            }
+            if (!ReconnectionFade)
+                return _reconnectionVolume = 1;
 
-            ReconnectionVolume = Mathf.InverseLerp(0, ConnectFadeIn, Time.time - ReconnectionTime);
+            return _reconnectionState switch {
+                ConnectionFadeState.Connected    => _reconnectionVolume = 1,
+                ConnectionFadeState.Disconnected => _reconnectionVolume = 0,
+                _                                => _reconnectionVolume = ProcessReconnectionFade()
+            };
+        }
 
-            if (ReconnectionVolume < 1)
-                return ReconnectionVolume;
+        public float ProcessReconnectionFade()
+        {
+            float volume = Mathf.InverseLerp(0, ReconnectionFadeSeconds, Time.time - _reconnectionTime);
 
-            ConnectionFade = ConnectionFadeState.Connected;
+            if (_reconnectionVolume >= 1)
+                _reconnectionState = ConnectionFadeState.Connected;
 
-            return ReconnectionVolume = 1;
+            return Mathf.Clamp01(volume);
         }
 
         public float CalculateDistanceAmplitude(ActorObject actor)
@@ -99,11 +99,11 @@ namespace PlaneWaver.Emitters
             if (actor == null)
                 return 1;
 
-            ListenerDistance = actor.SpeakerTargetToListener();
-            DistanceVolume = ScaleAmplitude.ListenerDistanceVolume(
-                ListenerDistance,
-                SynthManager.Instance.ListenerRadius * RadiusMultiplier);
-            return DistanceVolume;
+            _listenerDistance = actor.SpeakerTargetToListener();
+            _distanceVolume = ScaleAmplitude.ListenerDistanceVolume
+                    (_listenerDistance, SynthManager.Instance.ListenerRadius * AudibleRange);
+
+            return _distanceVolume;
         }
 
         // TODO - Not implemented yet. Move these calculations to the Synthesis system for sample accuracy fades.
@@ -111,15 +111,15 @@ namespace PlaneWaver.Emitters
         {
             if (actor == null || actor.Controller.LiveForever)
                 return 1;
-            
+
             float age = actor.Controller.NormalisedAge();
-            
+
             if (age < AgeFadeIn)
                 return Mathf.Clamp01(age / AgeFadeIn);
-            
+
             if (age > AgeFadeOut)
                 return 1 - Mathf.Clamp01((age - AgeFadeOut) / AgeFadeOut);
-            
+
             return 1;
         }
     }

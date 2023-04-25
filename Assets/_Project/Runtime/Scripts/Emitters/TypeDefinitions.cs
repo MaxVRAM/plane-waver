@@ -5,7 +5,7 @@ using Unity.Entities;
 namespace PlaneWaver.Emitters
 {
     [Serializable]
-    public class EmitterAuthRuntimeStates
+    public class EmitterRuntimeStates
     {
         public bool ObjectConstructed;
         public bool BaseInitialised;
@@ -13,7 +13,7 @@ namespace PlaneWaver.Emitters
         public bool IsConnected;
         public bool IsPlaying;
         
-        public EmitterAuthRuntimeStates()
+        public EmitterRuntimeStates()
         {
             ObjectConstructed = false;
             BaseInitialised = false;
@@ -78,8 +78,7 @@ namespace PlaneWaver.Emitters
         public int SamplesUntilFade;
         public int SamplesUntilDeath;
         public bool ReflectPlayhead;
-        public float EmitterVolume;
-        public float DynamicAmplitude;
+        public float Gain;
         public ParameterComponent ModVolume;
         public ParameterComponent ModPlayhead;
         public ParameterComponent ModDuration;

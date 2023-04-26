@@ -5,343 +5,333 @@ using Unity.Jobs;
 using System;
 
 using MaxVRAM;
+using PlaneWaver;
+using PlaneWaver.Emitters;
 
 // https://docs.unity3d.com/Packages/com.unity.entities@0.51/api/
 
 /// <summary>
-//     Processes dynamic emitter host <-> speaker link components amd updates entity in-range statuses.
-/// <summary>
+///  Processes dynamic emitter frame speaker link components amd updates entity in-range statuses.
+/// </summary>
 [UpdateAfter(typeof(DOTS_QuadrantSystem))]
 public partial class AttachmentSystem : SystemBase
 {
-    private EndSimulationEntityCommandBufferSystem _CommandBufferSystem;
+    private EndSimulationEntityCommandBufferSystem _commandBufferSystem;
 
     protected override void OnCreate()
     {
         base.OnCreate();
-        _CommandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+        _commandBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
     protected override void OnUpdate()
     {
-        AudioTimerComponent dspTimer = GetSingleton<AudioTimerComponent>();
-        ConnectionConfig attachConfig = GetSingleton<ConnectionConfig>();
+        var connectConfig = GetSingleton<ConnectionComponent>();
         // Acquire an ECB and convert it to a concurrent one to be able to use it from a parallel job.
-        EntityCommandBuffer.ParallelWriter ecb = _CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+        EntityCommandBuffer.ParallelWriter ecb = _commandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
 
-        EntityQueryDesc hostQueryDesc = new()
+        EntityQueryDesc frameQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent)}
+            All = new ComponentType[] { typeof(FrameComponent)}
         };
 
-        EntityQueryDesc hostConnectedQueryDesc = new()
+        EntityQueryDesc frameConnectedQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(ConnectedTag) }
+            All = new ComponentType[] { typeof(FrameComponent), typeof(SpeakerConnection), typeof(InListenerRangeTag) }
         };
 
-        EntityQueryDesc hostAloneQueryDesc = new()
+        EntityQueryDesc frameAloneQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(ConnectedTag), typeof(LoneHostOnSpeakerTag) }
+            All = new ComponentType[] { typeof(FrameComponent), typeof(SpeakerConnection),
+                typeof(AloneOnSpeakerTag), typeof(InListenerRangeTag) }
         };
 
 
-        EntityQueryDesc hostNotAloneQueryDesc = new()
+        EntityQueryDesc frameNotAloneQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(ConnectedTag) },
-            None = new ComponentType[] { typeof(LoneHostOnSpeakerTag) }
+            All = new ComponentType[] { typeof(FrameComponent), typeof(SpeakerConnection), typeof(InListenerRangeTag) },
+            None = new ComponentType[] { typeof(AloneOnSpeakerTag) }
         };
 
-        EntityQueryDesc hostDisconnectedQueryDesc = new()
+        EntityQueryDesc frameDisconnectedQueryDesc = new()
         {
-            All = new ComponentType[] { typeof(HostComponent), typeof(InListenerRadiusTag) },
-            None = new ComponentType[] { typeof(ConnectedTag)}
+            All = new ComponentType[] { typeof(FrameComponent), typeof(InListenerRangeTag) },
+            None = new ComponentType[] { typeof(SpeakerConnection)}
         };
         EntityQueryDesc speakerQueryDesc = new()
         {
             All = new ComponentType[] { typeof(SpeakerIndex), typeof(SpeakerComponent) }
         };
 
-        EntityQuery hostQuery;
         EntityQuery speakerQuery;
-
-        NativeArray<Entity> hostEntities;
         NativeArray<Entity> speakerEntities;
         NativeArray<SpeakerIndex> speakerIndexes;
-        NativeArray<HostComponent> hostComponents;
         NativeArray<SpeakerComponent> speakerComponents;
+        
+        EntityQuery frameQuery;
+        NativeArray<Entity> frameEntities;
+        NativeArray<FrameComponent> frameComponents;
+        NativeArray<SpeakerConnection> frameConnections;
+
 
         speakerQuery = GetEntityQuery(speakerQueryDesc);
         speakerIndexes = speakerQuery.ToComponentDataArray<SpeakerIndex>(Allocator.TempJob);
         speakerComponents = speakerQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);
-        JobHandle updateHostRangeJob = Entities.WithName("UpdateHostRange").WithReadOnly(speakerComponents).ForEach
-        (
-            (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
-            {
-                if (math.distance(host._WorldPos, attachConfig._ListenerPos) > attachConfig._ListenerRadius)
-                {
-                    host._Connected = false;
-                    host._InListenerRadius = false;
-                    ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<InListenerRadiusTag>(entityInQueryIndex, entity);
-                    ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
-                    host._SpeakerIndex = int.MaxValue;
-                    return;
-                }
-
-                host._InListenerRadius = true;
-                ecb.AddComponent(entityInQueryIndex, entity, new InListenerRadiusTag());
-
-                if (host._SpeakerIndex < speakerComponents.Length)
-                {
-                    int speakerIndex = int.MaxValue;
-
-                    for (int s = 0;  s < speakerComponents.Length; s++)
-                        if (host._SpeakerIndex == s)
-                        {
-                            speakerIndex = s;
-                            break;
-                        }
-
-                    if (speakerIndex <= speakerComponents.Length)
-                    {
-                        SpeakerComponent speaker = speakerComponents[speakerIndex];
-                        if (math.distance(host._WorldPos, speaker._WorldPos) <= speaker._ConnectionRadius)
-                        {
-                            if (speakerComponents[host._SpeakerIndex]._ConnectedHostCount == 1)
-                                ecb.AddComponent(entityInQueryIndex, entity, new LoneHostOnSpeakerTag());
-                            ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
-                            host._Connected = true;
-                            return;
-                        }
-                    }
-                }
-
-                host._Connected = false;
-                host._SpeakerIndex = int.MaxValue;
-                ecb.RemoveComponent<ConnectedTag>(entityInQueryIndex, entity);
-                ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
-            }
-        ).ScheduleParallel(Dependency);
-        updateHostRangeJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(updateHostRangeJob);
-
-        speakerQuery = GetEntityQuery(speakerQueryDesc);
-        JobHandle groupLoneHostsJob = Entities.WithName("GroupLoneHosts")
-            .WithAll<InListenerRadiusTag, ConnectedTag, LoneHostOnSpeakerTag>()
+        JobHandle frameToSpeakerCheckJob = Entities.WithName("FrameToSpeakerCheck")
+            .WithAll<InListenerRangeTag>()
             .WithReadOnly(speakerIndexes).WithReadOnly(speakerComponents).ForEach
         (
-            (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
+            (
+                int entityInQueryIndex, Entity entity, ref SpeakerConnection connection, in FrameComponent frame) =>
             {
-                if (host._SpeakerIndex > speakerComponents.Length)
-                    return;
-
-                int otherIndex = int.MaxValue;
-                float currentInactiveDuration = float.MaxValue;
-                float otherSpeakerInactiveDuration = float.MaxValue;
-
-                for (int s = 0; s < speakerComponents.Length; s++)
+                if (connection.SpeakerIndex < 0 || connection.SpeakerIndex >= speakerComponents.Length)
                 {
-                    if (speakerComponents[s]._State != ConnectionState.Active)
+                    ecb.RemoveComponent<SpeakerConnection>(entityInQueryIndex, entity);
+                    ecb.RemoveComponent<AloneOnSpeakerTag>(entityInQueryIndex, entity);
+                    return;
+                }
+                
+                foreach (SpeakerIndex speakerIndex in speakerIndexes)
+                {
+                    if (speakerIndex.Value != connection.SpeakerIndex)
                         continue;
 
-                    if (speakerIndexes[s].Value == host._SpeakerIndex)
+                    SpeakerComponent speakerComponent = speakerComponents[speakerIndex.Value];
+
+                    if (math.distance(frame.Position, speakerComponent.Position) <= speakerComponent.Radius)
                     {
-                        currentInactiveDuration = speakerComponents[s]._InactiveDuration;
-                        if (otherSpeakerInactiveDuration < 0)
-                            break;
+                        if (speakerComponents[speakerIndex.Value].ConnectedHostCount == 1)
+                            ecb.AddComponent(entityInQueryIndex, entity, new AloneOnSpeakerTag());
+                        return;
                     }
-                    else if (speakerComponents[s]._ConnectedHostCount > 0 && 
-                        math.distance(host._WorldPos, speakerComponents[s]._WorldPos) < speakerComponents[s]._ConnectionRadius)
-                    {
-                        otherIndex = speakerIndexes[s].Value;
-                        otherSpeakerInactiveDuration = speakerComponents[s]._InactiveDuration;
-                        if (currentInactiveDuration < 0)
-                            break;
-                    }
+
+                    break;
                 }
 
-                if (currentInactiveDuration > 0 || otherIndex > speakerComponents.Length)
-                    return;
-
-                if (otherSpeakerInactiveDuration < currentInactiveDuration)
-                {
-                    host._SpeakerIndex = otherIndex;
-                    ecb.RemoveComponent<LoneHostOnSpeakerTag>(entityInQueryIndex, entity);
-                }
+                ecb.RemoveComponent<SpeakerConnection>(entityInQueryIndex, entity);
+                ecb.RemoveComponent<AloneOnSpeakerTag>(entityInQueryIndex, entity);
             }
-        ).ScheduleParallel(updateHostRangeJob);
-        groupLoneHostsJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(groupLoneHostsJob);
+        ).ScheduleParallel(Dependency);
+        frameToSpeakerCheckJob.Complete();
+        _commandBufferSystem.AddJobHandleForProducer(frameToSpeakerCheckJob);
 
-        JobHandle connectToActiveSpeakerJob = Entities.WithName("ConnectToActiveSpeaker").
-            WithNone<ConnectedTag>().WithAll<InListenerRadiusTag>().WithReadOnly(speakerIndexes)
-            .WithReadOnly(speakerComponents).ForEach
+
+        //speakerQuery = GetEntityQuery(speakerQueryDesc);
+        JobHandle groupLoneFramesJob = Entities.WithName("GroupLoneFrames")
+            .WithAll<InListenerRangeTag, AloneOnSpeakerTag>()
+            .WithReadOnly(speakerIndexes).WithReadOnly(speakerComponents).ForEach
         (
-            (int entityInQueryIndex, Entity entity, ref HostComponent host) =>
+            (int entityInQueryIndex, Entity entity, ref SpeakerConnection connection, in FrameComponent frame) =>
             {
-                int newSpeakerIndex = int.MaxValue;
-                int bestLingeringSpeaker = int.MaxValue;
-
-                float lowestActiveGrainLoad = 1;
-                float closestLingeringDistance = float.MaxValue;
-
-                for (int i = 0; i < speakerComponents.Length; i++)
+                var foundSelf = false;
+                var foundOther = false;
+                int otherSpeakerIndex = -1;
+                float selfInactive = 0;
+                float otherInactive = 0;
+                
+                for (var s = 0; s < speakerComponents.Length; s++)
                 {
-                    SpeakerComponent speaker = speakerComponents[i];
-                    if (speaker._State == ConnectionState.Pooled)
+                    if (speakerComponents[s].State != ConnectionState.Active)
                         continue;
 
-                    float dist = math.distance(host._WorldPos, speaker._WorldPos);
-
-                    if (speaker._State == ConnectionState.Active)
+                    if (speakerIndexes[s].Value == connection.SpeakerIndex)
                     {
-                        if (speaker._ConnectionRadius > dist &&
-                            speaker._GrainLoad < attachConfig._BusyLoadLimit &&
-                            speaker._GrainLoad < lowestActiveGrainLoad)
-                        {
-                            lowestActiveGrainLoad = speaker._GrainLoad;
-                            newSpeakerIndex = speakerIndexes[i].Value;
-                        }
+                        selfInactive = speakerComponents[s].InactiveDuration;
+                        foundSelf = true;
+                        if (foundOther)
+                            break;
 
                         continue;
                     }
+                    
+                    if (speakerComponents[s].Radius < math.distance(frame.Position, speakerComponents[s].Position))
+                        continue;
 
-                    if (dist < closestLingeringDistance)
-                    {
-                        closestLingeringDistance = dist;
-                        bestLingeringSpeaker = speakerIndexes[i].Value;
-                    }
+                    otherSpeakerIndex = speakerIndexes[s].Value;
+                    otherInactive = speakerComponents[s].InactiveDuration;
+                    foundOther = true;
+                    if (foundSelf)
+                        break;
                 }
 
-                if (newSpeakerIndex == int.MaxValue && bestLingeringSpeaker == int.MaxValue)
+                if (!foundSelf || !foundOther || selfInactive < otherInactive)
                     return;
 
-                host._SpeakerIndex = newSpeakerIndex != int.MaxValue ? newSpeakerIndex : bestLingeringSpeaker;
-                host._Connected = true;
-                ecb.AddComponent(entityInQueryIndex, entity, new ConnectedTag());
+                connection.SpeakerIndex = otherSpeakerIndex;
+                ecb.RemoveComponent<AloneOnSpeakerTag>(entityInQueryIndex, entity);
+            }
+        ).ScheduleParallel(frameToSpeakerCheckJob);
+        groupLoneFramesJob.Complete();
+        _commandBufferSystem.AddJobHandleForProducer(groupLoneFramesJob);
+
+        
+        JobHandle connectToActiveSpeakerJob = Entities.WithName("ConnectToActiveSpeaker")
+            .WithAll<InListenerRangeTag>().WithNone<SpeakerConnection>()
+            .WithReadOnly(speakerIndexes).WithReadOnly(speakerComponents).ForEach
+        (
+            (int entityInQueryIndex, Entity entity, ref FrameComponent frame) =>
+            {
+                var foundOther = false;
+                int otherSpeakerIndex = -1;
+
+                for (var s = 0; s < speakerComponents.Length; s++)
+                {
+                    SpeakerComponent speaker = speakerComponents[s];
+
+                    if (speaker.State == ConnectionState.Pooled ||
+                        speaker.GrainLoad > connectConfig.BusyLoadLimit ||
+                        speaker.Radius < math.distance(frame.Position, speaker.Position))
+                        continue;
+                    
+                    otherSpeakerIndex = speakerIndexes[s].Value;
+                    foundOther = true;
+                    
+                    if (speaker.State == ConnectionState.Lingering) { break; }
+                }
+
+                if (!foundOther)
+                    return;
+
+                ecb.AddComponent(entityInQueryIndex, entity, new SpeakerConnection
+                {
+                    SpeakerIndex = otherSpeakerIndex
+                });
             }
         ).WithDisposeOnCompletion(speakerIndexes).WithDisposeOnCompletion(speakerComponents)
-        .ScheduleParallel(groupLoneHostsJob);
+        .ScheduleParallel(groupLoneFramesJob);
         connectToActiveSpeakerJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(connectToActiveSpeakerJob);
+        _commandBufferSystem.AddJobHandleForProducer(connectToActiveSpeakerJob);
 
-        hostQuery = GetEntityQuery(hostConnectedQueryDesc);
-        hostComponents = hostQuery.ToComponentDataArray<HostComponent>(Allocator.TempJob);
-        JobHandle moveSpeakersJob = Entities.WithName("MoveSpeakers").WithReadOnly(hostComponents).ForEach
+        
+        frameQuery = GetEntityQuery(frameConnectedQueryDesc);
+        frameComponents = frameQuery.ToComponentDataArray<FrameComponent>(Allocator.TempJob);
+        frameConnections = frameQuery.ToComponentDataArray<SpeakerConnection>(Allocator.TempJob);
+        JobHandle moveSpeakersJob = Entities.WithName("MoveSpeakers")
+            .WithReadOnly(frameComponents).WithReadOnly(frameConnections).ForEach
         (
             (ref SpeakerComponent speaker, in SpeakerIndex index) =>
             {
-                int attachedHosts = 0;
-                float3 currentPosition = speaker._WorldPos;
+                var attachedFrames = 0;
+                float3 currentPosition = speaker.Position;
                 float3 targetPosition = new(0, 0, 0);
                 
-                for (int e = 0; e < hostComponents.Length; e++)
+                for (var f = 0; f < frameComponents.Length; f++)
                 {
-                    if (hostComponents[e]._SpeakerIndex != index.Value)
+                    if (frameConnections[f].SpeakerIndex != index.Value
+                            || math.distance(currentPosition, frameComponents[f].Position) > speaker.Radius)
                         continue;
 
-                    if (math.distance(currentPosition, hostComponents[e]._WorldPos) > speaker._ConnectionRadius)
-                        continue;
-
-                    targetPosition += hostComponents[e]._WorldPos;
-                    attachedHosts++;
+                    targetPosition += frameComponents[f].Position;
+                    attachedFrames++;
                 }
 
-                speaker._ConnectedHostCount = attachedHosts;
+                speaker.ConnectedHostCount = attachedFrames;
 
-                if (attachedHosts == 0)
+                if (attachedFrames == 0)
                 {
-                    speaker._InactiveDuration += attachConfig._DeltaTime;
-                    if (speaker._State == ConnectionState.Lingering && speaker._InactiveDuration >= attachConfig._SpeakerLingerTime)
+                    speaker.InactiveDuration += connectConfig.DeltaTime;
+                    switch (speaker.State)
                     {
-                        speaker._State = ConnectionState.Pooled;
-                        speaker._ConnectionRadius = 0.001f;
-                        speaker._WorldPos = attachConfig._DisconnectedPosition;
-                    }
-                    else if (speaker._State == ConnectionState.Active)
-                    {
-                        speaker._State = ConnectionState.Lingering;
-                        speaker._InactiveDuration = 0;
-                        speaker._WorldPos = currentPosition;
-                        speaker._ConnectionRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, currentPosition, attachConfig._ArcDegrees);
+                        case ConnectionState.Lingering when speaker.InactiveDuration >= connectConfig.SpeakerLingerTime:
+                            speaker.State = ConnectionState.Pooled;
+                            speaker.Radius = 0.001f;
+                            speaker.Position = connectConfig.DisconnectedPosition;
+                            break;
+
+                        case ConnectionState.Active:
+                            speaker.State = ConnectionState.Lingering;
+                            speaker.InactiveDuration = 0;
+                            speaker.Position = currentPosition;
+                            speaker.Radius = CalculateSpeakerRadius(
+                                connectConfig.ListenerPos, currentPosition, connectConfig.ArcDegrees);
+                            break;
                     }
                     return;
                 }
 
-                if (speaker._State != ConnectionState.Active)
+                if (speaker.State != ConnectionState.Active)
                 {
-                    speaker._InactiveDuration = 0;
-                    speaker._State = ConnectionState.Active;
+                    speaker.InactiveDuration = 0;
+                    speaker.State = ConnectionState.Active;
                 }
 
-                speaker._InactiveDuration -= attachConfig._DeltaTime;
+                speaker.InactiveDuration -= connectConfig.DeltaTime;
 
-                targetPosition = attachedHosts == 1 ? targetPosition : targetPosition / attachedHosts;
-                float3 lerpedPosition = math.lerp(currentPosition, targetPosition, attachConfig._TranslationSmoothing);
-                float lerpedRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, lerpedPosition, attachConfig._ArcDegrees);
+                targetPosition = attachedFrames == 1 ? targetPosition : targetPosition / attachedFrames;
+                float3 lerpPosition = math.lerp(currentPosition, targetPosition, connectConfig.TranslationSmoothing);
+                float lerpRadius = CalculateSpeakerRadius(
+                    connectConfig.ListenerPos,lerpPosition, connectConfig.ArcDegrees);
 
-                if (lerpedRadius > math.distance(lerpedPosition, targetPosition))
+                if (lerpRadius > math.distance(lerpPosition, targetPosition))
                 {
-                    speaker._WorldPos = lerpedPosition;
-                    speaker._ConnectionRadius = lerpedRadius;
+                    speaker.Position = lerpPosition;
+                    speaker.Radius = lerpRadius;
                 }
                 else
                 {
-                    speaker._WorldPos = targetPosition;
-                    speaker._ConnectionRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, targetPosition, attachConfig._ArcDegrees);
+                    speaker.Position = targetPosition;
+                    speaker.Radius = CalculateSpeakerRadius(
+                        connectConfig.ListenerPos, targetPosition, connectConfig.ArcDegrees);
                 }
             }
-        ).WithDisposeOnCompletion(hostComponents)
-        .ScheduleParallel(groupLoneHostsJob);
+        ).WithDisposeOnCompletion(frameComponents).WithDisposeOnCompletion(frameConnections)
+        .ScheduleParallel(connectToActiveSpeakerJob);
         moveSpeakersJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(moveSpeakersJob);
+        _commandBufferSystem.AddJobHandleForProducer(moveSpeakersJob);
 
-        hostQuery = GetEntityQuery(hostDisconnectedQueryDesc);
-        hostEntities = hostQuery.ToEntityArray(Allocator.TempJob);
+        
+        frameQuery = GetEntityQuery(frameDisconnectedQueryDesc);
+        frameEntities = frameQuery.ToEntityArray(Allocator.TempJob);
+        frameComponents = frameQuery.ToComponentDataArray<FrameComponent>(Allocator.TempJob);
         speakerEntities = speakerQuery.ToEntityArray(Allocator.TempJob);
-        speakerComponents = speakerQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);        
-        JobHandle speakerActivationJob = Job.WithName("speakerActivation").WithoutBurst().WithCode(() =>
+        speakerIndexes = speakerQuery.ToComponentDataArray<SpeakerIndex>(Allocator.TempJob);
+        speakerComponents = speakerQuery.ToComponentDataArray<SpeakerComponent>(Allocator.TempJob);      
+        
+        JobHandle speakerActivationJob = Job.WithName("speakerActivation")
+            .WithReadOnly(speakerIndexes).WithoutBurst().WithCode(() =>
         {
-            for (int h = 0; h < hostEntities.Length; h++)
+            for (var f = 0; f < frameEntities.Length; f++)
             {
-                for (int s = 0; s < speakerComponents.Length; s++)
+                for (var s = 0; s < speakerComponents.Length; s++)
                 {
-                    if (speakerComponents[s]._State != ConnectionState.Pooled)
+                    if (speakerComponents[s].State != ConnectionState.Pooled)
                         continue;
-
-                    // Tick host component with speaker link
-                    ecb.AddComponent(h, hostEntities, new ConnectedTag());
-                    ecb.AddComponent(h, hostEntities, new LoneHostOnSpeakerTag());
-                    HostComponent host = GetComponent<HostComponent>(hostEntities[h]);
-                    host._SpeakerIndex = GetComponent<SpeakerIndex>(speakerEntities[s]).Value;
-                    host._Connected = true;
-                    SetComponent(hostEntities[h], host);
-
-                    // Set active pooled status and update attachment radius
-                    SpeakerComponent speakerComponent = GetComponent<SpeakerComponent>(speakerEntities[s]);
-                    speakerComponent._ConnectionRadius = CalculateSpeakerRadius(attachConfig._ListenerPos, host._WorldPos, attachConfig._ArcDegrees);
-                    speakerComponent._State = ConnectionState.Active;
-                    speakerComponent._ConnectedHostCount = 1;
-                    speakerComponent._InactiveDuration = 0;
-                    speakerComponent._WorldPos = host._WorldPos;
-                    SetComponent(speakerEntities[s], speakerComponent);
-                    break;
+        
+                    ecb.AddComponent(f, frameEntities, new SpeakerConnection
+                    {
+                        SpeakerIndex = speakerIndexes[s].Value
+                    });
+                    ecb.AddComponent(f, frameEntities, new AloneOnSpeakerTag());
+        
+                    float radius = CalculateSpeakerRadius(
+                        connectConfig.ListenerPos, frameComponents[f].Position, connectConfig.ArcDegrees);
+                    
+                    ecb.SetComponent(s, speakerEntities[s], new SpeakerComponent
+                    {
+                        State = ConnectionState.Active,
+                        ConnectedHostCount = 1,
+                        Radius = radius,
+                        InactiveDuration = 0,
+                        GrainLoad = 0,
+                        Position = frameComponents[f].Position
+                    });
+                    
+                    return;
                 }
             }
-        }).WithDisposeOnCompletion(speakerEntities).WithDisposeOnCompletion(speakerComponents)
-        .WithDisposeOnCompletion(hostEntities)
-        .Schedule(moveSpeakersJob);
+        }).WithDisposeOnCompletion(frameEntities).WithDisposeOnCompletion(frameComponents)
+        .WithDisposeOnCompletion(speakerEntities).WithDisposeOnCompletion(speakerComponents)
+        .WithDisposeOnCompletion(speakerIndexes).Schedule(moveSpeakersJob);
         speakerActivationJob.Complete();
-        _CommandBufferSystem.AddJobHandleForProducer(speakerActivationJob);
+        _commandBufferSystem.AddJobHandleForProducer(speakerActivationJob);
 
-        Dependency = speakerActivationJob;
+        Dependency = moveSpeakersJob;
     }
 
-    public static float CalculateSpeakerRadius(float3 listenerPos, float3 speakerPos, float arcLength)
+    private static float CalculateSpeakerRadius(float3 listenerPos, float3 speakerPos, float arcLength)
     {
-        // Tick attachment radius for new position. NOTE/TODO: Radius will be incorrect for next frame, need to investigate.
-        float listenerCircumference = (float)(2 * Math.PI * math.distance(listenerPos, speakerPos));
+        var listenerCircumference = (float)(2 * Math.PI * math.distance(listenerPos, speakerPos));
         return arcLength * MaxMath.ONE_DEGREE * listenerCircumference;
     }
 }

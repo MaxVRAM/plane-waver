@@ -1,0 +1,255 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using static MaxVRAM.MaxMath;
+
+namespace PlaneWaver.Interaction
+{
+    public partial class ActorObject : MonoBehaviour
+    {
+        #region CLASS DEFINITIONS
+
+        //private bool _initialised;
+        public ObjectSpawner Spawner;
+        private bool _hasSpawner;
+        public ActorController Controller;
+        public ActorControllerData ControllerData;
+        public Transform SpeakerTarget;
+        public Transform OtherBody;
+        private bool _hasOtherBody;
+        private List<CollisionData> _activeCollisions;
+        private SurfaceProperties _surfaceProperties;
+        public float SurfaceRigidity = 0.5f;
+        private float _smoothedContactRigidity;
+        private float _highestContactRigidity;
+        private const float ContactRigiditySmoothing = 0.5f;
+        private Rigidbody _rigidbody;
+        private bool _hasRigidbody;
+        private Collider _collider;
+        private bool _hasCollider;
+        private CollisionData _latestCollision;
+        private bool _hasCollided;
+        public Vector3 Position => transform.position;
+        public Vector3 RelativePosition => _hasOtherBody ? transform.position - OtherBody.position : Vector3.zero;
+        public Vector3 DirectionToOther => _hasOtherBody ? (OtherBody.position - transform.position).normalized : Vector3.zero;
+        public Vector3 DirectionFromOther => _hasOtherBody ? (transform.position - OtherBody.position).normalized : Vector3.zero;
+        public float Distance => _hasOtherBody ? Vector3.Distance(transform.position, OtherBody.position) : 0;
+        public Vector3 EulerAngles => transform.rotation.eulerAngles;
+        public Quaternion Rotation => transform.rotation;
+        public float Scale => transform.localScale.magnitude;
+        public Vector3 Velocity => _hasRigidbody ? _rigidbody.velocity : Vector3.zero;
+        public float Speed => _hasRigidbody ? _rigidbody.velocity.magnitude : 0;
+        public float Acceleration => (_currentSpeed - _previousSpeed) / Time.fixedDeltaTime;
+        public float Mass => _hasRigidbody ? _rigidbody.mass : 0;
+        public float Momentum => Speed * (Mass / 2 + 0.5f);
+        public float SlideMomentum => RollMomentum != 0 ? Momentum - AngularMomentum : 0;
+        public float AngularSpeed => _hasRigidbody ? _rigidbody.angularVelocity.magnitude : 0;
+        public float AngularMomentum => AngularSpeed * (Mass / 2 + 0.5f);
+        public float RollMomentum => IsColliding ? AngularMomentum : 0;
+        public float CollisionSpeed => _hasCollided ? _latestCollision.Speed : 0;
+        public float CollisionForce => _hasCollided ? _latestCollision.Force : 0;
+        public bool IsColliding { get; private set; }
+        
+        private float _currentSpeed;
+        private float _previousSpeed;
+        private Vector3 _currentDirection;
+        private Vector3 _previousDirection;
+
+        #endregion
+
+        #region PHYSICS PROPERTY METHODS
+
+        public float DistanceToListener()
+        {
+            return SynthManager.Instance.DistanceToListener(transform);
+        }
+
+        public float SpeakerTargetToListener()
+        {
+            return SynthManager.Instance.DistanceToListener(SpeakerTarget);
+        }
+
+        public float SpeakerTargetToListenerNorm()
+        {
+            return SynthManager.Instance.DistanceToListenerNorm(SpeakerTarget);
+        }
+
+        public float RelativeSpeed()
+        {
+            if (!_hasRigidbody || !_hasOtherBody || !OtherBody.TryGetComponent(out Rigidbody otherRb))
+                return 0;
+
+            return Vector3.Dot(otherRb.velocity, Velocity);
+        }
+
+        public SphericalCoordinates SphericalCoords => new(RelativePosition);
+
+        public Quaternion RotationDelta()
+        {
+            return Quaternion.FromToRotation(_previousDirection, _currentDirection);
+        }
+
+        // public float TangentalSpeed(Quaternion rotation)
+        // {
+        //     return TangentalSpeedFromQuaternion(rotation);
+        // }
+
+        public float TangentalSpeed => TangentalSpeedFromQuaternion(RotationDelta());
+
+        #endregion
+
+        #region INITIALISATION METHODS
+        
+        private void Awake()
+        {
+            _hasSpawner = Spawner != null;
+            _hasOtherBody = OtherBody != null;
+            _activeCollisions = new List<CollisionData>();
+            _hasCollided = false;
+            IsColliding = false;
+
+            if (SpeakerTarget == null)
+                SpeakerTarget = transform;
+        }
+        
+        private void InitialiseActor()
+        {
+            _hasRigidbody = TryGetComponent(out _rigidbody);
+            _hasCollider = TryGetComponent(out _collider);
+
+            if (!ControllerData.IsInitialised)
+                ControllerData = ActorControllerData.Default;
+            
+            if (Controller == null)
+                Controller = GetComponent<ActorController>() ?? gameObject.AddComponent<ActorController>();
+            Controller.InitialiseActorLife(ControllerData);
+
+            if (_surfaceProperties == null)
+                _surfaceProperties = GetComponent<SurfaceProperties>() ?? gameObject.AddComponent<SurfaceProperties>();
+            SurfaceRigidity = _surfaceProperties.Rigidity;
+        }
+
+        private void OnEnable()
+        {
+            InitialiseActor();
+        }
+
+        private void OnDisable()
+        {
+            if (_hasSpawner)
+                Spawner.ObjectPooled();
+        }
+
+        #endregion
+
+        #region UPDATE METHODS
+
+        private void Update()
+        {
+            UpdateContactRigidity();
+            if (!_hasOtherBody) return;
+            _previousDirection = _currentDirection;
+            _currentDirection = DirectionFromOther;
+        }
+
+        private void FixedUpdate()
+        {
+            _previousSpeed = _currentSpeed;
+            _currentSpeed = Speed;
+        }
+        
+        private void UpdateContactRigidity()
+        {
+            if (_activeCollisions.Count == 0)
+            {
+                _highestContactRigidity = 0;
+                _smoothedContactRigidity = 0;
+                return;
+            }
+
+            _highestContactRigidity = _activeCollisions.Max(x => x.Rigidity);
+
+            _smoothedContactRigidity = Smooth(
+                _smoothedContactRigidity,
+                _highestContactRigidity,
+                ContactRigiditySmoothing
+            );
+        }
+
+        #endregion
+
+        #region COLLISION HANDLING
+
+        public Action<CollisionData> OnNewValidCollision;
+
+        public void OnCollisionEnter(Collision collision)
+        {
+            if (ContactAllowed(collision.collider.gameObject))
+                _activeCollisions.Add(new CollisionData(collision));
+
+            if (!CollisionAllowed(collision.collider.gameObject)) return;
+
+            _latestCollision = new CollisionData(collision);
+            _hasCollided = true;
+            OnNewValidCollision?.Invoke(_latestCollision);
+        }
+
+        public void OnCollisionStay(Collision collision)
+        {
+            if (ContactAllowed(collision.collider.gameObject))
+                IsColliding = true;
+        }
+
+        public void OnCollisionExit(Collision collision)
+        {
+            _activeCollisions.RemoveAll(c => c.OtherObject == collision.collider.gameObject);
+            if (_activeCollisions.Count != 0) return;
+
+            IsColliding = false;
+            _highestContactRigidity = 0;
+            _smoothedContactRigidity = 0;
+        }
+
+        /// <summary>
+        ///     Checks if a contact is allowed based on the contact settings of the ObjectSpawner.
+        /// </summary>
+        /// <param name="other">The other GameObject from the collision event.</param>
+        /// <returns>Boolean: True if attached emitters should consider this collision's surface properties.</returns>
+        private bool ContactAllowed(GameObject other)
+        {
+            return !_hasSpawner || Spawner.ContactAllowed(gameObject, other);
+        }
+
+        /// <summary>
+        ///     Checks if a collision is allowed based on the collision settings of the ObjectSpawner.
+        /// </summary>
+        /// <param name="other">The other GameObject from the collision event.</param>
+        /// <returns>Boolean: True if attached emitters can trigger based on spawner config.</returns>
+        private bool CollisionAllowed(GameObject other)
+        {
+            return !_hasSpawner || Spawner.CollisionAllowed(gameObject, other);
+        }
+
+        /// <summary>
+        ///     A shortcut reference to the OnlyTriggerMostRigid setting in the GrainBrain.
+        /// </summary>
+        private bool OnlyTriggerMostRigid => SynthManager.Instance.OnlyTriggerMostRigidSurface;
+
+        /// <summary>
+        ///     Checks if attached collision emitters are allowed to trigger based on collider rigidities.
+        /// </summary>
+        /// <param name="collisionData">
+        ///     CollisionData object for a specific collision.
+        ///     Defaults to this Actor's latest collision if no parameter provided.
+        /// </param>
+        /// <returns>Boolean: True if attached emitters can trigger based on rigidity.</returns>
+        private bool RigidityTest(CollisionData? collisionData)
+        {
+            collisionData ??= _latestCollision;
+            return !OnlyTriggerMostRigid || collisionData.Value.Rigidity < SurfaceRigidity;
+        }
+
+        #endregion
+    }
+}

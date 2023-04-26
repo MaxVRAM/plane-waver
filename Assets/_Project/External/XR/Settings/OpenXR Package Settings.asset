@@ -152,6 +152,26 @@ MonoBehaviour:
   company: Oculus
   priority: 0
   required: 0
+--- !u!114 &1322488652157561087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4b862ee14fb479fbfe5fffe655d3ed3, type: 3}
+  m_Name: MetaQuestTouchProControllerProfile Standalone
+  m_EditorClassIdentifier: 
+  m_enabled: 0
+  nameUi: Meta Quest Touch Pro Controller Profile
+  version: 0.0.1
+  featureIdInternal: com.unity.openxr.feature.input.metaquestpro
+  openxrExtensionStrings: XR_FB_touch_controller_pro
+  company: Unity
+  priority: 0
+  required: 0
 --- !u!114 &2136288394258915781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,6 +289,7 @@ MonoBehaviour:
   - {fileID: -8780865179083730728}
   - {fileID: 2375807356854998683}
   - {fileID: 3976483302864892166}
+  - {fileID: 1322488652157561087}
   - {fileID: 3076612538537856651}
   - {fileID: -8048075673150383789}
   - {fileID: -2322820204367463792}

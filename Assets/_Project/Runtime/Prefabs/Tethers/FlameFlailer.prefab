@@ -272,24 +272,26 @@ MonoBehaviour:
   _SpawnablePrefabs:
   - {fileID: 0}
   _RandomiseSpawnPrefab: 0
-  _AttachmentJoint: {fileID: 11400000, guid: 07006645dae76664d8f30e7fd19512cb, type: 2}
-  _SpawnablesAllocated: 34
+  _AttachmentJoint: {fileID: 11400000, guid: dc6ae2967ee3b914e8cdc627519a9d7a, type: 2}
+  _SpawnablesAllocated: 60
   _SpawnPeriodSeconds: 0.1
   _SpawnCondition: 1
   _SpawnDelaySeconds: 2
   _AutoSpawn: 1
   _AutoRemove: 1
-  _EjectionDirection: {x: 0, y: 1, z: 0}
-  _VelocityUpOffset: {x: 0, y: 0, z: 1}
-  _EjectionDirectionVariance: 0.2
-  _EjectionRadiusRange: {x: 2, y: 2}
-  _EjectionSpeedRange: {x: 20, y: 40}
+  _SpawnObjectScale: {x: 1, y: 1}
+  _EjectionPosition: {x: 0, y: 1, z: -1}
+  _PositionVariance: 0.2
+  _EjectionRadius: {x: 1, y: 6}
+  _EjectionDirection: {x: 1, y: 0, z: -1}
+  _DirectionVariance: 0.4
+  _EjectionSpeed: {x: 4, y: 5}
   _DestroyOnAllCollisions: 0
   _BoundingAreaType: 1
   _BoundingCollider: {fileID: 0}
   _BoundingRadius: 30
   _UseSpawnDuration: 1
-  _SpawnObjectDuration: {x: 2, y: 2}
+  _SpawnObjectDuration: {x: 4, y: 4}
   _AllowSiblingSurfaceContact: 1
   _AllowSiblingCollisionTrigger: 1
   _EmissiveFlashTrigger: 1
@@ -313,7 +315,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2180540676297803286}
   m_Layer: 11
-  m_Name: Spitter
+  m_Name: SpawnTransform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -529,11 +531,11 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2180540676637606851}
   serializedVersion: 2
-  m_Mass: 20
+  m_Mass: 10
   m_Drag: 1
   m_AngularDrag: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 3

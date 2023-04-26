@@ -1,0 +1,11 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+AlignConsecutiveDeclarations: true
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+ColumnLimit: 153
+IndentWidth: 4
+MaxEmptyLinesToKeep: 100
+UseTab: Always
+...

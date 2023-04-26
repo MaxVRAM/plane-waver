@@ -1,0 +1,222 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bb05c03cc2610c499df23d4e51dfe39, type: 3}
+  m_Name: Emitter.Volatile.fire.gas
+  m_EditorClassIdentifier: 
+  EmitterName: Fireball Gas Burst
+  Description: 
+  AudioObject: {fileID: 11400000, guid: 61884dd0003d50143b788a886411ad72, type: 2}
+  Parameters:
+  - ParamType: 0
+    ParameterName: Volume
+    ParameterIndex: 0
+    IsVolatileEmitter: 1
+    Range: {x: 0, y: 1}
+    BaseRange: {x: 0, y: 0}
+    TimeExponent: 1
+    ReversePath: 1
+    Input:
+      Enabled: 0
+      Source:
+        InputGroup: 0
+        Misc: 0
+        Actor: 0
+        Relative: 3
+        Collision: 1
+      Range: {x: 0, y: 1}
+      Absolute: 0
+      Factor: 1
+      Accumulate: 0
+      Exponent: 1
+      Smoothing: 0
+    Output:
+      Limiter: 0
+      Amount: 0
+      Start: 1
+      End: 0
+    Noise:
+      Enabled: 0
+      Amount: 0
+      Factor: 0.1
+      PerlinSpeed: 1
+      UsePerlin: 0
+      VolatileLock: 0
+  - ParamType: 1
+    ParameterName: Playhead
+    ParameterIndex: 1
+    IsVolatileEmitter: 1
+    Range: {x: 0, y: 1}
+    BaseRange: {x: 0.25, y: 0.75}
+    TimeExponent: 1
+    ReversePath: 0
+    Input:
+      Enabled: 1
+      Source:
+        InputGroup: 0
+        Misc: 0
+        Actor: 0
+        Relative: 3
+        Collision: 1
+      Range: {x: 0, y: 1}
+      Absolute: 0
+      Factor: 1
+      Accumulate: 0
+      Exponent: 1
+      Smoothing: 0
+    Output:
+      Limiter: 0
+      Amount: 0
+      Start: 1
+      End: 0
+    Noise:
+      Enabled: 1
+      Amount: 0
+      Factor: 0.1
+      PerlinSpeed: 1
+      UsePerlin: 0
+      VolatileLock: 0
+  - ParamType: 2
+    ParameterName: Duration
+    ParameterIndex: 2
+    IsVolatileEmitter: 1
+    Range: {x: 10, y: 500}
+    BaseRange: {x: 40, y: 80}
+    TimeExponent: 1
+    ReversePath: 0
+    Input:
+      Enabled: 0
+      Source:
+        InputGroup: 0
+        Misc: 0
+        Actor: 0
+        Relative: 3
+        Collision: 1
+      Range: {x: 0, y: 1}
+      Absolute: 0
+      Factor: 1
+      Accumulate: 0
+      Exponent: 1
+      Smoothing: 0
+    Output:
+      Limiter: 0
+      Amount: 0
+      Start: 0
+      End: 1
+    Noise:
+      Enabled: 0
+      Amount: 0
+      Factor: 0.1
+      PerlinSpeed: 1
+      UsePerlin: 0
+      VolatileLock: 0
+  - ParamType: 3
+    ParameterName: Density
+    ParameterIndex: 3
+    IsVolatileEmitter: 1
+    Range: {x: 0.1, y: 10}
+    BaseRange: {x: 3, y: 3}
+    TimeExponent: 1
+    ReversePath: 0
+    Input:
+      Enabled: 0
+      Source:
+        InputGroup: 0
+        Misc: 0
+        Actor: 0
+        Relative: 3
+        Collision: 1
+      Range: {x: 0, y: 1}
+      Absolute: 0
+      Factor: 1
+      Accumulate: 0
+      Exponent: 1
+      Smoothing: 0
+    Output:
+      Limiter: 0
+      Amount: 0
+      Start: 1
+      End: 1
+    Noise:
+      Enabled: 0
+      Amount: 0
+      Factor: 0.1
+      PerlinSpeed: 1
+      UsePerlin: 0
+      VolatileLock: 0
+  - ParamType: 4
+    ParameterName: Transpose
+    ParameterIndex: 4
+    IsVolatileEmitter: 1
+    Range: {x: -3, y: 3}
+    BaseRange: {x: 0, y: 0}
+    TimeExponent: 1
+    ReversePath: 0
+    Input:
+      Enabled: 0
+      Source:
+        InputGroup: 0
+        Misc: 0
+        Actor: 0
+        Relative: 3
+        Collision: 1
+      Range: {x: 0, y: 1}
+      Absolute: 0
+      Factor: 1
+      Accumulate: 0
+      Exponent: 1
+      Smoothing: 0
+    Output:
+      Limiter: 0
+      Amount: 0
+      Start: 0
+      End: 1
+    Noise:
+      Enabled: 0
+      Amount: 0
+      Factor: 0.1
+      PerlinSpeed: 1
+      UsePerlin: 0
+      VolatileLock: 0
+  - ParamType: 5
+    ParameterName: Length
+    ParameterIndex: 5
+    IsVolatileEmitter: 1
+    Range: {x: 10, y: 1000}
+    BaseRange: {x: 500, y: 500}
+    TimeExponent: 1
+    ReversePath: 0
+    Input:
+      Enabled: 0
+      Source:
+        InputGroup: 0
+        Misc: 0
+        Actor: 0
+        Relative: 3
+        Collision: 1
+      Range: {x: 0, y: 1}
+      Absolute: 0
+      Factor: 1
+      Accumulate: 0
+      Exponent: 1
+      Smoothing: 0
+    Output:
+      Limiter: 0
+      Amount: 0
+      Start: 1
+      End: 0
+    Noise:
+      Enabled: 0
+      Amount: 0
+      Factor: 0.1
+      PerlinSpeed: 1
+      UsePerlin: 0
+      VolatileLock: 0

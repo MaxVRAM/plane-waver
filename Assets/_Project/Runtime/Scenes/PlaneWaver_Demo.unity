@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2138677392}
-  m_IndirectSpecularColor: {r: 807.31445, g: 756.8955, b: 724.1826, a: 1}
+  m_IndirectSpecularColor: {r: 807.20605, g: 756.86914, b: 724.7666, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -607,6 +607,7 @@ MonoBehaviour:
   OnlyTriggerMostRigidSurface: 1
   Frames: []
   Speakers: []
+  EmitterEditorActor: {fileID: 0}
 --- !u!1 &54756502
 GameObject:
   m_ObjectHideFlags: 0
@@ -4160,6 +4161,13 @@ MonoBehaviour:
   m_DistanceCalculationMode: 2
   m_SelectMode: 0
   m_CustomReticle: {fileID: 0}
+  m_AllowGazeInteraction: 0
+  m_AllowGazeSelect: 0
+  m_OverrideGazeTimeToSelect: 0
+  m_GazeTimeToSelect: 0.5
+  m_OverrideTimeToAutoDeselectGaze: 0
+  m_TimeToAutoDeselectGaze: 3
+  m_AllowGazeAssistance: 0
   m_FirstHoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -4192,6 +4200,7 @@ MonoBehaviour:
       m_Calls: []
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
+  m_StartingInteractionStrengthFilters: []
   m_OnFirstHoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -4220,10 +4229,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_AttachTransform: {fileID: 0}
+  m_SecondaryAttachTransform: {fileID: 0}
   m_UseDynamicAttach: 1
   m_MatchAttachPosition: 1
   m_MatchAttachRotation: 1
   m_SnapToColliderVolume: 1
+  m_ReinitializeDynamicAttachEverySingleGrab: 1
   m_AttachEaseInTime: 0.4
   m_MovementType: 1
   m_VelocityDamping: 0.94
@@ -4531,7 +4542,7 @@ Mesh:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pb_Mesh33600
+  m_Name: pb_Mesh41548
   serializedVersion: 10
   m_SubMeshes:
   - serializedVersion: 2
@@ -6425,6 +6436,7 @@ MonoBehaviour:
   m_BlockedReticle: {fileID: 0}
   m_StopLineAtFirstRaycastHit: 1
   m_StopLineAtSelection: 1
+  m_SnapEndpointIfAvailable: 1
 --- !u!120 &1100876666
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -6544,6 +6556,7 @@ MonoBehaviour:
     m_Bits: 9216
   m_AttachTransform: {fileID: 0}
   m_KeepSelectedTargetValid: 1
+  m_DisableVisualsWhenBlockedInGroup: 1
   m_StartingSelectedInteractable: {fileID: 0}
   m_StartingTargetFilter: {fileID: 0}
   m_HoverEntered:
@@ -6628,9 +6641,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2048
   m_RaycastTriggerInteraction: 1
+  m_RaycastSnapVolumeInteraction: 1
   m_HitClosestOnly: 1
   m_HoverToSelect: 0
   m_HoverTimeToSelect: 0.5
+  m_AutoDeselect: 0
+  m_TimeToAutoDeselect: 3
   m_EnableUIInteraction: 1
   m_AllowAnchorControl: 1
   m_UseForceGrab: 0
@@ -7531,10 +7547,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abaa7077d43660243b3aa238516d9d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ControllerAnchor: {fileID: 0}
-  ControllerTransform: {fileID: 0}
-  SpawnParentTransform: {fileID: 0}
-  PrefabToSpawn: {fileID: 0}
+  ControllerAnchor: {fileID: 1647814128}
+  ControllerTransform: {fileID: 1647814128}
+  SpawnParentTransform: {fileID: 19176485}
+  PrefabToSpawn: {fileID: 1198780456626165054, guid: 8a3c4720c69a1284c806fb609a29e254,
+    type: 3}
   AttachmentJoint: {fileID: 0}
   TargetNumObjects: 10
   SpawnPeriodSeconds: 0.2
@@ -7543,18 +7560,18 @@ MonoBehaviour:
   AutoSpawn: 1
   AutoRemove: 1
   SpawnObjectScale: {x: 1, y: 1}
-  EjectionPosition: {x: 1, y: 0, z: 0}
+  EjectionPosition: {x: 0, y: 1, z: 0}
   PositionVariance: 0
-  EjectionRadius: {x: 1, y: 2}
-  EjectionDirection: {x: 0, y: 0, z: 1}
-  DirectionVariance: 0
-  EjectionSpeed: {x: 0, y: 2}
-  BoundingAreaType: 2
-  BoundingCollider: {fileID: 0}
+  EjectionRadius: {x: 0.2, y: 0.3}
+  EjectionDirection: {x: 0, y: 1, z: 0}
+  DirectionVariance: 0.2
+  EjectionSpeed: {x: 6, y: 10}
+  BoundingAreaType: 3
+  BoundingCollider: {fileID: 1647814132}
   BoundingRadius: 30
   UseSpawnLifespan: 1
   SpawnLifeSpanDuration: {x: 5, y: 10}
-  AllowSiblingSurfaceContact: 1
+  AllowSiblingSurfaceContact: 0
   AllowSiblingCollisionTrigger: 1
   EmissiveFlashTrigger: 1
   MaterialModulator:
@@ -7991,6 +8008,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_TrackingType: 0
   m_UpdateType: 0
+  m_IgnoreTrackingState: 0
   m_PositionInput:
     m_UseReference: 0
     m_Action:
@@ -8045,6 +8063,18 @@ MonoBehaviour:
         m_Groups: 
         m_Action: Rotation
         m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: 0}
+  m_TrackingStateInput:
+    m_UseReference: 0
+    m_Action:
+      m_Name: 
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
       m_Flags: 0
     m_Reference: {fileID: 0}
   m_PositionAction:
@@ -9362,6 +9392,13 @@ MonoBehaviour:
   m_DistanceCalculationMode: 0
   m_SelectMode: 0
   m_CustomReticle: {fileID: 0}
+  m_AllowGazeInteraction: 0
+  m_AllowGazeSelect: 0
+  m_OverrideGazeTimeToSelect: 0
+  m_GazeTimeToSelect: 0.5
+  m_OverrideTimeToAutoDeselectGaze: 0
+  m_TimeToAutoDeselectGaze: 3
+  m_AllowGazeAssistance: 0
   m_FirstHoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -9394,6 +9431,7 @@ MonoBehaviour:
       m_Calls: []
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
+  m_StartingInteractionStrengthFilters: []
   m_OnFirstHoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -9422,10 +9460,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_AttachTransform: {fileID: 0}
+  m_SecondaryAttachTransform: {fileID: 0}
   m_UseDynamicAttach: 1
   m_MatchAttachPosition: 1
   m_MatchAttachRotation: 1
   m_SnapToColliderVolume: 1
+  m_ReinitializeDynamicAttachEverySingleGrab: 1
   m_AttachEaseInTime: 0.4
   m_MovementType: 0
   m_VelocityDamping: 0.94
@@ -10388,6 +10428,7 @@ MonoBehaviour:
   m_BlockedReticle: {fileID: 0}
   m_StopLineAtFirstRaycastHit: 1
   m_StopLineAtSelection: 1
+  m_SnapEndpointIfAvailable: 1
 --- !u!120 &1777181198
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -10507,6 +10548,7 @@ MonoBehaviour:
     m_Bits: 9216
   m_AttachTransform: {fileID: 0}
   m_KeepSelectedTargetValid: 1
+  m_DisableVisualsWhenBlockedInGroup: 1
   m_StartingSelectedInteractable: {fileID: 0}
   m_StartingTargetFilter: {fileID: 0}
   m_HoverEntered:
@@ -10591,9 +10633,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2048
   m_RaycastTriggerInteraction: 1
+  m_RaycastSnapVolumeInteraction: 1
   m_HitClosestOnly: 1
   m_HoverToSelect: 0
   m_HoverTimeToSelect: 0.5
+  m_AutoDeselect: 0
+  m_TimeToAutoDeselect: 3
   m_EnableUIInteraction: 1
   m_AllowAnchorControl: 1
   m_UseForceGrab: 0
@@ -12202,6 +12247,12 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3493163396183144188, guid: 52b4e7469c2803f4b91519ded746238c,
         type: 3}
+      propertyPath: PrefabToSpawn
+      value: 
+      objectReference: {fileID: 1198780456626165054, guid: 8a3c4720c69a1284c806fb609a29e254,
+        type: 3}
+    - target: {fileID: 3493163396183144188, guid: 52b4e7469c2803f4b91519ded746238c,
+        type: 3}
       propertyPath: _PrefabToSpawn
       value: 
       objectReference: {fileID: 0}
@@ -13358,7 +13409,7 @@ PrefabInstance:
     - target: {fileID: 8677370590642647506, guid: 0c7bd18cc6bf6114aa215a1132368a89,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8677370590642647507, guid: 0c7bd18cc6bf6114aa215a1132368a89,
         type: 3}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EmitterName: Fireball Movement
   Description: 
-  AudioObject: {fileID: 11400000, guid: fe2bb3116778abc4ab2efab96403e0e1, type: 2}
+  AudioObject: {fileID: 11400000, guid: 2048d7402aefcfa42836d6fa8988acec, type: 2}
   Parameters:
   - ParamType: 0
     ParameterName: Volume
@@ -89,23 +89,23 @@ MonoBehaviour:
     ParameterIndex: 2
     IsVolatileEmitter: 0
     Range: {x: 10, y: 500}
-    BaseRange: {x: 100, y: 120}
+    BaseRange: {x: 40, y: 50}
     TimeExponent: 1
     ReversePath: 0
     Input:
-      Enabled: 0
+      Enabled: 1
       Source:
-        InputGroup: 0
+        InputGroup: 1
         Misc: 0
-        Actor: 0
+        Actor: 6
         Relative: 3
         Collision: 1
-      Range: {x: 0, y: 1}
-      Absolute: 0
+      Range: {x: 0, y: 10}
+      Absolute: 1
       Factor: 1
       Accumulate: 0
       Exponent: 1
-      Smoothing: 0
+      Smoothing: 0.842
     Output:
       Limiter: 0
       Amount: 0

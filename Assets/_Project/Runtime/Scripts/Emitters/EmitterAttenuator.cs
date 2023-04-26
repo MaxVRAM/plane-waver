@@ -30,6 +30,7 @@ namespace PlaneWaver.Emitters
 
         public EmitterAttenuator()
         {
+            Gain = 1;
             AudibleRange = 1f;
             AgeFadeIn = 0f;
             AgeFadeOut = 1f;

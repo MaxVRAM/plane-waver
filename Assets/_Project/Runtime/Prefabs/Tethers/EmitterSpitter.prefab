@@ -60,6 +60,13 @@ MonoBehaviour:
   m_DistanceCalculationMode: 2
   m_SelectMode: 0
   m_CustomReticle: {fileID: 0}
+  m_AllowGazeInteraction: 0
+  m_AllowGazeSelect: 0
+  m_OverrideGazeTimeToSelect: 0
+  m_GazeTimeToSelect: 0.5
+  m_OverrideTimeToAutoDeselectGaze: 0
+  m_TimeToAutoDeselectGaze: 3
+  m_AllowGazeAssistance: 0
   m_FirstHoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -116,6 +123,7 @@ MonoBehaviour:
       m_Calls: []
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
+  m_StartingInteractionStrengthFilters: []
   m_OnFirstHoverEntered:
     m_PersistentCalls:
       m_Calls: []
@@ -144,10 +152,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_AttachTransform: {fileID: 0}
+  m_SecondaryAttachTransform: {fileID: 0}
   m_UseDynamicAttach: 1
   m_MatchAttachPosition: 1
   m_MatchAttachRotation: 1
   m_SnapToColliderVolume: 1
+  m_ReinitializeDynamicAttachEverySingleGrab: 1
   m_AttachEaseInTime: 1
   m_MovementType: 0
   m_VelocityDamping: 0.9
@@ -229,11 +239,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c24b0ae9e076db64aa6e40fceb550793, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _InitialPosition: {x: 0, y: 0, z: 0}
-  _InitialRotation: {x: 0, y: 0, z: 0, w: 0}
-  _BoundingObject: {fileID: 0}
-  _Radius: 30
-  _HeightLimit: 30
+  InitialPosition: {x: 0, y: 0, z: 0}
+  InitialRotation: {x: 0, y: 0, z: 0, w: 0}
+  BoundingObject: {fileID: 0}
+  Radius: 30
+  HeightLimit: 50
 --- !u!1 &3493163394589417412
 GameObject:
   m_ObjectHideFlags: 0
@@ -580,36 +590,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abaa7077d43660243b3aa238516d9d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _Initialised: 0
-  _ObjectCounter: 0
-  _ControllerObject: {fileID: 3493163394394318198}
-  _SpawnableHost: {fileID: 3493163396202127522}
-  _PrefabToSpawn: {fileID: 0}
-  _SpawnablePrefabs: []
-  _RandomiseSpawnPrefab: 0
-  _AttachmentJoint: {fileID: 11400000, guid: 22986a150acc41d4bb2976870d0b2792, type: 2}
-  _SpawnablesAllocated: 2
-  _SpawnPeriodSeconds: 1
-  _SpawnCondition: 1
-  _SpawnDelaySeconds: 2
-  _AutoSpawn: 1
-  _AutoRemove: 1
-  _EjectionDirection: {x: 0, y: 1, z: 0}
-  _EjectionDirectionVariance: 0.4
-  _EjectionRadiusRange: {x: 0.5, y: 0.5}
-  _EjectionSpeedRange: {x: 4, y: 20}
-  _DestroyOnAllCollisions: 0
-  _BoundingAreaType: 1
-  _BoundingCollider: {fileID: 0}
-  _BoundingRadius: 30
-  _UseSpawnDuration: 1
-  _SpawnObjectDuration: {x: 3, y: 6}
-  _AllowSiblingSurfaceContact: 1
-  _AllowSiblingCollisionTrigger: 1
-  _EmissiveFlashTrigger: 1
-  _MaterialModulator:
+  ControllerAnchor: {fileID: 0}
+  ControllerTransform: {fileID: 0}
+  SpawnParentTransform: {fileID: 0}
+  PrefabToSpawn: {fileID: 0}
+  AttachmentJoint: {fileID: 0}
+  TargetNumObjects: 10
+  SpawnPeriodSeconds: 0.2
+  SpawnWhen: 1
+  SpawnDelaySeconds: 2
+  AutoSpawn: 1
+  AutoRemove: 1
+  SpawnObjectScale: {x: 1, y: 1}
+  EjectionPosition: {x: 1, y: 0, z: 0}
+  PositionVariance: 0
+  EjectionRadius: {x: 1, y: 2}
+  EjectionDirection: {x: 0, y: 0, z: 1}
+  DirectionVariance: 0
+  EjectionSpeed: {x: 0, y: 2}
+  BoundingAreaType: 2
+  BoundingCollider: {fileID: 0}
+  BoundingRadius: 30
+  UseSpawnLifespan: 1
+  SpawnLifeSpanDuration: {x: 5, y: 10}
+  AllowSiblingSurfaceContact: 1
+  AllowSiblingCollisionTrigger: 1
+  EmissiveFlashTrigger: 1
+  MaterialModulator:
     _Enabled: 1
-    _Renderer: {fileID: 3493163394589417272}
+    _Renderer: {fileID: 0}
     _Colour: {r: 0, g: 0, b: 0, a: 0}
     _ColourParam: _EmissiveColor
     _UseExistingColour: 1
@@ -617,6 +626,8 @@ MonoBehaviour:
     _ActiveIntensity: 10
     _InactiveIntensity: 0
     _Smoothing: 0.5
+  SpawnedObjectPool: []
+  PooledObjectCount: 0
 --- !u!1 &3493163396202127522
 GameObject:
   m_ObjectHideFlags: 0
@@ -627,7 +638,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3493163396202127523}
   m_Layer: 11
-  m_Name: Spitter
+  m_Name: SpawnTransform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

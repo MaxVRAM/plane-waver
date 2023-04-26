@@ -98,12 +98,12 @@ namespace PlaneWaver.Emitters
                 SerializedProperty condition = property.FindPropertyRelative("Condition");
                 SerializedProperty reflect = property.FindPropertyRelative("ReflectPlayhead");
                 SerializedProperty attenuation = property.FindPropertyRelative("Attenuation");
-                SerializedProperty runtime = property.FindPropertyRelative("RuntimeState");
+                // SerializedProperty runtime = property.FindPropertyRelative("RuntimeState");
 
                 float conditionHeight = EditorGUI.GetPropertyHeight(condition);
                 float reflectHeight = EditorGUI.GetPropertyHeight(reflect);
                 float attenuationHeight = EditorGUI.GetPropertyHeight(attenuation, attenuation.isExpanded);
-                float runtimeHeight = EditorGUI.GetPropertyHeight(runtime, runtime.isExpanded);
+                // float runtimeHeight = EditorGUI.GetPropertyHeight(runtime, runtime.isExpanded);
 
                 position.y += EditorGUIUtility.singleLineHeight;
                 EditorGUI.PropertyField(position, condition, new GUIContent { text = "Play Condition" });
@@ -112,8 +112,8 @@ namespace PlaneWaver.Emitters
                 position.y += reflectHeight;
                 EditorGUI.PropertyField(position, attenuation, attenuation.isExpanded);
                 position.y += attenuationHeight;
-                EditorGUI.PropertyField(position, runtime,new GUIContent { text = "Runtime State" }, runtime.isExpanded);
-                position.y += runtimeHeight;
+                // EditorGUI.PropertyField(position, runtime,new GUIContent { text = "Runtime State" }, runtime.isExpanded);
+                // position.y += runtimeHeight;
 
                 _propertyHeight = position.y - originalPropertyRect.y;
                 EditorUtility.SetDirty(property.serializedObject.targetObject);

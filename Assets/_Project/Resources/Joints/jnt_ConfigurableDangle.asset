@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 402788a0e6035df4a8a9758cc75085ac, type: 3}
-  m_Name: jnt_Configurable
+  m_Name: jnt_ConfigurableDangle
   m_EditorClassIdentifier: 
   Enabled: 1
-  AutoConfigureConnectedAnchor: 0
-  JointLineWidth: 0.1
-  XMotion: 2
-  YMotion: 2
-  ZMotion: 2
+  AutoConfigureConnectedAnchor: 1
+  JointLineWidth: 0.02
+  XMotion: 1
+  YMotion: 1
+  ZMotion: 1
   AngularXMotion: 2
   AngularYMotion: 2
   AngularZMotion: 2
   LinearLimitSpring:
-    Spring: 0
-    Damper: 0
+    Spring: 10
+    Damper: 5
   LinearLimit:
-    Limit: 0
-    Bounciness: 0
+    Limit: 2
+    Bounciness: 1
     ContentDistance: 0
   AngularYLimit:
     Limit: 0
@@ -45,15 +45,15 @@ MonoBehaviour:
   TargetPosition: {x: 0, y: 0, z: 0}
   TargetVelocity: {x: 0, y: 0, z: 0}
   XDrive:
-    PositionSpring: 10
+    PositionSpring: 0
     PositionDamper: 0
     MaximumForce: 3.4028233e+38
   YDrive:
-    PositionSpring: 10
+    PositionSpring: 0
     PositionDamper: 0
     MaximumForce: 3.4028233e+38
   ZDrive:
-    PositionSpring: 10
+    PositionSpring: 0
     PositionDamper: 0
     MaximumForce: 3.4028233e+38
   TargetRotation: {x: 0, y: 0, z: 0, w: 1}

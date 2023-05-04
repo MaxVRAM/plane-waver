@@ -15,7 +15,7 @@ namespace PlaneWaver
         private float _jointLineWidth = -1;
         
         public float JointLineWidth {
-            get => _jointLineWidth > 0 ? _jointLineWidth : SynthManager.Instance.AttachmentLineWidth;
+            get => _jointLineWidth > 0.01f ? _jointLineWidth : SynthManager.Instance.AttachmentLineWidth;
             set => _jointLineWidth = value;
         }
 
@@ -26,8 +26,6 @@ namespace PlaneWaver
 
             if (!TryGetComponent(out Line))
                 Line = gameObject.AddComponent<LineRenderer>();
-
-            Line.material = CustomMaterial != null ? CustomMaterial : SynthManager.Instance.AttachmentLineMat;
 
             Line.material = CustomMaterial != null ? CustomMaterial : SynthManager.Instance.AttachmentLineMat;
             Line.widthMultiplier = JointLineWidth;

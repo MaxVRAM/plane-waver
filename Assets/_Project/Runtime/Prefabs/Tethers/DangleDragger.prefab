@@ -382,7 +382,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8677370590642647506}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -405,10 +405,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ControllerAnchor: {fileID: 0}
-  ControllerTransform: {fileID: 0}
-  SpawnParentTransform: {fileID: 0}
+  ControllerTransform: {fileID: 8677370590195933787}
+  SpawnParentTransform: {fileID: 8677370590535870351}
   PrefabToSpawn: {fileID: 0}
-  AttachmentJoint: {fileID: 0}
+  AttachmentJoint: {fileID: 11400000, guid: 848ad29f701c7d34ea8faeb8272496e8, type: 2}
   TargetNumObjects: 10
   SpawnPeriodSeconds: 0.2
   SpawnWhen: 1
@@ -416,17 +416,17 @@ MonoBehaviour:
   AutoSpawn: 1
   AutoRemove: 1
   SpawnObjectScale: {x: 1, y: 1}
-  EjectionPosition: {x: 1, y: 0, z: 0}
+  EjectionPosition: {x: 0, y: 1, z: 0}
   PositionVariance: 0
-  EjectionRadius: {x: 1, y: 2}
+  EjectionRadius: {x: 1, y: 1}
   EjectionDirection: {x: 0, y: 0, z: 1}
-  DirectionVariance: 0
-  EjectionSpeed: {x: 0, y: 2}
+  DirectionVariance: 0.25
+  EjectionSpeed: {x: 5, y: 10}
   BoundingAreaType: 2
   BoundingCollider: {fileID: 0}
   BoundingRadius: 30
   UseSpawnLifespan: 1
-  SpawnLifeSpanDuration: {x: 5, y: 10}
+  SpawnLifeSpanDuration: {x: 2, y: 3}
   AllowSiblingSurfaceContact: 1
   AllowSiblingCollisionTrigger: 1
   EmissiveFlashTrigger: 1

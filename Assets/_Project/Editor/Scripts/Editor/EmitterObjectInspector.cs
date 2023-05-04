@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.AnimatedValues;
@@ -19,6 +20,9 @@ namespace PlaneWaver.Modulation
         private bool _isVolatileEmitter;
         private bool _volatileTriggered;
 
+        private Editor _audioAssetEditor;
+        private bool _autoPlay;
+        
         private AnimBool[] _editSelectionArray;
         private BaseEmitterObject _emitterObject;
         private SerializedProperty _serialisedParameters;
@@ -113,11 +117,6 @@ namespace PlaneWaver.Modulation
         private void HandlePauseState(PauseState state)
         {
             _isPaused = state == PauseState.Paused;
-
-            if (_isPaused)
-                EditorApplication.update -= Update;
-            else
-                EditorApplication.update += Update;
         }
 
         /// <summary>
@@ -125,19 +124,18 @@ namespace PlaneWaver.Modulation
         /// </summary>
         private void Update()
         {
-            if (!EditorApplication.isPlaying)
+            if (!EditorApplication.isPlaying || !Application.isPlaying || _isPaused)
                 return;
 
             if (Actor == null)
                 Actor = SynthManager.Instance.EmitterEditorActor;
 
-            if (Actor != null && !_actorSet)
-                Actor.OnNewValidCollision += TriggerCollisionEmitters;
-
             _actorSet = Actor != null;
 
-            if (!_actorSet || !Application.isPlaying || _isPaused)
+            if (!_actorSet)
                 return;
+            
+            Actor.OnNewValidCollision += TriggerCollisionEmitters;
 
             for (var i = 0; i < _parameterCount; i++)
             {
@@ -174,8 +172,8 @@ namespace PlaneWaver.Modulation
 
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
-
+            serializedObject.UpdateIfRequiredOrScript();
+            
             DrawGeneralProperties();
             DrawParameters();
             DrawModulationActorSection();
@@ -228,12 +226,22 @@ namespace PlaneWaver.Modulation
                 }
             };
 
-            var audioObject = (AudioObject)serialisedAudioObject.objectReferenceValue;
+            var audioObject = serialisedAudioObject.objectReferenceValue as AudioObject;
 
-            if (audioObject == null) return;
+            if (audioObject == null)
+            {
+                _audioAssetEditor = null;
+                return;
+            }
+            
+            //_autoPlay = EditorPrefs.GetBool("AutoPlayAudio", false);
+            //EditorPrefs.SetBool("AutoPlayAudio", false);
+            
+            if (_audioAssetEditor == null || _audioAssetEditor.target != audioObject.Clip)
+                _audioAssetEditor = CreateEditor(audioObject.Clip);
 
-            Editor audioAssetEditor = CreateEditor(audioObject.Clip);
-            audioAssetEditor.OnInteractivePreviewGUI(GUILayoutUtility.GetRect(EditorWidth, audioObjectWidth), bgColor);
+            _audioAssetEditor.OnPreviewGUI(GUILayoutUtility.GetRect(EditorWidth, audioObjectWidth), bgColor);
+            //EditorPrefs.SetBool("AutoPlayAudio", _autoPlay);
         }
 
         private void DrawParameters()
@@ -385,11 +393,11 @@ namespace PlaneWaver.Modulation
             {
                 Actor = newActor;
 
-                if (Actor != null)
-                {
-                    SynthManager.Instance.EmitterEditorActor = Actor;
-                    ReinitialisePreviewObjects();
-                }
+                if (Actor == null || SynthManager.Instance == null)
+                    return;
+
+                SynthManager.Instance.EmitterEditorActor = Actor;
+                ReinitialisePreviewObjects();
             }
         }
 

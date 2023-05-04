@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2138677392}
-  m_IndirectSpecularColor: {r: 807.20605, g: 756.86914, b: 724.7666, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1957,7 +1957,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &207337770
 Transform:
   m_ObjectHideFlags: 0
@@ -2085,6 +2085,7 @@ GameObject:
   - component: {fileID: 284952056}
   - component: {fileID: 284952055}
   - component: {fileID: 284952057}
+  - component: {fileID: 284952058}
   m_Layer: 11
   m_Name: TestSphere
   m_TagString: Untagged
@@ -2101,7 +2102,7 @@ Transform:
   m_GameObject: {fileID: 284952052}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 2, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 464802432}
@@ -2114,7 +2115,7 @@ SphereCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 284952052}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: fa37bbe0fe368b945b3fdf8733d0f24a, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
@@ -2179,13 +2180,172 @@ Rigidbody:
   m_GameObject: {fileID: 284952052}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 0
+  m_Drag: 0.05
   m_AngularDrag: 0.05
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 3
+--- !u!114 &284952058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 284952052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad34abafad169848a38072baa96cdb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_InteractionManager: {fileID: 804422460}
+  m_Colliders: []
+  m_InteractionLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_InteractionLayers:
+    m_Bits: 8192
+  m_DistanceCalculationMode: 2
+  m_SelectMode: 0
+  m_CustomReticle: {fileID: 0}
+  m_AllowGazeInteraction: 0
+  m_AllowGazeSelect: 0
+  m_OverrideGazeTimeToSelect: 0
+  m_GazeTimeToSelect: 0.5
+  m_OverrideTimeToAutoDeselectGaze: 0
+  m_TimeToAutoDeselectGaze: 3
+  m_AllowGazeAssistance: 0
+  m_FirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectEntered:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1506667770}
+        m_TargetAssemblyTypeName: UnityEngine.Light, UnityEngine
+        m_MethodName: set_intensity
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 5000
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 0
+  m_SelectExited:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1506667770}
+        m_TargetAssemblyTypeName: UnityEngine.Light, UnityEngine
+        m_MethodName: set_intensity
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 0
+  m_Activated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Deactivated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_StartingHoverFilters: []
+  m_StartingSelectFilters: []
+  m_StartingInteractionStrengthFilters: []
+  m_OnFirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnLastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectCanceled:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnActivate:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnDeactivate:
+    m_PersistentCalls:
+      m_Calls: []
+  m_AttachTransform: {fileID: 0}
+  m_SecondaryAttachTransform: {fileID: 0}
+  m_UseDynamicAttach: 1
+  m_MatchAttachPosition: 1
+  m_MatchAttachRotation: 1
+  m_SnapToColliderVolume: 1
+  m_ReinitializeDynamicAttachEverySingleGrab: 1
+  m_AttachEaseInTime: 1
+  m_MovementType: 0
+  m_VelocityDamping: 0.9
+  m_VelocityScale: 0.25
+  m_AngularVelocityDamping: 0.7
+  m_AngularVelocityScale: 1
+  m_TrackPosition: 1
+  m_SmoothPosition: 1
+  m_SmoothPositionAmount: 15
+  m_TightenPosition: 0.2
+  m_TrackRotation: 1
+  m_SmoothRotation: 1
+  m_SmoothRotationAmount: 10
+  m_TightenRotation: 0.3
+  m_ThrowOnDetach: 1
+  m_ThrowSmoothingDuration: 0.25
+  m_ThrowSmoothingCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_ThrowVelocityScale: 2
+  m_ThrowAngularVelocityScale: 1
+  m_ForceGravityOnDetach: 0
+  m_RetainTransformParent: 1
+  m_AttachPointCompatibilityMode: 0
+  m_StartingSingleGrabTransformers: []
+  m_StartingMultipleGrabTransformers: []
+  m_AddDefaultGrabTransformers: 1
 --- !u!1 &311365146
 GameObject:
   m_ObjectHideFlags: 0
@@ -3550,7 +3710,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &580930030
 Transform:
   m_ObjectHideFlags: 0
@@ -3599,10 +3759,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abaa7077d43660243b3aa238516d9d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ControllerAnchor: {fileID: 0}
-  ControllerTransform: {fileID: 0}
-  SpawnParentTransform: {fileID: 0}
-  PrefabToSpawn: {fileID: 0}
+  ControllerAnchor: {fileID: 646365371}
+  ControllerTransform: {fileID: 646365371}
+  SpawnParentTransform: {fileID: 9147915}
+  PrefabToSpawn: {fileID: 1198780456626165054, guid: 8a3c4720c69a1284c806fb609a29e254,
+    type: 3}
   AttachmentJoint: {fileID: 0}
   TargetNumObjects: 10
   SpawnPeriodSeconds: 0.2
@@ -3611,18 +3772,18 @@ MonoBehaviour:
   AutoSpawn: 1
   AutoRemove: 1
   SpawnObjectScale: {x: 1, y: 1}
-  EjectionPosition: {x: 1, y: 0, z: 0}
+  EjectionPosition: {x: 0, y: 1, z: 0}
   PositionVariance: 0
-  EjectionRadius: {x: 1, y: 2}
-  EjectionDirection: {x: 0, y: 0, z: 1}
-  DirectionVariance: 0
-  EjectionSpeed: {x: 0, y: 2}
-  BoundingAreaType: 2
-  BoundingCollider: {fileID: 0}
+  EjectionRadius: {x: 0.2, y: 0.3}
+  EjectionDirection: {x: 0, y: 1, z: 0}
+  DirectionVariance: 0.2
+  EjectionSpeed: {x: 6, y: 10}
+  BoundingAreaType: 3
+  BoundingCollider: {fileID: 646365376}
   BoundingRadius: 30
   UseSpawnLifespan: 1
   SpawnLifeSpanDuration: {x: 5, y: 10}
-  AllowSiblingSurfaceContact: 1
+  AllowSiblingSurfaceContact: 0
   AllowSiblingCollisionTrigger: 1
   EmissiveFlashTrigger: 1
   MaterialModulator:
@@ -4909,6 +5070,7 @@ GameObject:
   - component: {fileID: 804422458}
   - component: {fileID: 804422457}
   - component: {fileID: 804422460}
+  - component: {fileID: 804422461}
   m_Layer: 0
   m_Name: XR Origin
   m_TagString: Untagged
@@ -5078,6 +5240,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_StartingHoverFilters: []
   m_StartingSelectFilters: []
+--- !u!114 &804422461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 804422453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01aa72b6653a8d44ead2d5e945c8f6b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ControllerObjects:
+  - {fileID: 1777181194}
+  - {fileID: 1100876662}
 --- !u!1 &849188494
 GameObject:
   m_ObjectHideFlags: 0
@@ -6275,7 +6452,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1100876663
 Transform:
   m_ObjectHideFlags: 0
@@ -7076,7 +7253,7 @@ SpringJoint:
   m_AutoConfigureConnectedAnchor: 1
   m_ConnectedAnchor: {x: 0, y: 0.15, z: 0}
   serializedVersion: 2
-  m_Spring: 50
+  m_Spring: 20
   m_Damper: 0.2
   m_MinDistance: 1
   m_MaxDistance: 1
@@ -8068,10 +8245,10 @@ MonoBehaviour:
   m_TrackingStateInput:
     m_UseReference: 0
     m_Action:
-      m_Name: 
+      m_Name: Tracking State Input
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 
+      m_Id: 61f49f77-d0da-40f1-a816-d527e3a4f7be
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -8685,6 +8862,12 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!108 &1506667770 stripped
+Light:
+  m_CorrespondingSourceObject: {fileID: 2180540676067634083, guid: 027092fa1fdf5f743aeb09de87f72b33,
+    type: 3}
+  m_PrefabInstance: {fileID: 1712545700}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1521040265
 GameObject:
   m_ObjectHideFlags: 0
@@ -9223,6 +9406,12 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!64 &1600281506 stripped
+MeshCollider:
+  m_CorrespondingSourceObject: {fileID: 2180540676637606875, guid: 027092fa1fdf5f743aeb09de87f72b33,
+    type: 3}
+  m_PrefabInstance: {fileID: 1712545700}
+  m_PrefabAsset: {fileID: 0}
 --- !u!115 &1600349821
 MonoScript:
   m_ObjectHideFlags: 0
@@ -9659,7 +9848,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1689871101
 Transform:
   m_ObjectHideFlags: 0
@@ -9688,19 +9877,9 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2180540676279078985, guid: 027092fa1fdf5f743aeb09de87f72b33,
         type: 3}
-      propertyPath: _PrefabToSpawn
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 2180540676279078985, guid: 027092fa1fdf5f743aeb09de87f72b33,
-        type: 3}
-      propertyPath: _ControllerAnchor
+      propertyPath: ControllerAnchor
       value: 
       objectReference: {fileID: 1116200407}
-    - target: {fileID: 2180540676279078985, guid: 027092fa1fdf5f743aeb09de87f72b33,
-        type: 3}
-      propertyPath: _SpawnablePrefabs.Array.data[0]
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 2180540676279078986, guid: 027092fa1fdf5f743aeb09de87f72b33,
         type: 3}
       propertyPath: m_RootOrder
@@ -9761,11 +9940,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: FlameFlailer
       objectReference: {fileID: 0}
-    - target: {fileID: 2180540676637606874, guid: 027092fa1fdf5f743aeb09de87f72b33,
+    - target: {fileID: 2180540676637606877, guid: 027092fa1fdf5f743aeb09de87f72b33,
         type: 3}
-      propertyPath: _BoundingObject
+      propertyPath: m_InteractionManager
       value: 
-      objectReference: {fileID: 1521040265}
+      objectReference: {fileID: 804422460}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 027092fa1fdf5f743aeb09de87f72b33, type: 3}
 --- !u!4 &1712545701 stripped
@@ -10049,6 +10228,7 @@ GameObject:
   - component: {fileID: 1754252261}
   - component: {fileID: 1754252259}
   - component: {fileID: 1754252258}
+  - component: {fileID: 1754252262}
   m_Layer: 8
   m_Name: TestBall
   m_TagString: Untagged
@@ -10150,6 +10330,166 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 3
+--- !u!114 &1754252262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754252256}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad34abafad169848a38072baa96cdb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_InteractionManager: {fileID: 804422460}
+  m_Colliders:
+  - {fileID: 1600281506}
+  m_InteractionLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_InteractionLayers:
+    m_Bits: 8192
+  m_DistanceCalculationMode: 2
+  m_SelectMode: 0
+  m_CustomReticle: {fileID: 0}
+  m_AllowGazeInteraction: 0
+  m_AllowGazeSelect: 0
+  m_OverrideGazeTimeToSelect: 0
+  m_GazeTimeToSelect: 0.5
+  m_OverrideTimeToAutoDeselectGaze: 0
+  m_TimeToAutoDeselectGaze: 3
+  m_AllowGazeAssistance: 0
+  m_FirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_HoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FirstSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_LastSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_SelectEntered:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1506667770}
+        m_TargetAssemblyTypeName: UnityEngine.Light, UnityEngine
+        m_MethodName: set_intensity
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 5000
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 0
+  m_SelectExited:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1506667770}
+        m_TargetAssemblyTypeName: UnityEngine.Light, UnityEngine
+        m_MethodName: set_intensity
+        m_Mode: 4
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 0
+  m_Activated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Deactivated:
+    m_PersistentCalls:
+      m_Calls: []
+  m_StartingHoverFilters: []
+  m_StartingSelectFilters: []
+  m_StartingInteractionStrengthFilters: []
+  m_OnFirstHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnLastHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnHoverEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnHoverExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectEntered:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectExited:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnSelectCanceled:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnActivate:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnDeactivate:
+    m_PersistentCalls:
+      m_Calls: []
+  m_AttachTransform: {fileID: 0}
+  m_SecondaryAttachTransform: {fileID: 0}
+  m_UseDynamicAttach: 1
+  m_MatchAttachPosition: 1
+  m_MatchAttachRotation: 1
+  m_SnapToColliderVolume: 1
+  m_ReinitializeDynamicAttachEverySingleGrab: 1
+  m_AttachEaseInTime: 1
+  m_MovementType: 0
+  m_VelocityDamping: 0.9
+  m_VelocityScale: 0.25
+  m_AngularVelocityDamping: 0.7
+  m_AngularVelocityScale: 1
+  m_TrackPosition: 1
+  m_SmoothPosition: 1
+  m_SmoothPositionAmount: 15
+  m_TightenPosition: 0.2
+  m_TrackRotation: 1
+  m_SmoothRotation: 1
+  m_SmoothRotationAmount: 10
+  m_TightenRotation: 0.3
+  m_ThrowOnDetach: 1
+  m_ThrowSmoothingDuration: 0.25
+  m_ThrowSmoothingCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  m_ThrowVelocityScale: 2
+  m_ThrowAngularVelocityScale: 1
+  m_ForceGravityOnDetach: 0
+  m_RetainTransformParent: 1
+  m_AttachPointCompatibilityMode: 0
+  m_StartingSingleGrabTransformers: []
+  m_StartingMultipleGrabTransformers: []
+  m_AddDefaultGrabTransformers: 1
 --- !u!1 &1770850198
 GameObject:
   m_ObjectHideFlags: 0
@@ -10267,7 +10607,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1777181195
 Transform:
   m_ObjectHideFlags: 0
@@ -12245,26 +12585,20 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1689871101}
     m_Modifications:
+    - target: {fileID: 3493163394394318184, guid: 52b4e7469c2803f4b91519ded746238c,
+        type: 3}
+      propertyPath: m_InteractionManager
+      value: 
+      objectReference: {fileID: 804422460}
     - target: {fileID: 3493163396183144188, guid: 52b4e7469c2803f4b91519ded746238c,
         type: 3}
-      propertyPath: PrefabToSpawn
+      propertyPath: ControllerAnchor
       value: 
-      objectReference: {fileID: 1198780456626165054, guid: 8a3c4720c69a1284c806fb609a29e254,
-        type: 3}
-    - target: {fileID: 3493163396183144188, guid: 52b4e7469c2803f4b91519ded746238c,
-        type: 3}
-      propertyPath: _PrefabToSpawn
-      value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1116200407}
     - target: {fileID: 3493163396183144190, guid: 52b4e7469c2803f4b91519ded746238c,
         type: 3}
       propertyPath: m_Name
       value: EmitterSpitter
-      objectReference: {fileID: 0}
-    - target: {fileID: 3493163396183144190, guid: 52b4e7469c2803f4b91519ded746238c,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3493163396183144191, guid: 52b4e7469c2803f4b91519ded746238c,
         type: 3}
@@ -13386,11 +13720,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1689871101}
     m_Modifications:
-    - target: {fileID: 8677370590195933763, guid: 0c7bd18cc6bf6114aa215a1132368a89,
-        type: 3}
-      propertyPath: _BoundingObject
-      value: 
-      objectReference: {fileID: 1521040265}
     - target: {fileID: 8677370590195933764, guid: 0c7bd18cc6bf6114aa215a1132368a89,
         type: 3}
       propertyPath: m_InteractionManager
@@ -13398,18 +13727,18 @@ PrefabInstance:
       objectReference: {fileID: 804422460}
     - target: {fileID: 8677370590642647504, guid: 0c7bd18cc6bf6114aa215a1132368a89,
         type: 3}
-      propertyPath: _PrefabToSpawn
+      propertyPath: PrefabToSpawn
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 284952052}
+    - target: {fileID: 8677370590642647504, guid: 0c7bd18cc6bf6114aa215a1132368a89,
+        type: 3}
+      propertyPath: ControllerAnchor
+      value: 
+      objectReference: {fileID: 1116200407}
     - target: {fileID: 8677370590642647506, guid: 0c7bd18cc6bf6114aa215a1132368a89,
         type: 3}
       propertyPath: m_Name
       value: DangleDragger
-      objectReference: {fileID: 0}
-    - target: {fileID: 8677370590642647506, guid: 0c7bd18cc6bf6114aa215a1132368a89,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8677370590642647507, guid: 0c7bd18cc6bf6114aa215a1132368a89,
         type: 3}

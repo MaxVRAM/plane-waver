@@ -560,7 +560,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3493163396183144191
 Transform:
   m_ObjectHideFlags: 0
@@ -568,7 +568,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3493163396183144190}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 3, z: 3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -591,10 +591,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ControllerAnchor: {fileID: 0}
-  ControllerTransform: {fileID: 0}
-  SpawnParentTransform: {fileID: 0}
-  PrefabToSpawn: {fileID: 0}
-  AttachmentJoint: {fileID: 0}
+  ControllerTransform: {fileID: 3493163394394318199}
+  SpawnParentTransform: {fileID: 3493163396202127523}
+  PrefabToSpawn: {fileID: 1198780456626165054, guid: 8a3c4720c69a1284c806fb609a29e254,
+    type: 3}
+  AttachmentJoint: {fileID: 11400000, guid: 848ad29f701c7d34ea8faeb8272496e8, type: 2}
   TargetNumObjects: 10
   SpawnPeriodSeconds: 0.2
   SpawnWhen: 1
